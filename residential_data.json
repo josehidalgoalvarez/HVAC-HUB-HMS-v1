@@ -1,0 +1,551 @@
+{
+    "properties": [
+        {
+            "id": "prop-gas-001",
+            "name": "The Modern Gas Home",
+            "address": "123 Maple Ave, Springfield, IL",
+            "imageUrl": "https://images.unsplash.com/photo-1568605114967-8130f3a36994?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+            "applianceCount": 5,
+            "is3DReady": true,
+            "sqFt": "2400",
+            "yearBuilt": "2019",
+            "lotSize": "0.25 acres",
+            "comments": "Modern single-family home with high-efficiency natural gas appliances.",
+            "definedRooms": [
+                "Mechanical Room",
+                "Kitchen",
+                "Laundry Room"
+            ],
+            "floors": [
+                "Basement",
+                "First Floor",
+                "Second Floor"
+            ]
+        },
+        {
+            "id": "prop-elec-002",
+            "name": "The Eco Electric",
+            "address": "456 Oak Dr, Austin, TX",
+            "imageUrl": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+            "applianceCount": 5,
+            "is3DReady": true,
+            "sqFt": "1800",
+            "yearBuilt": "2022",
+            "lotSize": "0.15 acres",
+            "comments": "Fully electrified eco-friendly home with heat pump technology and solar readiness.",
+            "definedRooms": [
+                "Garage",
+                "Utility Closet",
+                "Open Concept Living"
+            ],
+            "floors": [
+                "Slab",
+                "Main Level"
+            ]
+        },
+        {
+            "id": "prop-propane-003",
+            "name": "Country Cottage",
+            "address": "789 Pine Ln, Vermont, VT",
+            "imageUrl": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+            "applianceCount": 4,
+            "is3DReady": false,
+            "sqFt": "1500",
+            "yearBuilt": "1995",
+            "lotSize": "2.5 acres",
+            "comments": "Rural cottage running on propane. Tank located 50ft from structure.",
+            "definedRooms": [
+                "Basement",
+                "Mudroom"
+            ],
+            "floors": [
+                "Basement",
+                "Main Floor"
+            ]
+        }
+    ],
+    "appliances": [
+        {
+            "id": "gas-app-1",
+            "propertyId": "prop-gas-001",
+            "name": "High-Efficiency Gas Furnace",
+            "brand": "Tempstar/Carrier",
+            "type": "HVAC",
+            "category": "Heating",
+            "status": "operational",
+            "lastService": "2024-10-15",
+            "serialNumber": "A193048914",
+            "modelNumber": "N95ESN0401712A",
+            "location": "Mechanical Room",
+            "imageUrl": "https://images.unsplash.com/photo-1585232004423-244e0e6904e3?auto=format&fit=crop&w=800&q=80",
+            "manualUrl": "https://www.shareddocs.com/hvac/docs/1009/Public/0C/N95ESN-05SI.pdf",
+            "warrantyUrl": "https://www.carrier.com/residential/en/us/warranty/",
+            "notes": "Unit is running efficiently. Filter size 16x25x1.",
+            "specs": {
+                "btuInput": "40,000 BTU/h",
+                "btuOutput": "39,000 BTU/h",
+                "fuelType": "Natural Gas",
+                "volts": "115V",
+                "phase": "1",
+                "hertz": "60Hz",
+                "airTempRise": "40-70°F (22-39°C)",
+                "motorHp": "1/2 HP",
+                "watts": "373W",
+                "maxUnitAmp": "7.5A",
+                "breakerRating": "15A",
+                "installDate": "2019-08-20",
+                "location": "Basement Mechanical",
+                "panelSlot": "5"
+            },
+            "maintenanceHistory": [
+                {
+                    "date": "2024-10-15",
+                    "type": "Annual Service",
+                    "notes": "Cleaned flame sensor, checked pressure switches. Inlet pressure 6.8 inwc.",
+                    "technician": "Mike R."
+                },
+                {
+                    "date": "2023-10-02",
+                    "type": "Annual Service",
+                    "notes": "Replaced air filter, checked heat exchanger.",
+                    "technician": "Mike R."
+                },
+                {
+                    "date": "2019-08-20",
+                    "type": "Installation",
+                    "notes": "New install of N95ESN unit. Verified gas pressure and venting.",
+                    "technician": "Install Team A"
+                }
+            ]
+        },
+        {
+            "id": "gas-app-2",
+            "propertyId": "prop-gas-001",
+            "name": "Tankless Water Heater",
+            "brand": "Rheem",
+            "type": "WaterPro",
+            "category": "Water Heating",
+            "status": "operational",
+            "lastService": "2024-05-10",
+            "modelNumber": "ECOH200DVLN-3",
+            "serialNumber": "RHNG98234712",
+            "location": "Mechanical Room",
+            "imageUrl": "https://images.unsplash.com/photo-1542013936693-88463833f955?auto=format&fit=crop&w=800&q=80",
+            "manualUrl": "https://s3.amazonaws.com/WebPartners/ProductDocuments/09E3C562-E93C-4316-8367-735A9031267D.pdf",
+            "notes": "Descaling required annually due to hard water area.",
+            "specs": {
+                "btuInput": "199,000 BTU/h",
+                "fuelType": "Natural Gas",
+                "volts": "120V",
+                "phase": "1",
+                "hertz": "60Hz",
+                "maxUnitAmp": "5A",
+                "installDate": "2019-08-21",
+                "location": "Wall Mounted / Mech Room",
+                "panelSlot": "7",
+                "capacity": "Endless (9.5 GPM @ 35°F Rise)"
+            },
+            "maintenanceHistory": [
+                {
+                    "date": "2024-05-10",
+                    "type": "Flush",
+                    "notes": "Descaled heat exchanger with vinegar solution.",
+                    "technician": "Sarah L."
+                },
+                {
+                    "date": "2022-04-12",
+                    "type": "Repair",
+                    "notes": "Replaced flow sensor error code 11.",
+                    "technician": "Sarah L."
+                }
+            ]
+        },
+        {
+            "id": "gas-app-3",
+            "propertyId": "prop-gas-001",
+            "name": "Gas Dryer",
+            "brand": "Samsung",
+            "type": "Laundry",
+            "category": "Appliances",
+            "status": "operational",
+            "lastService": "2023-01-10",
+            "modelNumber": "DVG42H5000W",
+            "serialNumber": "SGD23894723",
+            "location": "Laundry Room",
+            "manualUrl": "https://downloadcenter.samsung.com/content/UM/202102/20210216102142273/DV5000H_DC68-03381Q-06_EN_CFR_MES.pdf",
+            "notes": "Vent line is long, check airflow regularly.",
+            "specs": {
+                "btuInput": "20,000 BTU/h",
+                "fuelType": "Natural Gas",
+                "volts": "120V",
+                "phase": "1",
+                "hertz": "60Hz",
+                "maxUnitAmp": "15A",
+                "installDate": "2019-09-01",
+                "location": "Laundry Room",
+                "panelSlot": "3",
+                "breakerRating": "15A"
+            },
+            "maintenanceHistory": [
+                {
+                    "date": "2023-01-10",
+                    "type": "Vent Clean",
+                    "notes": "Cleaned dryer vent ducting to outside.",
+                    "technician": "DuctMasters Inc."
+                }
+            ]
+        },
+        {
+            "id": "gas-app-4",
+            "propertyId": "prop-gas-001",
+            "name": "Gas Range",
+            "brand": "Samsung",
+            "type": "Kitchen",
+            "category": "Appliances",
+            "status": "operational",
+            "lastService": "2022-11-05",
+            "modelNumber": "NX60T8711SS",
+            "serialNumber": "SRG92384723",
+            "location": "Kitchen",
+            "manualUrl": "https://downloadcenter.samsung.com/content/UM/202101/20210114143435132/NX60T8711SS_AA_01_EN.pdf",
+            "notes": "Convection fan makes slight noise on start-up. Normal operation.",
+            "specs": {
+                "btuInput": "58,000 BTU/h (Total)",
+                "fuelType": "Natural Gas",
+                "volts": "120V",
+                "maxUnitAmp": "5A",
+                "phase": "1",
+                "installDate": "2020-03-12",
+                "location": "Kitchen Island",
+                "panelSlot": "11",
+                "breakerRating": "15A"
+            },
+            "maintenanceHistory": []
+        },
+        {
+            "id": "gas-app-5",
+            "propertyId": "prop-gas-001",
+            "name": "Dishwasher",
+            "brand": "Bosch",
+            "type": "Kitchen",
+            "category": "Appliances",
+            "status": "operational",
+            "lastService": "2023-05-20",
+            "modelNumber": "SHPM65Z55N",
+            "serialNumber": "BDW82736482",
+            "location": "Kitchen",
+            "manualUrl": "https://media3.bosch-home.com/Documents/9001450479_A.pdf",
+            "notes": "Filter cleaned monthly by owner.",
+            "specs": {
+                "volts": "120V",
+                "maxUnitAmp": "12A",
+                "watts": "1440W",
+                "phase": "1",
+                "installDate": "2020-03-12",
+                "location": "Kitchen",
+                "panelSlot": "9",
+                "breakerRating": "20A",
+                "capacity": "16 Place Settings"
+            },
+            "maintenanceHistory": [
+                {
+                    "date": "2023-05-20",
+                    "type": "Filter Check",
+                    "notes": "Checked drain pump and filter.",
+                    "technician": "Appliance Fix Inc."
+                }
+            ]
+        },
+        {
+            "id": "elec-app-1",
+            "propertyId": "prop-elec-002",
+            "name": "Infinity Heat Pump System",
+            "brand": "Carrier",
+            "type": "HVAC",
+            "category": "Heating/Cooling",
+            "status": "operational",
+            "lastService": "2024-06-01",
+            "modelNumber": "25VNA436A003",
+            "serialNumber": "EHC834723984",
+            "location": "Side Yard / Garage",
+            "manualUrl": "https://www.shareddocs.com/hvac/docs/1009/Public/01/25VNA4-01SI.pdf",
+            "notes": "Communicating thermostat required. Do not bypass.",
+            "specs": {
+                "btuOutput": "36,000 BTU/h (Heating)",
+                "kw": "10 kW (Aux Heat)",
+                "fuelType": "Electric",
+                "volts": "208/230V",
+                "phase": "1",
+                "hertz": "60Hz",
+                "maxUnitAmp": "30A (Outdoor)",
+                "breakerRating": "40A",
+                "installDate": "2022-03-15",
+                "location": "Outdoor Pad",
+                "panelSlot": "24,26",
+                "capacity": "3 Ton"
+            },
+            "maintenanceHistory": [
+                {
+                    "date": "2024-06-01",
+                    "type": "Cooling Check",
+                    "notes": "Checked refrigerant levels, cleaned condenser coils.",
+                    "technician": "EcoHvac LLC"
+                }
+            ]
+        },
+        {
+            "id": "elec-app-2",
+            "propertyId": "prop-elec-002",
+            "name": "ProTerra Hybrid Water Heater",
+            "brand": "Rheem",
+            "type": "WaterPro",
+            "category": "Water Heating",
+            "status": "operational",
+            "lastService": "2025-01-05",
+            "modelNumber": "XE50T10H45U0",
+            "serialNumber": "RHP89237489",
+            "location": "Garage",
+            "manualUrl": "https://s3.amazonaws.com/WebPartners/ProductDocuments/67305910-6C78-4D6B-8822-7D7E64B44917.pdf",
+            "notes": "Keep air filter clean for heat pump efficiency.",
+            "specs": {
+                "volts": "208/240V",
+                "fuelType": "Electric",
+                "watts": "4500W",
+                "maxUnitAmp": "25A",
+                "breakerRating": "30A",
+                "phase": "1",
+                "installDate": "2022-03-16",
+                "location": "Garage",
+                "panelSlot": "18,20",
+                "capacity": "50 Gallons (189L)"
+            },
+            "maintenanceHistory": [
+                {
+                    "date": "2025-01-05",
+                    "type": "Filter Clean",
+                    "notes": "Cleaned air intake filter on heat pump unit.",
+                    "technician": "Homeowner"
+                }
+            ]
+        },
+        {
+            "id": "elec-app-3",
+            "propertyId": "prop-elec-002",
+            "name": "Electric Dryer",
+            "brand": "Samsung",
+            "type": "Laundry",
+            "category": "Laundry",
+            "status": "needs_service",
+            "lastService": "2023-11-20",
+            "modelNumber": "DV42H5000EW",
+            "serialNumber": "SME82734628",
+            "location": "Utility Closet",
+            "manualUrl": "https://downloadcenter.samsung.com/content/UM/202102/20210216102142273/DV5000H_DC68-03381Q-06_EN_CFR_MES.pdf",
+            "alert": "Long dry times reported",
+            "notes": "Customer reported damp clothes. Suspect blocked vent or element issue.",
+            "specs": {
+                "volts": "240V",
+                "fuelType": "Electric",
+                "watts": "5400W",
+                "maxUnitAmp": "24A",
+                "breakerRating": "30A",
+                "phase": "1",
+                "installDate": "2022-04-01",
+                "location": "Utility Closet",
+                "panelSlot": "14,16",
+                "capacity": "7.5 cu. ft."
+            },
+            "maintenanceHistory": [
+                {
+                    "date": "2023-11-20",
+                    "type": "Diagnosis",
+                    "notes": "Technician suspected clogged vent. Use caution.",
+                    "technician": "Appliance Fix Inc."
+                }
+            ]
+        },
+        {
+            "id": "elec-app-4",
+            "propertyId": "prop-elec-002",
+            "name": "Smart Front Load Washer",
+            "brand": "LG",
+            "type": "Laundry",
+            "category": "Laundry",
+            "status": "connected",
+            "lastService": "2024-01-15",
+            "modelNumber": "WM4000HWA",
+            "serialNumber": "LGW99283472",
+            "location": "Utility Closet",
+            "manualUrl": "https://gscs-b2c.lge.com/downloadFile?fileId=KROWM0000000000000000000000000000&fileName=KROWM0000000000000000000000000000.pdf",
+            "notes": "Wi-Fi setup on \"HomeNet\".",
+            "specs": {
+                "volts": "120V",
+                "fuelType": "Electric",
+                "maxUnitAmp": "10A",
+                "phase": "1",
+                "watts": "1200W",
+                "installDate": "2022-04-01",
+                "location": "Utility Closet",
+                "panelSlot": "5",
+                "breakerRating": "15A",
+                "capacity": "4.5 cu. ft."
+            },
+            "maintenanceHistory": []
+        },
+        {
+            "id": "elec-app-5",
+            "propertyId": "prop-elec-002",
+            "name": "Induction Range",
+            "brand": "Samsung",
+            "type": "Kitchen",
+            "category": "Appliances",
+            "status": "operational",
+            "lastService": "2023-08-15",
+            "modelNumber": "NE63T8911SS",
+            "serialNumber": "SIR92837423",
+            "location": "Kitchen",
+            "manualUrl": "https://downloadcenter.samsung.com/content/UM/202108/20210813134320281/NE63T8911SS_AA_03_EN.pdf",
+            "notes": "Requires magnetic cookware. Glass top pristine.",
+            "specs": {
+                "volts": "240V",
+                "maxUnitAmp": "40A",
+                "kw": "11.6kW",
+                "phase": "1",
+                "installDate": "2022-04-05",
+                "location": "Kitchen",
+                "panelSlot": "8,10",
+                "breakerRating": "40A",
+                "capacity": "6.3 cu. ft."
+            },
+            "maintenanceHistory": []
+        },
+        {
+            "id": "propane-app-1",
+            "propertyId": "prop-propane-003",
+            "name": "Propane Converted Furnace",
+            "brand": "Carrier",
+            "type": "HVAC",
+            "category": "Heating",
+            "status": "operational",
+            "lastService": "2023-12-10",
+            "modelNumber": "59SC2D060S14--12",
+            "serialNumber": "CP723489234",
+            "location": "Basement",
+            "manualUrl": "https://www.shareddocs.com/hvac/docs/1009/Public/0A/59SC2D-02SI.pdf",
+            "notes": "Converted to Propane using kit #KPN7348. Inlet Pressure 11.0 inwc. Do not adjust manifold pressure without kit chart.",
+            "specs": {
+                "btuInput": "60,000 BTU/h",
+                "btuOutput": "57,000 BTU/h",
+                "fuelType": "Liquid Propane",
+                "volts": "115V",
+                "maxUnitAmp": "8.2A",
+                "breakerRating": "15A",
+                "phase": "1",
+                "installDate": "2018-11-10",
+                "location": "Basement",
+                "panelSlot": "3"
+            },
+            "maintenanceHistory": [
+                {
+                    "date": "2023-12-10",
+                    "type": "Fuel Check",
+                    "notes": "Verified LP pressure at manifold 10 inwc. Checked tank level.",
+                    "technician": "Rural Gas Co."
+                }
+            ]
+        },
+        {
+            "id": "propane-app-2",
+            "propertyId": "prop-propane-003",
+            "name": "Propane Dryer",
+            "brand": "Samsung",
+            "type": "Laundry",
+            "category": "Laundry",
+            "status": "idle",
+            "lastService": "2020-05-15",
+            "modelNumber": "DVG42H5000W",
+            "serialNumber": "SLP82347289",
+            "location": "Mudroom",
+            "manualUrl": "https://downloadcenter.samsung.com/content/UM/202102/20210216102142273/DV5000H_DC68-03381Q-06_EN_CFR_MES.pdf",
+            "notes": "LP Conversion Kit installed.",
+            "specs": {
+                "btuInput": "20,000 BTU/h",
+                "fuelType": "Liquid Propane",
+                "volts": "120V",
+                "maxUnitAmp": "15A",
+                "installDate": "2018-11-15",
+                "location": "Mudroom",
+                "panelSlot": "7",
+                "breakerRating": "15A"
+            },
+            "maintenanceHistory": []
+        },
+        {
+            "id": "propane-app-3",
+            "propertyId": "prop-propane-003",
+            "name": "Propane Range",
+            "brand": "GE",
+            "type": "Kitchen",
+            "category": "Appliances",
+            "status": "operational",
+            "lastService": "2021-02-10",
+            "modelNumber": "JGS760SELSS",
+            "serialNumber": "LPR8273642",
+            "location": "Kitchen",
+            "manualUrl": "https://products.geappliances.com/MarketingObjectRetrieval/Dispatcher?RequestType=PDF&Name=49-2000236-1.pdf",
+            "notes": "Converted to LP. Orifice kit stored in back of unit.",
+            "specs": {
+                "btuInput": "56,000 BTU/h",
+                "fuelType": "Liquid Propane",
+                "volts": "120V",
+                "maxUnitAmp": "15A",
+                "installDate": "2018-11-20",
+                "location": "Kitchen",
+                "panelSlot": "11",
+                "breakerRating": "15A"
+            },
+            "maintenanceHistory": []
+        },
+        {
+            "id": "propane-app-4",
+            "propertyId": "prop-propane-003",
+            "name": "Standby Generator",
+            "brand": "Generac",
+            "type": "Power",
+            "category": "Generators",
+            "status": "operational",
+            "lastService": "2024-09-01",
+            "modelNumber": "70432",
+            "serialNumber": "GEN92837423",
+            "location": "Side Yard",
+            "manualUrl": "https://www.generac.com/service-support/product-support-lookup/product-manuals?modelNo=70432",
+            "notes": "Automatic transfer switch installed. Weekly self-test set for Mondays at 10am.",
+            "specs": {
+                "kw": "22kW",
+                "fuelType": "Liquid Propane",
+                "volts": "240V",
+                "maxUnitAmp": "91.7A",
+                "phase": "1",
+                "hertz": "60Hz",
+                "installDate": "2019-05-15",
+                "location": "Outdoor Pad",
+                "panelSlot": "Transfer Switch",
+                "capacity": "22 kW"
+            },
+            "maintenanceHistory": [
+                {
+                    "date": "2024-09-01",
+                    "type": "Annual Maintenance",
+                    "notes": "Oil change, spark plugs replaced, valve clearance checked.",
+                    "technician": "PowerGen Pros"
+                },
+                {
+                    "date": "2023-09-01",
+                    "type": "Annual Maintenance",
+                    "notes": "Routine service completed.",
+                    "technician": "PowerGen Pros"
+                }
+            ]
+        }
+    ]
+}
