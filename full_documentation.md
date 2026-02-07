@@ -36,12 +36,12 @@ Instead of a single monolithic state, data is split into three contexts to optim
 1.  **`InventoryContext` (Read-Heavy)**
     *   **Contains:** `properties`, `appliances`.
     *   **Behavior:** Updates infrequently (user edits).
-    *   **Source:** `localStorage` keys: `propTrack_properties`, `propTrack_appliances`.
+    *   **Source:** `localStorage` keys: `HVACHome_properties`, `HVACHome_appliances`.
     
 2.  **`ActivityContext` (Write-Heavy)**
     *   **Contains:** `logs` (audit trail).
     *   **Behavior:** Updates frequently (every action triggers a log).
-    *   **Source:** `localStorage` key: `propTrack_logs`.
+    *   **Source:** `localStorage` key: `HVACHome_logs`.
 
 3.  **`ActionContext` (Stable References)**
     *   **Contains:** Methods (`addProperty`, `updateAppliance`, `importData`).

@@ -97,8 +97,8 @@ const ProfileView: React.FC<ProfileViewProps> = ({
     const link = document.createElement('a');
     link.href = url;
     link.download = propertyId
-      ? `PropTrack_Export_${exportProps[0].name.replace(/\s+/g, '_')}.json`
-      : `PropTrack_Full_Backup_${new Date().toISOString().split('T')[0]}.json`;
+      ? `HVACHome_Export_${exportProps[0].name.replace(/\s+/g, '_')}.json`
+      : `HVACHome_Full_Backup_${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

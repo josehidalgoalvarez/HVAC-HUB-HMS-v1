@@ -7,6 +7,8 @@ import { useData } from '../../../hooks/useData';
 import ScheduleServiceModal from '../../service/ScheduleServiceModal';
 import IconButton from '../../ui/IconButton';
 
+import { ApplianceDashboard } from '../dashboard/ApplianceDashboard';
+
 // Sub-components
 import { ApplianceHero } from './components/ApplianceHero';
 import { ApplianceSpecsSection } from './components/ApplianceSpecsSection';
@@ -46,7 +48,7 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
   const property = properties.find(p => p.id === appliance.propertyId);
 
   // View State
-  const [activeTab, setActiveTab] = useState<string>('specs');
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
 
   // Modal State
   const [showMenu, setShowMenu] = useState(false);
@@ -57,7 +59,10 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
 
   // Tabs Configuration
   const availableTabs = useMemo(() => {
-    const tabs = [{ id: 'specs', label: 'SPECS' }];
+    const tabs = [
+      { id: 'dashboard', label: 'DASHBOARD' },
+      { id: 'specs', label: 'SPECS' }
+    ];
     if ((appliance.maintenanceHistory && appliance.maintenanceHistory.length > 0) || true) {
       tabs.push({ id: 'history', label: 'HISTORY' });
     }
@@ -71,10 +76,31 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
 
   const handleSaveRecord = (record: MaintenanceRecord) => {
     const updatedHistory = [record, ...(appliance.maintenanceHistory || [])];
+
+    // Sort history by date descending to find the latest
+    // Note: Dates are stored as strings (e.g., "Oct 15, 2024"), so we need to parse them
+    const sortedHistory = [...updatedHistory].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    // Define types that reset the "Last Service" date (and thus Efficiency/Filter Life)
+    const resettingTypes = [
+      'Routine Maintenance',
+      'Repair',
+      'Installation',
+      'Cleaning',
+      'Inspection'
+    ];
+
+    // Find the most recent record that matches a resetting type
+    const latestResetRecord = sortedHistory.find(r => resettingTypes.includes(r.type));
+
+    // Determine the new lastService date
+    // If a resetting record exists, use its date. Otherwise, keep the current one (or use installDate as fallback if needed)
+    const newLastService = latestResetRecord ? latestResetRecord.date : appliance.lastService;
+
     onUpdate({
       ...appliance,
       maintenanceHistory: updatedHistory,
-      lastService: record.date
+      lastService: newLastService
     });
     setIsAddingRecord(false);
   };
@@ -185,12 +211,12 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
 
         {/* Tabs */}
         {availableTabs.length > 1 && (
-          <div className="grid grid-cols-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
+          <div className="grid grid-cols-3 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
             {availableTabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === tab.id
+                className={`py-2.5 text-xs font-bold rounded-lg transition-all uppercase tracking-wide ${activeTab === tab.id
                   ? 'bg-primary text-white shadow-md'
                   : 'text-text-sub-light dark:text-gray-400 hover:text-brand-black dark:hover:text-white'
                   }`}
@@ -203,6 +229,10 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
 
         {/* Tab Content */}
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {activeTab === 'dashboard' && (
+            <ApplianceDashboard appliance={appliance} />
+          )}
+
           {activeTab === 'specs' && (
             <ApplianceSpecsSection
               appliance={appliance}

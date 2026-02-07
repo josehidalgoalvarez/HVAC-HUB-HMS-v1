@@ -96,11 +96,21 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             breakerRating: '15A',
             installDate: '2019-08-20',
             location: 'Basement Mechanical',
-            panelSlot: '5'
+            panelSlot: '5',
+            // Dashboard Specs
+            returnTemp: '72°F',
+            supplyTemp: '120°F', // Heating mode
+            staticPressure: '0.6 in.wc',
+            fanSpeed: '1100 RPM',
+            filterSize: '16x25x1',
+            efficiency: '96% AFUE'
         },
         maintenanceHistory: [
             createMaintenanceRecord('2024-10-15', 'Annual Service', 'Cleaned flame sensor, checked pressure switches. Inlet pressure 6.8 inwc.', 'Mike R.'),
             createMaintenanceRecord('2023-10-02', 'Annual Service', 'Replaced air filter, checked heat exchanger.', 'Mike R.'),
+            createMaintenanceRecord('2022-09-15', 'Routine Maintenance', 'Blower motor capacitor check. Within spec.', 'Mike R.'),
+            createMaintenanceRecord('2021-11-05', 'Repair', 'Replaced faulty igniter.', 'FastFix HVAC'),
+            createMaintenanceRecord('2020-09-20', 'Annual Service', 'Routine cleaning and inspection.', 'Install Team A'),
             createMaintenanceRecord('2019-08-20', 'Installation', 'New install of N95ESN unit. Verified gas pressure and venting.', 'Install Team A'),
         ]
     },
@@ -120,7 +130,7 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         manualUrl: 'https://s3.amazonaws.com/WebPartners/ProductDocuments/09E3C562-E93C-4316-8367-735A9031267D.pdf',
         notes: 'Descaling required annually due to hard water area.',
         specs: {
-            btuInput: '199,000 BTU/h',
+            btuInput: '80,000 BTU/h',
             fuelType: 'Natural Gas',
             volts: '120V',
             phase: '1',
@@ -129,11 +139,20 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             installDate: '2019-08-21',
             location: 'Wall Mounted / Mech Room',
             panelSlot: '7',
-            capacity: 'Endless (9.5 GPM @ 35°F Rise)'
+            capacity: 'Endless (9.5 GPM @ 35°F Rise)',
+            // Dashboard Specs
+            waterTemp: '120°F',
+            systemPressure: '60 PSI',
+            flowRate: '0.0 GPM', // Idle
+            gasValve: 'CLOSED',
+            efficiency: '0.96 UEF'
         },
         maintenanceHistory: [
             createMaintenanceRecord('2024-05-10', 'Flush', 'Descaled heat exchanger with vinegar solution.', 'Sarah L.'),
+            createMaintenanceRecord('2023-04-15', 'Flush', 'Annual descaling. Screen cleaning.', 'Sarah L.'),
             createMaintenanceRecord('2022-04-12', 'Repair', 'Replaced flow sensor error code 11.', 'Sarah L.'),
+            createMaintenanceRecord('2021-03-20', 'Flush', 'Routine maintenance.', 'Homeowner'),
+            createMaintenanceRecord('2019-08-21', 'Installation', 'Unit installed and registered.', 'PlumbPerfect'),
         ]
     },
     {
@@ -162,6 +181,7 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         },
         maintenanceHistory: [
             createMaintenanceRecord('2023-01-10', 'Vent Clean', 'Cleaned dryer vent ducting to outside.', 'DuctMasters Inc.'),
+            createMaintenanceRecord('2021-06-15', 'Repair', 'Replaced belt tensioner.', 'Appliance Fix Inc.'),
         ]
     },
     {
@@ -189,7 +209,9 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             panelSlot: '11',
             breakerRating: '15A'
         },
-        maintenanceHistory: []
+        maintenanceHistory: [
+            createMaintenanceRecord('2024-01-20', 'Inspection', 'Checked burner flame pattern. Adjusted air shutter.', 'GasSafe Pros'),
+        ]
     },
     {
         id: generateId('gas-app', 4),
@@ -218,6 +240,7 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         },
         maintenanceHistory: [
             createMaintenanceRecord('2023-05-20', 'Filter Check', 'Checked drain pump and filter.', 'Appliance Fix Inc.'),
+            createMaintenanceRecord('2021-12-10', 'Repair', 'Cleared drain blockage.', 'Homeowner'),
         ]
     },
 
@@ -245,13 +268,23 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             hertz: '60Hz',
             maxUnitAmp: '30A (Outdoor)',
             breakerRating: '40A',
-            installDate: '2022-03-15',
+            installDate: '2021-03-15',
             location: 'Outdoor Pad',
             panelSlot: '24,26',
-            capacity: '3 Ton'
+            capacity: '3 Ton',
+            // Dashboard Specs
+            returnTemp: '71°F',
+            supplyTemp: '52°F', // Cooling mode
+            staticPressure: '0.5 in.wc',
+            fanSpeed: '1250 RPM',
+            refrigerantType: 'R410A',
+            efficiency: '18 SEER'
         },
         maintenanceHistory: [
             createMaintenanceRecord('2024-06-01', 'Cooling Check', 'Checked refrigerant levels, cleaned condenser coils.', 'EcoHvac LLC'),
+            createMaintenanceRecord('2023-05-15', 'Annual Service', 'Washed outdoor coil. Checked contactor.', 'EcoHvac LLC'),
+            createMaintenanceRecord('2022-05-20', 'Annual Service', 'Routine system check. All OK.', 'EcoHvac LLC'),
+            createMaintenanceRecord('2021-03-15', 'Installation', 'System startup and commissioning.', 'EcoHvac LLC'),
         ]
     },
     {
@@ -278,10 +311,17 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             installDate: '2022-03-16',
             location: 'Garage',
             panelSlot: '18,20',
-            capacity: '50 Gallons (189L)'
+            capacity: '50 Gallons (189L)',
+            // Dashboard Specs
+            waterTemp: '125°F',
+            systemPressure: '55 PSI',
+            flowRate: '0.0 GPM',
+            efficiency: '3.50 UEF'
         },
         maintenanceHistory: [
             createMaintenanceRecord('2025-01-05', 'Filter Clean', 'Cleaned air intake filter on heat pump unit.', 'Homeowner'),
+            createMaintenanceRecord('2024-01-10', 'Filter Clean', 'Cleaned air intake filter.', 'Homeowner'),
+            createMaintenanceRecord('2023-02-15', 'Inspection', 'Checked anode rod. Status: Good.', 'PlumbPerfect'),
         ]
     },
     {
@@ -313,6 +353,7 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         },
         maintenanceHistory: [
             createMaintenanceRecord('2023-11-20', 'Diagnosis', 'Technician suspected clogged vent. Use caution.', 'Appliance Fix Inc.'),
+            createMaintenanceRecord('2022-10-05', 'Vent Clean', 'Routine vent cleaning.', 'DuctMasters Inc.'),
         ]
     },
     {
@@ -338,7 +379,9 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             installDate: '2022-04-01',
             location: 'Utility Closet',
         },
-        maintenanceHistory: []
+        maintenanceHistory: [
+            createMaintenanceRecord('2023-08-10', 'Cleaning', 'Ran tub clean cycle with bleach.', 'Homeowner'),
+        ]
     },
     {
         id: generateId('elec-app', 4),
@@ -365,7 +408,9 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             breakerRating: '40A',
             capacity: '6.3 cu. ft.'
         },
-        maintenanceHistory: []
+        maintenanceHistory: [
+            createMaintenanceRecord('2023-01-15', 'Update', 'Firmware updated via SmartThings app.', 'Homeowner'),
+        ]
     },
 
     // --- Propane Home Appliances ---
@@ -393,10 +438,19 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             phase: '1',
             installDate: '2018-11-10',
             location: 'Basement',
-            panelSlot: '3'
+            panelSlot: '3',
+            // Dashboard Specs
+            returnTemp: '70°F',
+            supplyTemp: '125°F',
+            staticPressure: '0.7 in.wc',
+            fanSpeed: '1150 RPM',
+            efficiency: '95% AFUE'
         },
         maintenanceHistory: [
             createMaintenanceRecord('2023-12-10', 'Fuel Check', 'Verified LP pressure at manifold 10 inwc. Checked tank level.', 'Rural Gas Co.'),
+            createMaintenanceRecord('2022-11-05', 'Annual Service', 'Cleaned flame sensor. Checked nozzle.', 'Rural Gas Co.'),
+            createMaintenanceRecord('2021-10-20', 'Annual Service', 'Routine maintenance.', 'Rural Gas Co.'),
+            createMaintenanceRecord('2018-11-10', 'Conversion', 'Converted unit to Propane.', 'Rural Gas Co.'),
         ]
     },
     {
@@ -423,7 +477,10 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             panelSlot: '7',
             breakerRating: '15A'
         },
-        maintenanceHistory: []
+        maintenanceHistory: [
+            createMaintenanceRecord('2020-05-15', 'Repair', 'Replaced igniter coil.', 'Appliance Fix Inc.'),
+            createMaintenanceRecord('2018-11-15', 'Conversion', 'Converted to LP.', 'Install Team'),
+        ]
     },
     {
         id: generateId('propane-app', 2),
@@ -449,7 +506,9 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             panelSlot: '11',
             breakerRating: '15A'
         },
-        maintenanceHistory: []
+        maintenanceHistory: [
+            createMaintenanceRecord('2021-02-10', 'Calibration', 'Adjusted flame color.', 'GasSafe Pros'),
+        ]
     },
     {
         id: generateId('propane-app', 3),
@@ -479,7 +538,33 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         },
         maintenanceHistory: [
             createMaintenanceRecord('2024-09-01', 'Annual Maintenance', 'Oil change, spark plugs replaced, valve clearance checked.', 'PowerGen Pros'),
-            createMaintenanceRecord('2023-09-01', 'Annual Maintenance', 'Routine service completed.', 'PowerGen Pros')
+            createMaintenanceRecord('2024-03-15', 'Inspection', 'Spring battery check and test run.', 'PowerGen Pros'),
+            createMaintenanceRecord('2023-09-01', 'Annual Maintenance', 'Routine service completed. Oil change.', 'PowerGen Pros'),
+            createMaintenanceRecord('2023-03-10', 'Inspection', 'Spring checkup.', 'PowerGen Pros'),
+            createMaintenanceRecord('2022-09-05', 'Annual Maintenance', 'Oil change and filter.', 'PowerGen Pros'),
+
         ]
     }
+];
+
+// --- Dashboard Constants ---
+
+export const DEFAULT_HVAC_SPECS = [
+    { id: '1', label: 'Return Temp', value: '72', unit: '°F' },
+    { id: '2', label: 'Supply Temp', value: '54', unit: '°F' },
+    { id: '3', label: 'Static Pressure', value: '0.5', unit: 'in.wc' },
+    { id: '4', label: 'Fan Speed', value: '1250', unit: 'RPM' },
+];
+
+export const DEFAULT_HEATER_SPECS = [
+    { id: '1', label: 'Water Temp', value: '120', unit: '°F' },
+    { id: '2', label: 'System Pressure', value: '60', unit: 'PSI' },
+    { id: '3', label: 'Flow Rate', value: '4.5', unit: 'GPM' },
+    { id: '4', label: 'Gas Valve', value: 'OPEN', unit: '' },
+];
+
+export const DEFAULT_GENERIC_SPECS = [
+    { id: '1', label: 'Input Voltage', value: '120', unit: 'V' },
+    { id: '2', label: 'Current Draw', value: '4.2', unit: 'A' },
+    { id: '3', label: 'Power', value: '504', unit: 'W' },
 ];

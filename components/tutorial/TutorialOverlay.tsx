@@ -26,7 +26,7 @@ export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ step, onNext, 
 
     return (
         <div className="fixed inset-0 z-[9999] pointer-events-none">
-            {/* Backdrop with 80% opacity */}
+            {/* Backdrop with 60% opacity */}
             <div className="absolute inset-0 bg-black/60 pointer-events-auto" onClick={onExit} />
 
             {/* Tutorial Card */}

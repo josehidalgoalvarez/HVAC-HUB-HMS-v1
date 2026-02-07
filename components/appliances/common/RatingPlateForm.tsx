@@ -25,7 +25,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
     const [notes, setNotes] = useState(appliance.notes || '');
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [isProcessing, setIsProcessing] = useState(false);
+    const [setIsProcessing] = useState(false);
 
     // Location & Positioning State
     const [floor, setFloor] = useState<CanvasPosition['floor']>(appliance.position?.floor || 'Basement');
@@ -44,6 +44,24 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
     const [airTempRise, setAirTempRise] = useState(appliance.specs?.airTempRise || '');
     const [breakerRating, setBreakerRating] = useState(appliance.specs?.breakerRating || '');
     const [panelSlot, setPanelSlot] = useState(appliance.specs?.panelSlot || '');
+    const [maxUnitAmp, setMaxUnitAmp] = useState(appliance.specs?.maxUnitAmp || '');
+
+    // Performance & Maintenance
+    const [motorHp, setMotorHp] = useState(appliance.specs?.motorHp || '');
+    const [refrigerantType, setRefrigerantType] = useState(appliance.specs?.refrigerantType || '');
+    const [filterSize, setFilterSize] = useState(appliance.specs?.filterSize || '');
+
+    // Dashboard Specs State
+    const [returnTemp, setReturnTemp] = useState(appliance.specs?.returnTemp || '');
+    const [supplyTemp, setSupplyTemp] = useState(appliance.specs?.supplyTemp || '');
+    const [staticPressure, setStaticPressure] = useState(appliance.specs?.staticPressure || '');
+    const [fanSpeed, setFanSpeed] = useState(appliance.specs?.fanSpeed || '');
+
+    // Water/Heater Specific
+    const [waterTemp, setWaterTemp] = useState(appliance.specs?.waterTemp || '');
+    const [systemPressure, setSystemPressure] = useState(appliance.specs?.systemPressure || '');
+    const [flowRate, setFlowRate] = useState(appliance.specs?.flowRate || '');
+    const [gasValve, setGasValve] = useState(appliance.specs?.gasValve || '');
 
     // Date Handling
     const getInitialDate = () => {
@@ -91,7 +109,23 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                 breakerRating: breakerRating || 'TBD',
                 panelSlot: panelSlot || 'TBD',
                 installDate: mfgDate ? new Date(mfgDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (appliance.specs?.installDate || 'TBD'),
-                location: location || 'TBD'
+                location: location || 'TBD',
+
+                // Detailed Specs
+                maxUnitAmp: maxUnitAmp || undefined,
+                motorHp: motorHp || undefined,
+                refrigerantType: refrigerantType || undefined,
+                filterSize: filterSize || undefined,
+
+                // Dashboard Specs
+                returnTemp: returnTemp || undefined,
+                supplyTemp: supplyTemp || undefined,
+                staticPressure: staticPressure || undefined,
+                fanSpeed: fanSpeed || undefined,
+                waterTemp: waterTemp || undefined,
+                systemPressure: systemPressure || undefined,
+                flowRate: flowRate || undefined,
+                gasValve: gasValve || undefined
             }
         };
         onSave(updatedAppliance);
@@ -349,13 +383,17 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                                 <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Panel Slot</label>
                                 <input type="text" value={panelSlot} onChange={(e) => setPanelSlot(e.target.value)} placeholder="14,16" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Max Amps</label>
+                                <input type="text" value={maxUnitAmp} onChange={(e) => setMaxUnitAmp(e.target.value)} placeholder="30A" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
+                            </div>
                         </div>
                     </div>
 
-                    {/* Performance Box */}
+                    {/* Performance & Diagnostics Box */}
                     <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
                         <p className="text-xs font-bold text-primary uppercase tracking-wider mb-4 flex items-center gap-1">
-                            <span className="material-symbols-outlined text-sm">speed</span> Performance
+                            <span className="material-symbols-outlined text-sm">tune</span> Performance & Diagnostics
                         </p>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
@@ -366,8 +404,66 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                                 <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Efficiency (kW)</label>
                                 <input type="text" value={kw} onChange={(e) => setKw(e.target.value)} placeholder="15 kW" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
+
+                            <div>
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Motor HP</label>
+                                <input type="text" value={motorHp} onChange={(e) => setMotorHp(e.target.value)} placeholder="1/2 HP" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Refrigerant</label>
+                                <input type="text" value={refrigerantType} onChange={(e) => setRefrigerantType(e.target.value)} placeholder="R410A" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Filter Size</label>
+                                <input type="text" value={filterSize} onChange={(e) => setFilterSize(e.target.value)} placeholder="16x25x1" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
+                            </div>
+
+                            {/* Breakdown of Dashboard Specs */}
+                            <div className="col-span-2 pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+                                <p className="text-[10px] font-bold text-gray-400 uppercase">HVAC / Air Handling</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Return Temp</label>
+                                <input type="text" value={returnTemp} onChange={(e) => setReturnTemp(e.target.value)} placeholder="72°F" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Supply Temp</label>
+                                <input type="text" value={supplyTemp} onChange={(e) => setSupplyTemp(e.target.value)} placeholder="54°F" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Static Pressure</label>
+                                <input type="text" value={staticPressure} onChange={(e) => setStaticPressure(e.target.value)} placeholder="0.5 in.wc" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Fan Speed</label>
+                                <input type="text" value={fanSpeed} onChange={(e) => setFanSpeed(e.target.value)} placeholder="1250 RPM" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
+                            </div>
+
+                            <div className="col-span-2 pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+                                <p className="text-[10px] font-bold text-gray-400 uppercase">Hydronics / Water</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Water Temp</label>
+                                <input type="text" value={waterTemp} onChange={(e) => setWaterTemp(e.target.value)} placeholder="120°F" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">System Pressure</label>
+                                <input type="text" value={systemPressure} onChange={(e) => setSystemPressure(e.target.value)} placeholder="60 PSI" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Flow Rate</label>
+                                <input type="text" value={flowRate} onChange={(e) => setFlowRate(e.target.value)} placeholder="4.5 GPM" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Gas Valve</label>
+                                <input type="text" value={gasValve} onChange={(e) => setGasValve(e.target.value)} placeholder="OPEN" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
+                            </div>
                         </div>
                     </div>
+
+
 
                     {/* Documentation & Links */}
                     <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">

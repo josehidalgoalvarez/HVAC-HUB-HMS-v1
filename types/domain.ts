@@ -31,6 +31,18 @@ export interface ApplianceSpecs {
   panelSlot?: string;
   motorHp?: string;
   maxUnitAmp?: string;
+  filterSize?: string;
+  refrigerantType?: string;
+  efficiency?: string;
+  // Dashboard Specific Specs
+  returnTemp?: string;
+  supplyTemp?: string;
+  staticPressure?: string;
+  fanSpeed?: string;
+  waterTemp?: string;
+  systemPressure?: string;
+  flowRate?: string;
+  gasValve?: string; // 'OPEN' or 'CLOSED' usually
 }
 
 export interface CanvasPosition {

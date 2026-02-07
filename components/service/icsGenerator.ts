@@ -21,10 +21,10 @@ export const generateICSContent = (event: IcsEvent): string => {
   let content = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//PropTrack//Appliance Management//EN',
-    'METHOD:REQUEST', 
+    'PRODID:-//HVACHome//Appliance Management//EN',
+    'METHOD:REQUEST',
     'BEGIN:VEVENT',
-    `UID:${Date.now()}-${Math.floor(Math.random() * 10000)}@proptrack.com`,
+    `UID:${Date.now()}-${Math.floor(Math.random() * 10000)}@hvachome.com`,
     `DTSTAMP:${now}`,
     `DTSTART:${formatTime(event.start)}`,
     `DTEND:${formatTime(event.end)}`,

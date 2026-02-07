@@ -57,8 +57,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
         <button
           onClick={() => setShowFilter(true)}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all ${hasActiveFilters
-              ? 'bg-primary text-white shadow-md hover:bg-primary/90'
-              : 'bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-text-sub-light dark:text-text-sub-dark hover:bg-gray-50 dark:hover:bg-gray-800'
+            ? 'bg-primary text-white shadow-md hover:bg-primary/90'
+            : 'bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-text-sub-light dark:text-text-sub-dark hover:bg-gray-50 dark:hover:bg-gray-800'
             }`}
         >
           <span className="material-symbols-outlined text-[16px]">filter_list</span>
@@ -95,7 +95,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
             </div>
             <div>
               <p className="font-bold text-text-main-light dark:text-white">Add another property</p>
-              <p className="text-sm text-text-sub-light dark:text-text-sub-dark font-body">Manage more homes with PropTrack</p>
+              <p className="text-sm text-text-sub-light dark:text-text-sub-dark font-body">Manage more homes with HVACHome</p>
             </div>
           </div>
         )}

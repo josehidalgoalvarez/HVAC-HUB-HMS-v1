@@ -59,7 +59,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // --- Initialization with Persistence ---
   const [properties, setProperties] = useState<Property[]>(() => {
     try {
-      const saved = localStorage.getItem('propTrack_properties');
+      const saved = localStorage.getItem('hvachome_properties');
       return saved ? JSON.parse(saved) : INITIAL_PROPERTIES;
     } catch {
       return INITIAL_PROPERTIES;
@@ -68,7 +68,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const [appliances, setAppliances] = useState<Appliance[]>(() => {
     try {
-      const saved = localStorage.getItem('propTrack_appliances');
+      const saved = localStorage.getItem('hvachome_appliances');
       return saved ? JSON.parse(saved) : INITIAL_APPLIANCES;
     } catch {
       return INITIAL_APPLIANCES;
@@ -77,7 +77,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const [logs, setLogs] = useState<ChangeLogEntry[]>(() => {
     try {
-      const saved = localStorage.getItem('propTrack_logs');
+      const saved = localStorage.getItem('hvachome_logs');
       return saved ? JSON.parse(saved) : [{
         id: 'log_init',
         timestamp: new Date().toISOString(),
@@ -95,15 +95,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // --- Persistence Effects ---
   useEffect(() => {
-    localStorage.setItem('propTrack_properties', JSON.stringify(properties));
+    localStorage.setItem('hvachome_properties', JSON.stringify(properties));
   }, [properties]);
 
   useEffect(() => {
-    localStorage.setItem('propTrack_appliances', JSON.stringify(appliances));
+    localStorage.setItem('hvachome_appliances', JSON.stringify(appliances));
   }, [appliances]);
 
   useEffect(() => {
-    localStorage.setItem('propTrack_logs', JSON.stringify(logs));
+    localStorage.setItem('hvachome_logs', JSON.stringify(logs));
   }, [logs]);
 
   // --- Helpers ---
