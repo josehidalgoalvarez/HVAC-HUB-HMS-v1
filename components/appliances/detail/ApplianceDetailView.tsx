@@ -8,6 +8,7 @@ import ScheduleServiceModal from '../../service/ScheduleServiceModal';
 import IconButton from '../../ui/IconButton';
 
 import { ApplianceDashboard } from '../dashboard/ApplianceDashboard';
+import { TUTORIAL_STEPS } from '../../../tutorial';
 
 // Sub-components
 import { ApplianceHero } from './components/ApplianceHero';
@@ -39,8 +40,18 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
   onViewOnCanvas,
   onViewProperty
 }) => {
-  const { getAppliance, properties, addLog } = useData();
+  const { getAppliance, properties, addLog, isTutorialActive, tutorialStep } = useData();
   const appliance = applianceId ? getAppliance(applianceId) : undefined;
+
+  // Tutorial Auto-Navigation
+  React.useEffect(() => {
+    if (isTutorialActive && appliance) {
+      const currentAction = TUTORIAL_STEPS[tutorialStep]?.action;
+      if (currentAction === 'OPEN_NOTES') {
+        setActiveTab('specs');
+      }
+    }
+  }, [isTutorialActive, tutorialStep, appliance]);
 
   // Guard clause for deleted or invalid appliances
   if (!appliance) return <div>Appliance not found</div>;

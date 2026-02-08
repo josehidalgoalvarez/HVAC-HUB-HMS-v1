@@ -24,8 +24,8 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   onToggleEditMode,
   onOpenTechMenu
 }) => {
-  const { properties, appliances, logs: changeLogs } = useData();
-  const { importData, duplicateProperty, deleteProperty, startTutorial } = useActions();
+  const { properties, appliances, logs: changeLogs, isTutorialActive } = useData();
+  const { importData, duplicateProperty, deleteProperty, startTutorial, endTutorial } = useActions();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -135,9 +135,10 @@ const ProfileView: React.FC<ProfileViewProps> = ({
       action: () => setShowExportModal(true)
     },
     {
-      icon: 'school',
-      label: 'Start Tutorial',
-      action: startTutorial
+      icon: isTutorialActive ? 'logout' : 'school',
+      label: isTutorialActive ? 'Exit Tutorial' : 'Start Tutorial',
+      action: isTutorialActive ? endTutorial : startTutorial,
+      color: isTutorialActive ? 'text-brand-orange' : undefined
     },
     ...(isEditMode ? [{
       icon: 'upload',

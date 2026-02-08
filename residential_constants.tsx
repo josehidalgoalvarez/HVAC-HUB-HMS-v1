@@ -81,6 +81,10 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         imageUrl: 'https://images.unsplash.com/photo-1585232004423-244e0e6904e3?auto=format&fit=crop&w=800&q=80',
         manualUrl: 'https://www.shareddocs.com/hvac/docs/1009/Public/0C/N95ESN-05SI.pdf',
         warrantyUrl: 'https://www.carrier.com/residential/en/us/warranty/',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://www.shareddocs.com/hvac/docs/1009/Public/0C/N95ESN-05SI.pdf',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         notes: 'Unit is running efficiently. Filter size 16x25x1.',
         specs: {
             btuInput: '40,000 BTU/h',
@@ -112,7 +116,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             createMaintenanceRecord('2021-11-05', 'Repair', 'Replaced faulty igniter.', 'FastFix HVAC'),
             createMaintenanceRecord('2020-09-20', 'Annual Service', 'Routine cleaning and inspection.', 'Install Team A'),
             createMaintenanceRecord('2019-08-20', 'Installation', 'New install of N95ESN unit. Verified gas pressure and venting.', 'Install Team A'),
-        ]
+        ],
+        position: { x: 50, y: 50, floor: 'Basement' }
     },
     {
         id: generateId('gas-app', 1),
@@ -128,6 +133,11 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         location: 'Mechanical Room',
         imageUrl: 'https://images.unsplash.com/photo-1542013936693-88463833f955?auto=format&fit=crop&w=800&q=80',
         manualUrl: 'https://s3.amazonaws.com/WebPartners/ProductDocuments/09E3C562-E93C-4316-8367-735A9031267D.pdf',
+        warrantyUrl: 'https://www.rheem.com/warranty',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://s3.amazonaws.com/WebPartners/ProductDocuments/09E3C562-E93C-4316-8367-735A9031267D.pdf',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         notes: 'Descaling required annually due to hard water area.',
         specs: {
             btuInput: '80,000 BTU/h',
@@ -153,7 +163,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             createMaintenanceRecord('2022-04-12', 'Repair', 'Replaced flow sensor error code 11.', 'Sarah L.'),
             createMaintenanceRecord('2021-03-20', 'Flush', 'Routine maintenance.', 'Homeowner'),
             createMaintenanceRecord('2019-08-21', 'Installation', 'Unit installed and registered.', 'PlumbPerfect'),
-        ]
+        ],
+        position: { x: 150, y: 50, floor: 'Basement' }
     },
     {
         id: generateId('gas-app', 2),
@@ -168,6 +179,11 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: 'SGD23894723',
         location: 'Laundry Room',
         manualUrl: 'https://downloadcenter.samsung.com/content/UM/202102/20210216102142273/DV5000H_DC68-03381Q-06_EN_CFR_MES.pdf',
+        warrantyUrl: 'https://www.samsung.com/us/support/warranty/',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://downloadcenter.samsung.com/content/UM/202102/20210216102142273/DV5000H_DC68-03381Q-06_EN_CFR_MES.pdf',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         notes: 'Vent line is long, check airflow regularly.',
         specs: {
             btuInput: '20,000 BTU/h',
@@ -178,11 +194,13 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             maxUnitAmp: '15A',
             installDate: '2019-09-01',
             location: 'Laundry Room',
+            breakerRating: '15A'
         },
         maintenanceHistory: [
             createMaintenanceRecord('2023-01-10', 'Vent Clean', 'Cleaned dryer vent ducting to outside.', 'DuctMasters Inc.'),
             createMaintenanceRecord('2021-06-15', 'Repair', 'Replaced belt tensioner.', 'Appliance Fix Inc.'),
-        ]
+        ],
+        position: { x: 200, y: 200, floor: 'First Floor' }
     },
     {
         id: generateId('gas-app', 3),
@@ -197,6 +215,11 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: 'SRG92384723',
         location: 'Kitchen',
         manualUrl: 'https://downloadcenter.samsung.com/content/UM/202101/20210114143435132/NX60T8711SS_AA_01_EN.pdf',
+        warrantyUrl: 'https://www.samsung.com/us/support/warranty/',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://downloadcenter.samsung.com/content/UM/202101/20210114143435132/NX60T8711SS_AA_01_EN.pdf',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         notes: 'Convection fan makes slight noise on start-up. Normal operation.',
         specs: {
             btuInput: '58,000 BTU/h (Total)',
@@ -211,7 +234,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         },
         maintenanceHistory: [
             createMaintenanceRecord('2024-01-20', 'Inspection', 'Checked burner flame pattern. Adjusted air shutter.', 'GasSafe Pros'),
-        ]
+        ],
+        position: { x: 300, y: 200, floor: 'First Floor' }
     },
     {
         id: generateId('gas-app', 4),
@@ -226,6 +250,11 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: 'BDW82736482',
         location: 'Kitchen',
         manualUrl: 'https://media3.bosch-home.com/Documents/9001450479_A.pdf',
+        warrantyUrl: 'https://www.bosch-home.com/us/owner-support/cleaners-accessories/warranty',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://media3.bosch-home.com/Documents/9001450479_A.pdf',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         notes: 'Filter cleaned monthly by owner.',
         specs: {
             volts: '120V',
@@ -241,7 +270,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         maintenanceHistory: [
             createMaintenanceRecord('2023-05-20', 'Filter Check', 'Checked drain pump and filter.', 'Appliance Fix Inc.'),
             createMaintenanceRecord('2021-12-10', 'Repair', 'Cleared drain blockage.', 'Homeowner'),
-        ]
+        ],
+        position: { x: 350, y: 200, floor: 'First Floor' }
     },
 
     // --- Electric Home Appliances ---
@@ -258,6 +288,11 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: 'EHC834723984',
         location: 'Side Yard / Garage',
         manualUrl: 'https://www.shareddocs.com/hvac/docs/1009/Public/01/25VNA4-01SI.pdf',
+        warrantyUrl: 'https://www.carrier.com/residential/en/us/warranty/',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://www.shareddocs.com/hvac/docs/1009/Public/01/25VNA4-01SI.pdf',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         notes: 'Communicating thermostat required. Do not bypass.',
         specs: {
             btuOutput: '36,000 BTU/h (Heating)',
@@ -285,7 +320,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             createMaintenanceRecord('2023-05-15', 'Annual Service', 'Washed outdoor coil. Checked contactor.', 'EcoHvac LLC'),
             createMaintenanceRecord('2022-05-20', 'Annual Service', 'Routine system check. All OK.', 'EcoHvac LLC'),
             createMaintenanceRecord('2021-03-15', 'Installation', 'System startup and commissioning.', 'EcoHvac LLC'),
-        ]
+        ],
+        position: { x: 400, y: 100, floor: 'Main Level' }
     },
     {
         id: generateId('elec-app', 1),
@@ -300,6 +336,11 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: 'RHP89237489',
         location: 'Garage',
         manualUrl: 'https://s3.amazonaws.com/WebPartners/ProductDocuments/67305910-6C78-4D6B-8822-7D7E64B44917.pdf',
+        warrantyUrl: 'https://www.rheem.com/warranty',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://s3.amazonaws.com/WebPartners/ProductDocuments/67305910-6C78-4D6B-8822-7D7E64B44917.pdf',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         notes: 'Keep air filter clean for heat pump efficiency.',
         specs: {
             volts: '208/240V',
@@ -322,7 +363,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             createMaintenanceRecord('2025-01-05', 'Filter Clean', 'Cleaned air intake filter on heat pump unit.', 'Homeowner'),
             createMaintenanceRecord('2024-01-10', 'Filter Clean', 'Cleaned air intake filter.', 'Homeowner'),
             createMaintenanceRecord('2023-02-15', 'Inspection', 'Checked anode rod. Status: Good.', 'PlumbPerfect'),
-        ]
+        ],
+        position: { x: 50, y: 50, floor: 'Main Level' }
     },
     {
         id: generateId('elec-app', 2),
@@ -337,6 +379,11 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: 'SME82734628',
         location: 'Utility Closet',
         manualUrl: 'https://downloadcenter.samsung.com/content/UM/202102/20210216102142273/DV5000H_DC68-03381Q-06_EN_CFR_MES.pdf',
+        warrantyUrl: 'https://www.samsung.com/us/support/warranty/',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://downloadcenter.samsung.com/content/UM/202102/20210216102142273/DV5000H_DC68-03381Q-06_EN_CFR_MES.pdf',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         alert: 'Long dry times reported',
         notes: 'Customer reported damp clothes. Suspect blocked vent or element issue.',
         specs: {
@@ -354,7 +401,9 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         maintenanceHistory: [
             createMaintenanceRecord('2023-11-20', 'Diagnosis', 'Technician suspected clogged vent. Use caution.', 'Appliance Fix Inc.'),
             createMaintenanceRecord('2022-10-05', 'Vent Clean', 'Routine vent cleaning.', 'DuctMasters Inc.'),
-        ]
+        ],
+        connectedToId: 'elec-app-4',
+        position: { x: 100, y: 50, floor: 'Main Level' }
     },
     {
         id: generateId('elec-app', 3),
@@ -369,6 +418,11 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: 'LGW99283472',
         location: 'Utility Closet',
         manualUrl: 'https://gscs-b2c.lge.com/downloadFile?fileId=KROWM0000000000000000000000000000&fileName=KROWM0000000000000000000000000000.pdf',
+        warrantyUrl: 'https://www.lg.com/us/support/warranty',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://gscs-b2c.lge.com/downloadFile?fileId=KROWM0000000000000000000000000000&fileName=KROWM0000000000000000000000000000.pdf',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         notes: 'Wi-Fi setup on "HomeNet".',
         specs: {
             volts: '120V',
@@ -378,10 +432,14 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             watts: '1200W',
             installDate: '2022-04-01',
             location: 'Utility Closet',
+            breakerRating: '15A',
+            capacity: '4.5 cu. ft.'
         },
         maintenanceHistory: [
             createMaintenanceRecord('2023-08-10', 'Cleaning', 'Ran tub clean cycle with bleach.', 'Homeowner'),
-        ]
+        ],
+        connectedToId: 'elec-app-3',
+        position: { x: 150, y: 50, floor: 'Main Level' }
     },
     {
         id: generateId('elec-app', 4),
@@ -396,6 +454,11 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: 'SIR92837423',
         location: 'Kitchen',
         manualUrl: 'https://downloadcenter.samsung.com/content/UM/202108/20210813134320281/NE63T8911SS_AA_03_EN.pdf',
+        warrantyUrl: 'https://www.samsung.com/us/support/warranty/',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://downloadcenter.samsung.com/content/UM/202108/20210813134320281/NE63T8911SS_AA_03_EN.pdf',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         notes: 'Requires magnetic cookware. Glass top pristine.',
         specs: {
             volts: '240V',
@@ -410,7 +473,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         },
         maintenanceHistory: [
             createMaintenanceRecord('2023-01-15', 'Update', 'Firmware updated via SmartThings app.', 'Homeowner'),
-        ]
+        ],
+        position: { x: 300, y: 300, floor: 'Main Level' }
     },
 
     // --- Propane Home Appliances ---
@@ -427,6 +491,11 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: 'CP723489234',
         location: 'Basement',
         manualUrl: 'https://www.shareddocs.com/hvac/docs/1009/Public/0A/59SC2D-02SI.pdf',
+        warrantyUrl: 'https://www.carrier.com/residential/en/us/warranty/',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://www.shareddocs.com/hvac/docs/1009/Public/0A/59SC2D-02SI.pdf',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         notes: 'Converted to Propane using kit #KPN7348. Inlet Pressure 11.0 inwc. Do not adjust manifold pressure without kit chart.',
         specs: {
             btuInput: '60,000 BTU/h',
@@ -451,7 +520,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             createMaintenanceRecord('2022-11-05', 'Annual Service', 'Cleaned flame sensor. Checked nozzle.', 'Rural Gas Co.'),
             createMaintenanceRecord('2021-10-20', 'Annual Service', 'Routine maintenance.', 'Rural Gas Co.'),
             createMaintenanceRecord('2018-11-10', 'Conversion', 'Converted unit to Propane.', 'Rural Gas Co.'),
-        ]
+        ],
+        position: { x: 50, y: 50, floor: 'Basement' }
     },
     {
         id: generateId('propane-app', 1),
@@ -466,6 +536,11 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: 'SLP82347289',
         location: 'Mudroom',
         manualUrl: 'https://downloadcenter.samsung.com/content/UM/202102/20210216102142273/DV5000H_DC68-03381Q-06_EN_CFR_MES.pdf',
+        warrantyUrl: 'https://www.samsung.com/us/support/warranty/',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://downloadcenter.samsung.com/content/UM/202102/20210216102142273/DV5000H_DC68-03381Q-06_EN_CFR_MES.pdf',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         notes: 'LP Conversion Kit installed.',
         specs: {
             btuInput: '20,000 BTU/h',
@@ -480,7 +555,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         maintenanceHistory: [
             createMaintenanceRecord('2020-05-15', 'Repair', 'Replaced igniter coil.', 'Appliance Fix Inc.'),
             createMaintenanceRecord('2018-11-15', 'Conversion', 'Converted to LP.', 'Install Team'),
-        ]
+        ],
+        position: { x: 100, y: 100, floor: 'Main Floor' }
     },
     {
         id: generateId('propane-app', 2),
@@ -495,6 +571,11 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: 'LPR8273642',
         location: 'Kitchen',
         manualUrl: 'https://products.geappliances.com/MarketingObjectRetrieval/Dispatcher?RequestType=PDF&Name=49-2000236-1.pdf',
+        warrantyUrl: 'https://www.geappliances.com/ge/service-and-support/warranty.htm',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://products.geappliances.com/MarketingObjectRetrieval/Dispatcher?RequestType=PDF&Name=49-2000236-1.pdf',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         notes: 'Converted to LP. Orifice kit stored in back of unit.',
         specs: {
             btuInput: '56,000 BTU/h',
@@ -508,7 +589,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         },
         maintenanceHistory: [
             createMaintenanceRecord('2021-02-10', 'Calibration', 'Adjusted flame color.', 'GasSafe Pros'),
-        ]
+        ],
+        position: { x: 200, y: 200, floor: 'Main Floor' }
     },
     {
         id: generateId('propane-app', 3),
@@ -523,6 +605,11 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: 'GEN92837423',
         location: 'Side Yard',
         manualUrl: 'https://www.generac.com/service-support/product-support-lookup/product-manuals?modelNo=70432',
+        warrantyUrl: 'https://www.generac.com/service-support/warranty',
+        ratingPlateUrl: 'https://placehold.co/600x400?text=Rating+Plate',
+        installationUrl: 'https://www.generac.com/service-support/product-support-lookup/product-manuals?modelNo=70432',
+        embedModelUrl: 'https://models.readyplayer.me/placeholder.glb',
+        meta: '{"verified": true, "source": "manual_entry"}',
         notes: 'Automatic transfer switch installed. Weekly self-test set for Mondays at 10am.',
         specs: {
             kw: '22kW',
@@ -542,8 +629,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             createMaintenanceRecord('2023-09-01', 'Annual Maintenance', 'Routine service completed. Oil change.', 'PowerGen Pros'),
             createMaintenanceRecord('2023-03-10', 'Inspection', 'Spring checkup.', 'PowerGen Pros'),
             createMaintenanceRecord('2022-09-05', 'Annual Maintenance', 'Oil change and filter.', 'PowerGen Pros'),
-
-        ]
+        ],
+        position: { x: 300, y: 50, floor: 'Main Floor' }
     }
 ];
 
