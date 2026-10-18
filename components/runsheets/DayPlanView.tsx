@@ -8,11 +8,13 @@ import type { RunSheet, RunSheetBlock } from '../../types/domain';
 interface DayPlanViewProps {
   onBack?: () => void;
   onOpenTicket?: (ticketId: string) => void;
+  onOpenQuickLog?: (block: RunSheetBlock) => void;
 }
 
 export const DayPlanView: React.FC<DayPlanViewProps> = ({
   onBack,
   onOpenTicket,
+  onOpenQuickLog,
 }) => {
   const [currentDate, setCurrentDate] = useState<string>(
     new Date().toISOString().split('T')[0]
@@ -365,13 +367,25 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                     )}
 
                     {!isCompleted && (
-                      <button
-                        onClick={() => setClosingBlock(block)}
-                        className="py-1.5 px-3 text-xs font-bold bg-primary text-white rounded-xl shadow-xs hover:bg-primary/90 flex items-center gap-1"
-                      >
-                        <span className="material-symbols-outlined text-sm">check_circle</span>
-                        Close Block
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        {onOpenQuickLog && (
+                          <button
+                            onClick={() => onOpenQuickLog(block)}
+                            className="py-1.5 px-3 text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 rounded-xl hover:bg-amber-500/20 flex items-center gap-1 active:scale-95 transition-all"
+                            title="Open quick field logging session (<60s)"
+                          >
+                            <span className="material-symbols-outlined text-sm">bolt</span>
+                            Quick Log
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setClosingBlock(block)}
+                          className="py-1.5 px-3 text-xs font-bold bg-primary text-white rounded-xl shadow-xs hover:bg-primary/90 flex items-center gap-1 active:scale-95 transition-all"
+                        >
+                          <span className="material-symbols-outlined text-sm">check_circle</span>
+                          Close Block
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>

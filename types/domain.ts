@@ -358,3 +358,105 @@ export interface Correction {
   reason?: string | null;
   createdAt: string;
 }
+
+export type JobStatus = 'in_progress' | 'completed' | 'canceled';
+
+export interface JobPart {
+  id?: number;
+  job_id?: number;
+  part_name: string;
+  quantity: number;
+  unit?: string;
+  notes?: string;
+  created_at?: string;
+}
+
+export interface JobNote {
+  id?: number;
+  job_id?: number;
+  tech_id?: number;
+  note_text: string;
+  created_at?: string;
+  author_name?: string;
+}
+
+export interface JobPhoto {
+  id?: number;
+  file_path: string;
+  file_size_bytes?: number;
+  caption?: string;
+  created_at?: string;
+}
+
+export interface Job {
+  id: number;
+  ticket_id?: number | null;
+  run_sheet_block_id?: number | null;
+  building_id?: number | null;
+  unit_id?: number | null;
+  tech_id?: number | null;
+  title: string;
+  status: JobStatus;
+  start_time?: string | null;
+  end_time?: string | null;
+  estimated_minutes: number;
+  actual_minutes?: number | null;
+  notes?: string | null;
+  parts_used?: JobPart[];
+  notes_list?: JobNote[];
+  photos?: JobPhoto[];
+  variance_minutes?: number | null;
+  wo_number?: string | null;
+  ticket_title?: string | null;
+  ticket_status?: string | null;
+  ticket_priority?: string | null;
+  building_name?: string | null;
+  building_address?: string | null;
+  unit_number?: string | null;
+  tech_name?: string | null;
+  parts_count?: number;
+  notes_count?: number;
+  photos_count?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface JobCloseoutPayload {
+  actual_minutes: number;
+  notes?: string;
+  parts_used?: Array<{
+    part_name: string;
+    quantity?: number;
+    unit?: string;
+    notes?: string;
+  }>;
+  photos?: Array<{
+    file_path: string;
+    caption?: string;
+    file_size_bytes?: number;
+  }>;
+}
+
+export type OutboxMutationType =
+  | 'create_job'
+  | 'add_note'
+  | 'add_part_used'
+  | 'add_photo'
+  | 'close_job'
+  | 'update_ticket'
+  | 'custom';
+
+export interface OutboxItem {
+  id: string;
+  idempotency_key: string;
+  type: OutboxMutationType;
+  endpoint: string;
+  method: 'POST' | 'PATCH' | 'PUT';
+  payload: Record<string, unknown>;
+  job_id?: number | string;
+  createdAt: number;
+  retries: number;
+  status: 'pending' | 'syncing' | 'failed';
+  error?: string;
+}
+

@@ -2,6 +2,7 @@
 import React from 'react';
 import { ViewType } from '../../types';
 import BottomNav from './BottomNav';
+import OfflineStatusBadge from '../common/OfflineStatusBadge';
 
 interface LayoutWrapperProps {
   activeView: ViewType;
@@ -38,6 +39,7 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({ activeView, onNavigate, c
 
   return (
     <>
+      <OfflineStatusBadge />
       {children}
       {showBottomNav && (
         <BottomNav 

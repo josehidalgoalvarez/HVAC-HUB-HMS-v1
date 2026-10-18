@@ -3,7 +3,20 @@
  * Connects React frontend to Slim 4 JSON API
  */
 
-import type { Ticket, Correction, Notice, RunSheet, RunSheetBlock, BatchSuggestionResult } from '../../types/domain';
+import type {
+  Ticket,
+  Correction,
+  Notice,
+  RunSheet,
+  RunSheetBlock,
+  BatchSuggestionResult,
+  Job,
+  JobPart,
+  JobNote,
+  JobPhoto,
+  JobCloseoutPayload,
+  OutboxItem,
+} from '../../types/domain';
 
 export interface ApiResponseEnvelope<T> {
   data: T | null;
@@ -461,6 +474,130 @@ export class ApiClient {
     start_time?: string;
   }): Promise<BatchSuggestionResult> {
     return this.post<BatchSuggestionResult>('/api/run-sheets/suggest-batch', data);
+  }
+
+  // --- Field Jobs & Field Loop (Phase 3) ---
+
+  /**
+   * List field jobs
+   */
+  public async getJobs(params?: Record<string, string | number>): Promise<Job[]> {
+    let path = '/api/jobs';
+    if (params) {
+      const q = new URLSearchParams();
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') {
+          q.append(k, String(v));
+        }
+      });
+      const qs = q.toString();
+      if (qs) path += `?${qs}`;
+    }
+    return this.get<Job[]>(path);
+  }
+
+  /**
+   * Get single job with all sub-resources (parts, notes, photos)
+   */
+  public async getJob(id: string | number): Promise<Job> {
+    return this.get<Job>(`/api/jobs/${id}`);
+  }
+
+  /**
+   * Create a new field job session
+   */
+  public async createJob(data: Partial<Job>): Promise<Job> {
+    return this.post<Job>('/api/jobs', data);
+  }
+
+  /**
+   * Update job session attributes
+   */
+  public async updateJob(id: string | number, data: Partial<Job> & { reason?: string }): Promise<Job> {
+    return this.patch<Job>(`/api/jobs/${id}`, data);
+  }
+
+  /**
+   * Upload / attach photo to job
+   */
+  public async addJobPhoto(
+    id: string | number,
+    data: FormData | { file_path: string; caption?: string; file_size_bytes?: number }
+  ): Promise<JobPhoto> {
+    if (data instanceof FormData) {
+      return this.request<JobPhoto>(`/api/jobs/${id}/photos`, {
+        method: 'POST',
+        body: data,
+      });
+    }
+    return this.post<JobPhoto>(`/api/jobs/${id}/photos`, data);
+  }
+
+  /**
+   * Record part used on a job
+   */
+  public async addJobPartUsed(
+    id: string | number,
+    data: { part_name: string; quantity?: number; unit?: string; notes?: string }
+  ): Promise<JobPart> {
+    return this.post<JobPart>(`/api/jobs/${id}/parts-used`, data);
+  }
+
+  /**
+   * Append technician note to a job
+   */
+  public async addJobNote(id: string | number, noteText: string): Promise<JobNote> {
+    return this.post<JobNote>(`/api/jobs/${id}/notes`, { note_text: noteText });
+  }
+
+  /**
+   * Close out a job and its linked ticket
+   */
+  public async closeJob(id: string | number, data: JobCloseoutPayload): Promise<Job> {
+    return this.post<Job>(`/api/jobs/${id}/close`, data);
+  }
+
+  /**
+   * Batch outbox synchronization
+   */
+  public async syncBatch(mutations: Array<{
+    id?: string;
+    idempotency_key?: string;
+    type: string;
+    job_id?: string | number;
+    payload: Record<string, unknown>;
+  }>): Promise<{
+    synced_count: number;
+    total_submitted: number;
+    results: Array<{ idempotency_key: string; status: string; result?: unknown }>;
+    failures: Array<{ idempotency_key: string; action: string; error: string }>;
+  }> {
+    return this.post('/api/sync', { mutations });
+  }
+
+  /**
+   * Replay single outbox mutation item directly
+   */
+  public async replayOutboxItem(item: OutboxItem): Promise<unknown> {
+    const jobId = item.job_id || (item.payload?.job_id as string | number);
+    switch (item.type) {
+      case 'create_job':
+        return this.createJob(item.payload as Partial<Job>);
+      case 'add_note':
+        return this.addJobNote(jobId, (item.payload.note_text || item.payload.note || item.payload.text) as string);
+      case 'add_part_used':
+        return this.addJobPartUsed(jobId, item.payload as { part_name: string; quantity?: number; unit?: string; notes?: string });
+      case 'add_photo':
+        return this.addJobPhoto(jobId, item.payload as { file_path: string; caption?: string });
+      case 'close_job':
+        return this.closeJob(jobId, item.payload as unknown as JobCloseoutPayload);
+      default:
+        return this.request(item.endpoint, {
+          method: item.method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(item.payload),
+        });
+    }
   }
 
   /**

@@ -143,7 +143,9 @@ class Db
                 entity_type TEXT NOT NULL,
                 entity_id INTEGER NOT NULL,
                 file_path TEXT NOT NULL,
-                url TEXT NOT NULL,
+                url TEXT NULL,
+                file_size_bytes INTEGER NULL,
+                mime_type TEXT NULL,
                 caption TEXT NULL,
                 taken_by_user_id INTEGER NULL,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -201,10 +203,51 @@ class Db
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS job (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ticket_id INTEGER NULL,
+                run_sheet_block_id INTEGER NULL,
+                building_id INTEGER NULL,
+                unit_id INTEGER NULL,
+                tech_id INTEGER NULL,
+                title TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'in_progress',
+                start_time TEXT NULL,
+                end_time TEXT NULL,
+                estimated_minutes INTEGER NOT NULL DEFAULT 45,
+                actual_minutes INTEGER NULL,
+                notes TEXT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS job_part (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                job_id INTEGER NOT NULL,
+                part_name TEXT NOT NULL,
+                quantity REAL NOT NULL DEFAULT 1.0,
+                unit TEXT NOT NULL DEFAULT 'pcs',
+                notes TEXT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS job_note (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                job_id INTEGER NOT NULL,
+                tech_id INTEGER NULL,
+                note_text TEXT NOT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
         ");
 
         try {
             $pdo->exec("ALTER TABLE run_sheet ADD COLUMN title TEXT NULL");
+        } catch (\Throwable) {}
+
+        try {
+            $pdo->exec("ALTER TABLE photo ADD COLUMN file_size_bytes INTEGER NULL");
+        } catch (\Throwable) {}
+
+        try {
+            $pdo->exec("ALTER TABLE photo ADD COLUMN mime_type TEXT NULL");
         } catch (\Throwable) {}
     }
 

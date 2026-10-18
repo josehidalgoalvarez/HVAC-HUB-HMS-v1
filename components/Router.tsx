@@ -23,6 +23,8 @@ import ProfileView from './profile/ProfileView';
 import { TicketListView } from './tickets/TicketListView';
 import { NoticePipelineView } from './notices/NoticePipelineView';
 import { DayPlanView } from './runsheets/DayPlanView';
+import QuickLogWidget from './jobs/QuickLogWidget';
+import type { RunSheetBlock } from '../types/domain';
 
 // Note: Ensure PropertyDetailView is the correct new component. 
 // Since we have a duplicate file issue, we are importing from './properties/PropertyDetailView' explicitly.
@@ -62,6 +64,7 @@ const Router: React.FC<RouterProps> = ({
   isDarkMode
 }) => {
   const [selectedTicketId, setSelectedTicketId] = React.useState<string | null>(null);
+  const [selectedBlockForQuickLog, setSelectedBlockForQuickLog] = React.useState<RunSheetBlock | null>(null);
 
   // --- Navigation Handlers ---
 
@@ -262,42 +265,26 @@ const Router: React.FC<RouterProps> = ({
             setSelectedTicketId(ticketId);
             setActiveView(ViewType.TICKETS);
           }}
+          onOpenQuickLog={(block) => {
+            setSelectedBlockForQuickLog(block);
+            setActiveView(ViewType.QUICK_LOG);
+          }}
         />
       );
 
-    case ViewType.QUICK_LOG: {
-      const contextBuilding: Building = {
-        id: selectedPropertyId || 'bldg-curr',
-        name: 'Selected Building',
-        address: 'Site Address'
-      };
-      const contextUnit: Unit = {
-        id: 'unit-1',
-        buildingId: contextBuilding.id,
-        unitNumber: '101'
-      };
-      const sampleCorrection: Correction = {
-        id: 'corr-quick',
-        entityType: 'ticket',
-        entityId: 'tkt-1',
-        fieldName: 'status',
-        reason: 'Quick-log field correction',
-        createdAt: new Date().toISOString()
-      };
+    case ViewType.QUICK_LOG:
       return (
-        <div className="p-4 space-y-4 max-w-xl mx-auto pb-safe">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">Quick Log</h1>
-            <button onClick={() => setActiveView(ViewType.PROPERTIES)} className="px-3 py-1.5 text-sm bg-neutral-200 dark:bg-neutral-800 rounded">
-              Back
-            </button>
-          </div>
-          <p className="text-sm text-neutral-500">
-            {contextBuilding.name} {contextUnit.unitNumber} | Audit: {sampleCorrection.fieldName}
-          </p>
-        </div>
+        <QuickLogWidget
+          block={selectedBlockForQuickLog}
+          onBack={() => {
+            if (previousView) {
+              setActiveView(previousView);
+            } else {
+              setActiveView(ViewType.RUN_SHEET);
+            }
+          }}
+        />
       );
-    }
 
     case ViewType.PARTS: {
       const activeStockpile: Stockpile = {

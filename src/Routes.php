@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 use App\Controllers\IntakeController;
+use App\Controllers\JobController;
 use App\Controllers\NoticeController;
 use App\Controllers\PhotoController;
 use App\Controllers\RunSheetController;
@@ -164,6 +165,17 @@ class Routes
             $group->post('/run-sheets/{id}/blocks', [RunSheetController::class, 'addBlock']);
             $group->patch('/run-sheets/{id}/blocks/{blockId}', [RunSheetController::class, 'updateBlock']);
             $group->delete('/run-sheets/{id}/blocks/{blockId}', [RunSheetController::class, 'deleteBlock']);
+
+            // --- Field Jobs & Offline Sync (Phase 3 Field Loop) ---
+            $group->get('/jobs', [JobController::class, 'index']);
+            $group->post('/jobs', [JobController::class, 'create']);
+            $group->get('/jobs/{id}', [JobController::class, 'show']);
+            $group->patch('/jobs/{id}', [JobController::class, 'update']);
+            $group->post('/jobs/{id}/photos', [JobController::class, 'uploadPhoto']);
+            $group->post('/jobs/{id}/parts-used', [JobController::class, 'addPartsUsed']);
+            $group->post('/jobs/{id}/notes', [JobController::class, 'addNotes']);
+            $group->post('/jobs/{id}/close', [JobController::class, 'close']);
+            $group->post('/sync', [JobController::class, 'batchSync']);
 
             // Tech role route
             $group->get('/tech/ping', function (Request $request, Response $response): Response {
