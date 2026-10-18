@@ -556,3 +556,53 @@ export interface OutboxItem {
   error?: string;
 }
 
+// --- Proactive Watch Engine (Phase 6) ---
+export type WatchType = 'notice_deadline' | 'reply_waiting' | 'weather_freeze' | 'scheduled_task';
+export type WatchState = 'active' | 'triggered' | 'acknowledged' | 'snoozed' | 'resolved';
+
+export interface WatchRecord {
+  id: number;
+  user_id?: number | null;
+  watch_type: WatchType;
+  title: string;
+  description?: string | null;
+  target_type?: string | null;
+  target_id?: number | null;
+  state: WatchState;
+  config?: Record<string, any>;
+  snoozed_until?: string | null;
+  last_evaluated_at?: string | null;
+  last_triggered_at?: string | null;
+  acknowledged_at?: string | null;
+  resolved_at?: string | null;
+  latest_trigger_reason?: string | null;
+  latest_trigger_data?: Record<string, any>;
+  quiet_hours_delayed?: boolean;
+  batched_for_morning?: boolean;
+  batch_message?: string;
+  is_snoozed_active?: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WatchDigestResponse {
+  date: string;
+  current_time: string;
+  is_quiet_hours: boolean;
+  items: WatchRecord[];
+  total_active_alerts: number;
+  morning_batch: WatchRecord[];
+  morning_batch_count: number;
+  snoozed_count: number;
+}
+
+export interface WatchEvaluateResponse {
+  evaluated_at: string;
+  evaluated_count: number;
+  triggered_count: number;
+  quiet_hours_active: boolean;
+  quiet_hours_delayed_count: number;
+  triggered_watches: WatchRecord[];
+  message: string;
+}
+

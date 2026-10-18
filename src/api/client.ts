@@ -21,6 +21,9 @@ import type {
   Stockpile,
   SupplierRecord,
   ShoppingListResponse,
+  WatchRecord,
+  WatchDigestResponse,
+  WatchEvaluateResponse,
 } from '../../types/domain';
 
 export interface ApiResponseEnvelope<T> {
@@ -690,6 +693,130 @@ export class ApiClient {
    */
   public async buildShoppingList(ticketIds: Array<string | number>): Promise<ShoppingListResponse> {
     return this.post<ShoppingListResponse>('/api/shopping-lists/from-tickets', { ticket_ids: ticketIds });
+  }
+
+  // --- Proactive Watch Engine Methods (Phase 6) ---
+
+  /**
+   * List watches with optional state / type filtering
+   */
+  public async getWatches(params?: {
+    state?: string;
+    watch_type?: string;
+    target_type?: string;
+    target_id?: number | string;
+    view?: string;
+  }): Promise<WatchRecord[]> {
+    let path = '/api/watches';
+    if (params) {
+      const q = new URLSearchParams();
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) {
+          q.append(k, String(v));
+        }
+      });
+      const qs = q.toString();
+      if (qs) path += `?${qs}`;
+    }
+    return this.get<WatchRecord[]>(path);
+  }
+
+  /**
+   * Get single watch by ID
+   */
+  public async getWatch(id: number | string): Promise<WatchRecord> {
+    return this.get<WatchRecord>(`/api/watches/${id}`);
+  }
+
+  /**
+   * Create new watch
+   */
+  public async createWatch(data: Partial<WatchRecord>): Promise<WatchRecord> {
+    return this.post<WatchRecord>('/api/watches', data);
+  }
+
+  /**
+   * Modify watch fields
+   */
+  public async updateWatch(id: number | string, data: any): Promise<WatchRecord> {
+    return this.patch<WatchRecord>(`/api/watches/${id}`, data);
+  }
+
+  /**
+   * Snooze a watch (1h, 4h, tomorrow, or custom timestamp)
+   */
+  public async snoozeWatch(
+    id: number | string,
+    duration: '1h' | '4h' | 'tomorrow' | string = '1h',
+    simulatedTime?: string
+  ): Promise<WatchRecord> {
+    return this.patch<WatchRecord>(`/api/watches/${id}`, {
+      action: 'snooze',
+      duration,
+      simulated_time: simulatedTime,
+    });
+  }
+
+  /**
+   * Acknowledge a triggered watch
+   */
+  public async acknowledgeWatch(id: number | string): Promise<WatchRecord> {
+    return this.patch<WatchRecord>(`/api/watches/${id}`, { action: 'acknowledge' });
+  }
+
+  /**
+   * Resolve a watch permanently
+   */
+  public async resolveWatch(id: number | string): Promise<WatchRecord> {
+    return this.patch<WatchRecord>(`/api/watches/${id}`, { action: 'resolve' });
+  }
+
+  /**
+   * Reactivate a watch
+   */
+  public async reactivateWatch(id: number | string): Promise<WatchRecord> {
+    return this.patch<WatchRecord>(`/api/watches/${id}`, { action: 'reactivate' });
+  }
+
+  /**
+   * Delete a watch
+   */
+  public async deleteWatch(id: number | string): Promise<{ deleted: boolean; id: number }> {
+    return this.delete<{ deleted: boolean; id: number }>(`/api/watches/${id}`);
+  }
+
+  /**
+   * Run evaluation on all active watches
+   */
+  public async evaluateWatches(options?: {
+    simulated_time?: string;
+    quiet_start?: number;
+    quiet_end?: number;
+    weather_forecast?: any;
+  }): Promise<WatchEvaluateResponse> {
+    return this.post<WatchEvaluateResponse>('/api/watches/evaluate', options ?? {});
+  }
+
+  /**
+   * Fetch proactive daily digest
+   */
+  public async getWatchDigest(params?: {
+    simulated_time?: string;
+    quiet_start?: number;
+    quiet_end?: number;
+  }): Promise<WatchDigestResponse> {
+    let path = '/api/watches/digest';
+    if (params) {
+      const q = new URLSearchParams();
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) {
+          q.append(k, String(v));
+        }
+      });
+      const qs = q.toString();
+      if (qs) path += `?${qs}`;
+    }
+    return this.get<WatchDigestResponse>(path);
   }
 
   /**

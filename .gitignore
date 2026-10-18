@@ -27,5 +27,6 @@ public/uploads/*
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
 *.sqlite
+storage/cache/*
+!storage/cache/.gitkeep

@@ -11,6 +11,7 @@ use App\Controllers\PartController;
 use App\Controllers\PhotoController;
 use App\Controllers\RunSheetController;
 use App\Controllers\TicketController;
+use App\Controllers\WatchController;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
@@ -189,6 +190,15 @@ class Routes
             $group->get('/suppliers', [PartController::class, 'suppliers']);
             $group->post('/suppliers', [PartController::class, 'createSupplier']);
             $group->post('/shopping-lists/from-tickets', [PartController::class, 'shoppingList']);
+
+            // --- Proactive Watch Engine & Digest (Phase 6) ---
+            $group->get('/watches', [WatchController::class, 'index']);
+            $group->post('/watches', [WatchController::class, 'create']);
+            $group->get('/watches/digest', [WatchController::class, 'digest']);
+            $group->post('/watches/evaluate', [WatchController::class, 'evaluate']);
+            $group->get('/watches/{id}', [WatchController::class, 'show']);
+            $group->patch('/watches/{id}', [WatchController::class, 'update']);
+            $group->delete('/watches/{id}', [WatchController::class, 'delete']);
 
             // Tech role route
             $group->get('/tech/ping', function (Request $request, Response $response): Response {

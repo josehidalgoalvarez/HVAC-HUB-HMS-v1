@@ -294,6 +294,27 @@ class Db
                 quantity INTEGER NOT NULL DEFAULT 1,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS watch (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NULL,
+                watch_type TEXT NOT NULL,
+                title TEXT NOT NULL,
+                description TEXT NULL,
+                target_type TEXT NULL,
+                target_id INTEGER NULL,
+                state TEXT NOT NULL DEFAULT 'active',
+                config TEXT NULL,
+                snoozed_until TEXT NULL,
+                last_evaluated_at TEXT NULL,
+                last_triggered_at TEXT NULL,
+                acknowledged_at TEXT NULL,
+                resolved_at TEXT NULL,
+                latest_trigger_reason TEXT NULL,
+                latest_trigger_data TEXT NULL,
+                quiet_hours_delayed INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
         ");
 
         try {

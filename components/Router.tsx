@@ -29,6 +29,7 @@ const NoticePipelineView = React.lazy(() => import('./notices/NoticePipelineView
 const DayPlanView = React.lazy(() => import('./runsheets/DayPlanView').then(m => ({ default: m.DayPlanView })));
 const QuickLogWidget = React.lazy(() => import('./jobs/QuickLogWidget'));
 const PartsView = React.lazy(() => import('./parts/PartsView'));
+const WatchesView = React.lazy(() => import('./watches/WatchesView'));
 
 // Note: Ensure PropertyDetailView is the correct new component. 
 // Since we have a duplicate file issue, we are importing from './properties/PropertyDetailView' explicitly.
@@ -249,6 +250,7 @@ const Router: React.FC<RouterProps> = ({
           onToggleEditMode={setIsEditMode}
           onOpenTechMenu={handleOpenTechMenu}
           onOpenParts={() => setActiveView(ViewType.PARTS)}
+          onOpenWatches={() => setActiveView(ViewType.WATCHES)}
         />
       );
 
@@ -260,6 +262,7 @@ const Router: React.FC<RouterProps> = ({
           onOpenNotices={() => setActiveView(ViewType.NOTICES)}
           onOpenDayPlan={() => setActiveView(ViewType.RUN_SHEET)}
           onOpenParts={() => setActiveView(ViewType.PARTS)}
+          onOpenWatches={() => setActiveView(ViewType.WATCHES)}
         />
       );
 
@@ -314,28 +317,12 @@ const Router: React.FC<RouterProps> = ({
         />
       );
 
-    case ViewType.WATCHES: {
-      const activeWatch: Watch = {
-        id: 'watch-compressor',
-        userId: 'tech-1',
-        entityType: 'ticket',
-        entityId: 'tkt-1',
-        triggerCondition: 'compressor_overheating',
-        isActive: true,
-        createdAt: new Date().toISOString()
-      };
+    case ViewType.WATCHES:
       return (
-        <div className="p-4 space-y-4 max-w-xl mx-auto pb-safe">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">Watches</h1>
-            <button onClick={() => setActiveView(ViewType.PROPERTIES)} className="px-3 py-1.5 text-sm bg-neutral-200 dark:bg-neutral-800 rounded">
-              Back
-            </button>
-          </div>
-          <p className="text-sm text-neutral-500">Watch: {activeWatch.triggerCondition} (Active: {activeWatch.isActive ? 'Yes' : 'No'})</p>
-        </div>
+        <WatchesView
+          onBack={() => setActiveView(ViewType.PROPERTIES)}
+        />
       );
-    }
 
       default:
         return <div>View not found</div>;

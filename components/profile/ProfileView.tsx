@@ -16,6 +16,7 @@ interface ProfileViewProps {
   onToggleEditMode: (enabled: boolean) => void;
   onOpenTechMenu: () => void;
   onOpenParts?: () => void;
+  onOpenWatches?: () => void;
 }
 
 const ProfileView: React.FC<ProfileViewProps> = ({
@@ -24,7 +25,8 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   isEditMode,
   onToggleEditMode,
   onOpenTechMenu,
-  onOpenParts
+  onOpenParts,
+  onOpenWatches
 }) => {
   const { properties, appliances, logs: changeLogs, isTutorialActive } = useData();
   const { importData, duplicateProperty, deleteProperty, startTutorial, endTutorial } = useActions();
@@ -135,6 +137,12 @@ const ProfileView: React.FC<ProfileViewProps> = ({
       icon: 'precision_manufacturing',
       label: 'Parts & Stockpiles Catalog',
       action: onOpenParts,
+      color: 'text-primary'
+    }] : []),
+    ...(onOpenWatches ? [{
+      icon: 'notifications_active',
+      label: 'Proactive Watches & Digest',
+      action: onOpenWatches,
       color: 'text-primary'
     }] : []),
     {

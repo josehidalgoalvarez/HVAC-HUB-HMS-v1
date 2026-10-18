@@ -12,6 +12,7 @@ interface TicketListViewProps {
   onOpenNotices?: () => void;
   onOpenDayPlan?: () => void;
   onOpenParts?: () => void;
+  onOpenWatches?: () => void;
 }
 
 export const TicketListView: React.FC<TicketListViewProps> = ({
@@ -20,6 +21,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   onOpenNotices,
   onOpenDayPlan,
   onOpenParts,
+  onOpenWatches,
 }) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -173,6 +175,17 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
             >
               <span className="material-symbols-outlined text-[16px]">precision_manufacturing</span>
               Parts
+            </button>
+          )}
+          {onOpenWatches && (
+            <button
+              id="open-watches-btn"
+              onClick={onOpenWatches}
+              className="px-2.5 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold hover:bg-amber-500/20 flex items-center gap-1 border border-amber-500/20"
+              title="View Proactive Watches & Digest"
+            >
+              <span className="material-symbols-outlined text-[16px]">notifications_active</span>
+              Watches
             </button>
           )}
           <button
