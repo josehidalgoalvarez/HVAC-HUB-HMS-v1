@@ -12,19 +12,22 @@ import {
   Part,
   Correction
 } from '../types';
-import PropertyListView from './properties/PropertyListView';
-import AddPropertyView from './properties/AddPropertyView';
-import PropertyLandingView from './properties/PropertyLandingView';
-import PropertyDetailView from './properties/PropertyDetailView'; // Legacy file note: Ensure we use the right one
-import PropertyCanvasView from './properties/PropertyCanvasView';
-import UtilsTechMenu from './profile/UtilsTechMenu';
-import ApplianceModule from './appliances/ApplianceModule';
-import ProfileView from './profile/ProfileView';
-import { TicketListView } from './tickets/TicketListView';
-import { NoticePipelineView } from './notices/NoticePipelineView';
-import { DayPlanView } from './runsheets/DayPlanView';
-import QuickLogWidget from './jobs/QuickLogWidget';
 import type { RunSheetBlock } from '../types/domain';
+import ViewLoadingSkeleton from './common/ViewLoadingSkeleton';
+
+// Route-level code splitting with React.lazy
+const PropertyListView = React.lazy(() => import('./properties/PropertyListView'));
+const AddPropertyView = React.lazy(() => import('./properties/AddPropertyView'));
+const PropertyLandingView = React.lazy(() => import('./properties/PropertyLandingView'));
+const PropertyDetailView = React.lazy(() => import('./properties/PropertyDetailView'));
+const PropertyCanvasView = React.lazy(() => import('./properties/PropertyCanvasView'));
+const UtilsTechMenu = React.lazy(() => import('./profile/UtilsTechMenu'));
+const ApplianceModule = React.lazy(() => import('./appliances/ApplianceModule'));
+const ProfileView = React.lazy(() => import('./profile/ProfileView'));
+const TicketListView = React.lazy(() => import('./tickets/TicketListView').then(m => ({ default: m.TicketListView })));
+const NoticePipelineView = React.lazy(() => import('./notices/NoticePipelineView').then(m => ({ default: m.NoticePipelineView })));
+const DayPlanView = React.lazy(() => import('./runsheets/DayPlanView').then(m => ({ default: m.DayPlanView })));
+const QuickLogWidget = React.lazy(() => import('./jobs/QuickLogWidget'));
 
 // Note: Ensure PropertyDetailView is the correct new component. 
 // Since we have a duplicate file issue, we are importing from './properties/PropertyDetailView' explicitly.
@@ -120,7 +123,8 @@ const Router: React.FC<RouterProps> = ({
 
   // --- Route Rendering ---
 
-  switch (activeView) {
+  const renderActiveView = () => {
+    switch (activeView) {
     case ViewType.PROPERTIES:
       return (
         <PropertyListView
@@ -348,9 +352,16 @@ const Router: React.FC<RouterProps> = ({
       );
     }
 
-    default:
-      return <div>View not found</div>;
-  }
+      default:
+        return <div>View not found</div>;
+    }
+  };
+
+  return (
+    <React.Suspense fallback={<ViewLoadingSkeleton />}>
+      {renderActiveView()}
+    </React.Suspense>
+  );
 };
 
 export default Router;

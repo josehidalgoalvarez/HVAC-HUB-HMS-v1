@@ -186,6 +186,6 @@ class Routes
             $group->get('/management/ping', function (Request $request, Response $response): Response {
                 return Auth::jsonSuccess(['service' => 'management', 'status' => 'ready']);
             })->add(Auth::requireRole(Auth::ROLE_MANAGEMENT));
-        });
+        })->add(Auth::requireRole());
     }
 }
