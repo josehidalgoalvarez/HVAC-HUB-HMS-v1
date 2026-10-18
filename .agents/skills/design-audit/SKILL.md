@@ -9,6 +9,13 @@ Taste isn't a prompt — it's rules. Run the audit, fix what's off, re-run.
 
 ## The ruleset
 
+**Brutal Rules (@alexanderpark)**
+- **No gradients**: Zero `linear-gradient` or `bg-gradient-*`. Surfaces are flat, tonal, and defined by crisp 1px borders, not gradient fades.
+- **Color scheme + ONE accent color**: Exactly one accent hue across the entire interface (e.g., `#0A4C40` petrol green). Zero competing accent hues. Semantic alerts (error/warning) use reserved, muted semantic tokens, not decorative accents. This rule catches "the color schema dissonates".
+- **No emojis as icons**: Never use emojis (⏰, ❄️, ⚡, 📋, etc.) as UI icons. Use crisp monochrome SVG strokes or Material Symbols sized to the type scale.
+- **No linear layouts**: Reject endless vertical ribbons of full-width identical cards. Break monotony with density shifts, metric callouts, and structured two-column telemetry.
+- **No global margin/padding**: Spacing belongs to components and semantic groups, not lazy outer container wrappers.
+
 **Spacing**
 - Consistent 8pt grid. Padding inside cards is uniform per card type — no 13px here, 17px there.
 - Related elements sit closer than unrelated ones (proximity = grouping). If two things look related but aren't, spacing is lying.

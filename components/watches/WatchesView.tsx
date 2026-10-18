@@ -132,7 +132,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           )}
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">⚡</span>
+              <span className="material-symbols-outlined text-amber-400 text-2xl leading-none">monitoring</span>
               <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight">
                 Proactive Engine & Smart Watches
               </h1>
@@ -150,7 +150,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
             disabled={isEvaluating}
             className="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 active:scale-[0.98] transition-all flex items-center gap-2"
           >
-            <span className={isEvaluating ? 'animate-spin' : ''}>⚙️</span>
+            <span className={`material-symbols-outlined text-sm leading-none ${isEvaluating ? 'animate-spin' : ''}`}>sync</span>
             <span>{isEvaluating ? 'Evaluating...' : 'Run Evaluation'}</span>
           </button>
 
@@ -158,7 +158,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
             onClick={() => setIsCreateModalOpen(true)}
             className="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 active:scale-[0.98] transition-all flex items-center gap-1.5"
           >
-            <span>+</span>
+            <span className="material-symbols-outlined text-sm leading-none font-bold">add</span>
             <span>New Watch</span>
           </button>
         </div>
@@ -167,7 +167,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
       {/* Feedback Toast */}
       {feedbackMessage && (
         <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-200">
-          <span>✓</span>
+          <span className="material-symbols-outlined text-sm leading-none">check_circle</span>
           <span>{feedbackMessage}</span>
         </div>
       )}
@@ -182,7 +182,8 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
               : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
           }`}
         >
-          <span>🛡️ Today's Digest</span>
+          <span className="material-symbols-outlined text-base leading-none">notifications_active</span>
+          <span>Today's Digest</span>
           {activeAlertCount > 0 && (
             <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-500 text-white">
               {activeAlertCount}
@@ -198,7 +199,8 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
               : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
           }`}
         >
-          <span>📋 All Watches ({watches.length})</span>
+          <span className="material-symbols-outlined text-base leading-none">visibility</span>
+          <span>All Watches ({watches.length})</span>
         </button>
       </div>
 
@@ -235,7 +237,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           {/* Watches Grid */}
           {filteredWatches.length === 0 ? (
             <div className="py-12 text-center text-slate-400 border border-dashed border-slate-800 rounded-2xl p-6">
-              <span className="text-3xl mb-2 block">🔍</span>
+              <span className="material-symbols-outlined text-slate-600 text-3xl mb-2 block mx-auto">search</span>
               <p className="text-sm">No watches match current filter.</p>
             </div>
           ) : (

@@ -57,7 +57,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
       <div className="w-full sm:max-w-lg bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl pb-safe">
         <div className="flex items-center justify-between pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🔔</span>
+            <span className="material-symbols-outlined text-amber-400 text-xl leading-none">notifications_active</span>
             <h2 className="text-lg font-bold text-white">Create Proactive Watch</h2>
           </div>
           <button
@@ -84,7 +84,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                     : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
                 }`}
               >
-                <span>⚖️</span>
+                <span className="material-symbols-outlined text-sm leading-none">event_busy</span>
                 <span>Notice Deadline</span>
               </button>
               <button
@@ -96,7 +96,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                     : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
                 }`}
               >
-                <span>❄️</span>
+                <span className="material-symbols-outlined text-sm leading-none">ac_unit</span>
                 <span>Weather Freeze</span>
               </button>
               <button
@@ -108,7 +108,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                     : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
                 }`}
               >
-                <span>⏳</span>
+                <span className="material-symbols-outlined text-sm leading-none">hourglass_empty</span>
                 <span>Reply Waiting</span>
               </button>
               <button
@@ -120,7 +120,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                     : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
                 }`}
               >
-                <span>📋</span>
+                <span className="material-symbols-outlined text-sm leading-none">assignment_late</span>
                 <span>Scheduled Task</span>
               </button>
             </div>

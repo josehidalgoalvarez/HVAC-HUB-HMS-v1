@@ -109,6 +109,12 @@
       "skillPath": "skills/cloud/api-gateway-mcp-server/SKILL.md",
       "computedHash": "becebedd6a23d0259693eafc27f4962d4b769cbd1734d46fa05f7bc33021daa8"
     },
+    "apple-design": {
+      "source": "dickwu/apple-design-skill",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "59bd78ead9b336f6cf823587589fc86727cbe0acec8c7c4a6b1d9e39578fd486"
+    },
     "application-design-center-design-deploy": {
       "source": "google/skills",
       "sourceType": "github",
@@ -1146,6 +1152,12 @@
       "sourceType": "github",
       "skillPath": "skills/web-artifacts-builder/SKILL.md",
       "computedHash": "d52d422ead3fa26859a6af129609841a8536b230a2d649f86e61771d063e05e2"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "a6a44d5498f7e8f68289902f3dedfc6f38ae0cee1e96527c80724cf27f727c2a"
     },
     "webapp-testing": {
       "source": "anthropics/skills",

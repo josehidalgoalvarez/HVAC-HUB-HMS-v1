@@ -26,31 +26,31 @@ export const WatchCard: React.FC<WatchCardProps> = ({
       case 'weather_freeze':
         return {
           label: 'Freeze Alert',
-          icon: '❄️',
+          icon: 'ac_unit',
           bg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
         };
       case 'notice_deadline':
         return {
           label: 'Notice Deadline',
-          icon: '⚖️',
+          icon: 'event_busy',
           bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
         };
       case 'reply_waiting':
         return {
           label: 'Reply Waiting',
-          icon: '⏳',
+          icon: 'hourglass_empty',
           bg: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
         };
       case 'scheduled_task':
         return {
           label: 'Scheduled Task',
-          icon: '📋',
+          icon: 'assignment_late',
           bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
         };
       default:
         return {
           label: type,
-          icon: '🔔',
+          icon: 'notifications',
           bg: 'bg-slate-500/10 text-slate-400 border-slate-500/30',
         };
     }
@@ -106,12 +106,13 @@ export const WatchCard: React.FC<WatchCardProps> = ({
           <span
             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${badge.bg}`}
           >
-            <span>{badge.icon}</span>
+            <span className="material-symbols-outlined text-[14px] leading-none">{badge.icon}</span>
             <span>{badge.label}</span>
           </span>
           {watch.quiet_hours_delayed && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-              🌙 Morning Batch
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              <span className="material-symbols-outlined text-[12px] leading-none">wb_twilight</span>
+              <span>Morning Batch</span>
             </span>
           )}
         </div>
@@ -143,7 +144,7 @@ export const WatchCard: React.FC<WatchCardProps> = ({
       {isTriggered && watch.latest_trigger_reason && (
         <div className="mt-2 mb-3 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200">
           <div className="flex items-start gap-2">
-            <span className="text-rose-400 text-sm mt-0.5">⚠️</span>
+            <span className="material-symbols-outlined text-rose-400 text-sm leading-none shrink-0 mt-0.5">warning</span>
             <div className="flex-1 text-xs">
               <p className="font-medium">{watch.latest_trigger_reason}</p>
               {watch.latest_trigger_data?.coldest_date && (
@@ -160,7 +161,7 @@ export const WatchCard: React.FC<WatchCardProps> = ({
       {/* Snoozed State Info */}
       {isSnoozed && watch.snoozed_until && (
         <div className="mt-2 mb-3 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex items-center gap-2">
-          <span>⏰</span>
+          <span className="material-symbols-outlined text-amber-400 text-sm leading-none">snooze</span>
           <span>Silenced until: <strong>{new Date(watch.snoozed_until).toLocaleString()}</strong></span>
         </div>
       )}
@@ -181,14 +182,14 @@ export const WatchCard: React.FC<WatchCardProps> = ({
               onClick={() => onSnooze(watch)}
               className="flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
             >
-              <span>⏰</span>
+              <span className="material-symbols-outlined text-sm leading-none">snooze</span>
               <span>Snooze</span>
             </button>
             <button
               onClick={() => onAcknowledge(watch)}
               className="flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold bg-blue-600/30 text-blue-200 hover:bg-blue-600/40 border border-blue-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
             >
-              <span>✓</span>
+              <span className="material-symbols-outlined text-sm leading-none">check</span>
               <span>Acknowledge</span>
             </button>
           </>
@@ -199,7 +200,7 @@ export const WatchCard: React.FC<WatchCardProps> = ({
             onClick={() => onReactivate(watch)}
             className="flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
           >
-            <span>🔄</span>
+            <span className="material-symbols-outlined text-sm leading-none">notifications_active</span>
             <span>Un-snooze</span>
           </button>
         )}

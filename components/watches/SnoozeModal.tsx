@@ -35,7 +35,7 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
-            <span className="text-xl">⏰</span>
+            <span className="material-symbols-outlined text-amber-400 text-xl leading-none">snooze</span>
             <h2 className="text-lg font-bold text-white">Snooze Watch</h2>
           </div>
           <button
@@ -72,7 +72,7 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
               <div className="text-sm font-bold text-amber-200">1 Hour</div>
               <div className="text-[11px] text-amber-400/80">Silences alerts for next 60 minutes</div>
             </div>
-            <span className="text-base text-amber-400">⏱️</span>
+            <span className="material-symbols-outlined text-amber-400 text-lg leading-none">timer</span>
           </button>
 
           <button
@@ -85,7 +85,7 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
               <div className="text-sm font-bold text-amber-200">4 Hours</div>
               <div className="text-[11px] text-amber-400/80">Postpone until afternoon or evening</div>
             </div>
-            <span className="text-base text-amber-400">⌛</span>
+            <span className="material-symbols-outlined text-amber-400 text-lg leading-none">hourglass_bottom</span>
           </button>
 
           <button
@@ -98,7 +98,7 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
               <div className="text-sm font-bold text-indigo-200">Until Tomorrow Morning</div>
               <div className="text-[11px] text-indigo-400/80">Silenced until 08:00 AM next day</div>
             </div>
-            <span className="text-base text-indigo-400">🌅</span>
+            <span className="material-symbols-outlined text-indigo-400 text-lg leading-none">wb_sunny</span>
           </button>
         </div>
 
