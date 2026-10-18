@@ -171,7 +171,41 @@ class Db
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS run_sheet (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tech_id INTEGER NOT NULL,
+                title TEXT NULL,
+                run_date TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'active',
+                route_order TEXT NULL,
+                notes TEXT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS run_sheet_block (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                run_sheet_id INTEGER NOT NULL,
+                ticket_id INTEGER NULL,
+                building_id INTEGER NULL,
+                unit_id INTEGER NULL,
+                title TEXT NOT NULL,
+                notes TEXT NULL,
+                sort_order INTEGER NOT NULL DEFAULT 1,
+                status TEXT NOT NULL DEFAULT 'pending',
+                start_time TEXT NULL,
+                end_time TEXT NULL,
+                estimated_minutes INTEGER NOT NULL DEFAULT 45,
+                actual_minutes INTEGER NULL,
+                required_tools TEXT NULL,
+                required_parts TEXT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
         ");
+
+        try {
+            $pdo->exec("ALTER TABLE run_sheet ADD COLUMN title TEXT NULL");
+        } catch (\Throwable) {}
     }
 
     /**

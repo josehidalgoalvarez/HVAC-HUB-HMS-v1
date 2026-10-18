@@ -7,6 +7,7 @@ namespace App;
 use App\Controllers\IntakeController;
 use App\Controllers\NoticeController;
 use App\Controllers\PhotoController;
+use App\Controllers\RunSheetController;
 use App\Controllers\TicketController;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -154,6 +155,15 @@ class Routes
             $group->get('/notices/{id}', [NoticeController::class, 'show']);
             $group->patch('/notices/{id}', [NoticeController::class, 'update']);
             $group->get('/notices/{id}/gate-status', [NoticeController::class, 'gateStatus']);
+
+            // --- Run Sheet Domain Endpoints (Phase 2 Day-Plan) ---
+            $group->post('/run-sheets/suggest-batch', [RunSheetController::class, 'suggestBatch']);
+            $group->get('/run-sheets', [RunSheetController::class, 'index']);
+            $group->post('/run-sheets', [RunSheetController::class, 'create']);
+            $group->get('/run-sheets/{id}', [RunSheetController::class, 'show']);
+            $group->post('/run-sheets/{id}/blocks', [RunSheetController::class, 'addBlock']);
+            $group->patch('/run-sheets/{id}/blocks/{blockId}', [RunSheetController::class, 'updateBlock']);
+            $group->delete('/run-sheets/{id}/blocks/{blockId}', [RunSheetController::class, 'deleteBlock']);
 
             // Tech role route
             $group->get('/tech/ping', function (Request $request, Response $response): Response {

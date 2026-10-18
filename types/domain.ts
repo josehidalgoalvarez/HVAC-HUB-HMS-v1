@@ -165,17 +165,91 @@ export interface Ticket {
 }
 
 export type RunSheetStatus = 'draft' | 'active' | 'completed';
+export type BlockStatus = 'pending' | 'in_progress' | 'completed' | 'skipped';
+
+export interface RunSheetBlock {
+  id: string | number;
+  run_sheet_id?: string | number;
+  ticket_id?: string | number | null;
+  wo_number?: string | null;
+  title: string;
+  notes?: string | null;
+  building_id?: string | number | null;
+  building_name?: string | null;
+  building_address?: string | null;
+  unit_id?: string | number | null;
+  unit_number?: string | null;
+  sort_order: number;
+  status: BlockStatus;
+  start_time?: string | null;
+  end_time?: string | null;
+  estimated_minutes: number;
+  actual_minutes?: number | null;
+  variance_minutes?: number | null;
+  required_tools?: string | null;
+  required_tools_list?: string[];
+  required_parts?: string | null;
+  required_parts_list?: string[];
+  exceeds_carry_capacity?: boolean;
+  carry_warning?: string | null;
+  carry_reason?: string | null;
+  estimated_weight_lbs?: number;
+  notice_id?: string | number | null;
+  notice_status?: NoticeStatus | null;
+  notice_gate_status?: NoticeGateStatus;
+  notice_is_cleared?: boolean;
+  notice_gate_reason?: string | null;
+  travel_buffer_before_minutes?: number;
+  is_site_transition?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface RunSheetRollup {
+  total_blocks: number;
+  completed_blocks: number;
+  pending_blocks: number;
+  progress_percentage: number;
+  total_estimated_minutes: number;
+  total_actual_minutes: number;
+  variance_minutes: number;
+  red_gate_count: number;
+  amber_gate_count: number;
+  green_gate_count: number;
+  exceeds_capacity_count: number;
+}
 
 export interface RunSheet {
-  id: string;
-  techId: string;
-  runDate: string; // YYYY-MM-DD
+  id: string | number;
+  techId?: string;
+  tech_id?: string | number;
+  tech_name?: string;
+  runDate?: string;
+  run_date: string; // YYYY-MM-DD
   status: RunSheetStatus;
   routeOrder?: string[];
+  route_order?: any;
   ticketIds?: string[];
   notes?: string;
+  blocks?: RunSheetBlock[];
+  blocks_count?: number;
+  completed_blocks_count?: number;
+  total_estimated_minutes?: number;
+  total_actual_minutes?: number;
+  rollup?: RunSheetRollup;
   createdAt?: string;
+  created_at?: string;
   updatedAt?: string;
+  updated_at?: string;
+}
+
+export interface BatchSuggestionResult {
+  total_tickets: number;
+  total_sites: number;
+  estimated_work_minutes: number;
+  estimated_travel_minutes: number;
+  estimated_total_minutes: number;
+  blocks: RunSheetBlock[];
 }
 
 export type NoticeStatus = 'drafted' | 'sent' | 'served' | 'verified';

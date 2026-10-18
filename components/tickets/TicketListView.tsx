@@ -10,12 +10,14 @@ interface TicketListViewProps {
   onBack?: () => void;
   initialSelectedTicketId?: string | null;
   onOpenNotices?: () => void;
+  onOpenDayPlan?: () => void;
 }
 
 export const TicketListView: React.FC<TicketListViewProps> = ({
   onBack,
   initialSelectedTicketId = null,
   onOpenNotices,
+  onOpenDayPlan,
 }) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -140,6 +142,16 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5">
+          {onOpenDayPlan && (
+            <button
+              onClick={onOpenDayPlan}
+              className="px-2.5 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold hover:bg-emerald-500/20 flex items-center gap-1 border border-emerald-500/20"
+              title="View Day Plan / Run Sheet"
+            >
+              <span className="material-symbols-outlined text-[16px]">map</span>
+              Day Plan
+            </button>
+          )}
           {onOpenNotices && (
             <button
               onClick={onOpenNotices}

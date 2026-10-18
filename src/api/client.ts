@@ -3,7 +3,7 @@
  * Connects React frontend to Slim 4 JSON API
  */
 
-import type { Ticket, Correction, Notice } from '../../types/domain';
+import type { Ticket, Correction, Notice, RunSheet, RunSheetBlock, BatchSuggestionResult } from '../../types/domain';
 
 export interface ApiResponseEnvelope<T> {
   data: T | null;
@@ -382,6 +382,85 @@ export class ApiClient {
       is_cleared: boolean;
       reason: string;
     }>(`/api/notices/${id}/gate-status`);
+  }
+
+  // --- Run Sheet & Day-Plan Methods (Phase 2) ---
+
+  /**
+   * Get list of run sheets
+   */
+  public async getRunSheets(params?: Record<string, string | number>): Promise<RunSheet[]> {
+    let path = '/api/run-sheets';
+    if (params) {
+      const q = new URLSearchParams();
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) {
+          q.append(k, String(v));
+        }
+      });
+      const qs = q.toString();
+      if (qs) path += `?${qs}`;
+    }
+    return this.get<RunSheet[]>(path);
+  }
+
+  /**
+   * Get single run sheet by ID with full ordered blocks and rollups
+   */
+  public async getRunSheet(id: string | number): Promise<RunSheet> {
+    return this.get<RunSheet>(`/api/run-sheets/${id}`);
+  }
+
+  /**
+   * Create a new run sheet
+   */
+  public async createRunSheet(data: Partial<RunSheet>): Promise<RunSheet> {
+    return this.post<RunSheet>('/api/run-sheets', data);
+  }
+
+  /**
+   * Update run sheet metadata
+   */
+  public async updateRunSheet(id: string | number, data: Partial<RunSheet> & { reason?: string }): Promise<RunSheet> {
+    return this.patch<RunSheet>(`/api/run-sheets/${id}`, data);
+  }
+
+  /**
+   * Add a time block to a run sheet
+   */
+  public async addRunSheetBlock(runSheetId: string | number, data: Partial<RunSheetBlock>): Promise<RunSheetBlock> {
+    return this.post<RunSheetBlock>(`/api/run-sheets/${runSheetId}/blocks`, data);
+  }
+
+  /**
+   * Update a run sheet block (e.g. record actual_minutes, complete block)
+   */
+  public async updateRunSheetBlock(
+    runSheetId: string | number,
+    blockId: string | number,
+    data: Partial<RunSheetBlock> & { reason?: string }
+  ): Promise<RunSheetBlock> {
+    return this.patch<RunSheetBlock>(`/api/run-sheets/${runSheetId}/blocks/${blockId}`, data);
+  }
+
+  /**
+   * Delete a block from a run sheet
+   */
+  public async deleteRunSheetBlock(
+    runSheetId: string | number,
+    blockId: string | number
+  ): Promise<{ deleted: boolean; id: number }> {
+    return this.delete<{ deleted: boolean; id: number }>(`/api/run-sheets/${runSheetId}/blocks/${blockId}`);
+  }
+
+  /**
+   * Suggest batch of travel-ordered time blocks grouped by site proximity
+   */
+  public async suggestRunSheetBatch(data: {
+    ticket_ids?: (string | number)[];
+    start_time?: string;
+  }): Promise<BatchSuggestionResult> {
+    return this.post<BatchSuggestionResult>('/api/run-sheets/suggest-batch', data);
   }
 
   /**

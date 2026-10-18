@@ -22,6 +22,7 @@ import ApplianceModule from './appliances/ApplianceModule';
 import ProfileView from './profile/ProfileView';
 import { TicketListView } from './tickets/TicketListView';
 import { NoticePipelineView } from './notices/NoticePipelineView';
+import { DayPlanView } from './runsheets/DayPlanView';
 
 // Note: Ensure PropertyDetailView is the correct new component. 
 // Since we have a duplicate file issue, we are importing from './properties/PropertyDetailView' explicitly.
@@ -249,30 +250,20 @@ const Router: React.FC<RouterProps> = ({
           onBack={() => setActiveView(ViewType.PROPERTIES)}
           initialSelectedTicketId={selectedTicketId}
           onOpenNotices={() => setActiveView(ViewType.NOTICES)}
+          onOpenDayPlan={() => setActiveView(ViewType.RUN_SHEET)}
         />
       );
 
-    case ViewType.RUN_SHEET: {
-      const activeRunSheet: RunSheet = {
-        id: 'rs-today',
-        techId: 'tech-1',
-        runDate: new Date().toISOString().split('T')[0],
-        status: 'active',
-        routeOrder: [],
-        notes: 'Today Route Sheet'
-      };
+    case ViewType.RUN_SHEET:
       return (
-        <div className="p-4 space-y-4 max-w-xl mx-auto pb-safe">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">Run Sheet</h1>
-            <button onClick={() => setActiveView(ViewType.PROPERTIES)} className="px-3 py-1.5 text-sm bg-neutral-200 dark:bg-neutral-800 rounded">
-              Back
-            </button>
-          </div>
-          <p className="text-sm text-neutral-500">Run Sheet: {activeRunSheet.runDate} - Status: {activeRunSheet.status}</p>
-        </div>
+        <DayPlanView
+          onBack={() => setActiveView(ViewType.PROPERTIES)}
+          onOpenTicket={(ticketId) => {
+            setSelectedTicketId(ticketId);
+            setActiveView(ViewType.TICKETS);
+          }}
+        />
       );
-    }
 
     case ViewType.QUICK_LOG: {
       const contextBuilding: Building = {

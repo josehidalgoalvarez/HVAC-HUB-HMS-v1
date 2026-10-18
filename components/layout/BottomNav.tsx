@@ -33,6 +33,17 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, onNavigate }) => {
         </button>
 
         <button
+          id="day-plan-nav-item"
+          onClick={() => onNavigate(ViewType.RUN_SHEET)}
+          className={`group flex flex-1 flex-col items-center justify-center gap-1 transition-all ${activeView === ViewType.RUN_SHEET ? 'text-primary scale-110' : 'text-text-sub-light dark:text-text-sub-dark'}`}
+        >
+          <div className="relative">
+            <span className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.RUN_SHEET ? 'font-variation-settings-fill' : ''}`}>schedule</span>
+          </div>
+          <span className="text-[10px] font-bold tracking-wide">Day Plan</span>
+        </button>
+
+        <button
           onClick={() => onNavigate(ViewType.APPLIANCES)}
           className={`group flex flex-1 flex-col items-center justify-center gap-1 transition-all ${activeView === ViewType.APPLIANCES ? 'text-primary scale-110' : 'text-text-sub-light dark:text-text-sub-dark'}`}
         >
