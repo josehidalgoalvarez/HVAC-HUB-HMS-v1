@@ -3,6 +3,7 @@ import React, { createContext, useState, ReactNode, useMemo, useEffect } from 'r
 import { Property, Appliance, ChangeLogEntry } from '../types';
 import { INITIAL_PROPERTIES, INITIAL_APPLIANCES } from '../constants';
 import { RESIDENTIAL_PROPERTIES, RESIDENTIAL_APPLIANCES } from '../residential_constants';
+import { apiClient } from '../src/api/client';
 
 // --- Inventory Context (Properties & Appliances) ---
 // Changes infrequently.
@@ -56,8 +57,14 @@ interface ActionContextType {
 export const ActionContext = createContext<ActionContextType | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // Feature flag: default to false (localStorage). When true, reads through API client.
+  const useApi = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_USE_API === 'true');
+
   // --- Initialization with Persistence ---
   const [properties, setProperties] = useState<Property[]>(() => {
+    if (useApi) {
+      return [];
+    }
     try {
       const saved = localStorage.getItem('hvachome_properties');
       return saved ? JSON.parse(saved) : INITIAL_PROPERTIES;
@@ -67,6 +74,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   const [appliances, setAppliances] = useState<Appliance[]>(() => {
+    if (useApi) {
+      return [];
+    }
     try {
       const saved = localStorage.getItem('hvachome_appliances');
       return saved ? JSON.parse(saved) : INITIAL_APPLIANCES;
@@ -76,6 +86,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   const [logs, setLogs] = useState<ChangeLogEntry[]>(() => {
+    if (useApi) {
+      return [];
+    }
     try {
       const saved = localStorage.getItem('hvachome_logs');
       return saved ? JSON.parse(saved) : [{
@@ -93,18 +106,46 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   });
 
-  // --- Persistence Effects ---
+  // --- API Load Effect (when VITE_USE_API=true) ---
   useEffect(() => {
-    localStorage.setItem('hvachome_properties', JSON.stringify(properties));
-  }, [properties]);
+    if (!useApi) return;
+    let isMounted = true;
+    apiClient.get<{ properties: Property[]; appliances: Appliance[]; logs?: ChangeLogEntry[] }>('/api/inventory')
+      .then(res => {
+        if (!isMounted) return;
+        setProperties(res?.properties || []);
+        setAppliances(res?.appliances || []);
+        if (res?.logs) setLogs(res.logs);
+      })
+      .catch(err => {
+        // Mock shape / empty state when endpoint not yet populated
+        console.warn('API inventory unavailable, loaded empty state:', err);
+        if (isMounted) {
+          setProperties([]);
+          setAppliances([]);
+        }
+      });
+    return () => { isMounted = false; };
+  }, [useApi]);
+
+  // --- Persistence Effects (when flag off) ---
+  useEffect(() => {
+    if (!useApi) {
+      localStorage.setItem('hvachome_properties', JSON.stringify(properties));
+    }
+  }, [properties, useApi]);
 
   useEffect(() => {
-    localStorage.setItem('hvachome_appliances', JSON.stringify(appliances));
-  }, [appliances]);
+    if (!useApi) {
+      localStorage.setItem('hvachome_appliances', JSON.stringify(appliances));
+    }
+  }, [appliances, useApi]);
 
   useEffect(() => {
-    localStorage.setItem('hvachome_logs', JSON.stringify(logs));
-  }, [logs]);
+    if (!useApi) {
+      localStorage.setItem('hvachome_logs', JSON.stringify(logs));
+    }
+  }, [logs, useApi]);
 
   // --- Helpers ---
   const getAppliance = (id: string) => appliances.find(a => a.id === id);

@@ -10,7 +10,7 @@ interface AddPropertyViewProps {
    initialPropertyId?: string | null;
 }
 
-import { compressImage } from '../../utils/imageUtils'; // Import added
+import { compressAndUploadImage } from '../../utils/imageUtils'; // Import added
 
 const AddPropertyView: React.FC<AddPropertyViewProps> = ({ onCancel, onSave, initialPropertyId }) => {
    const { getProperty } = useData();
@@ -52,7 +52,7 @@ const AddPropertyView: React.FC<AddPropertyViewProps> = ({ onCancel, onSave, ini
       if (file) {
          try {
             setIsProcessing(true);
-            const compressed = await compressImage(file, 1200, 0.7); // High quality for property cover
+            const compressed = await compressAndUploadImage(file, { maxWidth: 1600, quality: 0.7, entityType: 'property' });
             setFormData(prev => ({ ...prev, imageUrl: compressed }));
          } catch (err) {
             console.error("Compression failed", err);

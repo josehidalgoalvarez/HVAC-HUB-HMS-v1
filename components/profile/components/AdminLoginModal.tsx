@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Modal } from '../../ui/Modal';
 
+import { apiClient } from '../../../src/api/client';
+
 interface AdminLoginModalProps {
     onClose: () => void;
     onSuccess: () => void;
@@ -10,10 +12,39 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ onClose, onSuc
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleLoginSubmit = (e: React.FormEvent) => {
+    const handleLoginSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (username === 'tech1' && password === 'tech1') {
+        setLoginError('');
+
+        const useApi = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_USE_API === 'true');
+
+        if (useApi) {
+            try {
+                setIsSubmitting(true);
+                const email = username.includes('@') ? username : `${username}@hvachome.local`;
+                const loginResult = await apiClient.login(email, password);
+                if (loginResult && loginResult.token) {
+                    // Verify round-trip to GET /api/tickets
+                    await apiClient.getTickets();
+                    onSuccess();
+                    setUsername('');
+                    setPassword('');
+                    alert(`⚡ Logged in as ${loginResult.user.name} (${loginResult.user.role}) ⚡\n\nToken verified and round-trip /api/tickets succeeded.`);
+                    return;
+                }
+            } catch (err: unknown) {
+                const msg = err instanceof Error ? err.message : 'Login failed';
+                setLoginError(msg);
+                return;
+            } finally {
+                setIsSubmitting(false);
+            }
+        }
+
+        // Offline / v1 local fallback
+        if ((username === 'tech1' && password === 'tech1') || (username === 'tech' && password === 'tech')) {
             onSuccess();
             setUsername('');
             setPassword('');
@@ -63,9 +94,10 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ onClose, onSuc
 
                 <button
                     type="submit"
-                    className="w-full bg-brand-black dark:bg-white text-white dark:text-brand-black font-bold py-3 rounded-xl hover:opacity-90 transition-opacity mt-2"
+                    disabled={isSubmitting}
+                    className="w-full bg-brand-black dark:bg-white text-white dark:text-brand-black font-bold py-3 rounded-xl hover:opacity-90 transition-opacity mt-2 disabled:opacity-50"
                 >
-                    Unlock
+                    {isSubmitting ? 'Verifying...' : 'Unlock'}
                 </button>
             </form>
 

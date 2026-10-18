@@ -1,17 +1,36 @@
-
-export interface Property {
+export interface Building {
   id: string;
   name: string;
   address: string;
+  imageUrl?: string;
+  comments?: string;
+  is3DReady?: boolean;
+  definedRooms?: string[];
+  floors?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Unit {
+  id: string;
+  buildingId: string;
+  unitNumber: string;
+  floor?: string;
+  comments?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/**
+ * Property maintains backward compatibility with v1 while extending Building
+ */
+export interface Property extends Building {
   imageUrl: string;
   applianceCount: number;
   is3DReady: boolean;
   sqFt?: string;
   yearBuilt?: string;
   lotSize?: string;
-  comments?: string;
-  definedRooms?: string[];
-  floors?: string[];
 }
 
 export interface ApplianceSpecs {
@@ -83,4 +102,185 @@ export interface MaintenanceRecord {
   type: string;
   notes: string;
   technician: string;
+}
+
+// --- v2 Domain Entities ---
+
+export type TicketState =
+  | 'new'
+  | 'verified'
+  | 'in-progress'
+  | 'blocked'
+  | 'on-hold'
+  | 'done'
+  | 'closed'
+  | 'closed-elsewhere'
+  | 'open'
+  | 'in_progress'
+  | 'pending_parts'
+  | 'resolved';
+
+export type TicketPriority = 'low' | 'medium' | 'high' | 'urgent';
+
+export interface TicketRollup {
+  total: number;
+  done: number;
+  blocked: number;
+  inProgress: number;
+  states: Record<string, number>;
+}
+
+export interface Ticket {
+  id: string;
+  wo_number: string | null;           // nullable per spec (unnumbered jobs allowed, linkable later)
+  parent_ticket_id: string | null;    // nullable per spec (1 parent -> N children)
+  buildingId: string;
+  unitId?: string | null;
+  buildingName?: string;
+  unitNumber?: string;
+  title: string;
+  description?: string;
+  verbatim_text?: string | null;      // raw screenshot text from Yardi/tenant
+  verified_scope?: string | null;     // technician confirmed job description
+  photo_url?: string | null;          // screenshot photo url
+  state: TicketState;
+  status?: TicketState;               // API compatibility alias
+  priority: TicketPriority;
+  blocker_reason?: string | null;
+  last_seen_in_yardi?: string | null; // null = not yet verified in Yardi; >=7d = stale warning
+  is_stale_yardi?: boolean;
+  yardi_warning?: string | null;
+  children?: Ticket[];
+  childrenCount?: number;
+  childrenRollup?: TicketRollup;
+  assignedTechId?: string | null;
+  assigned_tech_name?: string | null;
+  notice?: Notice;
+  notice_id?: number | string | null;
+  notice_status?: NoticeStatus | null;
+  notice_gate_status?: NoticeGateStatus | null;
+  createdByUserId?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export type RunSheetStatus = 'draft' | 'active' | 'completed';
+
+export interface RunSheet {
+  id: string;
+  techId: string;
+  runDate: string; // YYYY-MM-DD
+  status: RunSheetStatus;
+  routeOrder?: string[];
+  ticketIds?: string[];
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type NoticeStatus = 'drafted' | 'sent' | 'served' | 'verified';
+export type NoticeGateStatus = 'green' | 'amber' | 'red';
+export type NoticeType = 'entry' | 'maintenance' | 'inspection' | 'general';
+
+export interface Notice {
+  id: string;
+  ticketId?: string | null;
+  ticket_id?: string | number | null;
+  buildingId: string;
+  building_id?: string | number;
+  buildingName?: string;
+  building_name?: string;
+  unitId?: string | null;
+  unit_id?: string | number | null;
+  unitNumber?: string;
+  unit_number?: string;
+  woNumber?: string | null;
+  wo_number?: string | null;
+  ticketTitle?: string | null;
+  ticket_title?: string | null;
+  title: string;
+  content: string;
+  status: NoticeStatus;
+  noticeType: NoticeType;
+  notice_type?: NoticeType;
+  entryDate?: string | null;
+  entry_date?: string | null;
+  entryStart?: string | null;
+  entry_start?: string | null;
+  entryEnd?: string | null;
+  entry_end?: string | null;
+  serveByDeadline?: string | null;
+  serve_by_deadline?: string | null;
+  draftedAt?: string | null;
+  drafted_at?: string | null;
+  sentAt?: string | null;
+  sent_at?: string | null;
+  servedAt?: string | null;
+  served_at?: string | null;
+  verifiedAt?: string | null;
+  verified_at?: string | null;
+  servedMethod?: string | null;
+  served_method?: string | null;
+  verifiedByUserId?: string | null;
+  verified_by_user_id?: string | number | null;
+  gateStatus?: NoticeGateStatus;
+  gate_status?: NoticeGateStatus;
+  isCleared?: boolean;
+  is_cleared?: boolean;
+  gateReason?: string;
+  gate_reason?: string;
+  createdBy?: string;
+  created_by?: string | number;
+  createdAt: string;
+  created_at?: string;
+  updatedAt?: string;
+}
+
+export interface Watch {
+  id: string;
+  userId: string;
+  entityType: 'ticket' | 'part' | 'appliance' | 'building' | 'unit';
+  entityId: string;
+  triggerCondition: string;
+  isActive: boolean;
+  lastCheckedAt?: string | null;
+  lastTriggeredAt?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface Stockpile {
+  id: string;
+  name: string;
+  location: string;
+  buildingId?: string | null;
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Part {
+  id: string;
+  name: string;
+  partNumber?: string;
+  category?: string;
+  description?: string;
+  quantityOnHand: number;
+  minQuantity: number;
+  unitCost?: number;
+  stockpileId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Correction {
+  id: string;
+  entityType: string;
+  entityId: string;
+  fieldName: string;
+  oldValue?: string | null;
+  newValue?: string | null;
+  changedBy?: string | null;
+  reason?: string | null;
+  createdAt: string;
 }

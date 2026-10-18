@@ -1,6 +1,17 @@
 
 import React from 'react';
-import { ViewType } from '../types';
+import {
+  ViewType,
+  Building,
+  Unit,
+  Ticket,
+  RunSheet,
+  Notice,
+  Watch,
+  Stockpile,
+  Part,
+  Correction
+} from '../types';
 import PropertyListView from './properties/PropertyListView';
 import AddPropertyView from './properties/AddPropertyView';
 import PropertyLandingView from './properties/PropertyLandingView';
@@ -9,6 +20,8 @@ import PropertyCanvasView from './properties/PropertyCanvasView';
 import UtilsTechMenu from './profile/UtilsTechMenu';
 import ApplianceModule from './appliances/ApplianceModule';
 import ProfileView from './profile/ProfileView';
+import { TicketListView } from './tickets/TicketListView';
+import { NoticePipelineView } from './notices/NoticePipelineView';
 
 // Note: Ensure PropertyDetailView is the correct new component. 
 // Since we have a duplicate file issue, we are importing from './properties/PropertyDetailView' explicitly.
@@ -47,6 +60,7 @@ const Router: React.FC<RouterProps> = ({
   toggleDarkMode,
   isDarkMode
 }) => {
+  const [selectedTicketId, setSelectedTicketId] = React.useState<string | null>(null);
 
   // --- Navigation Handlers ---
 
@@ -228,6 +242,133 @@ const Router: React.FC<RouterProps> = ({
         // Removed CRUD props - ProfileView now uses useActions
         />
       );
+
+    case ViewType.TICKETS:
+      return (
+        <TicketListView
+          onBack={() => setActiveView(ViewType.PROPERTIES)}
+          initialSelectedTicketId={selectedTicketId}
+          onOpenNotices={() => setActiveView(ViewType.NOTICES)}
+        />
+      );
+
+    case ViewType.RUN_SHEET: {
+      const activeRunSheet: RunSheet = {
+        id: 'rs-today',
+        techId: 'tech-1',
+        runDate: new Date().toISOString().split('T')[0],
+        status: 'active',
+        routeOrder: [],
+        notes: 'Today Route Sheet'
+      };
+      return (
+        <div className="p-4 space-y-4 max-w-xl mx-auto pb-safe">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold">Run Sheet</h1>
+            <button onClick={() => setActiveView(ViewType.PROPERTIES)} className="px-3 py-1.5 text-sm bg-neutral-200 dark:bg-neutral-800 rounded">
+              Back
+            </button>
+          </div>
+          <p className="text-sm text-neutral-500">Run Sheet: {activeRunSheet.runDate} - Status: {activeRunSheet.status}</p>
+        </div>
+      );
+    }
+
+    case ViewType.QUICK_LOG: {
+      const contextBuilding: Building = {
+        id: selectedPropertyId || 'bldg-curr',
+        name: 'Selected Building',
+        address: 'Site Address'
+      };
+      const contextUnit: Unit = {
+        id: 'unit-1',
+        buildingId: contextBuilding.id,
+        unitNumber: '101'
+      };
+      const sampleCorrection: Correction = {
+        id: 'corr-quick',
+        entityType: 'ticket',
+        entityId: 'tkt-1',
+        fieldName: 'status',
+        reason: 'Quick-log field correction',
+        createdAt: new Date().toISOString()
+      };
+      return (
+        <div className="p-4 space-y-4 max-w-xl mx-auto pb-safe">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold">Quick Log</h1>
+            <button onClick={() => setActiveView(ViewType.PROPERTIES)} className="px-3 py-1.5 text-sm bg-neutral-200 dark:bg-neutral-800 rounded">
+              Back
+            </button>
+          </div>
+          <p className="text-sm text-neutral-500">
+            {contextBuilding.name} {contextUnit.unitNumber} | Audit: {sampleCorrection.fieldName}
+          </p>
+        </div>
+      );
+    }
+
+    case ViewType.PARTS: {
+      const activeStockpile: Stockpile = {
+        id: 'sp-van-1',
+        name: 'Van 1 Mobile Stockpile',
+        location: 'Service Vehicle'
+      };
+      const activePart: Part = {
+        id: 'part-cap-45',
+        name: 'Dual Run Capacitor 45/5',
+        quantityOnHand: 3,
+        minQuantity: 1,
+        stockpileId: activeStockpile.id
+      };
+      return (
+        <div className="p-4 space-y-4 max-w-xl mx-auto pb-safe">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold">Parts & Stockpile</h1>
+            <button onClick={() => setActiveView(ViewType.PROPERTIES)} className="px-3 py-1.5 text-sm bg-neutral-200 dark:bg-neutral-800 rounded">
+              Back
+            </button>
+          </div>
+          <p className="text-sm text-neutral-500">
+            {activePart.name} in {activeStockpile.name} (Qty: {activePart.quantityOnHand})
+          </p>
+        </div>
+      );
+    }
+
+    case ViewType.NOTICES:
+      return (
+        <NoticePipelineView
+          onBack={() => setActiveView(ViewType.PROPERTIES)}
+          onOpenTicket={(ticketId) => {
+            setSelectedTicketId(ticketId);
+            setActiveView(ViewType.TICKETS);
+          }}
+        />
+      );
+
+    case ViewType.WATCHES: {
+      const activeWatch: Watch = {
+        id: 'watch-compressor',
+        userId: 'tech-1',
+        entityType: 'ticket',
+        entityId: 'tkt-1',
+        triggerCondition: 'compressor_overheating',
+        isActive: true,
+        createdAt: new Date().toISOString()
+      };
+      return (
+        <div className="p-4 space-y-4 max-w-xl mx-auto pb-safe">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold">Watches</h1>
+            <button onClick={() => setActiveView(ViewType.PROPERTIES)} className="px-3 py-1.5 text-sm bg-neutral-200 dark:bg-neutral-800 rounded">
+              Back
+            </button>
+          </div>
+          <p className="text-sm text-neutral-500">Watch: {activeWatch.triggerCondition} (Active: {activeWatch.isActive ? 'Yes' : 'No'})</p>
+        </div>
+      );
+    }
 
     default:
       return <div>View not found</div>;

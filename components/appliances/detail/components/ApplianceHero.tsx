@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { Appliance } from '../../../../types';
-import { compressImage } from '../../../../utils/imageUtils';
+import { compressAndUploadImage } from '../../../../utils/imageUtils';
 
 interface ApplianceHeroProps {
   appliance: Appliance;
@@ -53,7 +53,7 @@ export const ApplianceHero: React.FC<ApplianceHeroProps> = ({ appliance, onStatu
     if (file) {
       try {
         setIsProcessing(true);
-        const compressed = await compressImage(file);
+        const compressed = await compressAndUploadImage(file, { entityType: 'appliance', entityId: appliance.id });
         onImageUpdate(compressed);
       } catch (err) {
         console.error("Compression failed", err);

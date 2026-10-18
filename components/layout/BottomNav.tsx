@@ -22,6 +22,17 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, onNavigate }) => {
         </button>
 
         <button
+          id="tickets-nav-item"
+          onClick={() => onNavigate(ViewType.TICKETS)}
+          className={`group flex flex-1 flex-col items-center justify-center gap-1 transition-all ${activeView === ViewType.TICKETS ? 'text-primary scale-110' : 'text-text-sub-light dark:text-text-sub-dark'}`}
+        >
+          <div className="relative">
+            <span className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.TICKETS ? 'font-variation-settings-fill' : ''}`}>assignment</span>
+          </div>
+          <span className="text-[10px] font-bold tracking-wide">Tickets</span>
+        </button>
+
+        <button
           onClick={() => onNavigate(ViewType.APPLIANCES)}
           className={`group flex flex-1 flex-col items-center justify-center gap-1 transition-all ${activeView === ViewType.APPLIANCES ? 'text-primary scale-110' : 'text-text-sub-light dark:text-text-sub-dark'}`}
         >

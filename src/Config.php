@@ -49,6 +49,7 @@ class Config
             'app_env' => self::env('APP_ENV', 'development'),
             'app_secret' => self::env('APP_SECRET', 'hvachome-v2-dev-secret-token'),
             'db' => [
+                'connection' => self::env('DB_CONNECTION', 'mysql'),
                 'host' => self::env('DB_HOST', '127.0.0.1'),
                 'port' => (int) self::env('DB_PORT', '3306'),
                 'database' => self::env('DB_DATABASE', 'hvachome'),

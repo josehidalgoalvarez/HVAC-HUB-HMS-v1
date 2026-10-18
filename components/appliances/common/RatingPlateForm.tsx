@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Appliance, CanvasPosition } from '../../../types';
 import { useData } from '../../../hooks/useData';
-import { compressImage } from '../../../utils/imageUtils';
+import { compressImage, compressAndUploadImage } from '../../../utils/imageUtils';
 
 interface RatingPlateFormProps {
     appliance: Appliance;
@@ -140,7 +140,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
         if (file) {
             try {
                 setIsProcessing(true);
-                const compressed = await compressImage(file);
+                const compressed = await compressAndUploadImage(file, { entityType: 'rating_plate', entityId: appliance.id });
                 setRatingPlateUrl(compressed);
             } catch (err) {
                 console.error("Compression failed", err);
@@ -175,7 +175,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                 // PDFs vs Images logic could go here, for now assuming image capture for docs or simple file link
                 // If it's an image, compress it. If PDF, real app would upload to blob storage (here we mimic with local blob for session or base64)
                 if (file.type.startsWith('image/')) {
-                    const compressed = await compressImage(file);
+                    const compressed = await compressAndUploadImage(file, { entityType: 'document', entityId: appliance.id });
                     setter(compressed);
                 } else {
                     // For non-images in this local-only demo, we might just warn or use a fake path, 

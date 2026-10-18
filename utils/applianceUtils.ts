@@ -1,6 +1,6 @@
 import { ApplianceSpecs } from '../types';
 
-export const SPEC_LABELS: Record<keyof ApplianceSpecs, string> = {
+export const SPEC_LABELS: Partial<Record<keyof ApplianceSpecs, string>> = {
     btuInput: 'Input Rating',
     btuOutput: 'Output Rating',
     kw: 'Power (kW)',

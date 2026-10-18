@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { useData } from '../../hooks/useData';
-import { compressImage } from '../../utils/imageUtils';
+import { compressAndUploadImage } from '../../utils/imageUtils';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 
@@ -41,7 +41,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
     if (file) {
       try {
         setIsProcessing(true);
-        const compressed = await compressImage(file, 1200, 0.7); // Slightly higher quality for property cover
+        const compressed = await compressAndUploadImage(file, { maxWidth: 1600, quality: 0.7, entityType: 'property', entityId: property.id });
         setNewImageUrl(compressed);
       } catch (err) {
         console.error("Compression failed", err);
