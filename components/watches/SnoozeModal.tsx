@@ -35,7 +35,7 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-amber-400 text-xl leading-none">snooze</span>
+            <span className="material-symbols-outlined text-primary text-xl leading-none">snooze</span>
             <h2 className="text-lg font-bold text-white">Snooze Watch</h2>
           </div>
           <button
@@ -66,39 +66,39 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
             type="button"
             disabled={isSubmitting}
             onClick={() => handleSnooze('1h')}
-            className="min-h-[48px] px-4 py-3 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 active:scale-[0.98] transition-all flex items-center justify-between text-left"
+            className="min-h-[48px] px-4 py-3 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 hover:border-primary/50 active:scale-[0.98] transition-all flex items-center justify-between text-left group"
           >
             <div>
-              <div className="text-sm font-bold text-amber-200">1 Hour</div>
-              <div className="text-[11px] text-amber-400/80">Silences alerts for next 60 minutes</div>
+              <div className="text-sm font-semibold text-white group-hover:text-primary transition-colors">1 Hour</div>
+              <div className="text-[11px] text-slate-400">Silences alerts for next 60 minutes</div>
             </div>
-            <span className="material-symbols-outlined text-amber-400 text-lg leading-none">timer</span>
+            <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-lg leading-none transition-colors">timer</span>
           </button>
 
           <button
             type="button"
             disabled={isSubmitting}
             onClick={() => handleSnooze('4h')}
-            className="min-h-[48px] px-4 py-3 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 active:scale-[0.98] transition-all flex items-center justify-between text-left"
+            className="min-h-[48px] px-4 py-3 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 hover:border-primary/50 active:scale-[0.98] transition-all flex items-center justify-between text-left group"
           >
             <div>
-              <div className="text-sm font-bold text-amber-200">4 Hours</div>
-              <div className="text-[11px] text-amber-400/80">Postpone until afternoon or evening</div>
+              <div className="text-sm font-semibold text-white group-hover:text-primary transition-colors">4 Hours</div>
+              <div className="text-[11px] text-slate-400">Postpone until afternoon or evening</div>
             </div>
-            <span className="material-symbols-outlined text-amber-400 text-lg leading-none">hourglass_bottom</span>
+            <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-lg leading-none transition-colors">hourglass_bottom</span>
           </button>
 
           <button
             type="button"
             disabled={isSubmitting}
             onClick={() => handleSnooze('tomorrow')}
-            className="min-h-[48px] px-4 py-3 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 active:scale-[0.98] transition-all flex items-center justify-between text-left"
+            className="min-h-[48px] px-4 py-3 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 hover:border-primary/50 active:scale-[0.98] transition-all flex items-center justify-between text-left group"
           >
             <div>
-              <div className="text-sm font-bold text-indigo-200">Until Tomorrow Morning</div>
-              <div className="text-[11px] text-indigo-400/80">Silenced until 08:00 AM next day</div>
+              <div className="text-sm font-semibold text-white group-hover:text-primary transition-colors">Until Tomorrow Morning</div>
+              <div className="text-[11px] text-slate-400">Silenced until 08:00 AM next day</div>
             </div>
-            <span className="material-symbols-outlined text-indigo-400 text-lg leading-none">wb_sunny</span>
+            <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-lg leading-none transition-colors">wb_sunny</span>
           </button>
         </div>
 

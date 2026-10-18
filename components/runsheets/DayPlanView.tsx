@@ -162,7 +162,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
 
       {/* Rollup Summary Card */}
       {rollup && (
-        <div className="p-3.5 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-2xl space-y-2">
+        <div className="p-3.5 bg-primary/5 dark:bg-card-dark border border-primary/20 rounded-2xl space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="font-bold text-brand-black dark:text-white">
               {rollup.completed_blocks} of {rollup.total_blocks} blocks completed ({rollup.progress_percentage}%)
@@ -176,7 +176,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
           {/* Progress bar */}
           <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
             <div
-              className="h-full bg-emerald-500 transition-all duration-300"
+              className="h-full bg-primary transition-all duration-300"
               style={{ width: `${rollup.progress_percentage}%` }}
             ></div>
           </div>
@@ -371,10 +371,10 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                         {onOpenQuickLog && (
                           <button
                             onClick={() => onOpenQuickLog(block)}
-                            className="py-1.5 px-3 text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 rounded-xl hover:bg-amber-500/20 flex items-center gap-1 active:scale-95 transition-all"
+                            className="py-1.5 px-3 text-xs font-bold bg-gray-100 dark:bg-card-dark text-text-main-light dark:text-text-main-dark border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-neutral-800 flex items-center gap-1 active:scale-95 transition-all"
                             title="Open quick field logging session (<60s)"
                           >
-                            <span className="material-symbols-outlined text-sm">bolt</span>
+                            <span className="material-symbols-outlined text-sm text-primary">bolt</span>
                             Quick Log
                           </button>
                         )}

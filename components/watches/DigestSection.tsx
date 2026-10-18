@@ -22,7 +22,7 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
   if (isLoading && !digest) {
     return (
       <div className="py-12 text-center text-slate-400">
-        <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
         <p className="text-sm">Evaluating proactive engine & assembling digest...</p>
       </div>
     );
@@ -36,15 +36,15 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
     <div className="space-y-4">
       {/* Quiet Hours Banner */}
       {isQuietHours && (
-        <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 flex items-start gap-3">
-          <span className="material-symbols-outlined text-indigo-400 text-xl leading-none shrink-0 mt-0.5">bedtime</span>
-          <div className="flex-1 text-xs text-indigo-200">
-            <h4 className="font-bold text-sm text-indigo-100 mb-0.5">Quiet Hours Active (22:00 – 07:00)</h4>
-            <p className="text-indigo-300/90 leading-relaxed">
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-700/80 flex items-start gap-3">
+          <span className="material-symbols-outlined text-slate-400 text-xl leading-none shrink-0 mt-0.5">bedtime</span>
+          <div className="flex-1 text-xs text-slate-300">
+            <h4 className="font-bold text-sm text-white mb-0.5">Quiet Hours Active (22:00 – 07:00)</h4>
+            <p className="text-slate-400 leading-relaxed">
               Triggers occurring during quiet hours are automatically queued for the morning digest at 07:00 instead of sending immediate notifications.
             </p>
             {morningBatch.length > 0 && (
-              <div className="mt-2 text-[11px] font-semibold text-indigo-300 bg-indigo-900/50 px-2.5 py-1 rounded inline-block">
+              <div className="mt-2 text-[11px] font-semibold text-slate-300 bg-slate-800 px-2.5 py-1 rounded inline-block">
                 {morningBatch.length} {morningBatch.length === 1 ? 'alert' : 'alerts'} held for morning dispatch
               </div>
             )}
@@ -103,10 +103,10 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
       {morningBatch.length > 0 && (
         <div className="mt-8 pt-4 border-t border-slate-800">
           <div className="mb-3 px-1">
-            <h3 className="text-sm font-bold text-indigo-200 flex items-center gap-2">
-              <span className="material-symbols-outlined text-indigo-400 text-base leading-none">wb_twilight</span>
+            <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
+              <span className="material-symbols-outlined text-slate-400 text-base leading-none">wb_twilight</span>
               <span>Morning Digest Queue</span>
-              <span className="text-xs text-indigo-400 font-normal">
+              <span className="text-xs text-slate-400 font-normal">
                 ({morningBatch.length} batched during quiet hours)
               </span>
             </h3>

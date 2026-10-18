@@ -295,7 +295,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
         {activeJob && (
           <button
             onClick={() => setShowCloseModal(true)}
-            className="px-3.5 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-md shadow-emerald-600/30 flex items-center gap-1.5 active:scale-95 transition-all"
+            className="px-3.5 py-2 rounded-2xl bg-primary hover:bg-blue-600 text-white font-extrabold text-xs shadow-md shadow-primary/30 flex items-center gap-1.5 active:scale-95 transition-all"
           >
             <span className="material-symbols-outlined text-[18px]">check_circle</span>
             Close Out
@@ -419,7 +419,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
               key={part}
               type="button"
               onClick={() => handleAddPartChip(part)}
-              className="px-3.5 py-2.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/20 text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all"
+              className="px-3.5 py-2.5 rounded-2xl bg-gray-100 dark:bg-card-dark hover:bg-gray-200 dark:hover:bg-neutral-800 text-text-main-light dark:text-text-main-dark border border-gray-200 dark:border-gray-700 text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all"
             >
               <span className="material-symbols-outlined text-[16px]">add</span>
               {part}
@@ -448,7 +448,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
       <div className="p-4 rounded-3xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-purple-500 text-[18px]">photo_camera</span>
+            <span className="material-symbols-outlined text-primary text-[18px]">photo_camera</span>
             Photo Documentation
           </h3>
           <span className="text-[11px] font-mono text-gray-400">
@@ -456,8 +456,8 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
           </span>
         </div>
 
-        <label className="w-full h-12 rounded-2xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] transition-all">
-          <span className="material-symbols-outlined text-lg">add_a_photo</span>
+        <label className="w-full h-12 rounded-2xl bg-gray-100 dark:bg-card-dark hover:bg-gray-200 dark:hover:bg-neutral-800 text-text-main-light dark:text-text-main-dark border border-gray-200 dark:border-gray-700 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] transition-all">
+          <span className="material-symbols-outlined text-lg text-primary">add_a_photo</span>
           <span>Take / Attach Field Photo</span>
           <input
             type="file"
@@ -475,7 +475,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
                 key={idx}
                 className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-[11px] font-mono text-gray-600 dark:text-gray-300 flex items-center gap-1"
               >
-                <span className="material-symbols-outlined text-xs text-purple-500">image</span>
+                <span className="material-symbols-outlined text-xs text-primary">image</span>
                 <span>Photo #{idx + 1}</span>
               </div>
             ))}
@@ -488,7 +488,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
         <button
           type="button"
           onClick={() => setShowCloseModal(true)}
-          className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-extrabold text-sm shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all mt-4"
+          className="w-full h-14 rounded-2xl bg-primary hover:bg-blue-600 active:scale-[0.98] text-white font-extrabold text-sm shadow-xl shadow-primary/30 flex items-center justify-center gap-2 transition-all mt-4"
         >
           <span className="material-symbols-outlined text-2xl">task_alt</span>
           <span>Complete Job & Close Ticket</span>

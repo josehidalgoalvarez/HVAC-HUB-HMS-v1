@@ -79,22 +79,23 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
           onClick={() => setFilter('reorder')}
           className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1 transition-all ${
             filter === 'reorder'
-              ? 'bg-amber-600 text-white shadow-xs'
-              : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/50'
+              ? 'bg-primary text-white shadow-xs'
+              : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
           }`}
         >
-          <span className="material-symbols-outlined text-[14px]">warning</span>
+          <span className={`material-symbols-outlined text-[14px] ${filter === 'reorder' ? 'text-white' : 'text-amber-500'}`}>warning</span>
           Reorder Needed ({parts.filter(p => p.is_reorder || p.quantity_on_hand <= p.reorder_point).length})
         </button>
 
         <button
           onClick={() => setFilter('available')}
-          className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+          className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1 transition-all ${
             filter === 'available'
-              ? 'bg-emerald-600 text-white shadow-xs'
-              : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/50'
+              ? 'bg-primary text-white shadow-xs'
+              : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
           }`}
         >
+          <span className={`material-symbols-outlined text-[14px] ${filter === 'available' ? 'text-white' : 'text-emerald-500'}`}>check_circle</span>
           In Stock ({parts.filter(p => p.quantity_on_hand > 0).length})
         </button>
       </div>

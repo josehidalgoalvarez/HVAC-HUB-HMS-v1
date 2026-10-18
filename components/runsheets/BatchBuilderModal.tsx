@@ -450,7 +450,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
               variant="primary"
               disabled={creating || reorderedBlocks.length === 0}
               onClick={handleAcceptPlan}
-              className="flex-1 py-2.5 text-xs shadow-md bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center gap-1.5"
+              className="flex-1 py-2.5 text-xs shadow-md bg-primary hover:bg-blue-600 flex items-center justify-center gap-1.5"
             >
               {creating ? (
                 'Saving Day-Plan...'

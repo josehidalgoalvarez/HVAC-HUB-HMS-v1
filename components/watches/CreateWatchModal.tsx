@@ -57,7 +57,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
       <div className="w-full sm:max-w-lg bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl pb-safe">
         <div className="flex items-center justify-between pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-amber-400 text-xl leading-none">notifications_active</span>
+            <span className="material-symbols-outlined text-primary text-xl leading-none">notifications_active</span>
             <h2 className="text-lg font-bold text-white">Create Proactive Watch</h2>
           </div>
           <button
@@ -80,7 +80,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 onClick={() => setWatchType('notice_deadline')}
                 className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${
                   watchType === 'notice_deadline'
-                    ? 'border-amber-500 bg-amber-500/20 text-amber-200 font-bold'
+                    ? 'border-primary bg-primary/20 text-blue-200 font-bold'
                     : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
                 }`}
               >
@@ -92,7 +92,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 onClick={() => setWatchType('weather_freeze')}
                 className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${
                   watchType === 'weather_freeze'
-                    ? 'border-cyan-500 bg-cyan-500/20 text-cyan-200 font-bold'
+                    ? 'border-primary bg-primary/20 text-blue-200 font-bold'
                     : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
                 }`}
               >
@@ -104,7 +104,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 onClick={() => setWatchType('reply_waiting')}
                 className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${
                   watchType === 'reply_waiting'
-                    ? 'border-purple-500 bg-purple-500/20 text-purple-200 font-bold'
+                    ? 'border-primary bg-primary/20 text-blue-200 font-bold'
                     : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
                 }`}
               >
@@ -116,7 +116,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 onClick={() => setWatchType('scheduled_task')}
                 className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${
                   watchType === 'scheduled_task'
-                    ? 'border-emerald-500 bg-emerald-500/20 text-emerald-200 font-bold'
+                    ? 'border-primary bg-primary/20 text-blue-200 font-bold'
                     : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
                 }`}
               >
@@ -136,7 +136,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Unit 174 Valve Inspection Watch"
-              className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500"
+              className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-primary"
             />
           </div>
 
@@ -151,7 +151,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 value={targetId}
                 onChange={(e) => setTargetId(e.target.value)}
                 placeholder="e.g. 1"
-                className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500"
+                className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-primary"
               />
             </div>
           )}
@@ -166,14 +166,14 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 value={hoursThreshold}
                 onChange={(e) => setHoursThreshold(e.target.value)}
                 placeholder="24"
-                className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500"
+                className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-primary"
               />
             </div>
           )}
 
           {watchType === 'weather_freeze' && (
-            <div className="p-3 rounded-xl bg-cyan-950/20 border border-cyan-500/30 text-xs text-cyan-200">
-              <span className="font-semibold block mb-0.5">Automated Open-Meteo Integration</span>
+            <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/80 text-xs text-slate-300">
+              <span className="font-semibold block mb-0.5 text-white">Automated Open-Meteo Integration</span>
               Monitors hourly low temperatures across 48h for Kingston (44.23°N, -76.48°W). Triggers if low &le; 0°C.
             </div>
           )}
@@ -187,7 +187,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 type="datetime-local"
                 value={dueAt}
                 onChange={(e) => setDueAt(e.target.value)}
-                className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500"
+                className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-primary"
               />
             </div>
           )}
@@ -202,7 +202,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Context or special instructions..."
-              className="w-full px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500 resize-none"
+              className="w-full px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-primary resize-none"
             />
           </div>
 
@@ -218,7 +218,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="min-h-[44px] px-6 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 active:scale-[0.98] transition-all flex items-center gap-2"
+              className="min-h-[44px] px-6 py-2 rounded-xl text-sm font-bold bg-primary hover:bg-blue-600 text-white shadow-sm active:scale-[0.98] transition-all flex items-center gap-2"
             >
               {isSubmitting ? 'Creating...' : 'Create Watch'}
             </button>

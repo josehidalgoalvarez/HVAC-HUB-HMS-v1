@@ -334,7 +334,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   <button
                     onClick={() => handleAdvanceNotice(ticket.notice!.id, 'sent')}
                     disabled={noticeAdvancing}
-                    className="px-2.5 py-1 bg-blue-600 text-white text-[11px] font-bold rounded-lg shadow-sm hover:bg-blue-700"
+                    className="px-2.5 py-1 bg-primary text-white text-[11px] font-bold rounded-lg shadow-sm hover:bg-blue-600 active:scale-95 transition-all"
                   >
                     Mark Sent
                   </button>
@@ -343,7 +343,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   <button
                     onClick={() => handleAdvanceNotice(ticket.notice!.id, 'served')}
                     disabled={noticeAdvancing}
-                    className="px-2.5 py-1 bg-amber-600 text-white text-[11px] font-bold rounded-lg shadow-sm hover:bg-amber-700"
+                    className="px-2.5 py-1 bg-primary text-white text-[11px] font-bold rounded-lg shadow-sm hover:bg-blue-600 active:scale-95 transition-all"
                   >
                     Mark Served
                   </button>
@@ -352,7 +352,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   <button
                     onClick={() => handleAdvanceNotice(ticket.notice!.id, 'verified')}
                     disabled={noticeAdvancing}
-                    className="px-2.5 py-1 bg-emerald-600 text-white text-[11px] font-bold rounded-lg shadow-sm hover:bg-emerald-700"
+                    className="px-2.5 py-1 bg-primary text-white text-[11px] font-bold rounded-lg shadow-sm hover:bg-blue-600 active:scale-95 transition-all"
                   >
                     Verify Entry
                   </button>
@@ -479,7 +479,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
         {/* Parent Rollup Summary Bar */}
         {rollup && rollup.total > 0 && (
-          <div className="bg-gradient-to-r from-primary/10 via-blue-50 to-emerald-50 dark:from-primary/20 dark:via-gray-800 dark:to-emerald-950/30 p-3 rounded-2xl border border-primary/20 flex items-center justify-around text-center text-xs">
+          <div className="bg-primary/5 dark:bg-card-dark p-3 rounded-2xl border border-primary/20 flex items-center justify-around text-center text-xs">
             <div>
               <span className="block text-lg font-extrabold text-brand-black dark:text-white">
                 {rollup.total}
@@ -547,7 +547,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                         ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
                         : child.status === 'in-progress' || child.status === 'in_progress'
                         ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300'
-                        : 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
+                        : 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300'
                     }`}
                   >
                     {child.status || child.state}

@@ -27,31 +27,31 @@ export const WatchCard: React.FC<WatchCardProps> = ({
         return {
           label: 'Freeze Alert',
           icon: 'ac_unit',
-          bg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
+          bg: 'bg-slate-800 text-slate-300 border-slate-700',
         };
       case 'notice_deadline':
         return {
           label: 'Notice Deadline',
           icon: 'event_busy',
-          bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+          bg: 'bg-slate-800 text-slate-300 border-slate-700',
         };
       case 'reply_waiting':
         return {
           label: 'Reply Waiting',
           icon: 'hourglass_empty',
-          bg: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
+          bg: 'bg-slate-800 text-slate-300 border-slate-700',
         };
       case 'scheduled_task':
         return {
           label: 'Scheduled Task',
           icon: 'assignment_late',
-          bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+          bg: 'bg-slate-800 text-slate-300 border-slate-700',
         };
       default:
         return {
           label: type,
           icon: 'notifications',
-          bg: 'bg-slate-500/10 text-slate-400 border-slate-500/30',
+          bg: 'bg-slate-800 text-slate-300 border-slate-700',
         };
     }
   };
@@ -71,18 +71,18 @@ export const WatchCard: React.FC<WatchCardProps> = ({
       case 'acknowledged':
         return {
           label: 'ACKNOWLEDGED',
-          bg: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+          bg: 'bg-primary/20 text-blue-300 border-primary/40',
         };
       case 'resolved':
         return {
           label: 'RESOLVED',
-          bg: 'bg-slate-600/20 text-slate-400 border-slate-600/40',
+          bg: 'bg-slate-800 text-slate-400 border-slate-700/60',
         };
       case 'active':
       default:
         return {
           label: 'ACTIVE',
-          bg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+          bg: 'bg-slate-800 text-slate-300 border-slate-700',
         };
     }
   };
@@ -110,7 +110,7 @@ export const WatchCard: React.FC<WatchCardProps> = ({
             <span>{badge.label}</span>
           </span>
           {watch.quiet_hours_delayed && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
               <span className="material-symbols-outlined text-[12px] leading-none">wb_twilight</span>
               <span>Morning Batch</span>
             </span>
@@ -180,14 +180,14 @@ export const WatchCard: React.FC<WatchCardProps> = ({
           <>
             <button
               onClick={() => onSnooze(watch)}
-              className="flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+              className="flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
             >
               <span className="material-symbols-outlined text-sm leading-none">snooze</span>
               <span>Snooze</span>
             </button>
             <button
               onClick={() => onAcknowledge(watch)}
-              className="flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold bg-blue-600/30 text-blue-200 hover:bg-blue-600/40 border border-blue-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+              className="flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-bold bg-primary hover:bg-blue-600 text-white shadow-sm border border-primary active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
             >
               <span className="material-symbols-outlined text-sm leading-none">check</span>
               <span>Acknowledge</span>
@@ -198,7 +198,7 @@ export const WatchCard: React.FC<WatchCardProps> = ({
         {isSnoozed && onReactivate && (
           <button
             onClick={() => onReactivate(watch)}
-            className="flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+            className="flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
           >
             <span className="material-symbols-outlined text-sm leading-none">notifications_active</span>
             <span>Un-snooze</span>
@@ -216,7 +216,7 @@ export const WatchCard: React.FC<WatchCardProps> = ({
           onReactivate && (
             <button
               onClick={() => onReactivate(watch)}
-              className="min-h-[44px] px-3 py-2 rounded-xl text-xs font-medium text-emerald-400 hover:bg-emerald-500/20 active:scale-[0.98] transition-all"
+              className="min-h-[44px] px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 active:scale-[0.98] transition-all"
             >
               Reactivate
             </button>

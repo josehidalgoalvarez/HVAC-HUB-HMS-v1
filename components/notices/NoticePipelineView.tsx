@@ -173,7 +173,7 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
           className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 ${
             filter === 'all'
               ? 'bg-primary text-white shadow-sm'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
+              : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
           }`}
         >
           All ({notices.length})
@@ -183,11 +183,11 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
           onClick={() => setFilter('red')}
           className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 ${
             filter === 'red'
-              ? 'bg-brand-red text-white shadow-sm'
-              : 'bg-red-50 dark:bg-red-950/40 text-brand-red border border-red-200 dark:border-red-900'
+              ? 'bg-primary text-white shadow-sm'
+              : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
           }`}
         >
-          <span className="material-symbols-outlined text-xs">gavel</span>
+          <span className={`material-symbols-outlined text-xs ${filter === 'red' ? 'text-white' : 'text-brand-red'}`}>gavel</span>
           Overdue ({redCount})
         </button>
 
@@ -195,11 +195,11 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
           onClick={() => setFilter('amber')}
           className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 ${
             filter === 'amber'
-              ? 'bg-amber-500 text-white shadow-sm'
-              : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900'
+              ? 'bg-primary text-white shadow-sm'
+              : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
           }`}
         >
-          <span className="material-symbols-outlined text-xs">timer</span>
+          <span className={`material-symbols-outlined text-xs ${filter === 'amber' ? 'text-white' : 'text-amber-500'}`}>timer</span>
           Pending ({amberCount})
         </button>
 
@@ -207,11 +207,11 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
           onClick={() => setFilter('green')}
           className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 ${
             filter === 'green'
-              ? 'bg-emerald-600 text-white shadow-sm'
-              : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900'
+              ? 'bg-primary text-white shadow-sm'
+              : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
           }`}
         >
-          <span className="material-symbols-outlined text-xs">check_circle</span>
+          <span className={`material-symbols-outlined text-xs ${filter === 'green' ? 'text-white' : 'text-emerald-500'}`}>check_circle</span>
           Verified ({greenCount})
         </button>
       </div>
@@ -410,7 +410,7 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
                     {notice.status === 'drafted' && (
                       <button
                         onClick={() => openAdvanceModal(notice, 'sent')}
-                        className="py-1.5 px-3 text-xs font-bold bg-blue-600 text-white rounded-xl shadow-sm hover:bg-blue-700 flex items-center gap-1"
+                        className="py-1.5 px-3 text-xs font-bold bg-primary text-white rounded-xl shadow-sm hover:bg-blue-600 flex items-center gap-1 active:scale-95 transition-all"
                       >
                         <span className="material-symbols-outlined text-sm">send</span>
                         Mark Sent
@@ -420,7 +420,7 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
                     {notice.status === 'sent' && (
                       <button
                         onClick={() => openAdvanceModal(notice, 'served')}
-                        className="py-1.5 px-3 text-xs font-bold bg-amber-600 text-white rounded-xl shadow-sm hover:bg-amber-700 flex items-center gap-1"
+                        className="py-1.5 px-3 text-xs font-bold bg-primary text-white rounded-xl shadow-sm hover:bg-blue-600 flex items-center gap-1 active:scale-95 transition-all"
                       >
                         <span className="material-symbols-outlined text-sm">door_front</span>
                         Mark Served
@@ -430,7 +430,7 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
                     {notice.status === 'served' && (
                       <button
                         onClick={() => openAdvanceModal(notice, 'verified')}
-                        className="py-1.5 px-3 text-xs font-bold bg-emerald-600 text-white rounded-xl shadow-sm hover:bg-emerald-700 flex items-center gap-1"
+                        className="py-1.5 px-3 text-xs font-bold bg-primary text-white rounded-xl shadow-sm hover:bg-blue-600 flex items-center gap-1 active:scale-95 transition-all"
                       >
                         <span className="material-symbols-outlined text-sm">verified</span>
                         Verify Entry

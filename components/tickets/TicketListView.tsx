@@ -149,7 +149,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           {onOpenDayPlan && (
             <button
               onClick={onOpenDayPlan}
-              className="px-2.5 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold hover:bg-emerald-500/20 flex items-center gap-1 border border-emerald-500/20"
+              className="px-2.5 py-1.5 rounded-xl bg-gray-100 dark:bg-card-dark text-text-main-light dark:text-text-main-dark hover:bg-gray-200 dark:hover:bg-neutral-800 text-xs font-bold flex items-center gap-1 border border-gray-200 dark:border-gray-800 transition-colors"
               title="View Day Plan / Run Sheet"
             >
               <span className="material-symbols-outlined text-[16px]">map</span>
@@ -159,7 +159,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           {onOpenNotices && (
             <button
               onClick={onOpenNotices}
-              className="px-2.5 py-1.5 rounded-xl bg-primary/10 text-primary text-xs font-bold hover:bg-primary/20 flex items-center gap-1 border border-primary/20"
+              className="px-2.5 py-1.5 rounded-xl bg-gray-100 dark:bg-card-dark text-text-main-light dark:text-text-main-dark hover:bg-gray-200 dark:hover:bg-neutral-800 text-xs font-bold flex items-center gap-1 border border-gray-200 dark:border-gray-800 transition-colors"
               title="View 24h Notice of Entry Pipeline"
             >
               <span className="material-symbols-outlined text-[16px]">schedule</span>
@@ -170,7 +170,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
             <button
               id="open-parts-btn"
               onClick={onOpenParts}
-              className="px-2.5 py-1.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 text-xs font-bold hover:bg-purple-500/20 flex items-center gap-1 border border-purple-500/20"
+              className="px-2.5 py-1.5 rounded-xl bg-gray-100 dark:bg-card-dark text-text-main-light dark:text-text-main-dark hover:bg-gray-200 dark:hover:bg-neutral-800 text-xs font-bold flex items-center gap-1 border border-gray-200 dark:border-gray-800 transition-colors"
               title="View Parts Catalog & Shopping List"
             >
               <span className="material-symbols-outlined text-[16px]">precision_manufacturing</span>
@@ -181,7 +181,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
             <button
               id="open-watches-btn"
               onClick={onOpenWatches}
-              className="px-2.5 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold hover:bg-amber-500/20 flex items-center gap-1 border border-amber-500/20"
+              className="px-2.5 py-1.5 rounded-xl bg-gray-100 dark:bg-card-dark text-text-main-light dark:text-text-main-dark hover:bg-gray-200 dark:hover:bg-neutral-800 text-xs font-bold flex items-center gap-1 border border-gray-200 dark:border-gray-800 transition-colors"
               title="View Proactive Watches & Digest"
             >
               <span className="material-symbols-outlined text-[16px]">notifications_active</span>
@@ -202,7 +202,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
       </div>
 
       {/* Quick Intake Call-to-Action Card */}
-      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-2xl p-3.5 flex items-center justify-between gap-3 shadow-sm">
+      <div className="bg-primary/5 dark:bg-card-dark border border-primary/20 rounded-2xl p-3.5 flex items-center justify-between gap-3 shadow-sm">
         <div className="min-w-0">
           <span className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
             <span className="material-symbols-outlined text-sm">bolt</span>
@@ -252,7 +252,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 ${
             activeFilter === 'all'
               ? 'bg-primary text-white shadow-sm'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
+              : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
           }`}
         >
           All ({tickets.length})
@@ -262,11 +262,11 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           onClick={() => setActiveFilter('safety')}
           className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 ${
             activeFilter === 'safety'
-              ? 'bg-brand-red text-white shadow-sm'
-              : 'bg-red-50 dark:bg-red-950/40 text-brand-red border border-red-200 dark:border-red-900'
+              ? 'bg-primary text-white shadow-sm'
+              : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
           }`}
         >
-          <span className="material-symbols-outlined text-xs">emergency</span>
+          <span className={`material-symbols-outlined text-xs ${activeFilter === 'safety' ? 'text-white' : 'text-brand-red'}`}>emergency</span>
           Safety First ({safetyCount})
         </button>
 
@@ -274,11 +274,11 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           onClick={() => setActiveFilter('closable')}
           className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 ${
             activeFilter === 'closable'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900'
+              ? 'bg-primary text-white shadow-sm'
+              : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
           }`}
         >
-          <span className="material-symbols-outlined text-xs">timer</span>
+          <span className={`material-symbols-outlined text-xs ${activeFilter === 'closable' ? 'text-white' : 'text-primary'}`}>timer</span>
           Closable Today ({closableCount})
         </button>
 
@@ -286,11 +286,11 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           onClick={() => setActiveFilter('blocked')}
           className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 ${
             activeFilter === 'blocked'
-              ? 'bg-rose-600 text-white shadow-sm'
-              : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900'
+              ? 'bg-primary text-white shadow-sm'
+              : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
           }`}
         >
-          <span className="material-symbols-outlined text-xs">block</span>
+          <span className={`material-symbols-outlined text-xs ${activeFilter === 'blocked' ? 'text-white' : 'text-rose-500'}`}>block</span>
           Blocked ({blockedCount})
         </button>
 
@@ -298,8 +298,8 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           onClick={() => setActiveFilter('unassigned')}
           className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 ${
             activeFilter === 'unassigned'
-              ? 'bg-gray-700 text-white shadow-sm'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+              ? 'bg-primary text-white shadow-sm'
+              : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
           }`}
         >
           Unassigned WO

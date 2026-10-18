@@ -170,7 +170,7 @@ export const CloseBlockModal: React.FC<CloseBlockModalProps> = ({
             type="submit"
             variant="primary"
             disabled={loading}
-            className="flex-1 py-2.5 text-xs shadow-md bg-emerald-600 hover:bg-emerald-700"
+            className="flex-1 py-2.5 text-xs shadow-md bg-primary hover:bg-blue-600"
           >
             {loading ? 'Recording...' : 'Close & Record Actuals'}
           </Button>

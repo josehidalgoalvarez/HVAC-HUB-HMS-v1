@@ -48,7 +48,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
         return 'bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
       case 'new':
       default:
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-300 dark:border-purple-700';
+        return 'bg-slate-100 text-slate-800 dark:bg-slate-900/60 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
     }
   };
 

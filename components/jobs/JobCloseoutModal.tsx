@@ -128,9 +128,9 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn">
       <div className="w-full max-w-lg bg-white dark:bg-card-dark rounded-t-3xl sm:rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-800 flex flex-col max-h-[92vh] overflow-hidden animate-slideUp">
         {/* Header */}
-        <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-emerald-500/10">
+        <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-primary/10">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center">
               <span className="material-symbols-outlined text-2xl">check_circle</span>
             </div>
             <div>
@@ -204,7 +204,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
                   onClick={() => setActualMinutes(mins)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     actualMinutes === mins
-                      ? 'bg-emerald-600 text-white shadow-sm'
+                      ? 'bg-primary text-white shadow-sm'
                       : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 text-gray-700 dark:text-gray-300'
                   }`}
                 >
@@ -345,7 +345,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
             type="button"
             onClick={handleCloseJob}
             disabled={submitting}
-            className="flex-[2] h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-extrabold text-sm shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+            className="flex-[2] h-12 rounded-2xl bg-primary hover:bg-blue-600 active:scale-[0.98] text-white font-extrabold text-sm shadow-lg shadow-primary/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-xl">task_alt</span>
             <span>{submitting ? 'Closing Out...' : 'Complete & Mark Done'}</span>

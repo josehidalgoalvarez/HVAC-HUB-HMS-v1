@@ -132,7 +132,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           )}
           <div>
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-amber-400 text-2xl leading-none">monitoring</span>
+              <span className="material-symbols-outlined text-primary text-2xl leading-none">monitoring</span>
               <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight">
                 Proactive Engine & Smart Watches
               </h1>
@@ -148,7 +148,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           <button
             onClick={handleEvaluateNow}
             disabled={isEvaluating}
-            className="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 active:scale-[0.98] transition-all flex items-center gap-2"
+            className="min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 active:scale-[0.98] transition-all flex items-center gap-2"
           >
             <span className={`material-symbols-outlined text-sm leading-none ${isEvaluating ? 'animate-spin' : ''}`}>sync</span>
             <span>{isEvaluating ? 'Evaluating...' : 'Run Evaluation'}</span>
@@ -156,7 +156,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
 
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 active:scale-[0.98] transition-all flex items-center gap-1.5"
+            className="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-primary hover:bg-blue-600 text-white shadow-sm active:scale-[0.98] transition-all flex items-center gap-1.5"
           >
             <span className="material-symbols-outlined text-sm leading-none font-bold">add</span>
             <span>New Watch</span>
@@ -178,7 +178,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           onClick={() => setActiveTab('digest')}
           className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
             activeTab === 'digest'
-              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm'
+              ? 'bg-primary/20 text-blue-300 border border-primary/40 shadow-sm'
               : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
           }`}
         >
@@ -195,7 +195,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           onClick={() => setActiveTab('all')}
           className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
             activeTab === 'all'
-              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm'
+              ? 'bg-primary/20 text-blue-300 border border-primary/40 shadow-sm'
               : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
           }`}
         >
