@@ -324,27 +324,123 @@ export interface Watch {
 }
 
 export interface Stockpile {
-  id: string;
+  id: string | number;
   name: string;
   location: string;
-  buildingId?: string | null;
-  notes?: string;
+  buildingId?: string | number | null;
+  building_id?: number | null;
+  building_name?: string | null;
+  notes?: string | null;
+  distinct_parts_count?: number;
+  total_units_count?: number;
   createdAt?: string;
   updatedAt?: string;
 }
 
-export interface Part {
-  id: string;
+export interface StockpileAllocation {
+  id: number;
+  part_id: number;
+  stockpile_id: number;
+  stockpile_name: string;
+  stockpile_location: string;
+  quantity: number;
+  status: 'available' | 'on_hold' | 'in_use';
+  location_notes?: string | null;
+}
+
+export interface PriceHistoryEntry {
+  date: string;
+  price: number;
+  supplier?: string;
+}
+
+export interface SupplierRecord {
+  id: number;
   name: string;
-  partNumber?: string;
-  category?: string;
-  description?: string;
+  contact_name?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  hours?: string | null;
+  account_number?: string | null;
+  supplied_parts_count?: number;
+  created_at?: string;
+}
+
+export interface Part {
+  id: string | number;
+  name: string;
+  partNumber?: string | null;
+  part_number?: string | null;
+  category?: string | null;
+  description?: string | null;
   quantityOnHand: number;
+  quantity_on_hand?: number;
   minQuantity: number;
-  unitCost?: number;
-  stockpileId?: string | null;
+  min_quantity?: number;
+  reorder_point?: number;
+  reorderPoint?: number;
+  unitCost?: number | null;
+  unit_cost?: number | null;
+  stockpileId?: string | number | null;
+  stockpile_id?: number | null;
+  compatible_models?: string[];
+  compatibleModels?: string[];
+  price_history?: PriceHistoryEntry[];
+  priceHistory?: PriceHistoryEntry[];
+  preferred_supplier_id?: number | null;
+  preferred_supplier?: SupplierRecord | null;
+  is_reorder?: boolean;
+  stockpiles?: StockpileAllocation[];
+  stock_summary?: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface PartRecord extends Part {
+  id: number;
+  part_number: string;
+  compatible_models: string[];
+  price_history: PriceHistoryEntry[];
+  is_reorder: boolean;
+  quantity_on_hand: number;
+  reorder_point: number;
+}
+
+export interface ShoppingListItem {
+  part_number: string;
+  part_name: string;
+  part_id?: number | null;
+  description?: string | null;
+  category?: string | null;
+  total_needed: number;
+  ticket_count: number;
+  ticket_ids: number[];
+  tickets_meta: Array<{ ticket_id: number; wo_number?: string | null; title?: string | null }>;
+  available_in_stock: number;
+  harvest_quantity: number;
+  buy_quantity: number;
+  source: 'harvest' | 'buy';
+  harvest_tag?: string | null;
+  buy_tag?: string | null;
+  stockpile_id?: number | null;
+  stockpile_name?: string | null;
+  stockpile_location?: string | null;
+  preferred_supplier?: {
+    name: string;
+    phone?: string | null;
+    hours?: string | null;
+  };
+  unit_cost?: number;
+  compatible_models?: string[];
+}
+
+export interface ShoppingListResponse {
+  items: ShoppingListItem[];
+  total_parts_count: number;
+  total_items_needed: number;
+  harvest_count: number;
+  buy_count: number;
 }
 
 export interface Correction {

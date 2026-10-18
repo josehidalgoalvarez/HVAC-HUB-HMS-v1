@@ -11,6 +11,7 @@ interface TicketListViewProps {
   initialSelectedTicketId?: string | null;
   onOpenNotices?: () => void;
   onOpenDayPlan?: () => void;
+  onOpenParts?: () => void;
 }
 
 export const TicketListView: React.FC<TicketListViewProps> = ({
@@ -18,6 +19,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   initialSelectedTicketId = null,
   onOpenNotices,
   onOpenDayPlan,
+  onOpenParts,
 }) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -160,6 +162,17 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
             >
               <span className="material-symbols-outlined text-[16px]">schedule</span>
               24h Notices
+            </button>
+          )}
+          {onOpenParts && (
+            <button
+              id="open-parts-btn"
+              onClick={onOpenParts}
+              className="px-2.5 py-1.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 text-xs font-bold hover:bg-purple-500/20 flex items-center gap-1 border border-purple-500/20"
+              title="View Parts Catalog & Shopping List"
+            >
+              <span className="material-symbols-outlined text-[16px]">precision_manufacturing</span>
+              Parts
             </button>
           )}
           <button

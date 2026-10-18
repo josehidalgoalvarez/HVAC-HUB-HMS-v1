@@ -7,6 +7,7 @@ namespace App;
 use App\Controllers\IntakeController;
 use App\Controllers\JobController;
 use App\Controllers\NoticeController;
+use App\Controllers\PartController;
 use App\Controllers\PhotoController;
 use App\Controllers\RunSheetController;
 use App\Controllers\TicketController;
@@ -176,6 +177,18 @@ class Routes
             $group->post('/jobs/{id}/notes', [JobController::class, 'addNotes']);
             $group->post('/jobs/{id}/close', [JobController::class, 'close']);
             $group->post('/sync', [JobController::class, 'batchSync']);
+
+            // --- Parts, Stockpiles, Shopping Lists, and Suppliers (Phase 4) ---
+            $group->get('/parts', [PartController::class, 'index']);
+            $group->post('/parts', [PartController::class, 'create']);
+            $group->get('/parts/{id}', [PartController::class, 'show']);
+            $group->patch('/parts/{id}', [PartController::class, 'update']);
+            $group->post('/parts/{id}/use', [PartController::class, 'usePart']);
+            $group->get('/stockpiles', [PartController::class, 'stockpiles']);
+            $group->post('/stockpiles', [PartController::class, 'createStockpile']);
+            $group->get('/suppliers', [PartController::class, 'suppliers']);
+            $group->post('/suppliers', [PartController::class, 'createSupplier']);
+            $group->post('/shopping-lists/from-tickets', [PartController::class, 'shoppingList']);
 
             // Tech role route
             $group->get('/tech/ping', function (Request $request, Response $response): Response {

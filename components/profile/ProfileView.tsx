@@ -15,6 +15,7 @@ interface ProfileViewProps {
   isEditMode: boolean;
   onToggleEditMode: (enabled: boolean) => void;
   onOpenTechMenu: () => void;
+  onOpenParts?: () => void;
 }
 
 const ProfileView: React.FC<ProfileViewProps> = ({
@@ -22,7 +23,8 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   onToggleDarkMode,
   isEditMode,
   onToggleEditMode,
-  onOpenTechMenu
+  onOpenTechMenu,
+  onOpenParts
 }) => {
   const { properties, appliances, logs: changeLogs, isTutorialActive } = useData();
   const { importData, duplicateProperty, deleteProperty, startTutorial, endTutorial } = useActions();
@@ -129,6 +131,12 @@ const ProfileView: React.FC<ProfileViewProps> = ({
         action: () => setShowManageModal(true)
       }
     ] : []),
+    ...(onOpenParts ? [{
+      icon: 'precision_manufacturing',
+      label: 'Parts & Stockpiles Catalog',
+      action: onOpenParts,
+      color: 'text-primary'
+    }] : []),
     {
       icon: 'download',
       label: 'Export Data',

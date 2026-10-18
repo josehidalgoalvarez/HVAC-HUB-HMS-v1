@@ -236,6 +236,64 @@ class Db
                 note_text TEXT NOT NULL,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS supplier (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                contact_name TEXT NULL,
+                phone TEXT NULL,
+                email TEXT NULL,
+                address TEXT NULL,
+                hours TEXT NULL,
+                account_number TEXT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS stockpile (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                location TEXT NOT NULL,
+                building_id INTEGER NULL,
+                notes TEXT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS part (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                part_number TEXT NULL,
+                category TEXT NULL,
+                description TEXT NULL,
+                quantity_on_hand INTEGER NOT NULL DEFAULT 0,
+                min_quantity INTEGER NOT NULL DEFAULT 1,
+                reorder_point INTEGER NOT NULL DEFAULT 1,
+                unit_cost REAL NULL,
+                compatible_models TEXT NULL,
+                price_history TEXT NULL,
+                stockpile_id INTEGER NULL,
+                preferred_supplier_id INTEGER NULL,
+                is_reorder INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS part_stockpile (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                part_id INTEGER NOT NULL,
+                stockpile_id INTEGER NOT NULL,
+                quantity INTEGER NOT NULL DEFAULT 0,
+                status TEXT NOT NULL DEFAULT 'available',
+                location_notes TEXT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS ticket_part (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ticket_id INTEGER NOT NULL,
+                part_id INTEGER NULL,
+                part_number TEXT NULL,
+                part_name TEXT NOT NULL,
+                quantity INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
         ");
 
         try {

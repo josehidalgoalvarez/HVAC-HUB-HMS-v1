@@ -16,6 +16,11 @@ import type {
   JobPhoto,
   JobCloseoutPayload,
   OutboxItem,
+  Part,
+  PartRecord,
+  Stockpile,
+  SupplierRecord,
+  ShoppingListResponse,
 } from '../../types/domain';
 
 export interface ApiResponseEnvelope<T> {
@@ -598,6 +603,93 @@ export class ApiClient {
           body: JSON.stringify(item.payload),
         });
     }
+  }
+
+  // --- Phase 4 Parts Catalog, Stockpiles & Shopping Lists ---
+
+  /**
+   * Search parts catalog
+   */
+  public async getParts(query?: string, isReorder?: boolean): Promise<PartRecord[]> {
+    const params = new URLSearchParams();
+    if (query) params.append('q', query);
+    if (isReorder !== undefined) params.append('is_reorder', String(isReorder));
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    return this.get<PartRecord[]>(`/api/parts${qs}`);
+  }
+
+  /**
+   * Get single part by ID
+   */
+  public async getPart(id: string | number): Promise<PartRecord> {
+    return this.get<PartRecord>(`/api/parts/${id}`);
+  }
+
+  /**
+   * Create new catalog part
+   */
+  public async createPart(data: Partial<Part>): Promise<PartRecord> {
+    return this.post<PartRecord>('/api/parts', data);
+  }
+
+  /**
+   * Update part fields
+   */
+  public async updatePart(id: string | number, data: Partial<Part>, reason?: string): Promise<PartRecord> {
+    return this.patch<PartRecord>(`/api/parts/${id}`, { ...data, reason });
+  }
+
+  /**
+   * Log part usage on a job
+   */
+  public async usePart(
+    id: string | number,
+    payload: { quantity?: number; job_id?: number | string; stockpile_id?: number | string; reason?: string }
+  ): Promise<{
+    part: PartRecord;
+    quantity_used: number;
+    previous_quantity: number;
+    new_quantity: number;
+    reorder_point: number;
+    is_reorder: boolean;
+    reorder_warning?: string | null;
+  }> {
+    return this.post(`/api/parts/${id}/use`, payload);
+  }
+
+  /**
+   * List stockpiles
+   */
+  public async getStockpiles(): Promise<Stockpile[]> {
+    return this.get<Stockpile[]>('/api/stockpiles');
+  }
+
+  /**
+   * Create stockpile
+   */
+  public async createStockpile(data: Partial<Stockpile>): Promise<Stockpile> {
+    return this.post<Stockpile>('/api/stockpiles', data);
+  }
+
+  /**
+   * List suppliers
+   */
+  public async getSuppliers(): Promise<SupplierRecord[]> {
+    return this.get<SupplierRecord[]>('/api/suppliers');
+  }
+
+  /**
+   * Create supplier
+   */
+  public async createSupplier(data: Partial<SupplierRecord>): Promise<SupplierRecord> {
+    return this.post<SupplierRecord>('/api/suppliers', data);
+  }
+
+  /**
+   * Build harvest-first shopping list from ticket IDs
+   */
+  public async buildShoppingList(ticketIds: Array<string | number>): Promise<ShoppingListResponse> {
+    return this.post<ShoppingListResponse>('/api/shopping-lists/from-tickets', { ticket_ids: ticketIds });
   }
 
   /**

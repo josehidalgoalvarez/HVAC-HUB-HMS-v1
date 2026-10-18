@@ -28,6 +28,7 @@ const TicketListView = React.lazy(() => import('./tickets/TicketListView').then(
 const NoticePipelineView = React.lazy(() => import('./notices/NoticePipelineView').then(m => ({ default: m.NoticePipelineView })));
 const DayPlanView = React.lazy(() => import('./runsheets/DayPlanView').then(m => ({ default: m.DayPlanView })));
 const QuickLogWidget = React.lazy(() => import('./jobs/QuickLogWidget'));
+const PartsView = React.lazy(() => import('./parts/PartsView'));
 
 // Note: Ensure PropertyDetailView is the correct new component. 
 // Since we have a duplicate file issue, we are importing from './properties/PropertyDetailView' explicitly.
@@ -247,7 +248,7 @@ const Router: React.FC<RouterProps> = ({
           isEditMode={isEditMode}
           onToggleEditMode={setIsEditMode}
           onOpenTechMenu={handleOpenTechMenu}
-        // Removed CRUD props - ProfileView now uses useActions
+          onOpenParts={() => setActiveView(ViewType.PARTS)}
         />
       );
 
@@ -258,6 +259,7 @@ const Router: React.FC<RouterProps> = ({
           initialSelectedTicketId={selectedTicketId}
           onOpenNotices={() => setActiveView(ViewType.NOTICES)}
           onOpenDayPlan={() => setActiveView(ViewType.RUN_SHEET)}
+          onOpenParts={() => setActiveView(ViewType.PARTS)}
         />
       );
 
@@ -290,33 +292,16 @@ const Router: React.FC<RouterProps> = ({
         />
       );
 
-    case ViewType.PARTS: {
-      const activeStockpile: Stockpile = {
-        id: 'sp-van-1',
-        name: 'Van 1 Mobile Stockpile',
-        location: 'Service Vehicle'
-      };
-      const activePart: Part = {
-        id: 'part-cap-45',
-        name: 'Dual Run Capacitor 45/5',
-        quantityOnHand: 3,
-        minQuantity: 1,
-        stockpileId: activeStockpile.id
-      };
+    case ViewType.PARTS:
       return (
-        <div className="p-4 space-y-4 max-w-xl mx-auto pb-safe">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">Parts & Stockpile</h1>
-            <button onClick={() => setActiveView(ViewType.PROPERTIES)} className="px-3 py-1.5 text-sm bg-neutral-200 dark:bg-neutral-800 rounded">
-              Back
-            </button>
-          </div>
-          <p className="text-sm text-neutral-500">
-            {activePart.name} in {activeStockpile.name} (Qty: {activePart.quantityOnHand})
-          </p>
-        </div>
+        <PartsView
+          onBack={() => setActiveView(ViewType.PROPERTIES)}
+          onOpenTicket={(ticketId) => {
+            setSelectedTicketId(ticketId);
+            setActiveView(ViewType.TICKETS);
+          }}
+        />
       );
-    }
 
     case ViewType.NOTICES:
       return (
