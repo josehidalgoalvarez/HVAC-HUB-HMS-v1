@@ -200,8 +200,6 @@ const Router: React.FC<RouterProps> = ({
           onBack={() => setActiveView(ViewType.PROPERTIES)}
           initialSelectedTicketId={selectedTicketId}
           onOpenNotices={() => setActiveView(ViewType.NOTICES)}
-          onOpenDayPlan={() => setActiveView(ViewType.RUN_SHEET)}
-          onOpenParts={() => setActiveView(ViewType.PARTS)}
           onOpenWatches={() => setActiveView(ViewType.WATCHES)}
         />
       );

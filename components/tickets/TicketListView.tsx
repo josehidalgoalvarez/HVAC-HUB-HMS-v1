@@ -12,8 +12,6 @@ interface TicketListViewProps {
   onBack?: () => void;
   initialSelectedTicketId?: string | null;
   onOpenNotices?: () => void;
-  onOpenDayPlan?: () => void;
-  onOpenParts?: () => void;
   onOpenWatches?: () => void;
 }
 
@@ -21,8 +19,6 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   onBack,
   initialSelectedTicketId = null,
   onOpenNotices,
-  onOpenDayPlan,
-  onOpenParts,
   onOpenWatches,
 }) => {
   const fetchTickets = useCallback(() => apiClient.getTickets(), []);
@@ -148,16 +144,6 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5">
-          {onOpenDayPlan && (
-            <button
-              onClick={onOpenDayPlan}
-              className="px-2.5 py-1.5 rounded-xl bg-gray-100 dark:bg-card-dark text-text-main-light dark:text-text-main-dark hover:bg-gray-200 dark:hover:bg-neutral-800 text-xs font-bold flex items-center gap-1 border border-gray-200 dark:border-gray-800 transition-colors"
-              title="View Day Plan / Run Sheet"
-            >
-              <span className="material-symbols-outlined text-[16px]">map</span>
-              Day Plan
-            </button>
-          )}
           {onOpenNotices && (
             <button
               onClick={onOpenNotices}
@@ -166,17 +152,6 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
             >
               <span className="material-symbols-outlined text-[16px]">schedule</span>
               24h Notices
-            </button>
-          )}
-          {onOpenParts && (
-            <button
-              id="open-parts-btn"
-              onClick={onOpenParts}
-              className="px-2.5 py-1.5 rounded-xl bg-gray-100 dark:bg-card-dark text-text-main-light dark:text-text-main-dark hover:bg-gray-200 dark:hover:bg-neutral-800 text-xs font-bold flex items-center gap-1 border border-gray-200 dark:border-gray-800 transition-colors"
-              title="View Parts Catalog & Shopping List"
-            >
-              <span className="material-symbols-outlined text-[16px]">precision_manufacturing</span>
-              Parts
             </button>
           )}
           {onOpenWatches && (
