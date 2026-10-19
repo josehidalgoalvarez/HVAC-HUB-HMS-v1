@@ -61,9 +61,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // --- Initialization with Persistence ---
   const [properties, setProperties] = useState<Property[]>(() => {
-    if (useApi) {
-      return [];
-    }
     try {
       const saved = localStorage.getItem('hvachome_properties');
       return saved ? JSON.parse(saved) : INITIAL_PROPERTIES;
@@ -73,9 +70,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   const [appliances, setAppliances] = useState<Appliance[]>(() => {
-    if (useApi) {
-      return [];
-    }
     try {
       const saved = localStorage.getItem('hvachome_appliances');
       return saved ? JSON.parse(saved) : INITIAL_APPLIANCES;
@@ -85,9 +79,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   const [logs, setLogs] = useState<ChangeLogEntry[]>(() => {
-    if (useApi) {
-      return [];
-    }
     try {
       const saved = localStorage.getItem('hvachome_logs');
       return saved ? JSON.parse(saved) : [{
@@ -112,17 +103,16 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     apiClient.get<{ properties: Property[]; appliances: Appliance[]; logs?: ChangeLogEntry[] }>('/api/inventory')
       .then(res => {
         if (!isMounted) return;
-        setProperties(res?.properties || []);
-        setAppliances(res?.appliances || []);
+        if (res?.properties && res.properties.length > 0) {
+          setProperties(res.properties);
+        }
+        if (res?.appliances && res.appliances.length > 0) {
+          setAppliances(res.appliances);
+        }
         if (res?.logs) setLogs(res.logs);
       })
       .catch(err => {
-        // Mock shape / empty state when endpoint not yet populated
-        console.warn('API inventory unavailable, loaded empty state:', err);
-        if (isMounted) {
-          setProperties([]);
-          setAppliances([]);
-        }
+        console.warn('API inventory unavailable, keeping local/cached portfolio:', err);
       });
     return () => { isMounted = false; };
   }, [useApi]);

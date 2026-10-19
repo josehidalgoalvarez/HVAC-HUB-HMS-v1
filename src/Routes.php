@@ -209,6 +209,56 @@ class Routes
             $group->patch('/watches/{id}', [WatchController::class, 'update']);
             $group->delete('/watches/{id}', [WatchController::class, 'delete']);
 
+            // --- Inventory & Portfolio synchronization ---
+            $group->get('/inventory', function (Request $request, Response $response): Response {
+                $buildings = Db::fetchAll('SELECT * FROM building ORDER BY id ASC');
+                $properties = [];
+                foreach ($buildings as $b) {
+                    $units = Db::fetchAll('SELECT * FROM unit WHERE building_id = ? ORDER BY unit_number ASC', [$b['id']]);
+                    $unitNumbers = array_column($units, 'unit_number');
+                    $applianceCount = (int) (Db::fetchOne('SELECT COUNT(*) as c FROM appliance WHERE building_id = ?', [$b['id']])['c'] ?? 0);
+                    $properties[] = [
+                        'id' => (string) $b['id'],
+                        'name' => $b['name'],
+                        'address' => $b['address'],
+                        'type' => $b['type'] ?? 'residential',
+                        'units' => count($units),
+                        'applianceCount' => $applianceCount,
+                        'rooms' => !empty($unitNumbers) ? array_map(fn($u) => "Unit {$u}", $unitNumbers) : ['Basement', 'Mechanical Room'],
+                        'imageUrl' => $b['image_url'] ?? '/uploads/photo_1719_bath.jpg',
+                        'createdAt' => $b['created_at'],
+                    ];
+                }
+
+                $applianceRows = Db::fetchAll('SELECT a.*, b.name as building_name, b.address as building_address, u.unit_number FROM appliance a LEFT JOIN building b ON a.building_id = b.id LEFT JOIN unit u ON a.unit_id = u.id ORDER BY a.id ASC');
+                $appliances = [];
+                foreach ($applianceRows as $a) {
+                    $photos = Db::fetchAll('SELECT file_path FROM photo WHERE entity_type = "appliance" AND entity_id = ?', [$a['id']]);
+                    $photoUrls = array_column($photos, 'file_path');
+                    $appliances[] = [
+                        'id' => (string) $a['id'],
+                        'propertyId' => (string) $a['building_id'],
+                        'unitId' => $a['unit_id'] ? (string) $a['unit_id'] : null,
+                        'name' => $a['name'],
+                        'type' => $a['type'],
+                        'brand' => $a['brand'],
+                        'modelNumber' => $a['model_number'],
+                        'serialNumber' => $a['serial_number'],
+                        'location' => $a['location'] ?? 'Basement',
+                        'room' => $a['room'] ?? 'Basement',
+                        'status' => $a['status'] ?? 'operational',
+                        'installDate' => $a['installation_date'] ?? $a['install_date'] ?? null,
+                        'images' => !empty($photoUrls) ? $photoUrls : ['/uploads/photo_furnace.jpg'],
+                    ];
+                }
+
+                return Auth::jsonSuccess([
+                    'properties' => $properties,
+                    'appliances' => $appliances,
+                    'logs' => [],
+                ]);
+            });
+
             // Tech role route
             $group->get('/tech/ping', function (Request $request, Response $response): Response {
                 return Auth::jsonSuccess(['service' => 'tech', 'status' => 'ready']);
