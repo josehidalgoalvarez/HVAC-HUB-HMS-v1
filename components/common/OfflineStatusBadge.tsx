@@ -50,7 +50,10 @@ export const OfflineStatusBadge: React.FC = () => {
   }
 
   return (
-    <div className="fixed top-2 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full shadow-lg text-xs font-bold transition-all duration-300 animate-slideDown">
+    <div
+      style={{ top: 'calc(env(safe-area-inset-top, 0px) + 8px)' }}
+      className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full shadow-lg text-xs font-bold transition-all duration-300 animate-slideDown"
+    >
       {!isOnline ? (
         <div className="flex items-center gap-1.5 bg-amber-500 text-white px-3 py-1 rounded-full border border-amber-600 shadow-sm">
           <span className="material-symbols-outlined text-[16px] animate-pulse">cloud_off</span>
@@ -62,13 +65,13 @@ export const OfflineStatusBadge: React.FC = () => {
           )}
         </div>
       ) : (
-        <div className="flex items-center gap-1.5 bg-brand-blue text-white px-3 py-1 rounded-full border border-blue-600 shadow-sm">
+        <div className="flex items-center gap-1.5 bg-primary text-white px-3 py-1 rounded-full border border-blue-600 shadow-sm">
           <span className="material-symbols-outlined text-[16px] animate-spin">sync</span>
           <span>{unsyncedCount} unsynced {unsyncedCount === 1 ? 'change' : 'changes'}</span>
           <button
             onClick={handleSync}
             disabled={isSyncing}
-            className="ml-1 px-2 py-0.5 bg-white text-brand-blue rounded-full text-[11px] hover:bg-gray-100 font-extrabold uppercase"
+            className="ml-1 px-2 py-0.5 bg-white text-primary rounded-full text-[11px] hover:bg-gray-100 font-extrabold uppercase"
           >
             {isSyncing ? 'Syncing...' : 'Sync Now'}
           </button>

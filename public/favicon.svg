@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <rect width="512" height="512" rx="128" fill="#0077B6"/>
+  <!-- Outer Crest Ring -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#FFFFFF" stroke-width="24" stroke-opacity="0.95"/>
+  <!-- Roof / House Gable -->
+  <path d="M 170 190 L 256 115 L 342 190" fill="none" stroke="#FFFFFF" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- HVAC Snowflake / Flame Cross Structure -->
+  <line x1="180" y1="180" x2="180" y2="340" stroke="#FFFFFF" stroke-width="32" stroke-linecap="round"/>
+  <line x1="332" y1="180" x2="332" y2="340" stroke="#FFFFFF" stroke-width="32" stroke-linecap="round"/>
+  <line x1="180" y1="260" x2="332" y2="260" stroke="#FFFFFF" stroke-width="30" stroke-linecap="round"/>
+  <line x1="200" y1="200" x2="312" y2="312" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round"/>
+  <line x1="312" y1="200" x2="200" y2="312" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round"/>
+  <circle cx="256" cy="260" r="32" fill="#FFFFFF"/>
+  <circle cx="256" cy="260" r="14" fill="#0077B6"/>
+</svg>

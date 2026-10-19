@@ -146,6 +146,15 @@ const ProfileView: React.FC<ProfileViewProps> = ({
       color: 'text-primary'
     }] : []),
     {
+      icon: 'install_mobile',
+      label: 'PWA & Standalone Install',
+      action: () => {
+        localStorage.removeItem('hvachome_pwa_install_dismissed_until');
+        window.location.reload();
+      },
+      color: 'text-primary'
+    },
+    {
       icon: 'download',
       label: 'Export Data',
       action: () => setShowExportModal(true)

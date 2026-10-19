@@ -3,6 +3,7 @@ import React from 'react';
 import { ViewType } from '../../types';
 import BottomNav from './BottomNav';
 import OfflineStatusBadge from '../common/OfflineStatusBadge';
+import PWAInstallBanner from '../common/PWAInstallBanner';
 
 interface LayoutWrapperProps {
   activeView: ViewType;
@@ -38,8 +39,9 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({ activeView, onNavigate, c
   };
 
   return (
-    <>
+    <div className="pt-safe min-h-screen">
       <OfflineStatusBadge />
+      <PWAInstallBanner />
       {children}
       {showBottomNav && (
         <BottomNav 
@@ -47,7 +49,7 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({ activeView, onNavigate, c
           onNavigate={onNavigate} 
         />
       )}
-    </>
+    </div>
   );
 };
 
