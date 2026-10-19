@@ -107,7 +107,7 @@ export const ApplianceHero: React.FC<ApplianceHeroProps> = ({ appliance, onStatu
                 'bg-gray-800/90 text-gray-300 border-gray-600/50'
             } ${!isReadOnly ? 'cursor-pointer hover:scale-105' : 'cursor-default'}`}
         >
-          {appliance.status.toUpperCase().replace('_', ' ')}
+          {(appliance.status || 'operational').toUpperCase().replace('_', ' ')}
           {!isReadOnly && <span className="material-symbols-outlined text-[12px]">expand_more</span>}
         </button>
 

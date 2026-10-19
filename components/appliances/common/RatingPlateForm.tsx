@@ -24,7 +24,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
     const [notes, setNotes] = useState(appliance.notes || '');
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [setIsProcessing] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     // Location & Room State
     const [room, setRoom] = useState(appliance.room || appliance.specs?.room || appliance.specs?.location || 'Basement');

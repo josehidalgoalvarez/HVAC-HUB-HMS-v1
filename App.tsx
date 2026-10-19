@@ -5,14 +5,21 @@ import { useTheme } from './hooks/useTheme';
 import { DataProvider, ActionContext, InventoryContext } from './context/DataContext';
 import LayoutWrapper from './components/layout/LayoutWrapper';
 import Router from './components/Router';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import { TutorialOverlay } from './components/tutorial/TutorialOverlay';
 import { TUTORIAL_STEPS } from './tutorial';
 
-// Helper to get session data safely
-const getSession = <T,>(key: string, fallback: T): T => {
+// Helper to get session data safely with optional validation
+const getSession = <T,>(key: string, fallback: T, validator?: (val: any) => boolean): T => {
   try {
     const saved = sessionStorage.getItem(key);
-    return saved ? JSON.parse(saved) : fallback;
+    if (!saved) return fallback;
+    const parsed = JSON.parse(saved);
+    if (validator && !validator(parsed)) {
+      sessionStorage.removeItem(key);
+      return fallback;
+    }
+    return parsed;
   } catch (e) {
     return fallback;
   }
@@ -20,9 +27,9 @@ const getSession = <T,>(key: string, fallback: T): T => {
 
 // Inner component to consume context
 const AppContent: React.FC = () => {
-  // Initialize state from Session Storage to prevent context loss on refresh
+  // Initialize state from Session Storage to prevent context loss on refresh, validating against valid ViewType
   const [activeView, setActiveView] = useState<ViewType>(() =>
-    getSession('pt_activeView', ViewType.PROPERTIES)
+    getSession('pt_activeView', ViewType.PROPERTIES, (val) => Object.values(ViewType).includes(val))
   );
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
     getSession('pt_selectedPropertyId', null)
@@ -67,7 +74,7 @@ const AppContent: React.FC = () => {
 
   const handleNextStep = () => {
     if (tutorialStep < TUTORIAL_STEPS.length - 1) {
-      setTutorialStep(prev => prev + 1);
+      setTutorialStep(tutorialStep + 1);
     } else {
       endTutorial();
     }
@@ -75,7 +82,7 @@ const AppContent: React.FC = () => {
 
   const handlePrevStep = () => {
     if (tutorialStep > 0) {
-      setTutorialStep(prev => prev - 1);
+      setTutorialStep(tutorialStep - 1);
     }
   };
 
@@ -88,23 +95,25 @@ const AppContent: React.FC = () => {
           window.scrollTo(0, 0);
         }}
       >
-        <Router
-          activeView={activeView}
-          selectedPropertyId={selectedPropertyId}
-          selectedApplianceId={selectedApplianceId}
-          isEditMode={isEditMode}
-          setActiveView={setActiveView}
-          setPreviousView={setPreviousView}
-          setSelectedPropertyId={setSelectedPropertyId}
-          setSelectedApplianceId={setSelectedApplianceId}
-          setIsEditMode={setIsEditMode}
-          previousView={previousView}
-          toggleDarkMode={toggleDarkMode}
-          isDarkMode={isDarkMode}
-        />
+        <ErrorBoundary fallbackTitle="View Rendering Error">
+          <Router
+            activeView={activeView}
+            selectedPropertyId={selectedPropertyId}
+            selectedApplianceId={selectedApplianceId}
+            isEditMode={isEditMode}
+            setActiveView={setActiveView}
+            setPreviousView={setPreviousView}
+            setSelectedPropertyId={setSelectedPropertyId}
+            setSelectedApplianceId={setSelectedApplianceId}
+            setIsEditMode={setIsEditMode}
+            previousView={previousView}
+            toggleDarkMode={toggleDarkMode}
+            isDarkMode={isDarkMode}
+          />
+        </ErrorBoundary>
       </LayoutWrapper>
 
-      {isTutorialActive && (
+      {isTutorialActive && TUTORIAL_STEPS[tutorialStep] && (
         <TutorialOverlay
           step={TUTORIAL_STEPS[tutorialStep]}
           stepIndex={tutorialStep}

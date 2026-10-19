@@ -11,6 +11,7 @@ interface TutorialOverlayProps {
 }
 
 export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ step, onNext, onPrev, onExit, stepIndex, totalSteps }) => {
+    if (!step) return null;
 
     // Simple positioning logic
     const getPositionClass = (position: string) => {

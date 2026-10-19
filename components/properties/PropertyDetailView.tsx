@@ -30,7 +30,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
   if (!property) return <div>Property Not Found</div>;
 
   const handleUpdateImage = () => {
-    updateProperty(property.id, { ...property, imageUrl: newImageUrl });
+    updateProperty({ ...property, imageUrl: newImageUrl });
     setIsEditingImage(false);
   };
 
@@ -192,7 +192,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                         app.room || app.specs?.room || app.specs?.location || 'Mech Room'
                       ].filter(Boolean).join(' · ')}
                       {' • '}
-                      <span className="capitalize">{app.status.replace('_', ' ')}</span>
+                      <span className="capitalize">{(app.status || 'operational').replace('_', ' ')}</span>
                     </p>
                   </div>
                   <span className="material-symbols-outlined text-gray-400">expand_less</span>

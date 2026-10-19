@@ -6,9 +6,10 @@ interface ModalProps {
   children: React.ReactNode;
   className?: string;
   zIndexClass?: string;
+  title?: string;
 }
 
-export const Modal: React.FC<ModalProps> = ({ onClose, children, className = 'max-w-md', zIndexClass = 'z-[60]' }) => {
+export const Modal: React.FC<ModalProps> = ({ onClose, children, className = 'max-w-md', zIndexClass = 'z-[60]', title }) => {
   return (
     <div className={`fixed inset-0 ${zIndexClass} flex items-end sm:items-center justify-center p-4 sm:p-0`}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose}></div>

@@ -265,7 +265,23 @@ const Router: React.FC<RouterProps> = ({
       );
 
       default:
-        return <div>View not found</div>;
+        return (
+          <div className="flex flex-col items-center justify-center p-8 text-center min-h-[40vh]">
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3">
+              <span className="material-symbols-outlined text-2xl">explore_off</span>
+            </div>
+            <h3 className="text-lg font-bold text-brand-black dark:text-white">View Not Found</h3>
+            <p className="text-sm text-text-sub-light dark:text-text-sub-dark mt-1 max-w-xs">
+              The requested view ({String(activeView)}) does not exist or has been retired.
+            </p>
+            <button
+              onClick={() => setActiveView(ViewType.PROPERTIES)}
+              className="mt-4 px-4 py-2 bg-primary text-white rounded-xl font-bold text-xs shadow-md hover:opacity-90 transition"
+            >
+              Return to Properties
+            </button>
+          </div>
+        );
     }
   };
 
