@@ -17,9 +17,7 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({ activeView, onNavigate, c
   const hiddenViews = [
     ViewType.ADD_PROPERTY,
     ViewType.EDIT_PROPERTY,
-    ViewType.ADD_APPLIANCE,
-    ViewType.PROPERTY_CANVAS,
-    ViewType.TECH_MENU
+    ViewType.ADD_APPLIANCE
   ];
 
   const showBottomNav = !hiddenViews.includes(activeView);
@@ -30,9 +28,8 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({ activeView, onNavigate, c
     switch (activeView) {
       case ViewType.PROPERTY_LANDING:
       case ViewType.PROPERTY_DETAIL:
-        return ViewType.PROPERTIES;
       case ViewType.APPLIANCE_DETAIL:
-        return ViewType.APPLIANCES;
+        return ViewType.PROPERTIES;
       default:
         return activeView;
     }

@@ -14,7 +14,6 @@ interface ProfileViewProps {
   onToggleDarkMode: () => void;
   isEditMode: boolean;
   onToggleEditMode: (enabled: boolean) => void;
-  onOpenTechMenu: () => void;
   onOpenParts?: () => void;
   onOpenWatches?: () => void;
 }
@@ -24,7 +23,6 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   onToggleDarkMode,
   isEditMode,
   onToggleEditMode,
-  onOpenTechMenu,
   onOpenParts,
   onOpenWatches
 }) => {
@@ -161,7 +159,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
     },
     {
       icon: isTutorialActive ? 'logout' : 'school',
-      label: isTutorialActive ? 'Exit Tutorial' : 'Start Tutorial',
+      label: isTutorialActive ? 'Exit Tutorial' : 'Replay Tutorial',
       action: isTutorialActive ? endTutorial : startTutorial,
       color: isTutorialActive ? 'text-brand-orange' : undefined
     },

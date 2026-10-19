@@ -20,8 +20,6 @@ const PropertyListView = React.lazy(() => import('./properties/PropertyListView'
 const AddPropertyView = React.lazy(() => import('./properties/AddPropertyView'));
 const PropertyLandingView = React.lazy(() => import('./properties/PropertyLandingView'));
 const PropertyDetailView = React.lazy(() => import('./properties/PropertyDetailView'));
-const PropertyCanvasView = React.lazy(() => import('./properties/PropertyCanvasView'));
-const UtilsTechMenu = React.lazy(() => import('./profile/UtilsTechMenu'));
 const ApplianceModule = React.lazy(() => import('./appliances/ApplianceModule'));
 const ProfileView = React.lazy(() => import('./profile/ProfileView'));
 const TicketListView = React.lazy(() => import('./tickets/TicketListView').then(m => ({ default: m.TicketListView })));
@@ -75,46 +73,20 @@ const Router: React.FC<RouterProps> = ({
 
   const handlePropertyClick = (id: string) => {
     setSelectedPropertyId(id);
-    setActiveView(ViewType.PROPERTY_LANDING);
-    window.scrollTo(0, 0);
-  };
-
-  const handleOpenPropertyDetail = () => {
-    setPreviousView(ViewType.PROPERTY_LANDING);
+    setPreviousView(ViewType.PROPERTIES);
     setActiveView(ViewType.PROPERTY_DETAIL);
     window.scrollTo(0, 0);
   };
 
-  const handleOpenCanvas = () => {
-    setPreviousView(ViewType.PROPERTY_DETAIL);
-    setActiveView(ViewType.PROPERTY_CANVAS);
-    window.scrollTo(0, 0);
-  };
-
-  const handleOpenTechMenu = () => {
-    setPreviousView(ViewType.PROFILE);
-    setActiveView(ViewType.TECH_MENU);
-    window.scrollTo(0, 0);
-  };
-
-  const handleOpenCanvasFromTech = (propertyId: string) => {
-    setSelectedPropertyId(propertyId);
-    setPreviousView(ViewType.TECH_MENU);
-    setActiveView(ViewType.PROPERTY_CANVAS);
-    window.scrollTo(0, 0);
-  };
-
-  const handleViewOnCanvas = (propertyId: string, applianceId: string) => {
-    setSelectedPropertyId(propertyId);
-    setSelectedApplianceId(applianceId);
-    setPreviousView(ViewType.APPLIANCE_DETAIL);
-    setActiveView(ViewType.PROPERTY_CANVAS);
+  const handleOpenPropertyDetail = () => {
+    setPreviousView(ViewType.PROPERTIES);
+    setActiveView(ViewType.PROPERTY_DETAIL);
     window.scrollTo(0, 0);
   };
 
   const handleApplianceClick = (id: string) => {
     setSelectedApplianceId(id);
-    if ([ViewType.PROPERTY_DETAIL, ViewType.PROPERTY_LANDING, ViewType.PROPERTY_CANVAS, ViewType.TECH_MENU].includes(activeView)) {
+    if ([ViewType.PROPERTY_DETAIL, ViewType.PROPERTY_LANDING].includes(activeView)) {
       setPreviousView(activeView);
     } else {
       setPreviousView(ViewType.APPLIANCES);
@@ -176,37 +148,9 @@ const Router: React.FC<RouterProps> = ({
       return (
         <PropertyDetailView
           propertyId={selectedPropertyId}
-          onBack={() => setActiveView(ViewType.PROPERTY_LANDING)}
+          onBack={() => setActiveView(ViewType.PROPERTIES)}
           onApplianceClick={handleApplianceClick}
-          onManageCanvas={handleOpenCanvas}
           isEditMode={isEditMode}
-        />
-      );
-
-    case ViewType.PROPERTY_CANVAS:
-      if (!selectedPropertyId) return <div>Property not selected</div>;
-      return (
-        <PropertyCanvasView
-          propertyId={selectedPropertyId}
-          onBack={() => {
-            if (previousView === ViewType.TECH_MENU) {
-              setActiveView(ViewType.TECH_MENU);
-            } else if (previousView === ViewType.APPLIANCE_DETAIL) {
-              setActiveView(ViewType.APPLIANCE_DETAIL);
-            } else {
-              setActiveView(ViewType.PROPERTY_DETAIL);
-            }
-          }}
-          onApplianceClick={handleApplianceClick}
-          initialApplianceId={selectedApplianceId}
-        />
-      );
-
-    case ViewType.TECH_MENU:
-      return (
-        <UtilsTechMenu
-          onBack={() => setActiveView(ViewType.PROFILE)}
-          onOpenCanvas={handleOpenCanvasFromTech}
         />
       );
 
@@ -220,8 +164,7 @@ const Router: React.FC<RouterProps> = ({
           selectedPropertyId={selectedPropertyId}
           onNavigate={(view, id) => {
             if (view === ViewType.APPLIANCES && previousView) {
-              // Intelligent back navigation
-              if ([ViewType.PROPERTY_LANDING, ViewType.PROPERTY_DETAIL, ViewType.PROPERTY_CANVAS, ViewType.TECH_MENU].includes(previousView)) {
+              if ([ViewType.PROPERTY_LANDING, ViewType.PROPERTY_DETAIL].includes(previousView)) {
                 setActiveView(previousView);
               } else {
                 setActiveView(ViewType.APPLIANCES);
@@ -231,9 +174,7 @@ const Router: React.FC<RouterProps> = ({
             }
             if (id) setSelectedApplianceId(id);
           }}
-          // Removed CRUD props - ApplianceModule now uses useActions
           isEditMode={isEditMode}
-          onViewOnCanvas={handleViewOnCanvas}
           onViewProperty={(pid) => {
             setSelectedPropertyId(pid);
             setActiveView(ViewType.PROPERTY_DETAIL);
@@ -248,7 +189,6 @@ const Router: React.FC<RouterProps> = ({
           onToggleDarkMode={toggleDarkMode}
           isEditMode={isEditMode}
           onToggleEditMode={setIsEditMode}
-          onOpenTechMenu={handleOpenTechMenu}
           onOpenParts={() => setActiveView(ViewType.PARTS)}
           onOpenWatches={() => setActiveView(ViewType.WATCHES)}
         />

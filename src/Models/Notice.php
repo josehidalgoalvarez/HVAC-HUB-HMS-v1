@@ -106,6 +106,12 @@ class Notice
             $params[] = $filters['status'];
         }
 
+        if (!empty($filters['since'])) {
+            $where[] = '(n.updated_at >= ? OR n.created_at >= ?)';
+            $params[] = $filters['since'];
+            $params[] = $filters['since'];
+        }
+
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
         $sql = "SELECT n.*,

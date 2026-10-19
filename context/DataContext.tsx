@@ -2,7 +2,6 @@
 import React, { createContext, useState, ReactNode, useMemo, useEffect } from 'react';
 import { Property, Appliance, ChangeLogEntry } from '../types';
 import { INITIAL_PROPERTIES, INITIAL_APPLIANCES } from '../constants';
-import { RESIDENTIAL_PROPERTIES, RESIDENTIAL_APPLIANCES } from '../residential_constants';
 import { apiClient } from '../src/api/client';
 
 // --- Inventory Context (Properties & Appliances) ---
@@ -285,31 +284,36 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // --- Tutorial Mode ---
-  const [isTutorialActive, setIsTutorialActive] = useState(false);
-  const [tutorialStep, setTutorialStep] = useState(0); // Moved from App.tsx
-  const [preTutorialState, setPreTutorialState] = useState<{ properties: Property[], appliances: Appliance[] } | null>(null);
+  const TUTORIAL_DISMISSED_KEY = 'hvachome_tutorial_dismissed';
+
+  const [isTutorialActive, setIsTutorialActive] = useState(() => {
+    try {
+      return localStorage.getItem(TUTORIAL_DISMISSED_KEY) !== 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [tutorialStep, setTutorialStep] = useState(0);
 
   const startTutorial = () => {
-    setPreTutorialState({ properties, appliances });
-    setProperties(RESIDENTIAL_PROPERTIES);
-    setAppliances(RESIDENTIAL_APPLIANCES);
+    try {
+      localStorage.removeItem(TUTORIAL_DISMISSED_KEY);
+    } catch {
+      // ignore
+    }
     setIsTutorialActive(true);
     setTutorialStep(0);
     _addLog('UPDATE', 'PROPERTY', 'SYSTEM', 'Tutorial', 'Started Tutorial Mode');
   };
 
   const endTutorial = () => {
-    if (preTutorialState) {
-      setProperties(preTutorialState.properties);
-      setAppliances(preTutorialState.appliances);
-    } else {
-      // Fallback if no pre-state (shouldn't happen)
-      setProperties(INITIAL_PROPERTIES);
-      setAppliances(INITIAL_APPLIANCES);
+    try {
+      localStorage.setItem(TUTORIAL_DISMISSED_KEY, 'true');
+    } catch {
+      // ignore
     }
     setIsTutorialActive(false);
     setTutorialStep(0);
-    setPreTutorialState(null);
     _addLog('UPDATE', 'PROPERTY', 'SYSTEM', 'Tutorial', 'Ended Tutorial Mode');
   };
 
@@ -343,7 +347,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     startTutorial,
     endTutorial,
     setTutorialStep
-  }), [isTutorialActive, preTutorialState, properties, appliances]);
+  }), [isTutorialActive, properties, appliances]);
 
   return (
     <InventoryContext.Provider value={inventoryValue}>

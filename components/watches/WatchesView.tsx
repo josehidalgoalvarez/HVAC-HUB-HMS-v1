@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { WatchRecord, WatchDigestResponse } from '../../types/domain';
 import apiClient from '../../src/api/client';
+import { appCache } from '../../src/offline/cache';
+import { PullToRefresh } from '../common/PullToRefresh';
 import { WatchCard } from './WatchCard';
 import { DigestSection } from './DigestSection';
 import { SnoozeModal } from './SnoozeModal';
@@ -22,7 +24,6 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
-    setIsLoading(true);
     try {
       const [allWatches, digestRes] = await Promise.all([
         apiClient.getWatches(),
@@ -30,6 +31,8 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
       ]);
       setWatches(allWatches);
       setDigest(digestRes);
+      appCache.set('watches', allWatches);
+      appCache.set('watch_digest', digestRes);
     } catch (err: any) {
       console.error('Failed to load watches:', err);
     } finally {
@@ -38,7 +41,23 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
   }, []);
 
   useEffect(() => {
+    // 1. Instant cache load
+    Promise.all([
+      appCache.get<WatchRecord[]>('watches'),
+      appCache.get<WatchDigestResponse>('watch_digest'),
+    ]).then(([cw, cd]) => {
+      if (cw) setWatches(cw);
+      if (cd) setDigest(cd);
+      if (cw || cd) setIsLoading(false);
+    });
+
+    // 2. Background revalidation
     loadData();
+
+    // 3. Global refresh listener
+    const handleGlobalRefresh = () => loadData();
+    window.addEventListener('hvachome:refresh', handleGlobalRefresh);
+    return () => window.removeEventListener('hvachome:refresh', handleGlobalRefresh);
   }, [loadData]);
 
   const handleEvaluateNow = async () => {
@@ -205,57 +224,59 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'digest' ? (
-        <DigestSection
-          digest={digest}
-          isLoading={isLoading}
-          onRefresh={loadData}
-          onSnooze={(w) => setSelectedWatchForSnooze(w)}
-          onAcknowledge={handleAcknowledge}
-          onResolve={handleResolve}
-        />
-      ) : (
-        <div className="space-y-4">
-          {/* Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-slate-500 mr-1">Filter type:</span>
-            {['all', 'notice_deadline', 'weather_freeze', 'reply_waiting', 'scheduled_task'].map((t) => (
-              <button
-                key={t}
-                onClick={() => setFilterType(t)}
-                className={`min-h-[36px] px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                  filterType === t
-                    ? 'bg-slate-800 text-white border border-slate-700 font-bold'
-                    : 'text-slate-400 hover:text-slate-300 hover:bg-slate-900'
-                }`}
-              >
-                {t === 'all' ? 'All Types' : t.replace('_', ' ')}
-              </button>
-            ))}
-          </div>
-
-          {/* Watches Grid */}
-          {filteredWatches.length === 0 ? (
-            <div className="py-12 text-center text-slate-400 border border-dashed border-slate-800 rounded-2xl p-6">
-              <span className="material-symbols-outlined text-slate-600 text-3xl mb-2 block mx-auto">search</span>
-              <p className="text-sm">No watches match current filter.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {filteredWatches.map((w) => (
-                <WatchCard
-                  key={w.id}
-                  watch={w}
-                  onSnooze={(watch) => setSelectedWatchForSnooze(watch)}
-                  onAcknowledge={handleAcknowledge}
-                  onResolve={handleResolve}
-                  onReactivate={handleReactivate}
-                />
+      <PullToRefresh onRefresh={loadData}>
+        {activeTab === 'digest' ? (
+          <DigestSection
+            digest={digest}
+            isLoading={isLoading}
+            onRefresh={loadData}
+            onSnooze={(w) => setSelectedWatchForSnooze(w)}
+            onAcknowledge={handleAcknowledge}
+            onResolve={handleResolve}
+          />
+        ) : (
+          <div className="space-y-4">
+            {/* Filter Pills */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-slate-500 mr-1">Filter type:</span>
+              {['all', 'notice_deadline', 'weather_freeze', 'reply_waiting', 'scheduled_task'].map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setFilterType(t)}
+                  className={`min-h-[36px] px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                    filterType === t
+                      ? 'bg-slate-800 text-white border border-slate-700 font-bold'
+                      : 'text-slate-400 hover:text-slate-300 hover:bg-slate-900'
+                  }`}
+                >
+                  {t === 'all' ? 'All Types' : t.replace('_', ' ')}
+                </button>
               ))}
             </div>
-          )}
-        </div>
-      )}
+
+            {/* Watches Grid */}
+            {filteredWatches.length === 0 ? (
+              <div className="py-12 text-center text-slate-400 border border-dashed border-slate-800 rounded-2xl p-6">
+                <span className="material-symbols-outlined text-slate-600 text-3xl mb-2 block mx-auto">search</span>
+                <p className="text-sm">No watches match current filter.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {filteredWatches.map((w) => (
+                  <WatchCard
+                    key={w.id}
+                    watch={w}
+                    onSnooze={(watch) => setSelectedWatchForSnooze(watch)}
+                    onAcknowledge={handleAcknowledge}
+                    onResolve={handleResolve}
+                    onReactivate={handleReactivate}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </PullToRefresh>
 
       {/* Snooze Modal */}
       <SnoozeModal

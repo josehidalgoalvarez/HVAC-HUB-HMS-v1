@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../../src/api/client';
+import { appCache } from '../../src/offline/cache';
+import { PullToRefresh } from '../common/PullToRefresh';
 import { BatchBuilderModal } from './BatchBuilderModal';
 import { CloseBlockModal } from './CloseBlockModal';
 import Button from '../ui/Button';
@@ -21,6 +23,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
   );
   const [activeRunSheet, setActiveRunSheet] = useState<RunSheet | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isUpdated, setIsUpdated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Modals
@@ -28,19 +31,34 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
   const [closingBlock, setClosingBlock] = useState<RunSheetBlock | null>(null);
 
   const loadDayPlan = async (date: string) => {
+    const cacheKey = `runsheet_${date}`;
     try {
-      setLoading(true);
-      setError(null);
+      // 1. Instant check from cache if not already set
+      const cached = await appCache.get<RunSheet>(cacheKey);
+      if (cached) {
+        setActiveRunSheet(cached);
+        setLoading(false);
+      }
+
       const sheets = await apiClient.getRunSheets({ run_date: date });
       if (sheets && sheets.length > 0) {
         // Fetch detailed sheet with blocks
         const detailed = await apiClient.getRunSheet(sheets[0].id);
-        setActiveRunSheet(detailed);
+        setActiveRunSheet((prev) => {
+          if (prev && JSON.stringify(prev) !== JSON.stringify(detailed)) {
+            setIsUpdated(true);
+            setTimeout(() => setIsUpdated(false), 2500);
+          }
+          return detailed;
+        });
+        await appCache.set(cacheKey, detailed);
       } else {
         setActiveRunSheet(null);
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to load day-plan');
+      if (!activeRunSheet) {
+        setError(err instanceof Error ? err.message : 'Failed to load day-plan');
+      }
     } finally {
       setLoading(false);
     }
@@ -48,6 +66,10 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
 
   useEffect(() => {
     loadDayPlan(currentDate);
+
+    const handleGlobalRefresh = () => loadDayPlan(currentDate);
+    window.addEventListener('hvachome:refresh', handleGlobalRefresh);
+    return () => window.removeEventListener('hvachome:refresh', handleGlobalRefresh);
   }, [currentDate]);
 
   const changeDate = (days: number) => {
@@ -205,36 +227,45 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
         </div>
       )}
 
+      {/* Subtle background updated indicator */}
+      {isUpdated && (
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-40 px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-full shadow-lg animate-fadeIn flex items-center gap-1.5 pointer-events-none">
+          <span className="material-symbols-outlined text-[14px]">check_circle</span>
+          <span>Day Plan updated</span>
+        </div>
+      )}
+
       {/* Main Blocks List */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
-          <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
-          <p className="text-xs font-semibold">Loading day-plan route blocks...</p>
-        </div>
-      ) : error ? (
-        <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-2xl text-xs text-brand-red font-semibold">
-          {error}
-        </div>
-      ) : !activeRunSheet || !activeRunSheet.blocks || activeRunSheet.blocks.length === 0 ? (
-        <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
-          <span className="material-symbols-outlined text-4xl text-gray-300">event_busy</span>
-          <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
-            No day plan scheduled for {currentDate}
-          </p>
-          <p className="text-xs text-text-sub-light dark:text-text-sub-dark max-w-sm mx-auto">
-            Use the Batch Builder to automatically select open tickets, group them by site proximity, and generate a travel-ordered day-plan.
-          </p>
-          <Button
-            variant="primary"
-            onClick={() => setIsBatchBuilderOpen(true)}
-            className="py-2.5 px-4 text-xs mx-auto shadow-sm"
-            icon="alt_route"
-          >
-            Launch Batch Builder
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-3">
+      <PullToRefresh onRefresh={() => loadDayPlan(currentDate)}>
+        {loading && !activeRunSheet ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
+            <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
+            <p className="text-xs font-semibold">Loading day-plan route blocks...</p>
+          </div>
+        ) : error && !activeRunSheet ? (
+          <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-2xl text-xs text-brand-red font-semibold">
+            {error}
+          </div>
+        ) : !activeRunSheet || !activeRunSheet.blocks || activeRunSheet.blocks.length === 0 ? (
+          <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
+            <span className="material-symbols-outlined text-4xl text-gray-300">event_busy</span>
+            <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
+              No day plan scheduled for {currentDate}
+            </p>
+            <p className="text-xs text-text-sub-light dark:text-text-sub-dark max-w-sm mx-auto">
+              Use the Batch Builder to automatically select open tickets, group them by site proximity, and generate a travel-ordered day-plan.
+            </p>
+            <Button
+              variant="primary"
+              onClick={() => setIsBatchBuilderOpen(true)}
+              className="py-2.5 px-4 text-xs mx-auto shadow-sm"
+              icon="alt_route"
+            >
+              Launch Batch Builder
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
           {activeRunSheet.blocks.map((block) => {
             const isCompleted = block.status === 'completed';
             const exceedsCarry = !!block.exceeds_carry_capacity;
@@ -394,6 +425,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
           })}
         </div>
       )}
+      </PullToRefresh>
 
       {/* Batch Builder Modal */}
       {isBatchBuilderOpen && (

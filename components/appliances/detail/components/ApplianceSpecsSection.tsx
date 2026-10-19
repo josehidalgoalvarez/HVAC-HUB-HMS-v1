@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 import { Appliance, ViewType } from '../../../../types';
 import { getTechSpecs } from '../../../../utils/applianceUtils';
 import { Modal } from '../../../../components/ui/Modal';
-import { TUTORIAL_STEPS } from '../../../../tutorial';
-import { InventoryContext, ActionContext, DataProvider } from '../../../../context/DataContext';
 import Button from '../../../../components/ui/Button';
 
 interface ApplianceSpecsSectionProps {
@@ -22,21 +20,6 @@ export const ApplianceSpecsSection: React.FC<ApplianceSpecsSectionProps> = ({ ap
     const [showNotesModal, setShowNotesModal] = useState(false);
     const [unavailableItem, setUnavailableItem] = useState<string | null>(null);
     const techSpecs = getTechSpecs(appliance.specs);
-
-    // Tutorial Integration
-    const { isTutorialActive, tutorialStep } = React.useContext(InventoryContext)!;
-
-    // We use the onViewProperty prop for navigation now.
-
-    // Let's use the Tutorial logic first.
-    React.useEffect(() => {
-        if (isTutorialActive) {
-            const currentAction = TUTORIAL_STEPS[tutorialStep]?.action;
-            if (currentAction === 'OPEN_NOTES') {
-                setShowNotesModal(true);
-            }
-        }
-    }, [isTutorialActive, tutorialStep]);
 
     // Helper to render doc button state
     const renderDocButton = (

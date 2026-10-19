@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../../src/api/client';
+import { appCache } from '../../src/offline/cache';
+import { PullToRefresh } from '../common/PullToRefresh';
 import { PartSearchSection } from './PartSearchSection';
 import { ShoppingListSection } from './ShoppingListSection';
 import { SupplierDirectorySection } from './SupplierDirectorySection';
@@ -19,6 +21,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
   const [stockpiles, setStockpiles] = useState<Stockpile[]>(SEED_STOCKPILES);
   const [suppliers, setSuppliers] = useState<SupplierRecord[]>(SEED_SUPPLIERS);
   const [loading, setLoading] = useState(false);
+  const [isUpdated, setIsUpdated] = useState(false);
   const [flashMsg, setFlashMsg] = useState<{ text: string; type: 'success' | 'warning' } | null>(null);
 
   // Modal state
@@ -35,30 +38,44 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
 
       if (partsRes.status === 'fulfilled' && partsRes.value && partsRes.value.length > 0) {
         setParts(partsRes.value);
-      } else {
-        setParts(SEED_PARTS);
+        appCache.set('parts', partsRes.value);
       }
 
       if (spRes.status === 'fulfilled' && spRes.value && spRes.value.length > 0) {
         setStockpiles(spRes.value);
-      } else {
-        setStockpiles(SEED_STOCKPILES);
+        appCache.set('stockpiles', spRes.value);
       }
 
       if (suppRes.status === 'fulfilled' && suppRes.value && suppRes.value.length > 0) {
         setSuppliers(suppRes.value);
-      } else {
-        setSuppliers(SEED_SUPPLIERS);
+        appCache.set('suppliers', suppRes.value);
       }
     } catch (err) {
-      console.warn('Using seeded parts data due to offline/API error:', err);
+      console.warn('Using cached/seeded parts data due to offline/API error:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    // 1. Instant non-blocking cache population
+    Promise.all([
+      appCache.get<PartRecord[]>('parts'),
+      appCache.get<Stockpile[]>('stockpiles'),
+      appCache.get<SupplierRecord[]>('suppliers'),
+    ]).then(([cp, cs, csupp]) => {
+      if (cp && cp.length) setParts(cp);
+      if (cs && cs.length) setStockpiles(cs);
+      if (csupp && csupp.length) setSuppliers(csupp);
+    });
+
+    // 2. Background revalidation
     loadPartsData();
+
+    // 3. Global refresh listener
+    const handleGlobalRefresh = () => loadPartsData();
+    window.addEventListener('hvachome:refresh', handleGlobalRefresh);
+    return () => window.removeEventListener('hvachome:refresh', handleGlobalRefresh);
   }, []);
 
   const handleUsePartSuccess = async (payload: any) => {
@@ -181,22 +198,24 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
       </div>
 
       {/* Tab Panels */}
-      {activeTab === 'search' && (
-        <PartSearchSection
-          parts={parts}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onLogUse={part => setActivePartForUsage(part)}
-        />
-      )}
+      <PullToRefresh onRefresh={loadPartsData}>
+        {activeTab === 'search' && (
+          <PartSearchSection
+            parts={parts}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onLogUse={part => setActivePartForUsage(part)}
+          />
+        )}
 
-      {activeTab === 'shopping' && (
-        <ShoppingListSection onOpenTicket={onOpenTicket} />
-      )}
+        {activeTab === 'shopping' && (
+          <ShoppingListSection onOpenTicket={onOpenTicket} />
+        )}
 
-      {activeTab === 'suppliers' && (
-        <SupplierDirectorySection suppliers={suppliers} />
-      )}
+        {activeTab === 'suppliers' && (
+          <SupplierDirectorySection suppliers={suppliers} />
+        )}
+      </PullToRefresh>
 
       {/* Log Part Use Modal */}
       {activePartForUsage && (

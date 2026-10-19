@@ -44,11 +44,12 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, onNavigate }) => {
         </button>
 
         <button
-          onClick={() => onNavigate(ViewType.APPLIANCES)}
-          className={`group flex flex-1 flex-col items-center justify-center gap-1 transition-all ${activeView === ViewType.APPLIANCES ? 'text-primary scale-110' : 'text-text-sub-light dark:text-text-sub-dark'}`}
+          id="parts-nav-item"
+          onClick={() => onNavigate(ViewType.PARTS)}
+          className={`group flex flex-1 flex-col items-center justify-center gap-1 transition-all ${activeView === ViewType.PARTS ? 'text-primary scale-110' : 'text-text-sub-light dark:text-text-sub-dark'}`}
         >
-          <span className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.APPLIANCES ? 'font-variation-settings-fill' : ''}`}>grid_view</span>
-          <span className="text-[10px] font-medium tracking-wide">Appliances</span>
+          <span className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.PARTS ? 'font-variation-settings-fill' : ''}`}>precision_manufacturing</span>
+          <span className="text-[10px] font-medium tracking-wide">Parts</span>
         </button>
 
         <button

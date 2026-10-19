@@ -57,6 +57,12 @@ class Ticket
             $params[] = $filters['status'];
         }
 
+        if (!empty($filters['since'])) {
+            $where[] = '(t.updated_at >= ? OR t.created_at >= ?)';
+            $params[] = $filters['since'];
+            $params[] = $filters['since'];
+        }
+
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
         // Priority sort: Safety first (urgent) -> Closable today (in-progress/verified) -> Rest

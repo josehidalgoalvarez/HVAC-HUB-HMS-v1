@@ -53,36 +53,8 @@ const AppContent: React.FC = () => {
   // Helper to handle tutorial navigation
   const navigateToStep = (stepIndex: number) => {
     const step = TUTORIAL_STEPS[stepIndex];
-
-    // 1. Navigation
-    if (step.view) {
+    if (step && step.view) {
       setActiveView(step.view);
-    }
-
-    // 2. Actions
-    // Pre-defined ID mappings for the tutorial data constants
-    const TUTORIAL_PROP_ID = 'prop-gas-001';
-    const TUTORIAL_APP_ID = 'gas-app-1';
-
-    if (step.action === 'SELECT_SAMPLE_PROPERTY') {
-      setSelectedPropertyId(TUTORIAL_PROP_ID);
-      // Ensure we are in detail view if not already set by 'view' prop
-      setActiveView(ViewType.PROPERTY_DETAIL);
-    }
-
-    if (step.action === 'SELECT_SAMPLE_APPLIANCE') {
-      setSelectedApplianceId(TUTORIAL_APP_ID);
-      setActiveView(ViewType.APPLIANCE_DETAIL);
-    }
-
-    if (step.action === 'OPEN_NOTES') {
-      // Ensuring we are on the appliance detail view
-      setSelectedApplianceId(TUTORIAL_APP_ID);
-      setActiveView(ViewType.APPLIANCE_DETAIL);
-      // Notes modal is internal to ApplianceSpecsSection, so we highlight the button.
-      // We can't programmatically open the internal modal from here without refs or context.
-      // But the tutorial point to the button, so user can click it.
-      // Or we could force 'isEditMode' which shows the button as 'Add/View'.
     }
   };
 

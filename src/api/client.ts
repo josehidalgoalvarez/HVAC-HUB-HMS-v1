@@ -25,6 +25,7 @@ import type {
   WatchDigestResponse,
   WatchEvaluateResponse,
 } from '../../types/domain';
+import { appCache } from '../offline/cache.ts';
 
 export interface ApiResponseEnvelope<T> {
   data: T | null;
@@ -133,6 +134,18 @@ export class ApiClient {
       headers.set('Content-Type', 'application/json');
     }
 
+    const isGet = !options.method || options.method.toUpperCase() === 'GET';
+    if (isGet) {
+      try {
+        const meta = await appCache.getMeta(path);
+        if (meta?.etag && !headers.has('If-None-Match')) {
+          headers.set('If-None-Match', meta.etag);
+        }
+      } catch {
+        // Ignore cache meta read error
+      }
+    }
+
     let response: Response;
     try {
       response = await fetch(url, {
@@ -140,8 +153,31 @@ export class ApiClient {
         headers,
       });
     } catch (networkErr: unknown) {
+      // Offline fallback: if network failed on GET, try reading from cache
+      if (isGet) {
+        try {
+          const cached = await appCache.get<T>(path);
+          if (cached !== null) {
+            return cached;
+          }
+        } catch {
+          // Ignore
+        }
+      }
       const msg = networkErr instanceof Error ? networkErr.message : 'Network request failed';
       throw new ApiError(`Network error: ${msg}`, 'network_error', 0);
+    }
+
+    // Handle 304 Not Modified from ETag match
+    if (response.status === 304) {
+      try {
+        const cached = await appCache.get<T>(path);
+        if (cached !== null) {
+          return cached;
+        }
+      } catch {
+        // Fall through
+      }
     }
 
     let payload: ApiResponseEnvelope<T> | null = null;
@@ -176,11 +212,15 @@ export class ApiClient {
       throw new ApiError(payload.error.message, payload.error.code, response.status);
     }
 
-    if (payload && 'data' in payload) {
-      return payload.data as T;
+    const resultData = payload && 'data' in payload ? (payload.data as T) : ((payload as unknown) as T);
+
+    // Save to cache on GET with ETag or successful payload
+    if (isGet && resultData !== undefined && resultData !== null) {
+      const etag = response.headers.get('etag');
+      appCache.set(path, resultData, etag).catch(() => {});
     }
 
-    return (payload as unknown) as T;
+    return resultData;
   }
 
   public get<T>(path: string, options?: RequestInit): Promise<T> {
@@ -481,7 +521,74 @@ export class ApiClient {
     ticket_ids?: (string | number)[];
     start_time?: string;
   }): Promise<BatchSuggestionResult> {
-    return this.post<BatchSuggestionResult>('/api/run-sheets/suggest-batch', data);
+    try {
+      return await this.post<BatchSuggestionResult>('/api/run-sheets/suggest-batch', data);
+    } catch (err) {
+      console.warn('[ApiClient] suggestRunSheetBatch remote call failed, using client proximity fallback', err);
+      const ticketIds = (data.ticket_ids || []).map(String);
+      const allTickets = await this.getTickets();
+      const selected = allTickets.filter((t) => ticketIds.includes(String(t.id)));
+
+      // Cluster by building
+      const buildingGroups = new Map<string, Ticket[]>();
+      for (const t of selected) {
+        const bKey = String(t.building_id || t.propertyId || '1');
+        if (!buildingGroups.has(bKey)) {
+          buildingGroups.set(bKey, []);
+        }
+        buildingGroups.get(bKey)!.push(t);
+      }
+
+      const blocks: RunSheetBlock[] = [];
+      let currentHour = 8;
+      let sortOrder = 1;
+      let lastBuildingId: string | null = null;
+      let totalTravel = 0;
+
+      for (const [bKey, group] of buildingGroups.entries()) {
+        const isTransition = lastBuildingId !== null && lastBuildingId !== bKey;
+        if (isTransition) {
+          totalTravel += 15;
+        }
+        lastBuildingId = bKey;
+
+        for (const t of group) {
+          const startTime = `${String(currentHour).padStart(2, '0')}:00`;
+          const endTime = `${String(currentHour + 1).padStart(2, '0')}:00`;
+          currentHour++;
+
+          blocks.push({
+            id: `fallback-block-${t.id}`,
+            ticket_id: t.id,
+            wo_number: t.wo_number || null,
+            title: t.title || 'Work Order',
+            building_id: t.building_id || 1,
+            building_name: t.building_name || t.propertyName || 'Property',
+            building_address: t.address || 'Bath Rd',
+            unit_id: t.unit_id || null,
+            unit_number: t.unitNumber || t.unit_number || '1',
+            sort_order: sortOrder++,
+            status: 'pending',
+            start_time: startTime,
+            end_time: endTime,
+            estimated_minutes: 60,
+            is_site_transition: isTransition && group.indexOf(t) === 0,
+            travel_buffer_before_minutes: isTransition && group.indexOf(t) === 0 ? 15 : 0,
+            notice_gate_status: 'green',
+            notice_is_cleared: true,
+          });
+        }
+      }
+
+      return {
+        total_tickets: selected.length,
+        total_sites: buildingGroups.size,
+        estimated_work_minutes: selected.length * 60,
+        estimated_travel_minutes: totalTravel,
+        estimated_total_minutes: selected.length * 60 + totalTravel,
+        blocks,
+      };
+    }
   }
 
   // --- Field Jobs & Field Loop (Phase 3) ---

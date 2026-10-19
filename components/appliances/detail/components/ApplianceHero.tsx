@@ -8,39 +8,23 @@ interface ApplianceHeroProps {
   onStatusChange: (status: Appliance['status']) => void;
   isReadOnly: boolean;
   onImageUpdate: (url: string) => void;
-  onModelUrlUpdate?: (url: string) => void;
 }
 
 /**
  * ApplianceHero Component
  * Responsibilities: 
- * - Render the 3D model (lazily) or fallback image.
- * - Manage the UI for changing the appliance status (Operational/Needs Service/Idle).
- * - Allow updating the main image via camera/upload if not read-only.
- * - NEW: Allow pasting a 3D model link.
+ * - Render appliance photo with flat tonal framing.
+ * - Manage UI for changing appliance status (Operational/Needs Service/Idle).
+ * - Allow updating main photo via camera/upload if not read-only.
  */
-export const ApplianceHero: React.FC<ApplianceHeroProps> = ({ appliance, onStatusChange, isReadOnly, onImageUpdate, onModelUrlUpdate }) => {
+export const ApplianceHero: React.FC<ApplianceHeroProps> = ({ appliance, onStatusChange, isReadOnly, onImageUpdate }) => {
   const [showStatusMenu, setShowStatusMenu] = useState(false);
-  const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleStatusSelect = (status: Appliance['status']) => {
     onStatusChange(status);
     setShowStatusMenu(false);
-  };
-
-  const handleLoad3D = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsModelLoaded(true);
-  };
-
-  const handlePaste3D = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const url = prompt("Paste the 3D model embed URL (e.g. from Sketchfab):");
-    if (url && onModelUrlUpdate) {
-      onModelUrlUpdate(url);
-    }
   };
 
   const handleCameraClick = (e: React.MouseEvent) => {
@@ -78,65 +62,25 @@ export const ApplianceHero: React.FC<ApplianceHeroProps> = ({ appliance, onStatu
         onChange={handleFileChange}
       />
 
-      {appliance.embedModelUrl && isModelLoaded ? (
-        <iframe
-          src={appliance.embedModelUrl}
-          className="w-full h-full border-0 animate-in fade-in duration-700"
-          frameBorder="0"
-          scrolling="no"
-          title={`3D Model of ${appliance.name}`}
+      <div className="relative w-full h-full p-8 flex items-center justify-center">
+        <div className="absolute inset-0 opacity-10 dark:opacity-20 pointer-events-none" style={{
+          backgroundImage: 'linear-gradient(#0077b6 1px, transparent 1px), linear-gradient(90deg, #0077b6 1px, transparent 1px)',
+          backgroundSize: '40px 40px'
+        }}></div>
+        <img
+          src={appliance.imageUrl}
+          alt={appliance.name}
+          className={`relative z-10 max-h-full max-w-full object-contain drop-shadow-2xl transition-opacity duration-300 ${isProcessing ? 'opacity-50 blur-sm' : ''}`}
         />
-      ) : (
-        <div className="relative w-full h-full p-8 flex items-center justify-center">
-          <div className="absolute inset-0 opacity-10 dark:opacity-20 pointer-events-none" style={{
-            backgroundImage: 'linear-gradient(#0077b6 1px, transparent 1px), linear-gradient(90deg, #0077b6 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
-          }}></div>
-          <img
-            src={appliance.imageUrl}
-            alt={appliance.name}
-            className={`relative z-10 max-h-full max-w-full object-contain drop-shadow-2xl transition-opacity duration-300 ${isProcessing ? 'opacity-50 blur-sm' : ''}`}
-          />
 
-          {isProcessing && (
-            <div className="absolute inset-0 flex items-center justify-center z-20">
-              <div className="bg-black/60 text-white px-4 py-2 rounded-xl backdrop-blur-md text-sm font-bold animate-pulse">
-                Processing Image...
-              </div>
+        {isProcessing && (
+          <div className="absolute inset-0 flex items-center justify-center z-20">
+            <div className="bg-black/60 text-white px-4 py-2 rounded-xl backdrop-blur-md text-sm font-bold animate-pulse">
+              Processing Image...
             </div>
-          )}
-
-          {/* Lazy Load Trigger Overlay or Edit Button */}
-          {appliance.embedModelUrl ? (
-            <button
-              onClick={handleLoad3D}
-              className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/5 hover:bg-black/10 transition-colors cursor-pointer group/btn"
-            >
-              <div className="bg-white/90 dark:bg-black/70 backdrop-blur-md px-5 py-3 rounded-2xl flex items-center gap-3 shadow-xl transform group-hover/btn:scale-105 transition-all border border-white/50 dark:border-white/10">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary text-[24px]">view_in_ar</span>
-                </div>
-                <div className="text-left">
-                  <p className="font-bold text-brand-black dark:text-white text-sm">View 3D Model</p>
-                  <p className="text-[10px] text-text-sub-light dark:text-text-sub-dark">Tap to load interactive view</p>
-                </div>
-              </div>
-            </button>
-          ) : (
-            !isReadOnly && (
-              <button
-                onClick={handlePaste3D}
-                className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/0 hover:bg-black/5 transition-colors cursor-pointer group/paste"
-              >
-                <div className="bg-white/80 dark:bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg opacity-0 group-hover/paste:opacity-100 transform translate-y-2 group-hover/paste:translate-y-0 transition-all border border-white/30">
-                  <span className="material-symbols-outlined text-primary text-[20px]">link</span>
-                  <span className="font-bold text-brand-black dark:text-white text-xs">Add 3D Model</span>
-                </div>
-              </button>
-            )
-          )}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
 
       {/* Camera / Edit Button - Only if not read only */}
       {!isReadOnly && !isProcessing && (

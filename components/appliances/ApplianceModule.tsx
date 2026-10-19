@@ -12,7 +12,6 @@ interface ApplianceModuleProps {
   selectedPropertyId: string | null;
   onNavigate: (view: ViewType, applianceId?: string | null) => void;
   isEditMode: boolean;
-  onViewOnCanvas: (propertyId: string, applianceId: string) => void;
   onViewProperty: (propertyId: string) => void;
 }
 
@@ -22,7 +21,6 @@ const ApplianceModule: React.FC<ApplianceModuleProps> = ({
   selectedPropertyId,
   onNavigate,
   isEditMode,
-  onViewOnCanvas,
   onViewProperty
 }) => {
   // Use actions from context instead of props
@@ -55,7 +53,6 @@ const ApplianceModule: React.FC<ApplianceModuleProps> = ({
           onDuplicate={duplicateAppliance}
           onDelete={deleteAppliance}
           isEditMode={isEditMode}
-          onViewOnCanvas={onViewOnCanvas}
           onViewProperty={onViewProperty}
         />
       );

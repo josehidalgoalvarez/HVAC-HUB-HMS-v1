@@ -84,6 +84,7 @@ class Db
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 address TEXT NOT NULL,
+                comments TEXT NULL,
                 image_url TEXT NULL,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -312,6 +313,47 @@ class Db
                 latest_trigger_reason TEXT NULL,
                 latest_trigger_data TEXT NULL,
                 quiet_hours_delayed INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+        ");
+
+        try {
+            $pdo->exec("ALTER TABLE building ADD COLUMN comments TEXT NULL");
+        } catch (\Throwable) {}
+
+        try {
+            $pdo->exec("ALTER TABLE unit ADD COLUMN comments TEXT NULL");
+        } catch (\Throwable) {}
+
+        try {
+            $pdo->exec("ALTER TABLE job ADD COLUMN room TEXT NULL");
+        } catch (\Throwable) {}
+
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS appliance (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                property_id TEXT NOT NULL,
+                building_id INTEGER NULL,
+                unit_id INTEGER NULL,
+                name TEXT NOT NULL,
+                brand TEXT NOT NULL,
+                type TEXT NOT NULL,
+                category TEXT NULL,
+                status TEXT NOT NULL DEFAULT 'operational',
+                last_service TEXT NULL,
+                model_number TEXT NULL,
+                serial_number TEXT NULL,
+                room TEXT NULL,
+                unit_number TEXT NULL,
+                location TEXT NULL,
+                image_url TEXT NULL,
+                rating_plate_url TEXT NULL,
+                manual_url TEXT NULL,
+                warranty_url TEXT NULL,
+                installation_url TEXT NULL,
+                notes TEXT NULL,
+                specs TEXT NULL,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             );

@@ -263,6 +263,17 @@ class OfflineOutbox {
 
     return { synced, failed };
   }
+
+  /**
+   * Process outbox queue and push unsynced changes
+   */
+  public async processQueue(client?: ApiClient): Promise<{ synced: number; failed: number }> {
+    if (!client) {
+      const clientMod = await import('../api/client');
+      return this.sync(clientMod.default);
+    }
+    return this.sync(client);
+  }
 }
 
 export const outbox = new OfflineOutbox();

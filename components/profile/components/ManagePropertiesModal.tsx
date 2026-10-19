@@ -48,7 +48,7 @@ export const ManagePropertiesModal: React.FC<ManagePropertiesModalProps> = ({
                         </div>
                     </div>
                     <Button variant="outline" onClick={startTutorial}>
-                        Start Tutorial
+                        Replay Tutorial
                     </Button>
                 </div>
                 {(properties || []).map(p => (

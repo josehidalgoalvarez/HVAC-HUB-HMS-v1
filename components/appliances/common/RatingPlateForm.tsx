@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Appliance, CanvasPosition } from '../../../types';
+import { Appliance } from '../../../types';
 import { useData } from '../../../hooks/useData';
 import { compressImage, compressAndUploadImage } from '../../../utils/imageUtils';
 
@@ -21,14 +21,14 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
     const [manualUrl, setManualUrl] = useState(appliance.manualUrl || '');
     const [warrantyUrl, setWarrantyUrl] = useState(appliance.warrantyUrl || '');
     const [installationUrl, setInstallationUrl] = useState(appliance.installationUrl || '');
-    const [embedModelUrl, setEmbedModelUrl] = useState(appliance.embedModelUrl || '');
     const [notes, setNotes] = useState(appliance.notes || '');
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [setIsProcessing] = useState(false);
 
-    // Location & Positioning State
-    const [floor, setFloor] = useState<CanvasPosition['floor']>(appliance.position?.floor || 'Basement');
+    // Location & Room State
+    const [room, setRoom] = useState(appliance.room || appliance.specs?.room || appliance.specs?.location || 'Basement');
+    const [unitNumber, setUnitNumber] = useState(appliance.unitNumber || '');
     const [location, setLocation] = useState(appliance.specs?.location || '');
 
     // Specs State
@@ -83,17 +83,13 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
             ...appliance,
             modelNumber: modelNumber || 'TBD',
             serialNumber: serialNumber || 'TBD',
+            room: room || 'Basement',
+            unitNumber: unitNumber || appliance.unitNumber || '',
             ratingPlateUrl: ratingPlateUrl,
             manualUrl: manualUrl,
             warrantyUrl: warrantyUrl,
             installationUrl: installationUrl,
-            embedModelUrl: embedModelUrl,
             notes: notes,
-            position: {
-                x: appliance.position?.x || 50,
-                y: appliance.position?.y || 50,
-                floor: floor
-            },
             specs: {
                 ...appliance.specs,
                 fuelType: fuelType || 'TBD',
@@ -151,8 +147,6 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
         }
         e.target.value = '';
     };
-
-    const FLOORS: CanvasPosition['floor'][] = ['Basement', 'Main Floor', 'Second Floor', 'Attic', 'Garage', 'Exterior'];
 
     // Fuel Type Options
     const FUEL_TYPES = [
@@ -254,18 +248,23 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
 
                     {/* Location Section */}
                     <div>
-                        <p className="text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-2">Location & Positioning</p>
+                        <p className="text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-2">Location & Room</p>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Floor</label>
-                                <select value={floor} onChange={(e) => setFloor(e.target.value as CanvasPosition['floor'])} className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-3 px-3 text-brand-black dark:text-white outline-none focus:ring-2 focus:ring-primary/50 text-sm">
-                                    {FLOORS.map(f => <option key={f} value={f}>{f}</option>)}
-                                </select>
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Unit Number</label>
+                                <input value={unitNumber} onChange={(e) => setUnitNumber(e.target.value)} placeholder="e.g. 273 or Common" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-3 px-3 text-brand-black dark:text-white outline-none focus:ring-2 focus:ring-primary/50 text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Room / Zone</label>
-                                <input list="rooms" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Utility Room" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-3 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
-                                <datalist id="rooms">{availableRooms.map(r => <option key={r} value={r} />)}</datalist>
+                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Room ("Basement", "Roof")</label>
+                                <input list="rooms" value={room} onChange={(e) => setRoom(e.target.value)} placeholder="e.g. Mechanical Room" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-3 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
+                                <datalist id="rooms">
+                                    <option value="Basement" />
+                                    <option value="Mechanical Room" />
+                                    <option value="Roof" />
+                                    <option value="Utility Closet" />
+                                    <option value="Garage" />
+                                    {availableRooms.map(r => <option key={r} value={r} />)}
+                                </datalist>
                             </div>
                         </div>
                     </div>
@@ -491,11 +490,6 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                                 <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Installation Guide</label>
                                 <input type="text" value={installationUrl} onChange={(e) => setInstallationUrl(e.target.value)} placeholder="Installation URL..." className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 pr-10 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                                 <button onClick={() => installationInputRef.current?.click()} className="absolute right-2 top-8 text-gray-400 hover:text-primary"><span className="material-symbols-outlined text-[20px]">upload_file</span></button>
-                            </div>
-
-                            <div className="relative">
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">3D Model Embed</label>
-                                <input type="text" value={embedModelUrl} onChange={(e) => setEmbedModelUrl(e.target.value)} placeholder="https://sketchfab.com/models/.../embed" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                         </div>
 

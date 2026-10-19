@@ -36,7 +36,8 @@ export const OfflineStatusBadge: React.FC = () => {
     if (isSyncing) return;
     setIsSyncing(true);
     try {
-      await outbox.sync(apiClient);
+      await outbox.processQueue(apiClient);
+      window.dispatchEvent(new CustomEvent('hvachome:refresh'));
     } catch (e) {
       console.warn('[OfflineStatusBadge] Sync failed:', e);
     } finally {

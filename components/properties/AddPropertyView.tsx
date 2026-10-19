@@ -94,7 +94,6 @@ const AddPropertyView: React.FC<AddPropertyViewProps> = ({ onCancel, onSave, ini
             address: fullAddress,
             imageUrl: formData.imageUrl,
             applianceCount: 0,
-            is3DReady: false,
             sqFt: formData.sqFt,
             yearBuilt: formData.yearBuilt,
             lotSize: formData.lotSize,

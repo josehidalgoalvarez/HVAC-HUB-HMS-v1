@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { apiClient } from '../../src/api/client';
+import { useSWRData } from '../../src/offline/useSWRData';
+import { PullToRefresh } from '../common/PullToRefresh';
 import { TicketCard } from './TicketCard';
 import { TicketIntakeModal } from './TicketIntakeModal';
 import { TicketDetailView } from './TicketDetailView';
@@ -23,9 +25,26 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   onOpenParts,
   onOpenWatches,
 }) => {
-  const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const fetchTickets = useCallback(() => apiClient.getTickets(), []);
+  const {
+    data: cachedTickets,
+    setData: setTicketsState,
+    isLoading: loading,
+    isRevalidating,
+    isUpdated,
+    error,
+    refresh: refreshTickets,
+  } = useSWRData<Ticket[]>('tickets', fetchTickets);
+
+  const tickets = cachedTickets || [];
+  const setTickets = (updater: Ticket[] | ((prev: Ticket[]) => Ticket[])) => {
+    if (typeof updater === 'function') {
+      setTicketsState((prev) => updater(prev || []));
+    } else {
+      setTicketsState(updater);
+    }
+  };
+
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(initialSelectedTicketId);
   const [isIntakeOpen, setIsIntakeOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,24 +55,6 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
       setSelectedTicketId(initialSelectedTicketId);
     }
   }, [initialSelectedTicketId]);
-
-  const loadTickets = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await apiClient.getTickets();
-      setTickets(data || []);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to load tickets';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadTickets();
-  }, []);
 
   const handleQuickStateChange = async (ticketId: string, newState: TicketState) => {
     try {
@@ -110,6 +111,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
     return (s === 'in-progress' || s === 'in_progress' || s === 'verified') && t.priority !== 'urgent';
   }).length;
   const blockedCount = tickets.filter((t) => (t.status || t.state) === 'blocked').length;
+  const unassignedCount = tickets.filter((t) => !t.wo_number).length;
 
   if (selectedTicketId) {
     return (
@@ -189,27 +191,35 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
             </button>
           )}
           <button
-            onClick={loadTickets}
-            disabled={loading}
+            onClick={() => refreshTickets()}
+            disabled={isRevalidating}
             className="w-9 h-9 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200"
             title="Refresh tickets"
           >
-            <span className={`material-symbols-outlined text-[18px] ${loading ? 'animate-spin' : ''}`}>
+            <span className={`material-symbols-outlined text-[18px] ${isRevalidating ? 'animate-spin' : ''}`}>
               refresh
             </span>
           </button>
         </div>
       </div>
 
+      {/* Subtle background updated indicator */}
+      {isUpdated && (
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-40 px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-full shadow-lg animate-fadeIn flex items-center gap-1.5 pointer-events-none">
+          <span className="material-symbols-outlined text-[14px]">check_circle</span>
+          <span>Tickets updated</span>
+        </div>
+      )}
+
       {/* Quick Intake Call-to-Action Card */}
-      <div className="bg-primary/5 dark:bg-card-dark border border-primary/20 rounded-2xl p-3.5 flex items-center justify-between gap-3 shadow-sm">
+      <div id="ticket-intake-banner" className="bg-primary/5 dark:bg-card-dark border border-primary/20 rounded-2xl p-3.5 flex items-center justify-between gap-3 shadow-sm">
         <div className="min-w-0">
           <span className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
             <span className="material-symbols-outlined text-sm">bolt</span>
             Rapid Intake
           </span>
-          <p className="text-xs text-brand-black dark:text-white font-medium truncate">
-            Intake ticket from screenshot photo in &lt; 2 minutes
+          <p className="text-xs text-brand-black dark:text-white font-medium">
+            Intake from screenshot in &lt; 2 min
           </p>
         </div>
 
@@ -302,45 +312,49 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
               : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
           }`}
         >
-          Unassigned WO
+          Unassigned WO ({unassignedCount})
         </button>
       </div>
 
       {/* Tickets List */}
-      {loading && tickets.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
-          <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
-          <p className="text-xs font-semibold">Prioritizing work orders...</p>
+      <PullToRefresh onRefresh={refreshTickets}>
+        <div id="ticket-list" className="space-y-3">
+        {loading && tickets.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
+            <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
+            <p className="text-xs font-semibold">Prioritizing work orders...</p>
+          </div>
+        ) : filteredTickets.length === 0 ? (
+          <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
+            <span className="material-symbols-outlined text-4xl text-gray-300">task_alt</span>
+            <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
+              {searchQuery || activeFilter !== 'all' ? 'No matching tickets found' : 'No active work orders'}
+            </p>
+            <p className="text-xs text-gray-400 max-w-xs mx-auto">
+              {searchQuery ? 'Try clearing your search query or filters' : 'Snap a screenshot to intake your first job'}
+            </p>
+            <Button
+              variant="primary"
+              onClick={() => setIsIntakeOpen(true)}
+              className="py-2.5 px-4 text-xs mx-auto shadow-sm"
+            >
+              + Quick Intake (&lt;2m)
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredTickets.map((ticket) => (
+              <TicketCard
+                key={ticket.id}
+                ticket={ticket}
+                onSelect={(t) => setSelectedTicketId(t.id)}
+                onQuickStateChange={handleQuickStateChange}
+              />
+            ))}
+          </div>
+        )}
         </div>
-      ) : filteredTickets.length === 0 ? (
-        <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
-          <span className="material-symbols-outlined text-4xl text-gray-300">task_alt</span>
-          <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
-            {searchQuery || activeFilter !== 'all' ? 'No matching tickets found' : 'No active work orders'}
-          </p>
-          <p className="text-xs text-gray-400 max-w-xs mx-auto">
-            {searchQuery ? 'Try clearing your search query or filters' : 'Snap a screenshot to intake your first job'}
-          </p>
-          <Button
-            variant="primary"
-            onClick={() => setIsIntakeOpen(true)}
-            className="py-2.5 px-4 text-xs mx-auto shadow-sm"
-          >
-            + Quick Intake (&lt;2m)
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filteredTickets.map((ticket) => (
-            <TicketCard
-              key={ticket.id}
-              ticket={ticket}
-              onSelect={(t) => setSelectedTicketId(t.id)}
-              onQuickStateChange={handleQuickStateChange}
-            />
-          ))}
-        </div>
-      )}
+      </PullToRefresh>
 
       {/* Quick Intake Modal */}
       {isIntakeOpen && (

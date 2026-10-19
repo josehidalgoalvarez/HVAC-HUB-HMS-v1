@@ -273,7 +273,11 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
               variant="primary"
               disabled={generating || selectedTicketIds.length === 0}
               onClick={handleGenerateSuggestion}
-              className="flex-1 py-2.5 text-xs shadow-md flex items-center justify-center gap-1.5"
+              className={`flex-1 py-2.5 text-xs flex items-center justify-center gap-1.5 transition-all ${
+                generating || selectedTicketIds.length === 0
+                  ? 'opacity-40 cursor-not-allowed shadow-none !bg-gray-300 dark:!bg-gray-800 !text-gray-500 pointer-events-none'
+                  : 'shadow-md'
+              }`}
             >
               {generating ? (
                 'Optimizing Route...'

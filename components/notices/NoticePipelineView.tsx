@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { apiClient } from '../../src/api/client';
+import { appCache } from '../../src/offline/cache';
+import { PullToRefresh } from '../common/PullToRefresh';
 import { DraftNoticeModal } from './DraftNoticeModal';
 import Button from '../ui/Button';
 import { Modal } from '../ui/Modal';
@@ -16,6 +18,7 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
 }) => {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isUpdated, setIsUpdated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
   const [filter, setFilter] = useState<'all' | 'red' | 'amber' | 'green'>('all');
@@ -29,20 +32,45 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
 
   const loadNotices = async () => {
     try {
-      setLoading(true);
+      if (notices.length === 0) setLoading(true);
       setError(null);
       const data = await apiClient.getNotices();
-      setNotices(data || []);
+      if (data) {
+        setNotices((prev) => {
+          if (prev && prev.length > 0 && JSON.stringify(prev) !== JSON.stringify(data)) {
+            setIsUpdated(true);
+            setTimeout(() => setIsUpdated(false), 2500);
+          }
+          return data;
+        });
+        await appCache.set('notices', data);
+      }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to load notices';
-      setError(msg);
+      if (notices.length === 0) {
+        const msg = err instanceof Error ? err.message : 'Failed to load notices';
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    // 1. Instant cache load
+    appCache.get<Notice[]>('notices').then((cached) => {
+      if (cached && cached.length) {
+        setNotices(cached);
+        setLoading(false);
+      }
+    });
+
+    // 2. Background revalidation
     loadNotices();
+
+    // 3. Global refresh listener
+    const handleGlobalRefresh = () => loadNotices();
+    window.addEventListener('hvachome:refresh', handleGlobalRefresh);
+    return () => window.removeEventListener('hvachome:refresh', handleGlobalRefresh);
   }, []);
 
   const openAdvanceModal = (notice: Notice, nextStatus: NoticeStatus) => {
@@ -216,12 +244,21 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
         </button>
       </div>
 
-      {/* Notices List */}
-      {loading && notices.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
-          <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
-          <p className="text-xs font-semibold">Calculating 24-hour legal gates...</p>
+      {/* Subtle background updated indicator */}
+      {isUpdated && (
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-40 px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-full shadow-lg animate-fadeIn flex items-center gap-1.5 pointer-events-none">
+          <span className="material-symbols-outlined text-[14px]">check_circle</span>
+          <span>Notices updated</span>
         </div>
+      )}
+
+      {/* Notices List */}
+      <PullToRefresh onRefresh={loadNotices}>
+        {loading && notices.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
+            <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
+            <p className="text-xs font-semibold">Calculating 24-hour legal gates...</p>
+          </div>
       ) : filteredNotices.length === 0 ? (
         <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
           <span className="material-symbols-outlined text-4xl text-gray-300">verified_user</span>
@@ -450,6 +487,7 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
           })}
         </div>
       )}
+      </PullToRefresh>
 
       {/* Advance Status Modal */}
       {advancingNotice && (

@@ -4,7 +4,6 @@ export interface Building {
   address: string;
   imageUrl?: string;
   comments?: string;
-  is3DReady?: boolean;
   definedRooms?: string[];
   floors?: string[];
   createdAt?: string;
@@ -27,7 +26,6 @@ export interface Unit {
 export interface Property extends Building {
   imageUrl: string;
   applianceCount: number;
-  is3DReady: boolean;
   sqFt?: string;
   yearBuilt?: string;
   lotSize?: string;
@@ -64,12 +62,6 @@ export interface ApplianceSpecs {
   gasValve?: string; // 'OPEN' or 'CLOSED' usually
 }
 
-export interface CanvasPosition {
-  x: number;
-  y: number;
-  floor: string;
-}
-
 export interface Appliance {
   id: string;
   name: string;
@@ -81,7 +73,8 @@ export interface Appliance {
   category?: string;
   imageUrl?: string;
   location?: string;
-  embedModelUrl?: string;
+  room?: string;
+  unitNumber?: string;
   serialNumber?: string;
   modelNumber?: string;
   alert?: string;
@@ -92,7 +85,6 @@ export interface Appliance {
   warrantyUrl?: string;
   installationUrl?: string;
   ratingPlateUrl?: string;
-  position?: CanvasPosition;
   connectedToId?: string;
   notes?: string;
 }

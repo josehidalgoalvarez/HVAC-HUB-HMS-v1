@@ -6,9 +6,7 @@ import RatingPlateForm from '../common/RatingPlateForm';
 import { useData } from '../../../hooks/useData';
 import ScheduleServiceModal from '../../service/ScheduleServiceModal';
 import IconButton from '../../ui/IconButton';
-
 import { ApplianceDashboard } from '../dashboard/ApplianceDashboard';
-import { TUTORIAL_STEPS } from '../../../tutorial';
 
 // Sub-components
 import { ApplianceHero } from './components/ApplianceHero';
@@ -26,7 +24,6 @@ interface ApplianceDetailViewProps {
   onDuplicate: (appliance: Appliance) => void;
   onDelete: (id: string) => void;
   isEditMode: boolean;
-  onViewOnCanvas: (propertyId: string, applianceId: string) => void;
   onViewProperty: (propertyId: string) => void;
 }
 
@@ -37,21 +34,10 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
   onDuplicate,
   onDelete,
   isEditMode,
-  onViewOnCanvas,
   onViewProperty
 }) => {
-  const { getAppliance, properties, addLog, isTutorialActive, tutorialStep } = useData();
+  const { getAppliance, properties, addLog } = useData();
   const appliance = applianceId ? getAppliance(applianceId) : undefined;
-
-  // Tutorial Auto-Navigation
-  React.useEffect(() => {
-    if (isTutorialActive && appliance) {
-      const currentAction = TUTORIAL_STEPS[tutorialStep]?.action;
-      if (currentAction === 'OPEN_NOTES') {
-        setActiveTab('specs');
-      }
-    }
-  }, [isTutorialActive, tutorialStep, appliance]);
 
   // Guard clause for deleted or invalid appliances
   if (!appliance) return <div>Appliance not found</div>;
@@ -185,7 +171,6 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
           onStatusChange={handleStatusChange}
           isReadOnly={!isEditMode}
           onImageUpdate={(url) => onUpdate({ ...appliance, imageUrl: url })}
-          onModelUrlUpdate={(url) => onUpdate({ ...appliance, embedModelUrl: url })}
         />
 
         {/* Title Section */}
@@ -202,23 +187,17 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
               </span>
             )}
           </div>
-        </div>
-
-        {/* Canvas Link - Only if Edit Mode and position exists */}
-        {isEditMode && appliance.position && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-blue-600 dark:text-blue-400">location_on</span>
-              <span className="text-sm font-bold text-blue-900 dark:text-blue-300">Located on Canvas</span>
-            </div>
-            <button
-              onClick={() => onViewOnCanvas(appliance.propertyId, appliance.id)}
-              className="text-xs font-bold bg-white dark:bg-blue-800 text-blue-700 dark:text-white px-3 py-1.5 rounded-lg shadow-sm"
-            >
-              View
-            </button>
+          <div className="mt-2 text-xs font-semibold text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-sm text-primary">location_on</span>
+            <span>
+              {[
+                property?.address,
+                appliance.unitNumber ? `Unit ${appliance.unitNumber}` : null,
+                appliance.room || appliance.specs?.room || appliance.specs?.location || 'Mechanical Room'
+              ].filter(Boolean).join(' · ')}
+            </span>
           </div>
-        )}
+        </div>
 
         {/* Tabs */}
         {availableTabs.length > 1 && (

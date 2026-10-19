@@ -36,9 +36,13 @@ class PartController
             $filters['is_reorder'] = filter_var($params['is_reorder'], FILTER_VALIDATE_BOOLEAN);
         }
 
+        if (!empty($params['since'])) {
+            $filters['since'] = trim((string) $params['since']);
+        }
+
         try {
             $parts = Part::findAll($filters);
-            return Auth::jsonSuccess($parts);
+            return $this->respondWithEtag($request, $parts);
         } catch (Throwable $e) {
             return Auth::jsonError('server_error', $e->getMessage(), 500);
         }
@@ -142,7 +146,7 @@ class PartController
     {
         try {
             $stockpiles = Stockpile::findAll();
-            return Auth::jsonSuccess($stockpiles);
+            return $this->respondWithEtag($request, $stockpiles);
         } catch (Throwable $e) {
             return Auth::jsonError('server_error', $e->getMessage(), 500);
         }
@@ -172,10 +176,33 @@ class PartController
     {
         try {
             $suppliers = Supplier::findAll();
-            return Auth::jsonSuccess($suppliers);
+            return $this->respondWithEtag($request, $suppliers);
         } catch (Throwable $e) {
             return Auth::jsonError('server_error', $e->getMessage(), 500);
         }
+    }
+
+    /**
+     * Helper to compute ETag and handle conditional 304 response.
+     */
+    private function respondWithEtag(Request $request, mixed $data): Response
+    {
+        $payload = json_encode([
+            'data' => $data,
+            'error' => null,
+        ], JSON_UNESCAPED_SLASHES);
+        $etag = '"' . md5((string) $payload) . '"';
+        $ifNoneMatch = $request->getHeaderLine('If-None-Match');
+        if ($ifNoneMatch !== '' && ($ifNoneMatch === $etag || trim($ifNoneMatch, '"') === trim($etag, '"'))) {
+            $res = new \Slim\Psr7\Response(304);
+            return $res->withHeader('ETag', $etag);
+        }
+        $response = new \Slim\Psr7\Response(200);
+        $response->getBody()->write((string) $payload);
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('ETag', $etag)
+            ->withHeader('Cache-Control', 'no-cache');
     }
 
     /**

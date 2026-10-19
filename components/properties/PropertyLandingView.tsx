@@ -165,12 +165,6 @@ const PropertyLandingView: React.FC<PropertyLandingViewProps> = ({
                           {app.modelNumber ? `Model: ${app.modelNumber}` : app.brand} • {app.specs?.installDate?.split(' ')[2] || '2021'}
                         </p>
                       </div>
-                      {app.embedModelUrl && (
-                        <div className="px-2 py-1 bg-primary/10 rounded-lg flex items-center gap-1 shrink-0">
-                          <span className="material-symbols-outlined text-primary text-[14px]">view_in_ar</span>
-                          <span className="text-[8px] font-bold text-primary uppercase">3D View</span>
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>

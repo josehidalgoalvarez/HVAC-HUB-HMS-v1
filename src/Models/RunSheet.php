@@ -41,6 +41,12 @@ class RunSheet
             $params[] = (string) $filters['status'];
         }
 
+        if (!empty($filters['since'])) {
+            $where[] = '(r.updated_at >= ? OR r.created_at >= ?)';
+            $params[] = (string) $filters['since'];
+            $params[] = (string) $filters['since'];
+        }
+
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
         $sql = "SELECT r.*,

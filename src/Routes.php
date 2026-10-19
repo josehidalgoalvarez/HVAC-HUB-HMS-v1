@@ -115,6 +115,15 @@ class Routes
         // Rapid ticket intake endpoint (supports photo + verbatim + verified scope)
         $app->post('/api/intake', [IntakeController::class, 'intake']);
 
+        // Admin Seed Real Portfolio Endpoint
+        $app->post('/api/admin/seed-demo', function (Request $request, Response $response): Response {
+            require_once dirname(__DIR__) . '/cli/seed_portfolio.php';
+            $body = (array) ($request->getParsedBody() ?? []);
+            $photosDir = !empty($body['photos_dir']) ? (string) $body['photos_dir'] : null;
+            $result = seedRealPortfolio($photosDir);
+            return Auth::jsonSuccess($result);
+        });
+
         // Protected routes group (requires valid Bearer token)
         $app->group('/api', function (RouteCollectorProxy $group): void {
             // General protected route

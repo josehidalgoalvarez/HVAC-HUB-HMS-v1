@@ -9,7 +9,6 @@ interface PropertyDetailViewProps {
   propertyId: string;
   onBack: () => void;
   onApplianceClick: (id: string) => void;
-  onManageCanvas: () => void;
   isEditMode: boolean;
 }
 
@@ -17,7 +16,6 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
   propertyId,
   onBack,
   onApplianceClick,
-  onManageCanvas,
   isEditMode
 }) => {
   const { getProperty, appliances, updateProperty } = useData();
@@ -161,22 +159,10 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
           </Modal>
         )}
 
-        {/* Manage Layout Button - Only in Edit Mode */}
-        {isEditMode && (
-          <button
-            onClick={onManageCanvas}
-            className="w-full bg-[#004d40] hover:bg-[#003d33] text-white font-bold py-4 rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2"
-          >
-            <span className="material-symbols-outlined">architecture</span>
-            Manage Layout Canvas
-          </button>
-        )}
-
         {/* Inventory List */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider">Equipment Inventory</h3>
-            {/* Add New could be hooked up here if needed, consistent with Landing View */}
           </div>
 
           <div className="space-y-4">
@@ -197,9 +183,17 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                           app.type === 'AC' ? 'ac_unit' : 'smart_toy'
                     }</span>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-brand-black dark:text-white text-base">{app.name}</h4>
-                    <p className="text-xs text-text-sub-light dark:text-text-sub-dark">{app.specs?.location || 'Unknown Location'} • {app.status}</p>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-brand-black dark:text-white text-base truncate">{app.name}</h4>
+                    <p className="text-xs text-text-sub-light dark:text-text-sub-dark truncate">
+                      {[
+                        property?.address,
+                        app.unitNumber ? `Unit ${app.unitNumber}` : null,
+                        app.room || app.specs?.room || app.specs?.location || 'Mech Room'
+                      ].filter(Boolean).join(' · ')}
+                      {' • '}
+                      <span className="capitalize">{app.status.replace('_', ' ')}</span>
+                    </p>
                   </div>
                   <span className="material-symbols-outlined text-gray-400">expand_less</span>
                 </div>
@@ -215,10 +209,14 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                       <p className="text-[10px] text-gray-400 uppercase font-bold">Serial Number</p>
                       <p className="text-sm font-bold text-brand-black dark:text-white truncate">{app.serialNumber || 'N/A'}</p>
                     </div>
-                    <div>
-                      <p className="text-[10px] text-gray-400 uppercase font-bold">Manufacturer</p>
-                      <p className="text-sm font-bold text-brand-black dark:text-white truncate">{app.brand}</p>
-                    </div>
+                      <p className="text-[10px] text-gray-400 uppercase font-bold">Location</p>
+                      <p className="text-sm font-bold text-brand-black dark:text-white truncate">
+                        {[
+                          property?.address,
+                          app.unitNumber ? `Unit ${app.unitNumber}` : null,
+                          app.room || app.specs?.room || app.specs?.location || 'Basement'
+                        ].filter(Boolean).join(' · ')}
+                      </p>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase font-bold">Install Date</p>
                       <p className="text-sm font-bold text-brand-black dark:text-white truncate">{app.specs?.installDate || 'N/A'}</p>
@@ -228,19 +226,10 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                   <div className="flex gap-3">
                     <button
                       onClick={() => onApplianceClick(app.id)}
-                      className="flex-1 py-2.5 bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-600 rounded-lg text-xs font-bold text-brand-black dark:text-white flex items-center justify-center gap-2 hover:bg-gray-50"
+                      className="w-full py-2.5 bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-600 rounded-lg text-xs font-bold text-brand-black dark:text-white flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
                       <span className="material-symbols-outlined text-[16px]">photo_camera</span>
-                      Rating Plate
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (onManageCanvas) onManageCanvas();
-                      }}
-                      className="flex-1 py-2.5 bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-600 rounded-lg text-xs font-bold text-brand-black dark:text-white flex items-center justify-center gap-2 hover:bg-gray-50"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">location_on</span>
-                      View on Canvas
+                      Rating Plate &amp; Specs
                     </button>
                   </div>
                 </div>

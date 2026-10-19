@@ -39,6 +39,12 @@ class Part
             $params[] = $filters['is_reorder'] ? 1 : 0;
         }
 
+        if (!empty($filters['since'])) {
+            $where[] = '(p.updated_at >= ? OR p.created_at >= ?)';
+            $params[] = $filters['since'];
+            $params[] = $filters['since'];
+        }
+
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
         $sql = "SELECT p.*,
