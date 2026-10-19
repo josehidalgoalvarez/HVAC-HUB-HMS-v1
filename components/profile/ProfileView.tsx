@@ -120,12 +120,6 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   const menuItems: MenuItem[] = [
     ...(isEditMode ? [
       {
-        icon: 'architecture',
-        label: 'Technician Layout Tools',
-        action: onOpenTechMenu,
-        color: 'text-primary'
-      },
-      {
         icon: 'settings_suggest',
         label: 'Manage Properties',
         action: () => setShowManageModal(true)

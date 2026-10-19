@@ -532,7 +532,7 @@ export class ApiClient {
       // Cluster by building
       const buildingGroups = new Map<string, Ticket[]>();
       for (const t of selected) {
-        const bKey = String(t.building_id || t.propertyId || '1');
+        const bKey = String(t.buildingId || t.building_id || t.propertyId || '1');
         if (!buildingGroups.has(bKey)) {
           buildingGroups.set(bKey, []);
         }
@@ -562,10 +562,10 @@ export class ApiClient {
             ticket_id: t.id,
             wo_number: t.wo_number || null,
             title: t.title || 'Work Order',
-            building_id: t.building_id || 1,
-            building_name: t.building_name || t.propertyName || 'Property',
+            building_id: t.buildingId || t.building_id || 1,
+            building_name: t.buildingName || t.building_name || t.propertyName || 'Property',
             building_address: t.address || 'Bath Rd',
-            unit_id: t.unit_id || null,
+            unit_id: t.unitId || t.unit_id || null,
             unit_number: t.unitNumber || t.unit_number || '1',
             sort_order: sortOrder++,
             status: 'pending',

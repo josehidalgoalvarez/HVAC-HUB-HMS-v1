@@ -44,6 +44,7 @@ export interface ApplianceSpecs {
   capacity?: string;
   installDate?: string;
   location?: string;
+  room?: string;
   breakerRating?: string;
   panelSlot?: string;
   motorHp?: string;
@@ -104,6 +105,7 @@ export type TicketState =
   | 'in-progress'
   | 'blocked'
   | 'on-hold'
+  | 'on_hold'
   | 'done'
   | 'closed'
   | 'closed-elsewhere'
@@ -127,9 +129,16 @@ export interface Ticket {
   wo_number: string | null;           // nullable per spec (unnumbered jobs allowed, linkable later)
   parent_ticket_id: string | null;    // nullable per spec (1 parent -> N children)
   buildingId: string;
+  building_id?: string | number;
+  propertyId?: string | number;
   unitId?: string | null;
+  unit_id?: string | number | null;
   buildingName?: string;
+  building_name?: string;
+  propertyName?: string;
+  address?: string;
   unitNumber?: string;
+  unit_number?: string;
   title: string;
   description?: string;
   verbatim_text?: string | null;      // raw screenshot text from Yardi/tenant

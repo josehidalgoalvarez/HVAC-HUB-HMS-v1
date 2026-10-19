@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, type Dispatch, type SetStateAction } from 'react';
 import { appCache } from './cache';
 
 export interface UseSWRDataOptions<T> {
@@ -9,7 +9,7 @@ export interface UseSWRDataOptions<T> {
 
 export interface UseSWRDataResult<T> {
   data: T | null;
-  setData: React.Dispatch<React.SetStateAction<T | null>>;
+  setData: Dispatch<SetStateAction<T | null>>;
   isLoading: boolean;
   isRevalidating: boolean;
   isUpdated: boolean;
