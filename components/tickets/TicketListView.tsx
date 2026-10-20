@@ -137,9 +137,6 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
               <span className="material-symbols-outlined text-primary text-2xl">assignment</span>
               Work Orders
             </h1>
-            <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
-              Prioritized dispatch: Safety first → Closable today → Rest
-            </p>
           </div>
         </div>
 
@@ -234,22 +231,20 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
         <button
           onClick={() => setActiveFilter('all')}
-          className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 ${
-            activeFilter === 'all'
+          className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 ${activeFilter === 'all'
               ? 'bg-primary text-white shadow-sm'
               : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
-          }`}
+            }`}
         >
           All ({tickets.length})
         </button>
 
         <button
           onClick={() => setActiveFilter('safety')}
-          className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 ${
-            activeFilter === 'safety'
+          className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 ${activeFilter === 'safety'
               ? 'bg-primary text-white shadow-sm'
               : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
-          }`}
+            }`}
         >
           <span className={`material-symbols-outlined text-xs ${activeFilter === 'safety' ? 'text-white' : 'text-brand-red'}`}>emergency</span>
           Safety First ({safetyCount})
@@ -257,11 +252,10 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
 
         <button
           onClick={() => setActiveFilter('closable')}
-          className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 ${
-            activeFilter === 'closable'
+          className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 ${activeFilter === 'closable'
               ? 'bg-primary text-white shadow-sm'
               : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
-          }`}
+            }`}
         >
           <span className={`material-symbols-outlined text-xs ${activeFilter === 'closable' ? 'text-white' : 'text-primary'}`}>timer</span>
           Closable Today ({closableCount})
@@ -269,11 +263,10 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
 
         <button
           onClick={() => setActiveFilter('blocked')}
-          className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 ${
-            activeFilter === 'blocked'
+          className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 ${activeFilter === 'blocked'
               ? 'bg-primary text-white shadow-sm'
               : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
-          }`}
+            }`}
         >
           <span className={`material-symbols-outlined text-xs ${activeFilter === 'blocked' ? 'text-white' : 'text-rose-500'}`}>block</span>
           Blocked ({blockedCount})
@@ -281,11 +274,10 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
 
         <button
           onClick={() => setActiveFilter('unassigned')}
-          className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 ${
-            activeFilter === 'unassigned'
+          className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 ${activeFilter === 'unassigned'
               ? 'bg-primary text-white shadow-sm'
               : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
-          }`}
+            }`}
         >
           Unassigned WO ({unassignedCount})
         </button>
@@ -294,40 +286,40 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
       {/* Tickets List */}
       <PullToRefresh onRefresh={refreshTickets}>
         <div id="ticket-list" className="space-y-3">
-        {loading && tickets.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
-            <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
-            <p className="text-xs font-semibold">Prioritizing work orders...</p>
-          </div>
-        ) : filteredTickets.length === 0 ? (
-          <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
-            <span className="material-symbols-outlined text-4xl text-gray-300">task_alt</span>
-            <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
-              {searchQuery || activeFilter !== 'all' ? 'No matching tickets found' : 'No active work orders'}
-            </p>
-            <p className="text-xs text-gray-400 max-w-xs mx-auto">
-              {searchQuery ? 'Try clearing your search query or filters' : 'Snap a screenshot to intake your first job'}
-            </p>
-            <Button
-              variant="primary"
-              onClick={() => setIsIntakeOpen(true)}
-              className="py-2.5 px-4 text-xs mx-auto shadow-sm"
-            >
-              + Quick Intake (&lt;2m)
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filteredTickets.map((ticket) => (
-              <TicketCard
-                key={ticket.id}
-                ticket={ticket}
-                onSelect={(t) => setSelectedTicketId(t.id)}
-                onQuickStateChange={handleQuickStateChange}
-              />
-            ))}
-          </div>
-        )}
+          {loading && tickets.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
+              <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
+              <p className="text-xs font-semibold">Prioritizing work orders...</p>
+            </div>
+          ) : filteredTickets.length === 0 ? (
+            <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
+              <span className="material-symbols-outlined text-4xl text-gray-300">task_alt</span>
+              <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                {searchQuery || activeFilter !== 'all' ? 'No matching tickets found' : 'No active work orders'}
+              </p>
+              <p className="text-xs text-gray-400 max-w-xs mx-auto">
+                {searchQuery ? 'Try clearing your search query or filters' : 'Snap a screenshot to intake your first job'}
+              </p>
+              <Button
+                variant="primary"
+                onClick={() => setIsIntakeOpen(true)}
+                className="py-2.5 px-4 text-xs mx-auto shadow-sm"
+              >
+                + Quick Intake (&lt;2m)
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredTickets.map((ticket) => (
+                <TicketCard
+                  key={ticket.id}
+                  ticket={ticket}
+                  onSelect={(t) => setSelectedTicketId(t.id)}
+                  onQuickStateChange={handleQuickStateChange}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </PullToRefresh>
 

@@ -165,7 +165,10 @@ class Db
                 entry_end TEXT NULL,
                 serve_by_deadline TEXT NULL,
                 drafted_at TEXT NULL,
+                handed_off_at TEXT NULL,
+                handed_off_to TEXT NULL,
                 sent_at TEXT NULL,
+                scheduled_at TEXT NULL,
                 served_at TEXT NULL,
                 verified_at TEXT NULL,
                 served_method TEXT NULL,
@@ -328,6 +331,18 @@ class Db
 
         try {
             $pdo->exec("ALTER TABLE job ADD COLUMN room TEXT NULL");
+        } catch (\Throwable) {}
+
+        try {
+            $pdo->exec("ALTER TABLE notice ADD COLUMN handed_off_at TEXT NULL");
+        } catch (\Throwable) {}
+
+        try {
+            $pdo->exec("ALTER TABLE notice ADD COLUMN scheduled_at TEXT NULL");
+        } catch (\Throwable) {}
+
+        try {
+            $pdo->exec("ALTER TABLE notice ADD COLUMN handed_off_to TEXT NULL");
         } catch (\Throwable) {}
 
         $pdo->exec("

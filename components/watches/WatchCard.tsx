@@ -35,6 +35,12 @@ export const WatchCard: React.FC<WatchCardProps> = ({
           icon: 'event_busy',
           bg: 'bg-slate-800 text-slate-300 border-slate-700',
         };
+      case 'notice_handoff':
+        return {
+          label: 'Handoff Alert',
+          icon: 'outgoing_mail',
+          bg: 'bg-amber-950/60 text-amber-300 border-amber-800',
+        };
       case 'reply_waiting':
         return {
           label: 'Reply Waiting',

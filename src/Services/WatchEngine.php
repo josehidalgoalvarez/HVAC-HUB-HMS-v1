@@ -127,11 +127,54 @@ class WatchEngine
 
         return match ($watchType) {
             'notice_deadline' => self::evaluateNoticeDeadline($watch, $now),
+            'notice_handoff' => self::evaluateNoticeHandoff($watch, $now),
             'weather_freeze' => self::evaluateWeatherFreeze($watch, $now, $options),
             'reply_waiting' => self::evaluateReplyWaiting($watch, $now),
             'scheduled_task' => self::evaluateScheduledTask($watch, $now),
             default => ['should_trigger' => false, 'reason' => null, 'data' => []],
         };
+    }
+
+    /**
+     * Handed-off Alert: Active while notice is handed_off, clears once notice is sent.
+     */
+    private static function evaluateNoticeHandoff(array $watch, DateTimeImmutable $now): array
+    {
+        $noticeId = !empty($watch['target_id']) ? (int) $watch['target_id'] : (int) ($watch['config']['notice_id'] ?? 0);
+        if ($noticeId <= 0) {
+            return ['should_trigger' => false, 'reason' => 'No target notice specified', 'data' => []];
+        }
+
+        $notice = Notice::findById($noticeId);
+        if ($notice === null) {
+            return ['should_trigger' => false, 'reason' => "Notice #{$noticeId} not found", 'data' => []];
+        }
+
+        // Clears once notice moves to sent, scheduled, served, or verified
+        if (in_array($notice['status'] ?? '', ['sent', 'scheduled', 'served', 'verified'], true)) {
+            Watch::resolve((int)$watch['id'], null);
+            return [
+                'should_trigger' => false,
+                'reason' => "Notice #{$noticeId} advanced to {$notice['status']}. Handoff alert cleared.",
+                'data' => $notice
+            ];
+        }
+
+        if (($notice['status'] ?? '') === 'handed_off') {
+            $handedOffTo = $notice['handed_off_to'] ?? ($watch['config']['handed_off_to'] ?? 'recipient');
+            return [
+                'should_trigger' => true,
+                'reason' => sprintf('Notice #%d handed off to %s: pending send confirmation to start 24h clock', $noticeId, $handedOffTo),
+                'data' => [
+                    'notice_id' => $noticeId,
+                    'status' => 'handed_off',
+                    'handed_off_to' => $handedOffTo,
+                    'handed_off_at' => $notice['handed_off_at'] ?? null,
+                ]
+            ];
+        }
+
+        return ['should_trigger' => false, 'reason' => 'Notice is not in handed_off status', 'data' => []];
     }
 
     /**

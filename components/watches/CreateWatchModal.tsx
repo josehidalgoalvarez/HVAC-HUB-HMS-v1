@@ -78,11 +78,10 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
               <button
                 type="button"
                 onClick={() => setWatchType('notice_deadline')}
-                className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${
-                  watchType === 'notice_deadline'
+                className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${watchType === 'notice_deadline'
                     ? 'border-primary bg-primary/20 text-blue-200 font-bold'
                     : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
-                }`}
+                  }`}
               >
                 <span className="material-symbols-outlined text-sm leading-none">event_busy</span>
                 <span>Notice Deadline</span>
@@ -90,11 +89,10 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
               <button
                 type="button"
                 onClick={() => setWatchType('weather_freeze')}
-                className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${
-                  watchType === 'weather_freeze'
+                className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${watchType === 'weather_freeze'
                     ? 'border-primary bg-primary/20 text-blue-200 font-bold'
                     : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
-                }`}
+                  }`}
               >
                 <span className="material-symbols-outlined text-sm leading-none">ac_unit</span>
                 <span>Weather Freeze</span>
@@ -102,11 +100,10 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
               <button
                 type="button"
                 onClick={() => setWatchType('reply_waiting')}
-                className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${
-                  watchType === 'reply_waiting'
+                className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${watchType === 'reply_waiting'
                     ? 'border-primary bg-primary/20 text-blue-200 font-bold'
                     : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
-                }`}
+                  }`}
               >
                 <span className="material-symbols-outlined text-sm leading-none">hourglass_empty</span>
                 <span>Reply Waiting</span>
@@ -114,11 +111,10 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
               <button
                 type="button"
                 onClick={() => setWatchType('scheduled_task')}
-                className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${
-                  watchType === 'scheduled_task'
+                className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${watchType === 'scheduled_task'
                     ? 'border-primary bg-primary/20 text-blue-200 font-bold'
                     : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
-                }`}
+                  }`}
               >
                 <span className="material-symbols-outlined text-sm leading-none">assignment_late</span>
                 <span>Scheduled Task</span>

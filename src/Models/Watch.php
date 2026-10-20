@@ -391,6 +391,7 @@ class Watch
     {
         return match ($watchType) {
             'notice_deadline' => 'notice',
+            'notice_handoff' => 'notice',
             'reply_waiting' => 'notice',
             'weather_freeze' => 'weather',
             'scheduled_task' => 'task',
@@ -403,6 +404,7 @@ class Watch
         $targetId = $data['target_id'] ?? '';
         return match ($watchType) {
             'notice_deadline' => "Notice #{$targetId} Serve-By Deadline Watch",
+            'notice_handoff' => "Notice #{$targetId} Handoff Alert",
             'reply_waiting' => "Notice #{$targetId} Reply-Waiting Watch",
             'weather_freeze' => 'Regional Freeze Weather Watch',
             'scheduled_task' => 'Scheduled Task Overdue Watch',

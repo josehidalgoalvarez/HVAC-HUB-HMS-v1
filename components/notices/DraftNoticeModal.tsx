@@ -96,8 +96,8 @@ export const DraftNoticeModal: React.FC<DraftNoticeModalProps> = ({
           <span className="material-symbols-outlined text-primary text-2xl">schedule</span>
           <div>
             <h2 className="text-base font-bold text-brand-black dark:text-white">Draft Notice of Entry</h2>
-            <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
-              24-Hour Legal Gate for Tenant Entry
+            <p className="text-xs text-primary font-semibold">
+              Draft → Hand Off → Sent (Starts 24h Clock) → Scheduled
             </p>
           </div>
         </div>

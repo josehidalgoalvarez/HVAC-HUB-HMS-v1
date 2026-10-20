@@ -239,7 +239,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
             {/* Filter Pills */}
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-slate-500 mr-1">Filter type:</span>
-              {['all', 'notice_deadline', 'weather_freeze', 'reply_waiting', 'scheduled_task'].map((t) => (
+              {['all', 'notice_deadline', 'notice_handoff', 'weather_freeze', 'reply_waiting', 'scheduled_task'].map((t) => (
                 <button
                   key={t}
                   onClick={() => setFilterType(t)}

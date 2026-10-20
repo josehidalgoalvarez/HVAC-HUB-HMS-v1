@@ -23,9 +23,10 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
   const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
   const [filter, setFilter] = useState<'all' | 'red' | 'amber' | 'green'>('all');
 
-  // State advancement modal (for served method)
+  // State advancement modal
   const [advancingNotice, setAdvancingNotice] = useState<Notice | null>(null);
-  const [targetStatus, setTargetStatus] = useState<NoticeStatus>('sent');
+  const [targetStatus, setTargetStatus] = useState<NoticeStatus>('handed_off');
+  const [handedOffTo, setHandedOffTo] = useState('');
   const [servedMethod, setServedMethod] = useState('Door Post (Taped)');
   const [advanceReason, setAdvanceReason] = useState('');
   const [advancing, setAdvancing] = useState(false);
@@ -76,13 +77,27 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
   const openAdvanceModal = (notice: Notice, nextStatus: NoticeStatus) => {
     setAdvancingNotice(notice);
     setTargetStatus(nextStatus);
+    setHandedOffTo(notice.handed_off_to || notice.handedOffTo || '');
     setServedMethod('Door Post (Taped)');
-    setAdvanceReason(`Advanced notice status to ${nextStatus}`);
+    setAdvanceReason(
+      nextStatus === 'handed_off'
+        ? 'Notice handed off for delivery'
+        : nextStatus === 'sent'
+        ? 'Notice sent to tenant — starting 24h legal clock'
+        : nextStatus === 'scheduled'
+        ? 'Job scheduled following legal notice clearance'
+        : `Advanced notice status to ${nextStatus}`
+    );
   };
 
   const handleConfirmAdvance = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!advancingNotice) return;
+
+    if (targetStatus === 'handed_off' && !handedOffTo.trim()) {
+      alert('Please specify who the notice was handed off to.');
+      return;
+    }
 
     setAdvancing(true);
     try {
@@ -90,6 +105,9 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
         status: targetStatus,
         reason: advanceReason.trim() || `Advanced status to ${targetStatus}`,
       };
+      if (targetStatus === 'handed_off') {
+        payload.handed_off_to = handedOffTo.trim();
+      }
       if (targetStatus === 'served') {
         payload.served_method = servedMethod;
       }
@@ -354,86 +372,154 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
                   </div>
                 </div>
 
-                {/* 4-Step Pipeline Progression Tracker */}
+                {/* Handed-Off Alert Chip */}
+                {notice.status === 'handed_off' && (
+                  <div className="mt-2.5 px-3 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-semibold flex items-center justify-between gap-2 shadow-sm animate-fadeIn">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="material-symbols-outlined text-amber-500 text-base animate-pulse shrink-0">notification_important</span>
+                      <span className="truncate">
+                        Handoff Alert: Handed to <strong className="font-bold underline">{notice.handed_off_to || notice.handedOffTo || 'staff'}</strong> — Pending Send
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-800 dark:text-amber-200 shrink-0 font-bold">
+                      Watch Alert Active
+                    </span>
+                  </div>
+                )}
+
+                {/* 24-Hour Legal Clock Anchored at sent_at */}
+                {notice.sent_at && (
+                  (() => {
+                    const sentTs = new Date(notice.sent_at).getTime();
+                    const nowTs = Date.now();
+                    const isElapsed = nowTs >= sentTs + 24 * 60 * 60 * 1000;
+                    const hoursLeft = Math.max(0, Math.ceil((sentTs + 24 * 60 * 60 * 1000 - nowTs) / (60 * 60 * 1000)));
+
+                    return (
+                      <div className={`mt-2.5 px-3 py-1.5 rounded-xl text-xs flex items-center justify-between border transition-all ${
+                        isElapsed
+                          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-300'
+                          : 'bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-300'
+                      }`}>
+                        <div className="flex items-center gap-1.5 truncate mr-2">
+                          <span className="material-symbols-outlined text-[16px] shrink-0">
+                            {isElapsed ? 'verified' : 'timelapse'}
+                          </span>
+                          <span className="truncate">
+                            24h Legal Clock: {isElapsed ? (
+                              <strong>24h Elapsed — Entry Window Legally Valid</strong>
+                            ) : (
+                              <>Running (Valid in <strong>~{hoursLeft}h</strong>)</>
+                            )}
+                          </span>
+                        </div>
+                        <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded-md font-bold shrink-0 ${
+                          isElapsed
+                            ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-200'
+                            : 'bg-blue-500/20 text-blue-800 dark:text-blue-200'
+                        }`}>
+                          {isElapsed ? 'ENTRY VALID' : 'WAITING 24H'}
+                        </span>
+                      </div>
+                    );
+                  })()
+                )}
+
+                {/* 4-Step Pipeline Progression Tracker: draft -> handed_off -> sent -> scheduled */}
                 <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
                   <span className="text-[10px] uppercase font-bold tracking-wider text-text-sub-light dark:text-text-sub-dark block mb-2">
-                    Progression Pipeline
+                    Progression Pipeline (Draft → Handed Off → Sent → Scheduled)
                   </span>
 
                   <div className="grid grid-cols-4 gap-1 text-center">
-                    {/* 1. Drafted */}
+                    {/* 1. Draft */}
                     <div className="space-y-1">
                       <div className="h-2 rounded-full bg-primary"></div>
-                      <span className="text-[11px] font-bold text-primary block">Drafted</span>
-                      <span className="text-[9px] text-gray-400 block">
+                      <span className="text-[11px] font-bold text-primary block">Draft</span>
+                      <span className="text-[9px] text-gray-400 block truncate">
                         {notice.drafted_at
                           ? new Date(notice.drafted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                           : 'Done'}
                       </span>
                     </div>
 
-                    {/* 2. Sent */}
-                    <div className="space-y-1">
-                      <div
-                        className={`h-2 rounded-full ${
-                          ['sent', 'served', 'verified'].includes(notice.status) ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      ></div>
-                      <span
-                        className={`text-[11px] font-bold block ${
-                          ['sent', 'served', 'verified'].includes(notice.status) ? 'text-primary' : 'text-gray-400'
-                        }`}
-                      >
-                        Sent
-                      </span>
-                      <span className="text-[9px] text-gray-400 block">
-                        {notice.sent_at
-                          ? new Date(notice.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                          : '-'}
-                      </span>
-                    </div>
+                    {/* 2. Handed Off */}
+                    {(() => {
+                      const isReached = ['handed_off', 'sent', 'scheduled', 'served', 'verified'].includes(notice.status) || !!notice.handed_off_at;
+                      return (
+                        <div className="space-y-1">
+                          <div
+                            className={`h-2 rounded-full ${
+                              isReached ? 'bg-amber-500' : 'bg-gray-200 dark:bg-gray-700'
+                            }`}
+                          ></div>
+                          <span
+                            className={`text-[11px] font-bold block ${
+                              isReached ? 'text-amber-600 dark:text-amber-400' : 'text-gray-400'
+                            }`}
+                          >
+                            Handed Off
+                          </span>
+                          <span className="text-[9px] text-gray-400 block truncate" title={notice.handed_off_to || undefined}>
+                            {notice.handed_off_at
+                              ? new Date(notice.handed_off_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                              : '-'}
+                          </span>
+                        </div>
+                      );
+                    })()}
 
-                    {/* 3. Served */}
-                    <div className="space-y-1">
-                      <div
-                        className={`h-2 rounded-full ${
-                          ['served', 'verified'].includes(notice.status) ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      ></div>
-                      <span
-                        className={`text-[11px] font-bold block ${
-                          ['served', 'verified'].includes(notice.status) ? 'text-primary' : 'text-gray-400'
-                        }`}
-                      >
-                        Served
-                      </span>
-                      <span className="text-[9px] text-gray-400 block">
-                        {notice.served_at
-                          ? new Date(notice.served_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                          : '-'}
-                      </span>
-                    </div>
+                    {/* 3. Sent */}
+                    {(() => {
+                      const isReached = ['sent', 'scheduled', 'served', 'verified'].includes(notice.status) || !!notice.sent_at;
+                      return (
+                        <div className="space-y-1">
+                          <div
+                            className={`h-2 rounded-full ${
+                              isReached ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'
+                            }`}
+                          ></div>
+                          <span
+                            className={`text-[11px] font-bold block ${
+                              isReached ? 'text-primary' : 'text-gray-400'
+                            }`}
+                          >
+                            Sent
+                          </span>
+                          <span className="text-[9px] text-gray-400 block truncate">
+                            {notice.sent_at
+                              ? new Date(notice.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                              : '-'}
+                          </span>
+                        </div>
+                      );
+                    })()}
 
-                    {/* 4. Verified */}
-                    <div className="space-y-1">
-                      <div
-                        className={`h-2 rounded-full ${
-                          notice.status === 'verified' ? 'bg-emerald-500' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
-                      ></div>
-                      <span
-                        className={`text-[11px] font-bold block ${
-                          notice.status === 'verified' ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'
-                        }`}
-                      >
-                        Verified
-                      </span>
-                      <span className="text-[9px] text-gray-400 block">
-                        {notice.verified_at
-                          ? new Date(notice.verified_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                          : '-'}
-                      </span>
-                    </div>
+                    {/* 4. Scheduled */}
+                    {(() => {
+                      const isReached = ['scheduled', 'verified'].includes(notice.status) || !!notice.scheduled_at;
+                      return (
+                        <div className="space-y-1">
+                          <div
+                            className={`h-2 rounded-full ${
+                              isReached ? 'bg-emerald-500' : 'bg-gray-200 dark:bg-gray-700'
+                            }`}
+                          ></div>
+                          <span
+                            className={`text-[11px] font-bold block ${
+                              isReached ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'
+                            }`}
+                          >
+                            Scheduled
+                          </span>
+                          <span className="text-[9px] text-gray-400 block truncate">
+                            {notice.scheduled_at
+                              ? new Date(notice.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                              : (notice.verified_at ? new Date(notice.verified_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-')}
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -446,6 +532,16 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
                   <div className="flex items-center gap-1.5 shrink-0">
                     {notice.status === 'drafted' && (
                       <button
+                        onClick={() => openAdvanceModal(notice, 'handed_off')}
+                        className="py-1.5 px-3 text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white rounded-xl shadow-sm flex items-center gap-1 active:scale-95 transition-all"
+                      >
+                        <span className="material-symbols-outlined text-sm">handshake</span>
+                        Hand Off
+                      </button>
+                    )}
+
+                    {notice.status === 'handed_off' && (
+                      <button
                         onClick={() => openAdvanceModal(notice, 'sent')}
                         className="py-1.5 px-3 text-xs font-bold bg-primary text-white rounded-xl shadow-sm hover:bg-blue-600 flex items-center gap-1 active:scale-95 transition-all"
                       >
@@ -456,12 +552,19 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
 
                     {notice.status === 'sent' && (
                       <button
-                        onClick={() => openAdvanceModal(notice, 'served')}
-                        className="py-1.5 px-3 text-xs font-bold bg-primary text-white rounded-xl shadow-sm hover:bg-blue-600 flex items-center gap-1 active:scale-95 transition-all"
+                        onClick={() => openAdvanceModal(notice, 'scheduled')}
+                        className="py-1.5 px-3 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-sm flex items-center gap-1 active:scale-95 transition-all"
                       >
-                        <span className="material-symbols-outlined text-sm">door_front</span>
-                        Mark Served
+                        <span className="material-symbols-outlined text-sm">event_available</span>
+                        Schedule Job
                       </button>
+                    )}
+
+                    {notice.status === 'scheduled' && (
+                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">check_circle</span>
+                        Job Scheduled
+                      </span>
                     )}
 
                     {notice.status === 'served' && (
@@ -510,6 +613,64 @@ export const NoticePipelineView: React.FC<NoticePipelineViewProps> = ({
           </div>
 
           <form onSubmit={handleConfirmAdvance} className="mt-4 space-y-3">
+            {targetStatus === 'handed_off' && (
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                  Handed Off To (Name / Role) <span className="text-brand-red">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={handedOffTo}
+                  onChange={(e) => setHandedOffTo(e.target.value)}
+                  placeholder="e.g. Sarah Jenkins (Property Manager)"
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-card-dark font-medium"
+                  required
+                  autoFocus
+                />
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <span className="text-[10px] text-gray-400 self-center mr-1">Quick pick:</span>
+                  {['Sarah Jenkins (Property Mgr)', 'Building Superintendent', 'Concierge / Front Desk', 'Tenant in Person'].map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => setHandedOffTo(name)}
+                      className="px-2 py-0.5 text-[11px] rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 border border-gray-200 dark:border-gray-700 transition-colors"
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+                <div className="p-2.5 mt-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[15px] text-amber-500 shrink-0">notification_important</span>
+                  <span>Raises a proactive Watch alert to monitor delivery until marked sent.</span>
+                </div>
+              </div>
+            )}
+
+            {targetStatus === 'sent' && (
+              <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                <div className="font-bold flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[16px]">schedule</span>
+                  Starts 24-Hour Legal Clock
+                </div>
+                <p className="text-[11px] text-blue-600 dark:text-blue-400 leading-relaxed">
+                  Marking this notice sent clears the handoff alert and immediately anchors the 24-hour legal waiting period at the current time.
+                </p>
+              </div>
+            )}
+
+            {targetStatus === 'scheduled' && (
+              <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 text-xs text-emerald-700 dark:text-emerald-300 space-y-1">
+                <div className="font-bold flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[16px]">event_available</span>
+                  Schedule Work Order
+                </div>
+                <p className="text-[11px] text-emerald-600 dark:text-emerald-400 leading-relaxed">
+                  The entry window validates only after 24 hours have elapsed since the notice was sent.
+                </p>
+              </div>
+            )}
+
             {targetStatus === 'served' && (
               <div>
                 <label className="block text-xs font-bold uppercase text-gray-500 mb-1">

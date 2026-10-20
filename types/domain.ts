@@ -253,7 +253,7 @@ export interface BatchSuggestionResult {
   blocks: RunSheetBlock[];
 }
 
-export type NoticeStatus = 'drafted' | 'sent' | 'served' | 'verified';
+export type NoticeStatus = 'drafted' | 'handed_off' | 'sent' | 'scheduled' | 'served' | 'verified';
 export type NoticeGateStatus = 'green' | 'amber' | 'red';
 export type NoticeType = 'entry' | 'maintenance' | 'inspection' | 'general';
 
@@ -288,8 +288,14 @@ export interface Notice {
   serve_by_deadline?: string | null;
   draftedAt?: string | null;
   drafted_at?: string | null;
+  handedOffAt?: string | null;
+  handed_off_at?: string | null;
+  handedOffTo?: string | null;
+  handed_off_to?: string | null;
   sentAt?: string | null;
   sent_at?: string | null;
+  scheduledAt?: string | null;
+  scheduled_at?: string | null;
   servedAt?: string | null;
   served_at?: string | null;
   verifiedAt?: string | null;
@@ -558,7 +564,7 @@ export interface OutboxItem {
 }
 
 // --- Proactive Watch Engine (Phase 6) ---
-export type WatchType = 'notice_deadline' | 'reply_waiting' | 'weather_freeze' | 'scheduled_task';
+export type WatchType = 'notice_deadline' | 'notice_handoff' | 'reply_waiting' | 'weather_freeze' | 'scheduled_task';
 export type WatchState = 'active' | 'triggered' | 'acknowledged' | 'snoozed' | 'resolved';
 
 export interface WatchRecord {

@@ -16,7 +16,9 @@ use Throwable;
 class Notice
 {
     public const STATUS_DRAFTED = 'drafted';
+    public const STATUS_HANDED_OFF = 'handed_off';
     public const STATUS_SENT = 'sent';
+    public const STATUS_SCHEDULED = 'scheduled';
     public const STATUS_SERVED = 'served';
     public const STATUS_VERIFIED = 'verified';
 
@@ -36,13 +38,17 @@ class Notice
 
     /**
      * Calculate gate status (green / amber / red).
+     * Anchors 24-hour legal notice period strictly at sent_at.
      */
-    public static function calculateGateStatus(array $notice): array
+    public static function calculateGateStatus(array $notice, ?int $now = null): array
     {
         $status = $notice['status'] ?? self::STATUS_DRAFTED;
         $deadlineStr = $notice['serve_by_deadline'] ?? null;
         $verifiedAt = $notice['verified_at'] ?? null;
+        $sentAt = $notice['sent_at'] ?? null;
+        $currentTime = $now ?? time();
 
+        // 1. Legacy verified status is always green / cleared
         if ($status === self::STATUS_VERIFIED) {
             return [
                 'gate_status' => 'green',
@@ -51,9 +57,63 @@ class Notice
             ];
         }
 
+        // 2. Sent or Scheduled: 24h legal clock anchors strictly at sent_at
+        if ($status === self::STATUS_SENT || $status === self::STATUS_SCHEDULED) {
+            if (!empty($sentAt)) {
+                $sentTimestamp = strtotime((string) $sentAt);
+                $clearanceTime = $sentTimestamp + 86400; // 24 hours after sending
+
+                // Check if scheduled entry_start is invalid (< 24h from sent_at)
+                if (!empty($notice['entry_start'])) {
+                    $entryStartTimestamp = strtotime((string) $notice['entry_start']);
+                    if ($entryStartTimestamp !== false && $entryStartTimestamp < $clearanceTime) {
+                        return [
+                            'gate_status' => 'red',
+                            'is_cleared' => false,
+                            'reason' => "INVALID ENTRY WINDOW: Entry start ({$notice['entry_start']}) is less than 24h after notice was sent ({$sentAt}). Legal minimum is 24h.",
+                        ];
+                    }
+                }
+
+                if ($currentTime >= $clearanceTime) {
+                    return [
+                        'gate_status' => 'green',
+                        'is_cleared' => true,
+                        'reason' => $status === self::STATUS_SCHEDULED
+                            ? "Job scheduled: 24h legal notice period elapsed (sent on {$sentAt}). Entry window legally cleared."
+                            : "Notice sent on {$sentAt}. 24h legal notice period elapsed — legally cleared for entry.",
+                    ];
+                }
+
+                $hoursLeft = max(1, (int) ceil(($clearanceTime - $currentTime) / 3600));
+                return [
+                    'gate_status' => 'amber',
+                    'is_cleared' => false,
+                    'reason' => "24h Legal clock running (sent on {$sentAt}). Entry window validates after 24h elapse (" . date('Y-m-d H:i', $clearanceTime) . ", ~{$hoursLeft}h remaining).",
+                ];
+            }
+
+            return [
+                'gate_status' => 'amber',
+                'is_cleared' => false,
+                'reason' => 'PENDING: 24h notice period has not started yet (missing sent_at timestamp).',
+            ];
+        }
+
+        // 3. Handed Off: In possession of staff, awaiting send confirmation
+        if ($status === self::STATUS_HANDED_OFF) {
+            $toName = !empty($notice['handed_off_to']) ? " to {$notice['handed_off_to']}" : '';
+            return [
+                'gate_status' => 'amber',
+                'is_cleared' => false,
+                'reason' => "HANDED OFF{$toName}: Awaiting send confirmation. 24h legal clock starts when marked sent.",
+            ];
+        }
+
+        // 4. Drafted / Legacy: check if serve-by deadline already expired without notice being sent
         if ($deadlineStr !== null) {
             $deadline = strtotime((string) $deadlineStr);
-            if ($deadline !== false && time() > $deadline) {
+            if ($deadline !== false && $currentTime > $deadline) {
                 return [
                     'gate_status' => 'red',
                     'is_cleared' => false,
@@ -219,12 +279,16 @@ class Notice
 
         $entryDate = $entryStart ? date('Y-m-d', strtotime($entryStart)) : ($data['entry_date'] ?? null);
         $draftedAt = date('Y-m-d H:i:s');
+        $handedOffAt = !empty($data['handed_off_at']) ? (string) $data['handed_off_at'] : null;
+        $scheduledAt = !empty($data['scheduled_at']) ? (string) $data['scheduled_at'] : null;
+        $handedOffTo = !empty($data['handed_off_to']) ? trim((string) $data['handed_off_to']) : null;
 
         $sql = "INSERT INTO notice (
                     ticket_id, building_id, unit_id, title, content,
                     notice_type, status, entry_date, entry_start, entry_end,
-                    serve_by_deadline, drafted_at, created_by, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                    serve_by_deadline, drafted_at, handed_off_at, scheduled_at,
+                    handed_off_to, created_by, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
 
         Db::execute($sql, [
             $ticketId,
@@ -239,6 +303,9 @@ class Notice
             $entryEnd,
             $serveByDeadline,
             $draftedAt,
+            $handedOffAt,
+            $scheduledAt,
+            $handedOffTo,
             $createdBy,
         ]);
 
@@ -294,6 +361,9 @@ class Notice
             'entry_end',
             'serve_by_deadline',
             'drafted_at',
+            'handed_off_at',
+            'scheduled_at',
+            'handed_off_to',
             'sent_at',
             'served_at',
             'verified_at',
@@ -301,13 +371,75 @@ class Notice
             'verified_by_user_id',
         ];
 
-        // Automatic state timestamping on transition
+        // Automatic state timestamping & watch handling on transition
         if (!empty($data['status']) && $data['status'] !== $existing['status']) {
             $newStatus = $data['status'];
             $now = date('Y-m-d H:i:s');
 
-            if ($newStatus === self::STATUS_SENT && empty($data['sent_at']) && empty($existing['sent_at'])) {
-                $data['sent_at'] = $now;
+            if ($newStatus === self::STATUS_HANDED_OFF) {
+                if (empty($data['handed_off_at']) && empty($existing['handed_off_at'])) {
+                    $data['handed_off_at'] = $now;
+                }
+                $handedOffTo = !empty($data['handed_off_to'])
+                    ? trim((string) $data['handed_off_to'])
+                    : (!empty($existing['handed_off_to']) ? $existing['handed_off_to'] : 'Property Management');
+
+                // Raise active watch for handoff
+                try {
+                    Watch::create([
+                        'user_id' => $userId,
+                        'watch_type' => 'notice_handoff',
+                        'title' => "Notice #{$id} handed off to {$handedOffTo} (pending send)",
+                        'description' => "Notice #{$id} was handed off to {$handedOffTo}. Awaiting sent confirmation to start 24h legal clock.",
+                        'target_type' => 'notice',
+                        'target_id' => (int) $id,
+                        'state' => 'triggered',
+                        'config' => [
+                            'notice_id' => (int) $id,
+                            'handed_off_to' => $handedOffTo,
+                            'handed_off_at' => $data['handed_off_at'] ?? $now,
+                        ],
+                        'latest_trigger_reason' => "Handed off to {$handedOffTo} — awaiting sent status",
+                        'latest_trigger_data' => [
+                            'notice_id' => (int) $id,
+                            'handed_off_to' => $handedOffTo,
+                        ],
+                    ]);
+                } catch (\Throwable $e) {}
+            } elseif ($newStatus === self::STATUS_SENT) {
+                if (empty($data['sent_at']) && empty($existing['sent_at'])) {
+                    $data['sent_at'] = $now;
+                }
+                // Clear and resolve any active notice_handoff watches
+                try {
+                    $handoffWatches = Watch::findAll([
+                        'target_type' => 'notice',
+                        'target_id' => (int) $id,
+                        'watch_type' => 'notice_handoff',
+                    ]);
+                    foreach ($handoffWatches as $hw) {
+                        if (($hw['state'] ?? '') !== 'resolved') {
+                            Watch::resolve((int) $hw['id'], $userId);
+                        }
+                    }
+                } catch (\Throwable $e) {}
+            } elseif ($newStatus === self::STATUS_SCHEDULED) {
+                if (empty($data['scheduled_at']) && empty($existing['scheduled_at'])) {
+                    $data['scheduled_at'] = $now;
+                }
+                // Clear any lingering handoff watches
+                try {
+                    $handoffWatches = Watch::findAll([
+                        'target_type' => 'notice',
+                        'target_id' => (int) $id,
+                        'watch_type' => 'notice_handoff',
+                    ]);
+                    foreach ($handoffWatches as $hw) {
+                        if (($hw['state'] ?? '') !== 'resolved') {
+                            Watch::resolve((int) $hw['id'], $userId);
+                        }
+                    }
+                } catch (\Throwable $e) {}
             } elseif ($newStatus === self::STATUS_SERVED && empty($data['served_at'])) {
                 $data['served_at'] = $now;
                 if (empty($existing['sent_at']) && empty($data['sent_at'])) {
