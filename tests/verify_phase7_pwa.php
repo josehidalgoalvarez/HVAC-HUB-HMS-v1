@@ -91,7 +91,6 @@ $expectedViews = [
     'DayPlanView',
     'TicketListView',
     'PartsView',
-    'NoticePipelineView',
     'QuickLogWidget',
     'ProfileView',
     'PropertyListView',

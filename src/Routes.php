@@ -225,7 +225,8 @@ class Routes
                         'units' => count($units),
                         'applianceCount' => $applianceCount,
                         'rooms' => !empty($unitNumbers) ? array_map(fn($u) => "Unit {$u}", $unitNumbers) : ['Basement', 'Mechanical Room'],
-                        'imageUrl' => $b['image_url'] ?? '/uploads/photo_1719_bath.jpg',
+                        'imageUrl' => $b['image_url'] ?? '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
+                        'comments' => $b['comments'] ?? '',
                         'createdAt' => $b['created_at'],
                     ];
                 }
@@ -235,6 +236,7 @@ class Routes
                 foreach ($applianceRows as $a) {
                     $photos = Db::fetchAll('SELECT file_path FROM photo WHERE entity_type = "appliance" AND entity_id = ?', [$a['id']]);
                     $photoUrls = array_column($photos, 'file_path');
+                    $imgUrl = !empty($a['image_url']) ? $a['image_url'] : (!empty($photoUrls) ? $photoUrls[0] : '');
                     $appliances[] = [
                         'id' => (string) $a['id'],
                         'propertyId' => (string) $a['building_id'],
@@ -242,13 +244,15 @@ class Routes
                         'name' => $a['name'],
                         'type' => $a['type'],
                         'brand' => $a['brand'],
-                        'modelNumber' => $a['model_number'],
-                        'serialNumber' => $a['serial_number'],
-                        'location' => $a['location'] ?? 'Basement',
-                        'room' => $a['room'] ?? 'Basement',
+                        'modelNumber' => $a['model_number'] ?? '',
+                        'serialNumber' => $a['serial_number'] ?? '',
+                        'location' => $a['location'] ?? '',
+                        'room' => $a['room'] ?? '',
                         'status' => $a['status'] ?? 'operational',
-                        'installDate' => $a['installation_date'] ?? $a['install_date'] ?? null,
-                        'images' => !empty($photoUrls) ? $photoUrls : ['/uploads/photo_furnace.jpg'],
+                        'imageUrl' => $imgUrl,
+                        'images' => !empty($imgUrl) ? [$imgUrl] : [],
+                        'notes' => $a['notes'] ?? '',
+                        'specs' => !empty($a['specs']) ? (json_decode($a['specs'], true) ?: new \stdClass()) : new \stdClass(),
                     ];
                 }
 

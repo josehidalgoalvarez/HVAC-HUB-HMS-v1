@@ -2,6 +2,7 @@ export interface Building {
   id: string;
   name: string;
   address: string;
+  code?: string;
   imageUrl?: string;
   comments?: string;
   definedRooms?: string[];

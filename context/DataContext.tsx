@@ -63,7 +63,17 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [properties, setProperties] = useState<Property[]>(() => {
     try {
       const saved = localStorage.getItem('hvachome_properties');
-      return saved ? JSON.parse(saved) : INITIAL_PROPERTIES;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Clear stale prototype data if found (1727 or 1735 Bath Rd, or old prototype IDs)
+        if (Array.isArray(parsed) && parsed.some((p: Property) => p.id === 'prop-bath-1727' || p.id === 'prop-bath-1735')) {
+          localStorage.removeItem('hvachome_properties');
+          localStorage.removeItem('hvachome_appliances');
+          return INITIAL_PROPERTIES;
+        }
+        return parsed;
+      }
+      return INITIAL_PROPERTIES;
     } catch {
       return INITIAL_PROPERTIES;
     }
@@ -72,7 +82,16 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [appliances, setAppliances] = useState<Appliance[]>(() => {
     try {
       const saved = localStorage.getItem('hvachome_appliances');
-      return saved ? JSON.parse(saved) : INITIAL_APPLIANCES;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Clear stale prototype appliances if old fabricated models are detected
+        if (Array.isArray(parsed) && parsed.some((a: Appliance) => a.id === 'app-bath-1719-furnace' || a.id === 'app-bath-1719-ac' || a.id === 'app-bath-1719-boiler' || a.id === 'app-bath-1723-mau' || a.modelNumber === 'RU199iN' || a.modelNumber === '59TP6B080V1716')) {
+          localStorage.removeItem('hvachome_appliances');
+          return INITIAL_APPLIANCES;
+        }
+        return parsed;
+      }
+      return INITIAL_APPLIANCES;
     } catch {
       return INITIAL_APPLIANCES;
     }

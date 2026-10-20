@@ -1,141 +1,276 @@
 import { Property, Appliance } from './types/domain';
 
-// --- Real Portfolio Prototypes (Typed Test Fixtures) ---
-// Retiring fictional demo data ("The Modern Gas Home", Springfield IL).
-// Real portfolio prototypes: Bath Rd (1719–1737) and Days Rd (505/507), Kingston, ON.
+// --- Verified Kingston Portfolio Data ---
+// Verified from Jose's Patry work orders. 1727 and 1735 Bath Rd removed (no work orders).
+// The only verified postal code is 1723 Bath Rd (K7M 4Y9). All other postal codes are UNKNOWN.
+// Zero fabricated serial numbers, install dates, or postal codes.
 
 export const RESIDENTIAL_PROPERTIES: Property[] = [
     {
         id: 'prop-bath-1719',
+        code: 'bd1719',
         name: '1719 Bath Road',
-        address: '1719 Bath Rd, Kingston, ON K7M 4Y1',
+        address: '1719 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
-        applianceCount: 4,
-        sqFt: '14200',
-        yearBuilt: '1984',
-        lotSize: '0.85 acres',
-        comments: 'Multi-unit residential complex with basement mechanical systems and central hydronic heating.',
-        definedRooms: ['Basement', 'Mechanical Room', 'Unit 273', 'Main Floor', 'Second Floor'],
-        floors: ['Basement', 'First Floor', 'Second Floor']
+        applianceCount: 1,
+        comments: 'Multi-unit residential complex. Stockpile: donor appliances on site at 1719 Bath.',
+        definedRooms: ['Basement', 'Mechanical Room', 'Unit 273'],
+        floors: ['Basement', 'Main Floor', 'Second Floor'] // TODO-verify
+    },
+    {
+        id: 'prop-bath-1721',
+        code: 'bd1721',
+        name: '1721 Bath Road',
+        address: '1721 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
+        applianceCount: 0,
+        comments: 'Multi-unit residential complex.',
+        definedRooms: ['Unit 268', 'Unit 266'],
+        floors: ['Main Floor', 'Second Floor'] // TODO-verify
     },
     {
         id: 'prop-bath-1723',
+        code: 'bd1723',
         name: '1723 Bath Road',
-        address: '1723 Bath Rd, Kingston, ON K7M 4Y1',
+        address: '1723 Bath Rd, Kingston, ON K7M 4Y9', // Verified postal code
         imageUrl: '/uploads/photo_2aa8d094f66a8ede0a7b.jpg',
-        applianceCount: 2,
-        sqFt: '11800',
-        yearBuilt: '1986',
-        lotSize: '0.75 acres',
-        comments: 'Residential complex with rooftop make-up air unit and dedicated split systems.',
-        definedRooms: ['Mechanical Room', 'Roof', 'First Floor', 'Second Floor'],
-        floors: ['Main Floor', 'Second Floor', 'Roof']
+        applianceCount: 1,
+        comments: 'Multi-unit residential complex.',
+        definedRooms: ['Unit 266', 'Unit 67', 'Kitchen'],
+        floors: ['Main Floor', 'Second Floor'] // TODO-verify
     },
     {
-        id: 'prop-bath-1727',
-        name: '1727 Bath Road',
-        address: '1727 Bath Rd, Kingston, ON K7M 4Y1',
-        imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
-        applianceCount: 2,
-        sqFt: '10500',
-        yearBuilt: '1985',
-        lotSize: '0.65 acres',
-        comments: 'Multi-unit property with natural gas furnaces and dedicated outdoor condensers.',
-        definedRooms: ['Basement', 'Utility Room', 'Main Floor'],
-        floors: ['Basement', 'Main Floor']
+        id: 'prop-bath-1725',
+        code: 'bd1725',
+        name: '1725 Bath Road',
+        address: '1725 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_3fba10b6250dd34fcc10.jpg',
+        applianceCount: 0,
+        comments: 'Multi-unit residential complex.',
+        definedRooms: [], // TODO-verify: specific units/rooms unknown
+        floors: ['Main Floor', 'Second Floor'] // TODO-verify
+    },
+    {
+        id: 'prop-bath-1731',
+        code: 'bd1731',
+        name: '1731 Bath Road',
+        address: '1731 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_6a700f6adc9bd57ba9db.jpg',
+        applianceCount: 1,
+        comments: 'Multi-unit complex. Note: building drain stack has recurring blockages.',
+        definedRooms: ['Unit G63', 'Unit 161', 'Laundry Room'],
+        floors: ['Main Floor', 'Second Floor'] // TODO-verify
+    },
+    {
+        id: 'prop-bath-1733',
+        code: 'bd1733',
+        name: '1733 Bath Road',
+        address: '1733 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_5a0393354bd60e0ac63f.jpg',
+        applianceCount: 0,
+        comments: 'Multi-unit residential complex.',
+        definedRooms: [], // TODO-verify: specific units/rooms unknown
+        floors: ['Main Floor', 'Second Floor'] // TODO-verify
+    },
+    {
+        id: 'prop-bath-1737',
+        code: 'bd1737',
+        name: '1737 Bath Road',
+        address: '1737 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_8db7e895c76fcfce8de5.jpg',
+        applianceCount: 0,
+        comments: 'End-of-block multi-family property.',
+        definedRooms: [], // TODO-verify: specific units/rooms unknown
+        floors: ['Main Floor', 'Second Floor'] // TODO-verify
     },
     {
         id: 'prop-days-505',
+        code: 'bd0505',
         name: '505 Days Road',
-        address: '505 Days Rd, Kingston, ON K7M 5R6',
+        address: '505 Days Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_c61a96df0f03a7620bf1.jpg',
-        applianceCount: 3,
-        sqFt: '16000',
-        yearBuilt: '1992',
-        lotSize: '1.10 acres',
-        comments: 'Days Road residential complex with PTAC heat pumps and central hot water heating.',
-        definedRooms: ['Mechanical Room', 'Living Room', 'Exterior', 'Common'],
-        floors: ['Main Floor', 'Second Floor']
+        applianceCount: 1,
+        comments: 'Days Road residential complex. Stockpiles nearby: 511 Days Rd storage (holds spare Askoll pump), 509 Days Rd storage rooms.',
+        definedRooms: ['Unit 103'],
+        floors: ['Main Floor', 'Second Floor'] // TODO-verify
+    },
+    {
+        id: 'prop-days-507',
+        code: 'bd0507',
+        name: '507 Days Road',
+        address: '507 Days Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_b9a7b4d1af836cee96c8.jpg',
+        applianceCount: 0,
+        comments: 'Residential apartments. Stockpiles nearby: 509 & 511 Days Rd storage rooms.',
+        definedRooms: ['Unit 32'],
+        floors: ['Main Floor', 'Second Floor'] // TODO-verify
+    },
+    {
+        id: 'prop-amherst-137',
+        code: '137 Amherst Dr',
+        name: '137 Amherst Drive',
+        address: '137 Amherst Dr, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_7b90897a4994f447765e.jpg',
+        applianceCount: 2,
+        comments: 'Residential units. Stockpiles nearby: 107 Amherst and 539 Armstrong.',
+        definedRooms: ['Unit 137', 'Kitchen'],
+        floors: ['Main Floor', 'Second Floor'] // TODO-verify
+    },
+    {
+        id: 'prop-albert-415',
+        code: '415 Albert St',
+        name: '415 Albert Street',
+        address: '415 Albert St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
+        applianceCount: 0,
+        comments: 'Multi-unit residential property.',
+        definedRooms: ['Unit 415B', 'Unit 415E'],
+        floors: ['Main Floor', 'Second Floor'] // TODO-verify
+    },
+    {
+        id: 'prop-ontario-265',
+        code: '265 Ontario St',
+        name: '265 Ontario Street',
+        address: '265 Ontario St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_4339fa51f592921622d8.jpg',
+        applianceCount: 0,
+        comments: 'Residential property.',
+        definedRooms: ['Unit 2'],
+        floors: ['Main Floor', 'Second Floor'] // TODO-verify
     }
 ];
 
 export const RESIDENTIAL_APPLIANCES: Appliance[] = [
     {
-        id: 'app-bath-1719-wh',
-        name: 'Tankless Water Heater',
-        brand: 'Rinnai',
-        propertyId: 'prop-bath-1719',
+        id: 'app-bath-1723-dw',
+        name: 'Dishwasher',
+        brand: 'Frigidaire',
+        propertyId: 'prop-bath-1723',
         status: 'operational',
-        lastService: '2026-01-15',
+        lastService: '2026-10-15',
+        type: 'Dishwasher',
+        category: 'Kitchen',
+        imageUrl: 'https://frigidaire.bynder.com/transform/e1966ae3-49aa-4b00-86e2-92f2e0ebf80e/FFCD2418US-HOV_824-psd?preset=three-bears',
+        ratingPlateUrl: '', // TODO-verify: field photo pending
+        unitNumber: '266',
+        room: 'Kitchen',
+        location: '1723 Bath Rd · Unit 266 · Kitchen',
+        modelNumber: 'FFCD2418US3A',
+        serialNumber: '', // TODO-verify: serial UNKNOWN
+        notes: 'Drain pump Askoll M376 (part A16944601) replaced 2026-10-15; status operational, load test pending.',
+        specs: {
+            capacity: '14 Place Settings',
+            volts: '120V',
+            room: 'Kitchen',
+            location: '1723 Bath Rd · Unit 266 · Kitchen'
+        }
+    },
+    {
+        id: 'app-amherst-137-range',
+        name: 'Electric Range',
+        brand: 'Frigidaire',
+        propertyId: 'prop-amherst-137',
+        status: 'needs_service',
+        lastService: '', // TODO-verify: service history unknown
+        type: 'Range',
+        category: 'Kitchen',
+        imageUrl: '', // Leave empty for UNKNOWN-model
+        ratingPlateUrl: '', // TODO-verify: field photo pending
+        unitNumber: '137',
+        room: 'Kitchen',
+        location: '137 Amherst Dr · Unit 137 · Kitchen',
+        modelNumber: '', // TODO-verify: model UNKNOWN
+        serialNumber: '', // TODO-verify: serial UNKNOWN
+        notes: 'Gray electric range. Burner infinite switch WB24T10025 (order by model #). Status: needs repair (on hold).',
+        specs: {
+            room: 'Kitchen',
+            location: '137 Amherst Dr · Unit 137 · Kitchen'
+        }
+    },
+    {
+        id: 'app-amherst-137-wh',
+        name: 'Water Heater',
+        brand: 'Rheem',
+        propertyId: 'prop-amherst-137',
+        status: 'needs_service',
+        lastService: '', // TODO-verify: service history unknown
         type: 'Heater',
         category: 'Water Heating',
-        imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
-        ratingPlateUrl: '/uploads/photo_2aa8d094f66a8ede0a7b.jpg',
-        unitNumber: '273',
-        room: 'Basement',
-        location: '1719 Bath Rd · Unit 273 · Basement',
-        modelNumber: 'RU199iN',
-        serialNumber: '21B.004128',
+        imageUrl: '', // Leave empty for UNKNOWN-model
+        ratingPlateUrl: '', // TODO-verify: field photo pending
+        unitNumber: '137',
+        room: '', // TODO-verify: room unknown
+        location: '137 Amherst Dr · Unit 137',
+        modelNumber: '', // TODO-verify: model UNKNOWN
+        serialNumber: '', // TODO-verify: serial UNKNOWN
+        notes: 'No hot water since ~2026-10-08. Status: needs repair (on hold).',
         specs: {
-            fuelType: 'Gas',
-            btuInput: '199,000',
-            capacity: '11 GPM',
-            volts: '120V',
-            installDate: '2021-04-10',
-            room: 'Basement',
-            location: '1719 Bath Rd · Unit 273 · Basement'
+            location: '137 Amherst Dr · Unit 137'
         }
     },
     {
-        id: 'app-bath-1719-furnace',
-        name: 'High-Efficiency Gas Furnace',
-        brand: 'Carrier',
+        id: 'app-bath-1731-wh',
+        name: 'Water Heater (Laundry)',
+        brand: '', // TODO-verify: brand UNKNOWN
+        propertyId: 'prop-bath-1731',
+        status: 'operational',
+        lastService: '', // TODO-verify: service history unknown
+        type: 'Heater',
+        category: 'Water Heating',
+        imageUrl: '', // Leave empty for UNKNOWN-model
+        ratingPlateUrl: '', // TODO-verify: field photo pending
+        unitNumber: 'Common',
+        room: 'Laundry Room',
+        location: '1731 Bath Rd · Laundry Room',
+        modelNumber: '', // TODO-verify: model UNKNOWN
+        serialNumber: '', // TODO-verify: serial UNKNOWN
+        notes: '1/2" copper supply (16–17mm OD); SharkBite 1/2" push-fit ball valve planned. Building drain stack has recurring blockages.',
+        specs: {
+            room: 'Laundry Room',
+            location: '1731 Bath Rd · Laundry Room'
+        }
+    },
+    {
+        id: 'app-bath-1719-fridge',
+        name: 'Refrigerator',
+        brand: '', // TODO-verify: brand UNKNOWN (rating-plate photo pending)
         propertyId: 'prop-bath-1719',
-        status: 'operational',
-        lastService: '2025-11-20',
-        type: 'Furnace',
-        category: 'Heating',
-        imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
-        ratingPlateUrl: '/uploads/photo_6a700f6adc9bd57ba9db.jpg',
+        status: 'needs_service',
+        lastService: '', // TODO-verify: service history unknown
+        type: 'Refrigerator',
+        category: 'Kitchen',
+        imageUrl: '', // Leave empty for UNKNOWN-model
+        ratingPlateUrl: '', // TODO-verify: field photo pending
         unitNumber: '273',
-        room: 'Basement',
-        location: '1719 Bath Rd · Unit 273 · Basement',
-        modelNumber: '59TP6B080V1716',
-        serialNumber: '3422A19823',
+        room: 'Kitchen',
+        location: '1719 Bath Rd · Unit 273 · Kitchen',
+        modelNumber: '', // TODO-verify: model UNKNOWN (rating-plate photo pending)
+        serialNumber: '', // TODO-verify: serial UNKNOWN
+        notes: 'Needs crisper drawer + door shelf, ordered via Dependable Appliances once the model is known. Rating-plate photo pending.',
         specs: {
-            fuelType: 'Gas',
-            btuInput: '80,000',
-            btuOutput: '78,000',
-            volts: '120V',
-            filterSize: '16x25x1',
-            installDate: '2022-09-15',
-            room: 'Basement',
-            location: '1719 Bath Rd · Unit 273 · Basement'
+            room: 'Kitchen',
+            location: '1719 Bath Rd · Unit 273 · Kitchen'
         }
     },
     {
-        id: 'app-days-505-ptac',
-        name: 'Packaged Terminal AC & Heat Pump',
-        brand: 'Amana',
+        id: 'app-days-505-freezer',
+        name: 'Freezer',
+        brand: '', // TODO-verify: brand UNKNOWN
         propertyId: 'prop-days-505',
-        status: 'operational',
-        lastService: '2025-09-18',
-        type: 'AC',
-        category: 'Heating & Cooling',
-        imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
-        ratingPlateUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
-        unitNumber: '1',
-        room: 'Living Room',
-        location: '505 Days Rd · Unit 1 · Living Room',
-        modelNumber: 'PTC153G35AXXX',
-        serialNumber: 'AM-89211',
+        status: 'needs_service',
+        lastService: '', // TODO-verify: service history unknown
+        type: 'Freezer',
+        category: 'Kitchen',
+        imageUrl: '', // Leave empty for UNKNOWN-model
+        ratingPlateUrl: '', // TODO-verify: field photo pending
+        unitNumber: '103',
+        room: '', // TODO-verify: room unknown
+        location: '505 Days Rd · Unit 103',
+        modelNumber: '', // TODO-verify: model UNKNOWN
+        serialNumber: '', // TODO-verify: serial UNKNOWN
+        notes: 'Recurring noise complaint (WO 19255).',
         specs: {
-            volts: '240V',
-            capacity: '15,000 BTU',
-            breakerRating: '20A',
-            installDate: '2023-05-12',
-            room: 'Living Room',
-            location: '505 Days Rd · Unit 1 · Living Room'
+            location: '505 Days Rd · Unit 103'
         }
     }
 ];
