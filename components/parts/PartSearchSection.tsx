@@ -110,7 +110,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
           </p>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-4 pb-8">
           {filteredParts.map(part => {
             const isReorder = part.is_reorder || part.quantity_on_hand <= part.reorder_point;
             const isHistoryExpanded = expandedPriceHistoryId === part.id;

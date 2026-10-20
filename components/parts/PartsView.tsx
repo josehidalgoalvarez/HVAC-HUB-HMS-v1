@@ -107,7 +107,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
   };
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-4 space-y-4 pb-safe animate-fadeIn text-brand-black dark:text-white">
+    <div className="max-w-xl mx-auto px-4 py-4 space-y-4 pb-32 pb-safe animate-fadeIn text-brand-black dark:text-white">
       {/* Top Header Bar */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
