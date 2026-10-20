@@ -137,14 +137,14 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
   const activeAlertCount = digest?.total_active_alerts ?? 0;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-6 max-w-6xl mx-auto space-y-6 pb-28">
+    <div className="min-h-screen bg-background-light dark:bg-background-dark text-brand-black dark:text-white p-4 md:p-6 max-w-6xl mx-auto space-y-6 pb-28">
       {/* Top Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center gap-3">
           {onBack && (
             <button
               onClick={onBack}
-              className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-all active:scale-[0.98]"
+              className="w-10 h-10 rounded-xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-all active:scale-[0.98]"
             >
               ←
             </button>
@@ -152,11 +152,11 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           <div>
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-2xl leading-none">monitoring</span>
-              <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight">
+              <h1 className="text-xl md:text-2xl font-bold text-brand-black dark:text-white tracking-tight">
                 Proactive Engine & Smart Watches
               </h1>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
               Automated risk monitors for notice deadlines, freeze weather, and delayed replies
             </p>
           </div>
@@ -167,7 +167,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           <button
             onClick={handleEvaluateNow}
             disabled={isEvaluating}
-            className="min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 active:scale-[0.98] transition-all flex items-center gap-2"
+            className="min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-card-dark text-brand-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 active:scale-[0.98] transition-all flex items-center gap-2 shadow-xs"
           >
             <span className={`material-symbols-outlined text-sm leading-none ${isEvaluating ? 'animate-spin' : ''}`}>sync</span>
             <span>{isEvaluating ? 'Evaluating...' : 'Run Evaluation'}</span>
@@ -185,20 +185,20 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
 
       {/* Feedback Toast */}
       {feedbackMessage && (
-        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-200">
+        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-200">
           <span className="material-symbols-outlined text-sm leading-none">check_circle</span>
           <span>{feedbackMessage}</span>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+      <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-800 pb-2">
         <button
           onClick={() => setActiveTab('digest')}
           className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
             activeTab === 'digest'
-              ? 'bg-primary/20 text-blue-300 border border-primary/40 shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              ? 'bg-primary/20 text-blue-600 dark:text-blue-300 border border-primary/40 shadow-sm'
+              : 'text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-card-dark'
           }`}
         >
           <span className="material-symbols-outlined text-base leading-none">notifications_active</span>
@@ -214,8 +214,8 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           onClick={() => setActiveTab('all')}
           className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
             activeTab === 'all'
-              ? 'bg-primary/20 text-blue-300 border border-primary/40 shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              ? 'bg-primary/20 text-blue-600 dark:text-blue-300 border border-primary/40 shadow-sm'
+              : 'text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-card-dark'
           }`}
         >
           <span className="material-symbols-outlined text-base leading-none">visibility</span>
@@ -238,15 +238,15 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           <div className="space-y-4">
             {/* Filter Pills */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-slate-500 mr-1">Filter type:</span>
+              <span className="text-xs text-text-sub-light dark:text-text-sub-dark mr-1">Filter type:</span>
               {['all', 'notice_deadline', 'notice_handoff', 'weather_freeze', 'weather_manual', 'reply_waiting', 'scheduled_task'].map((t) => (
                 <button
                   key={t}
                   onClick={() => setFilterType(t)}
                   className={`min-h-[36px] px-3 py-1 rounded-lg text-xs font-medium transition-all ${
                     filterType === t
-                      ? 'bg-slate-800 text-white border border-slate-700 font-bold'
-                      : 'text-slate-400 hover:text-slate-300 hover:bg-slate-900'
+                      ? 'bg-white dark:bg-card-dark text-brand-black dark:text-white border border-gray-200 dark:border-gray-700 font-bold shadow-xs'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-brand-black dark:hover:text-white hover:bg-gray-200/60 dark:hover:bg-card-dark'
                   }`}
                 >
                   {t === 'all' ? 'All Types' : t.replace('_', ' ')}
@@ -256,8 +256,8 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
 
             {/* Watches Grid */}
             {filteredWatches.length === 0 ? (
-              <div className="py-12 text-center text-slate-400 border border-dashed border-slate-800 rounded-2xl p-6">
-                <span className="material-symbols-outlined text-slate-600 text-3xl mb-2 block mx-auto">search</span>
+              <div className="py-12 text-center text-text-sub-light dark:text-text-sub-dark border border-dashed border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-card-dark/40 rounded-2xl p-6">
+                <span className="material-symbols-outlined text-gray-400 dark:text-gray-600 text-3xl mb-2 block mx-auto">search</span>
                 <p className="text-sm">No watches match current filter.</p>
               </div>
             ) : (

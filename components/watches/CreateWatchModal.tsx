@@ -54,15 +54,15 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full sm:max-w-lg bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl pb-safe">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+      <div className="w-full sm:max-w-lg bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl pb-safe">
+        <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-xl leading-none">notifications_active</span>
-            <h2 className="text-lg font-bold text-white">Create Proactive Watch</h2>
+            <h2 className="text-lg font-bold text-brand-black dark:text-white">Create Proactive Watch</h2>
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             ✕
           </button>
@@ -71,7 +71,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           {/* Watch Type Selector */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-brand-black dark:text-gray-200 mb-1.5">
               Watch Type
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -79,8 +79,8 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 type="button"
                 onClick={() => setWatchType('notice_deadline')}
                 className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${watchType === 'notice_deadline'
-                    ? 'border-primary bg-primary/20 text-blue-200 font-bold'
-                    : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
+                    ? 'border-primary bg-primary/20 text-blue-600 dark:text-blue-200 font-bold'
+                    : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
                 <span className="material-symbols-outlined text-sm leading-none">event_busy</span>
@@ -90,8 +90,8 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 type="button"
                 onClick={() => setWatchType('weather_freeze')}
                 className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${watchType === 'weather_freeze'
-                    ? 'border-primary bg-primary/20 text-blue-200 font-bold'
-                    : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
+                    ? 'border-primary bg-primary/20 text-blue-600 dark:text-blue-200 font-bold'
+                    : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
                 <span className="material-symbols-outlined text-sm leading-none">ac_unit</span>
@@ -101,8 +101,8 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 type="button"
                 onClick={() => setWatchType('reply_waiting')}
                 className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${watchType === 'reply_waiting'
-                    ? 'border-primary bg-primary/20 text-blue-200 font-bold'
-                    : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
+                    ? 'border-primary bg-primary/20 text-blue-600 dark:text-blue-200 font-bold'
+                    : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
                 <span className="material-symbols-outlined text-sm leading-none">hourglass_empty</span>
@@ -112,8 +112,8 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 type="button"
                 onClick={() => setWatchType('scheduled_task')}
                 className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${watchType === 'scheduled_task'
-                    ? 'border-primary bg-primary/20 text-blue-200 font-bold'
-                    : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800'
+                    ? 'border-primary bg-primary/20 text-blue-600 dark:text-blue-200 font-bold'
+                    : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
                 <span className="material-symbols-outlined text-sm leading-none">assignment_late</span>
@@ -124,7 +124,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
 
           {/* Title */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
+            <label className="block text-xs font-semibold text-brand-black dark:text-gray-200 mb-1">
               Title (Optional — Auto-generated if blank)
             </label>
             <input
@@ -132,14 +132,14 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Unit 174 Valve Inspection Watch"
-              className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-primary"
+              className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-300 dark:border-gray-700 text-brand-black dark:text-white text-sm focus:outline-none focus:border-primary"
             />
           </div>
 
           {/* Conditional Target Inputs */}
           {(watchType === 'notice_deadline' || watchType === 'reply_waiting') && (
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-brand-black dark:text-gray-200 mb-1">
                 Notice ID
               </label>
               <input
@@ -147,14 +147,14 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 value={targetId}
                 onChange={(e) => setTargetId(e.target.value)}
                 placeholder="e.g. 1"
-                className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-primary"
+                className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-300 dark:border-gray-700 text-brand-black dark:text-white text-sm focus:outline-none focus:border-primary"
               />
             </div>
           )}
 
           {watchType === 'reply_waiting' && (
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-brand-black dark:text-gray-200 mb-1">
                 Hours Threshold (Fire if unreplied after)
               </label>
               <input
@@ -162,35 +162,35 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 value={hoursThreshold}
                 onChange={(e) => setHoursThreshold(e.target.value)}
                 placeholder="24"
-                className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-primary"
+                className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-300 dark:border-gray-700 text-brand-black dark:text-white text-sm focus:outline-none focus:border-primary"
               />
             </div>
           )}
 
           {watchType === 'weather_freeze' && (
-            <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/80 text-xs text-slate-300">
-              <span className="font-semibold block mb-0.5 text-white">Automated Open-Meteo Integration</span>
+            <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/80 text-xs text-gray-600 dark:text-gray-300">
+              <span className="font-semibold block mb-0.5 text-brand-black dark:text-white">Automated Open-Meteo Integration</span>
               Monitors hourly low temperatures across 48h for Kingston (44.23°N, -76.48°W). Triggers if low &le; 0°C.
             </div>
           )}
 
           {watchType === 'scheduled_task' && (
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-brand-black dark:text-gray-200 mb-1">
                 Due Date & Time
               </label>
               <input
                 type="datetime-local"
                 value={dueAt}
                 onChange={(e) => setDueAt(e.target.value)}
-                className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-primary"
+                className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-300 dark:border-gray-700 text-brand-black dark:text-white text-sm focus:outline-none focus:border-primary"
               />
             </div>
           )}
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
+            <label className="block text-xs font-semibold text-brand-black dark:text-gray-200 mb-1">
               Notes / Description (Optional)
             </label>
             <textarea
@@ -198,7 +198,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Context or special instructions..."
-              className="w-full px-3.5 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-primary resize-none"
+              className="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-300 dark:border-gray-700 text-brand-black dark:text-white text-sm focus:outline-none focus:border-primary resize-none"
             />
           </div>
 
@@ -207,7 +207,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="min-h-[44px] px-5 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white"
+              className="min-h-[44px] px-5 py-2 rounded-xl text-sm font-medium text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               Cancel
             </button>
