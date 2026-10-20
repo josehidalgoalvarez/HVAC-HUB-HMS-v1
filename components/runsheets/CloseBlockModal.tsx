@@ -60,7 +60,7 @@ export const CloseBlockModal: React.FC<CloseBlockModalProps> = ({
         <div>
           <h2 className="text-base font-bold text-brand-black dark:text-white flex items-center gap-1.5">
             <span className="material-symbols-outlined text-emerald-600">check_circle</span>
-            Close Work Block
+            Complete Block
           </h2>
           <p className="text-xs text-text-sub-light dark:text-text-sub-dark truncate max-w-[280px]">
             {block.title}
@@ -106,7 +106,7 @@ export const CloseBlockModal: React.FC<CloseBlockModalProps> = ({
         {/* Quick Presets (Gloves-On One-Thumb) */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">
-            Quick Select Actual Duration
+            Duration (minutes)
           </label>
           <div className="grid grid-cols-3 gap-1.5">
             {presets.map((min) => (
@@ -129,7 +129,7 @@ export const CloseBlockModal: React.FC<CloseBlockModalProps> = ({
         {/* Custom Input */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
-            Or Enter Exact Minutes
+            Exact minutes
           </label>
           <input
             type="number"
@@ -145,7 +145,7 @@ export const CloseBlockModal: React.FC<CloseBlockModalProps> = ({
         {/* Audit Reason */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
-            Completion Notes (Append-Only Audit)
+            Notes
           </label>
           <input
             type="text"
@@ -172,7 +172,7 @@ export const CloseBlockModal: React.FC<CloseBlockModalProps> = ({
             disabled={loading}
             className="flex-1 py-2.5 text-xs shadow-md bg-primary hover:bg-blue-600"
           >
-            {loading ? 'Recording...' : 'Close & Record Actuals'}
+            {loading ? 'Saving...' : 'Complete Block'}
           </Button>
         </div>
       </form>

@@ -51,7 +51,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
         <input
           id="parts-search-input"
           type="search"
-          placeholder="Search WB24T10025, model (e.g. RB525), or keyword..."
+          placeholder="Search part #, model, or name..."
           value={searchQuery}
           onChange={e => onSearchChange(e.target.value)}
           className="w-full pl-10 pr-10 py-3 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-xs transition-all placeholder:text-gray-400"
@@ -88,7 +88,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
           }`}
         >
           <span className={`material-symbols-outlined text-[16px] ${filter === 'reorder' ? 'text-white' : 'text-amber-500'}`}>warning</span>
-          Reorder Needed ({parts.filter(p => p.is_reorder || p.quantity_on_hand <= p.reorder_point).length})
+          Low Stock ({parts.filter(p => p.is_reorder || p.quantity_on_hand <= p.reorder_point).length})
         </button>
 
         <button
@@ -118,7 +118,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
               className="min-h-[44px] px-4 py-2 mt-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
             >
               <span className="material-symbols-outlined text-[16px]">add</span>
-              <span>Add New Part to Stash</span>
+              <span>Add Part</span>
             </button>
           )}
         </div>

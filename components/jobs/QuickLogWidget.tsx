@@ -283,11 +283,11 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
           )}
           <div>
             <h1 className="text-xl font-extrabold flex items-center gap-2">
-              <span className="material-symbols-outlined text-amber-500">bolt</span>
-              Field Quick Log
+              <span className="material-symbols-outlined text-primary">bolt</span>
+              Quick Log
             </h1>
             <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
-              Gloves-on logging • Offline capable
+              Offline-ready job notes & photos
             </p>
           </div>
         </div>
@@ -298,7 +298,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             className="px-3.5 py-2 rounded-2xl bg-primary hover:bg-blue-600 text-white font-extrabold text-xs shadow-md shadow-primary/30 flex items-center gap-1.5 active:scale-95 transition-all"
           >
             <span className="material-symbols-outlined text-[18px]">check_circle</span>
-            Close Out
+            Complete
           </button>
         )}
       </div>
@@ -354,7 +354,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5">
             <span className="material-symbols-outlined text-primary text-[18px]">edit_note</span>
-            Quick Note / Observation
+            Job Notes
           </h3>
           <span className="text-[11px] font-mono text-gray-400">
             {activeJob?.notes_list?.length || 0} logged
@@ -379,7 +379,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
         <div className="flex items-center gap-2 pt-1">
           <input
             type="text"
-            placeholder="Type custom technician note..."
+            placeholder="Add a note..."
             value={noteInput}
             onChange={(e) => setNoteInput(e.target.value)}
             onKeyDown={(e) => {
@@ -405,7 +405,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
       <div className="p-4 rounded-3xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-amber-500 text-[18px]">build</span>
+            <span className="material-symbols-outlined text-primary text-[18px]">build</span>
             Parts Used
           </h3>
           <span className="text-[11px] font-mono text-gray-400">
@@ -449,7 +449,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5">
             <span className="material-symbols-outlined text-primary text-[18px]">photo_camera</span>
-            Photo Documentation
+            Photos
           </h3>
           <span className="text-[11px] font-mono text-gray-400">
             {activeJob?.photos?.length || 0} attached
@@ -458,7 +458,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
 
         <label className="w-full h-12 rounded-2xl bg-gray-100 dark:bg-card-dark hover:bg-gray-200 dark:hover:bg-neutral-800 text-text-main-light dark:text-text-main-dark border border-gray-200 dark:border-gray-700 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] transition-all">
           <span className="material-symbols-outlined text-lg text-primary">add_a_photo</span>
-          <span>Take / Attach Field Photo</span>
+          <span>Take or Add Photo</span>
           <input
             type="file"
             accept="image/*"
@@ -491,7 +491,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
           className="w-full h-14 rounded-2xl bg-primary hover:bg-blue-600 active:scale-[0.98] text-white font-extrabold text-sm shadow-xl shadow-primary/30 flex items-center justify-center gap-2 transition-all mt-4"
         >
           <span className="material-symbols-outlined text-2xl">task_alt</span>
-          <span>Complete Job & Close Ticket</span>
+          <span>Complete Job</span>
         </button>
       )}
 

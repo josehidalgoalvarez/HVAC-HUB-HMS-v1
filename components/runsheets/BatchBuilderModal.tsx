@@ -137,12 +137,12 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
         <div>
           <h2 className="text-base font-bold text-brand-black dark:text-white flex items-center gap-1.5">
             <span className="material-symbols-outlined text-primary text-xl">route</span>
-            Smart Batch Day-Plan Builder
+            Plan Day Route
           </h2>
           <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
             {step === 'pick'
-              ? 'Step 1: Select tickets to cluster by site proximity'
-              : 'Step 2: Review travel sequence, notice gates & e-bike carry capacity'}
+              ? 'Step 1: Select tickets'
+              : 'Step 2: Review route & gates'}
           </p>
         </div>
         <button
@@ -205,7 +205,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
           {loadingTickets ? (
             <div className="flex flex-col items-center justify-center py-12 gap-2 text-gray-400">
               <span className="material-symbols-outlined text-3xl animate-spin text-primary">sync</span>
-              <p className="text-xs">Loading open tickets across properties...</p>
+              <p className="text-xs">Loading open tickets...</p>
             </div>
           ) : tickets.length === 0 ? (
             <div className="text-center py-10 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
@@ -280,11 +280,11 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
               }`}
             >
               {generating ? (
-                'Optimizing Route...'
+                'Planning...'
               ) : (
                 <>
                   <span className="material-symbols-outlined text-[16px]">alt_route</span>
-                  Calculate Proximity Order ({selectedTicketIds.length} Tickets)
+                  Plan Route ({selectedTicketIds.length})
                 </>
               )}
             </Button>
@@ -303,7 +303,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                 <span className="text-sm font-extrabold text-primary">{suggestion.total_tickets}</span>
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Sites (Clusters)</span>
+                <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Sites</span>
                 <span className="text-sm font-extrabold text-brand-black dark:text-white">{suggestion.total_sites}</span>
               </div>
               <div>
@@ -318,7 +318,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
           )}
 
           <div className="text-xs text-text-sub-light dark:text-text-sub-dark flex items-center justify-between">
-            <span>Blocks sorted by travel proximity. Reorder manually with &uarr; &darr; arrows.</span>
+            <span>Sorted by route proximity. Use arrows to reorder.</span>
             <button
               onClick={() => setStep('pick')}
               className="text-primary font-bold hover:underline flex items-center gap-0.5"
@@ -340,7 +340,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                   {block.is_site_transition && (
                     <div className="px-3 py-1 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-lg text-[11px] font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5 my-1.5">
                       <span className="material-symbols-outlined text-[14px]">directions_bike</span>
-                      Travel transit to {block.building_name} (+{block.travel_buffer_before_minutes || 20}m buffer)
+                      Transit to {block.building_name} (+{block.travel_buffer_before_minutes || 20}m)
                     </div>
                   )}
 
@@ -401,17 +401,17 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                       {block.required_tools_list?.map((tool, i) => (
                         <span
                           key={i}
-                          className="px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-medium"
+                          className="px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-medium inline-flex items-center gap-1"
                         >
-                          🛠️ {tool}
+                          <span className="material-symbols-outlined text-[12px]">build</span> {tool}
                         </span>
                       ))}
                       {block.required_parts_list?.map((part, i) => (
                         <span
                           key={i}
-                          className="px-1.5 py-0.5 rounded-md bg-primary/10 text-primary font-medium"
+                          className="px-1.5 py-0.5 rounded-md bg-primary/10 text-primary font-medium inline-flex items-center gap-1"
                         >
-                          📦 {part}
+                          <span className="material-symbols-outlined text-[12px]">inventory_2</span> {part}
                         </span>
                       ))}
                     </div>
@@ -457,11 +457,11 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
               className="flex-1 py-2.5 text-xs shadow-md bg-primary hover:bg-blue-600 flex items-center justify-center gap-1.5"
             >
               {creating ? (
-                'Saving Day-Plan...'
+                'Saving Plan...'
               ) : (
                 <>
                   <span className="material-symbols-outlined text-[16px]">check</span>
-                  Accept & Create Day-Plan ({reorderedBlocks.length} Blocks)
+                  Save Plan ({reorderedBlocks.length} Blocks)
                 </>
               )}
             </Button>

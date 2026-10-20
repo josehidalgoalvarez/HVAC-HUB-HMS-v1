@@ -135,7 +135,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-extrabold text-brand-black dark:text-white">
-                Close Out Work Order
+                Complete Job
               </h2>
               <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
                 {job.wo_number ? `${job.wo_number} • ` : ''}
@@ -164,7 +164,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
-                Actual Time vs. Estimate
+                Time (minutes)
               </label>
               <span
                 className={`text-xs font-bold px-2 py-0.5 rounded-full ${
@@ -233,7 +233,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1">
                 <span className="material-symbols-outlined text-[16px] text-primary">build</span>
-                Parts Installed / Replaced
+                Parts Used
               </label>
               <span className="text-[11px] font-mono text-gray-400">{parts.length} recorded</span>
             </div>
@@ -279,7 +279,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
             <div className="flex items-center gap-2 pt-1">
               <input
                 type="text"
-                placeholder="Or type custom part name..."
+                placeholder="Add part name..."
                 value={newPartName}
                 onChange={(e) => setNewPartName(e.target.value)}
                 onKeyDown={(e) => {
@@ -304,13 +304,13 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
           {/* Close-Out Field Notes */}
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1">
-              <span className="material-symbols-outlined text-[16px] text-emerald-500">notes</span>
-              Work Completed Notes
+              <span className="material-symbols-outlined text-[16px] text-primary">notes</span>
+              Job Notes
             </label>
 
             <textarea
               rows={3}
-              placeholder="Describe work completed, tests verified, or resolution notes..."
+              placeholder="Add completion notes..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 resize-none"
@@ -348,7 +348,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
             className="flex-[2] h-12 rounded-2xl bg-primary hover:bg-blue-600 active:scale-[0.98] text-white font-extrabold text-sm shadow-lg shadow-primary/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-xl">task_alt</span>
-            <span>{submitting ? 'Closing Out...' : 'Complete & Mark Done'}</span>
+            <span>{submitting ? 'Saving...' : 'Complete Job'}</span>
           </button>
         </div>
       </div>

@@ -23,7 +23,7 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
     return (
       <div className="py-12 text-center text-text-sub-light dark:text-text-sub-dark">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-        <p className="text-sm">Evaluating proactive engine & assembling digest...</p>
+        <p className="text-sm">Loading digest...</p>
       </div>
     );
   }
@@ -39,13 +39,13 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
         <div className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 shadow-xs flex items-start gap-3">
           <span className="material-symbols-outlined text-gray-500 dark:text-gray-400 text-xl leading-none shrink-0 mt-0.5">bedtime</span>
           <div className="flex-1 text-xs text-gray-700 dark:text-gray-300">
-            <h4 className="font-bold text-sm text-brand-black dark:text-white mb-0.5">Quiet Hours Active (22:00 – 07:00)</h4>
+            <h4 className="font-bold text-sm text-brand-black dark:text-white mb-0.5">Quiet Hours (22:00–07:00)</h4>
             <p className="text-text-sub-light dark:text-text-sub-dark leading-relaxed">
-              Triggers occurring during quiet hours are automatically queued for the morning digest at 07:00 instead of sending immediate notifications.
+              Alerts queued until 07:00.
             </p>
             {morningBatch.length > 0 && (
               <div className="mt-2 text-[11px] font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-2.5 py-1 rounded inline-block">
-                {morningBatch.length} {morningBatch.length === 1 ? 'alert' : 'alerts'} held for morning dispatch
+                {morningBatch.length} {morningBatch.length === 1 ? 'alert' : 'alerts'} held for morning
               </div>
             )}
           </div>
@@ -56,7 +56,7 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
       <div className="flex items-center justify-between px-1">
         <div>
           <h2 className="text-lg font-bold text-brand-black dark:text-white flex items-center gap-2">
-            <span>Today's Triggered Digest</span>
+            <span>Daily Digest</span>
             {items.length > 0 && (
               <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/30">
                 {items.length} active
@@ -64,7 +64,7 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
             )}
           </h2>
           <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
-            Deduplicated daily alerts requiring field attention or scheduling
+            Alerts needing field action
           </p>
         </div>
         <button
@@ -80,9 +80,9 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
       {items.length === 0 ? (
         <div className="py-12 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-card-dark/40 p-6">
           <span className="material-symbols-outlined text-gray-400 dark:text-gray-600 text-4xl mb-2 block mx-auto">verified_user</span>
-          <h3 className="text-sm font-semibold text-brand-black dark:text-white">All Clear — No Active Triggers</h3>
+          <h3 className="text-sm font-semibold text-brand-black dark:text-white">All Clear</h3>
           <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-1 max-w-sm mx-auto">
-            All notice deadlines, weather thresholds, and scheduled reminders are currently satisfied or snoozed.
+            No active alerts right now.
           </p>
         </div>
       ) : (
@@ -105,9 +105,9 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
           <div className="mb-3 px-1">
             <h3 className="text-sm font-bold text-brand-black dark:text-white flex items-center gap-2">
               <span className="material-symbols-outlined text-gray-500 dark:text-gray-400 text-base leading-none">wb_twilight</span>
-              <span>Morning Digest Queue</span>
+              <span>Morning Queue</span>
               <span className="text-xs text-text-sub-light dark:text-text-sub-dark font-normal">
-                ({morningBatch.length} batched during quiet hours)
+                ({morningBatch.length} queued)
               </span>
             </h3>
           </div>

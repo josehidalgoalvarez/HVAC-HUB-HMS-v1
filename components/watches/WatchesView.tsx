@@ -153,11 +153,11 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-2xl leading-none">monitoring</span>
               <h1 className="text-xl md:text-2xl font-bold text-brand-black dark:text-white tracking-tight">
-                Proactive Engine & Smart Watches
+                Watches & Alerts
               </h1>
             </div>
             <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
-              Automated risk monitors for notice deadlines, freeze weather, and delayed replies
+              Weather, freeze, and ticket alerts
             </p>
           </div>
         </div>
@@ -170,7 +170,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
             className="min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-card-dark text-brand-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 active:scale-[0.98] transition-all flex items-center gap-2 shadow-xs"
           >
             <span className={`material-symbols-outlined text-sm leading-none ${isEvaluating ? 'animate-spin' : ''}`}>sync</span>
-            <span>{isEvaluating ? 'Evaluating...' : 'Run Evaluation'}</span>
+            <span>{isEvaluating ? 'Checking...' : 'Check Now'}</span>
           </button>
 
           <button
@@ -202,7 +202,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           }`}
         >
           <span className="material-symbols-outlined text-base leading-none">notifications_active</span>
-          <span>Today's Digest</span>
+          <span>Daily Digest</span>
           {activeAlertCount > 0 && (
             <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-500 text-white">
               {activeAlertCount}
@@ -219,7 +219,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           }`}
         >
           <span className="material-symbols-outlined text-base leading-none">visibility</span>
-          <span>All Watches ({watches.length})</span>
+          <span>All ({watches.length})</span>
         </button>
       </div>
 
@@ -249,7 +249,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
                       : 'text-gray-600 dark:text-gray-300 hover:text-brand-black dark:hover:text-white hover:bg-gray-200/60 dark:hover:bg-card-dark'
                   }`}
                 >
-                  {t === 'all' ? 'All Types' : t.replace('_', ' ')}
+                  {t === 'all' ? 'All' : t.replace('_', ' ')}
                 </button>
               ))}
             </div>

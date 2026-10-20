@@ -91,13 +91,13 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
               {mode === 'restock' ? 'add_box' : 'handyman'}
             </span>
             <h2 className="text-lg font-bold text-brand-black dark:text-white">
-              {mode === 'restock' ? 'Add Part to Stash' : 'Log Part Usage'}
+              {mode === 'restock' ? 'Restock Part' : 'Use Part'}
             </h2>
           </div>
           <p className="text-xs text-gray-500 mt-1">
             {mode === 'restock'
-              ? `Add stock of ${part.name} (${part.part_number || 'N/A'}) to stockpile inventory.`
-              : `Consume ${part.name} (${part.part_number || 'N/A'}) from stockpile and link to work record.`}
+              ? `Add units of ${part.name} to stash.`
+              : `Record units of ${part.name} used on job.`}
           </p>
         </div>
 
@@ -116,7 +116,7 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
             }`}
           >
             <span className="material-symbols-outlined text-[16px]">build</span>
-            Log Usage
+            Use Part
           </button>
           <button
             type="button"
@@ -131,7 +131,7 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
             }`}
           >
             <span className="material-symbols-outlined text-[16px]">add_box</span>
-            Add to Stash
+            Restock
           </button>
         </div>
 

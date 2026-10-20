@@ -89,8 +89,8 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-primary text-2xl">bolt</span>
           <div>
-            <h2 className="text-lg font-bold text-brand-black dark:text-white">Quick Ticket Intake</h2>
-            <p className="text-xs text-text-sub-light dark:text-text-sub-dark">Fast-track screenshot intake in under 2 minutes</p>
+            <h2 className="text-lg font-bold text-brand-black dark:text-white">Quick Intake</h2>
+            <p className="text-xs text-text-sub-light dark:text-text-sub-dark">Snap photo or enter work order</p>
           </div>
         </div>
         <button
@@ -112,7 +112,7 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
         {/* Photo Upload Area */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark mb-1">
-            Screenshot Photo (Yardi / Tenant text)
+            Photo (Screenshot or work order)
           </label>
           <div
             onClick={() => fileInputRef.current?.click()}

@@ -127,19 +127,19 @@ const ProfileView: React.FC<ProfileViewProps> = ({
     ] : []),
     ...(onOpenParts ? [{
       icon: 'precision_manufacturing',
-      label: 'Parts & Stockpiles Catalog',
+      label: 'Parts Inventory',
       action: onOpenParts,
       color: 'text-primary'
     }] : []),
     ...(onOpenWatches ? [{
       icon: 'notifications_active',
-      label: 'Proactive Watches & Digest',
+      label: 'Watches & Alerts',
       action: onOpenWatches,
       color: 'text-primary'
     }] : []),
     {
       icon: 'install_mobile',
-      label: 'PWA & Standalone Install',
+      label: 'Install App',
       action: () => {
         localStorage.removeItem('hvachome_pwa_install_dismissed_until');
         window.location.reload();
@@ -164,13 +164,13 @@ const ProfileView: React.FC<ProfileViewProps> = ({
     }] : []),
     {
       icon: 'bolt',
-      label: isEditMode ? 'Deactivate super powers' : 'Activate super powers',
+      label: isEditMode ? 'Disable editing' : 'Enable editing',
       action: handleSuperPowers,
-      color: isEditMode ? 'text-brand-red' : 'text-brand-orange'
+      color: isEditMode ? 'text-brand-red' : 'text-primary'
     },
     {
       icon: isDarkMode ? 'light_mode' : 'dark_mode',
-      label: isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+      label: isDarkMode ? 'Light mode' : 'Dark mode',
       action: onToggleDarkMode
     }
   ];

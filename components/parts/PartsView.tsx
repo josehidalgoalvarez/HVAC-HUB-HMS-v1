@@ -166,7 +166,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
               <span className="material-symbols-outlined text-primary text-2xl">precision_manufacturing</span>
               Parts & Stockpiles
             </h1>
-            <p className="text-xs text-gray-500">Inventory, harvest routing, & suppliers</p>
+            <p className="text-xs text-gray-500">Inventory & suppliers</p>
           </div>
         </div>
 
@@ -233,7 +233,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
           }`}
         >
           <span className="material-symbols-outlined text-[16px]">shopping_cart</span>
-          Shopping List
+          Buy List
         </button>
 
         <button

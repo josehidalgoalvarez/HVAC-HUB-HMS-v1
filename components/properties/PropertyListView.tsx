@@ -52,7 +52,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
       {/* Action Bar / Sub-header */}
       <div className="flex items-center justify-between px-2 pt-2">
         <p className="text-sm font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider">
-          {filteredProperties.length} Properties Found
+          {filteredProperties.length} Properties
         </p>
         <button
           onClick={() => setShowFilter(true)}
@@ -94,8 +94,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
               <span className="material-symbols-outlined text-text-sub-light dark:text-text-sub-dark group-hover:text-primary transition-colors">add_location_alt</span>
             </div>
             <div>
-              <p className="font-bold text-text-main-light dark:text-white">Add another property</p>
-              <p className="text-sm text-text-sub-light dark:text-text-sub-dark font-body">Manage more homes with HVACHome</p>
+              <p className="font-bold text-text-main-light dark:text-white">Add property</p>
+              <p className="text-sm text-text-sub-light dark:text-text-sub-dark font-body">Add building to database</p>
             </div>
           </div>
         )}
@@ -119,7 +119,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 <input
                   value={searchName}
                   onChange={(e) => setSearchName(e.target.value)}
-                  placeholder="e.g. Vacation Home"
+                  placeholder="e.g. Princess St"
                   className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-brand-black dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
                 />
               </div>
@@ -128,7 +128,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 <input
                   value={searchAddress}
                   onChange={(e) => setSearchAddress(e.target.value)}
-                  placeholder="e.g. Austin"
+                  placeholder="e.g. Kingston"
                   className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-brand-black dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
                 />
               </div>

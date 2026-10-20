@@ -74,7 +74,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
             </span>
           ) : (
             <span className="shrink-0 px-2 py-0.5 text-xs font-mono font-semibold text-gray-500 bg-gray-100 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
-              No WO # (Unlinked)
+              No WO #
             </span>
           )}
           <h3 className="text-sm font-bold text-brand-black dark:text-white truncate">
@@ -117,7 +117,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
           {ticket.childrenCount && ticket.childrenCount > 0 ? (
             <span className="font-semibold text-primary flex items-center gap-1">
               <span className="material-symbols-outlined text-sm">account_tree</span>
-              {ticket.childrenCount} sub-jobs linked
+              {ticket.childrenCount} sub-jobs
             </span>
           ) : ticket.verified_scope ? (
             <span className="truncate block italic text-gray-600 dark:text-gray-300">
@@ -157,7 +157,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
           {/* Verbatim Screenshot Text */}
           {ticket.verbatim_text && (
             <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-2.5 text-xs text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-800">
-              <span className="font-bold text-gray-500 block mb-0.5">Verbatim Screenshot Text:</span>
+              <span className="font-bold text-gray-500 block mb-0.5">Intake Text:</span>
               <p className="italic">"{ticket.verbatim_text}"</p>
             </div>
           )}
@@ -165,7 +165,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
           {/* Blocker Reason if Blocked */}
           {ticket.blocker_reason && (
             <div className="bg-rose-50 dark:bg-rose-950/40 rounded-xl p-2.5 text-xs text-brand-red border border-rose-200 dark:border-rose-900">
-              <span className="font-bold block mb-0.5">Blocker Reason:</span>
+              <span className="font-bold block mb-0.5">Blocker:</span>
               <p>{ticket.blocker_reason}</p>
             </div>
           )}
@@ -177,7 +177,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
               className="flex-1 py-2 px-3 text-xs font-bold bg-primary text-white rounded-xl shadow-sm hover:bg-primary/90 flex items-center justify-center gap-1.5"
             >
               <span className="material-symbols-outlined text-sm">open_in_new</span>
-              View Detail & Hierarchy
+              View Ticket
             </button>
 
             {onQuickStateChange && (

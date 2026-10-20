@@ -58,13 +58,13 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
         <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-xl leading-none">notifications_active</span>
-            <h2 className="text-lg font-bold text-brand-black dark:text-white">Create Proactive Watch</h2>
+            <h2 className="text-lg font-bold text-brand-black dark:text-white">New Watch</h2>
           </div>
           <button
             onClick={onClose}
             className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            ✕
+            <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
@@ -125,13 +125,13 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
           {/* Title */}
           <div>
             <label className="block text-xs font-semibold text-brand-black dark:text-gray-200 mb-1">
-              Title (Optional — Auto-generated if blank)
+              Title (Optional)
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Unit 174 Valve Inspection Watch"
+              placeholder="e.g. Unit 174 Valve Inspection"
               className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-300 dark:border-gray-700 text-brand-black dark:text-white text-sm focus:outline-none focus:border-primary"
             />
           </div>
@@ -155,7 +155,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
           {watchType === 'reply_waiting' && (
             <div>
               <label className="block text-xs font-semibold text-brand-black dark:text-gray-200 mb-1">
-                Hours Threshold (Fire if unreplied after)
+                Hours Unreplied
               </label>
               <input
                 type="number"
@@ -169,8 +169,8 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
 
           {watchType === 'weather_freeze' && (
             <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/80 text-xs text-gray-600 dark:text-gray-300">
-              <span className="font-semibold block mb-0.5 text-brand-black dark:text-white">Automated Open-Meteo Integration</span>
-              Monitors hourly low temperatures across 48h for Kingston (44.23°N, -76.48°W). Triggers if low &le; 0°C.
+              <span className="font-semibold block mb-0.5 text-brand-black dark:text-white">Open-Meteo Forecast</span>
+              Monitors Kingston 48h freeze risk (≤ 0°C).
             </div>
           )}
 
@@ -191,7 +191,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
           {/* Description */}
           <div>
             <label className="block text-xs font-semibold text-brand-black dark:text-gray-200 mb-1">
-              Notes / Description (Optional)
+              Notes (Optional)
             </label>
             <textarea
               rows={2}

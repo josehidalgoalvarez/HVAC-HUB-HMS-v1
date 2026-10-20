@@ -138,10 +138,10 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
           <div>
             <h1 className="text-xl font-extrabold text-brand-black dark:text-white flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-2xl">schedule</span>
-              Day Plan & Run Sheet
+              Day Plan
             </h1>
             <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
-              Travel-ordered blocks • 24h Legal Gates • E-Bike Capacity Check
+              Route order & legal entry gates
             </p>
           </div>
         </div>
@@ -152,7 +152,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
           className="py-2 px-3 text-xs shadow-md shrink-0 flex items-center gap-1"
           icon="alt_route"
         >
-          Batch Builder
+          Plan Day
         </Button>
       </div>
 
@@ -208,19 +208,19 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
             {rollup.red_gate_count > 0 && (
               <span className="px-2 py-0.5 rounded-lg bg-red-100 text-brand-red font-bold flex items-center gap-1 border border-red-200">
                 <span className="material-symbols-outlined text-xs">gavel</span>
-                {rollup.red_gate_count} Overdue Notice
+                {rollup.red_gate_count} Overdue
               </span>
             )}
             {rollup.amber_gate_count > 0 && (
               <span className="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-800 font-bold flex items-center gap-1 border border-amber-200">
                 <span className="material-symbols-outlined text-xs">timer</span>
-                {rollup.amber_gate_count} Notice Pending
+                {rollup.amber_gate_count} Pending
               </span>
             )}
             {rollup.exceeds_capacity_count > 0 && (
               <span className="px-2 py-0.5 rounded-lg bg-amber-500 text-white font-bold flex items-center gap-1">
                 <span className="material-symbols-outlined text-xs">warning</span>
-                {rollup.exceeds_capacity_count} Exceeds E-Bike Load
+                {rollup.exceeds_capacity_count} Overload
               </span>
             )}
           </div>
@@ -253,7 +253,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
               No day plan scheduled for {currentDate}
             </p>
             <p className="text-xs text-text-sub-light dark:text-text-sub-dark max-w-sm mx-auto">
-              Use the Batch Builder to automatically select open tickets, group them by site proximity, and generate a travel-ordered day-plan.
+              Plan a daily route from open tickets grouped by site.
             </p>
             <Button
               variant="primary"
@@ -261,7 +261,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
               className="py-2.5 px-4 text-xs mx-auto shadow-sm"
               icon="alt_route"
             >
-              Launch Batch Builder
+              Plan Day
             </Button>
           </div>
         ) : (
@@ -355,17 +355,19 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                     {block.required_tools_list?.map((t, i) => (
                       <span
                         key={i}
-                        className="px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium"
+                        className="px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium inline-flex items-center"
                       >
-                        🛠️ {t}
+                        <span className="material-symbols-outlined text-[13px] mr-1 text-gray-500">build</span>
+                        {t}
                       </span>
                     ))}
                     {block.required_parts_list?.map((p, i) => (
                       <span
                         key={i}
-                        className="px-2 py-0.5 rounded-lg bg-primary/10 text-primary font-medium"
+                        className="px-2 py-0.5 rounded-lg bg-primary/10 text-primary font-medium inline-flex items-center"
                       >
-                        📦 {p}
+                        <span className="material-symbols-outlined text-[13px] mr-1 text-primary">inventory_2</span>
+                        {p}
                       </span>
                     ))}
                   </div>

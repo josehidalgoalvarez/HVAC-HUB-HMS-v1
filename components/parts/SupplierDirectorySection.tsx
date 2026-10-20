@@ -12,14 +12,14 @@ export const SupplierDirectorySection: React.FC<SupplierDirectorySectionProps> =
         <div>
           <h2 className="text-base font-bold text-brand-black dark:text-white flex items-center gap-2">
             <span className="material-symbols-outlined text-primary">local_shipping</span>
-            Supply House Directory
+            Suppliers
           </h2>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Verified parts suppliers, direct dialer lines, and order desk hours
+            Phone numbers and desk hours
           </p>
         </div>
         <span className="px-2.5 py-1 text-xs font-bold rounded-lg bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300">
-          {suppliers.length} Vendors
+          {suppliers.length} Suppliers
         </span>
       </div>
 
@@ -79,7 +79,7 @@ export const SupplierDirectorySection: React.FC<SupplierDirectorySectionProps> =
                     className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary dark:text-primary-light font-bold text-xs flex items-center justify-center gap-2 border border-primary/20 active:scale-[0.99] transition-all"
                   >
                     <span className="material-symbols-outlined text-[18px]">call</span>
-                    <span>Call Order Desk ({supplier.phone})</span>
+                    <span>Call {supplier.phone}</span>
                   </a>
                 </div>
               )}

@@ -31,7 +31,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ onClose, onSuc
                     onSuccess();
                     setUsername('');
                     setPassword('');
-                    alert(`⚡ Logged in as ${loginResult.user.name} (${loginResult.user.role}) ⚡\n\nToken verified and round-trip /api/tickets succeeded.`);
+                    alert(`Logged in as ${loginResult.user.name} (${loginResult.user.role}).`);
                     return;
                 }
             } catch (err: unknown) {
@@ -49,7 +49,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ onClose, onSuc
             setUsername('');
             setPassword('');
             setLoginError('');
-            alert("⚡ Super Powers Activated! ⚡\n\nYou now have full edit access.");
+            alert("Edit mode enabled.");
         } else {
             setLoginError('Invalid username or password.');
         }
@@ -58,12 +58,12 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ onClose, onSuc
     return (
         <Modal onClose={onClose} className="max-w-xs" zIndexClass="z-[80]">
             <div className="flex flex-col items-center mb-6">
-                <div className="w-12 h-12 bg-brand-orange/10 rounded-full flex items-center justify-center text-brand-orange mb-3">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-3">
                     <span className="material-symbols-outlined text-[24px]">lock</span>
                 </div>
                 <h3 className="text-xl font-bold text-brand-black dark:text-white">Admin Access</h3>
                 <p className="text-sm text-text-sub-light dark:text-text-sub-dark text-center mt-1">
-                    Enter credentials to unlock editing capabilities.
+                    Enter password to unlock editing.
                 </p>
             </div>
 
@@ -74,7 +74,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ onClose, onSuc
                         placeholder="Username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-brand-black dark:text-white outline-none focus:ring-2 focus:ring-brand-orange/50"
+                        className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-brand-black dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
                         autoFocus
                     />
                 </div>
@@ -84,7 +84,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ onClose, onSuc
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-brand-black dark:text-white outline-none focus:ring-2 focus:ring-brand-orange/50"
+                        className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-brand-black dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
                     />
                 </div>
 

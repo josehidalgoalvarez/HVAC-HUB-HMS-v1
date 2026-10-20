@@ -42,7 +42,7 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
             onClick={onClose}
             className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            ✕
+            <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
@@ -57,7 +57,7 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
         </div>
 
         <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-4 mb-3 font-medium">
-          Select silence duration:
+          Snooze for:
         </p>
 
         {/* Quick Presets (Gloves-on, min 44px touch target) */}
@@ -70,7 +70,7 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
           >
             <div>
               <div className="text-sm font-semibold text-brand-black dark:text-white group-hover:text-primary transition-colors">1 Hour</div>
-              <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark">Silences alerts for next 60 minutes</div>
+              <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark">Silence for 60 minutes</div>
             </div>
             <span className="material-symbols-outlined text-gray-400 dark:text-gray-500 group-hover:text-primary text-lg leading-none transition-colors">timer</span>
           </button>
@@ -83,7 +83,7 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
           >
             <div>
               <div className="text-sm font-semibold text-brand-black dark:text-white group-hover:text-primary transition-colors">4 Hours</div>
-              <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark">Postpone until afternoon or evening</div>
+              <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark">Silence for 4 hours</div>
             </div>
             <span className="material-symbols-outlined text-gray-400 dark:text-gray-500 group-hover:text-primary text-lg leading-none transition-colors">hourglass_bottom</span>
           </button>
@@ -95,8 +95,8 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
             className="min-h-[48px] px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-primary/50 active:scale-[0.98] transition-all flex items-center justify-between text-left group"
           >
             <div>
-              <div className="text-sm font-semibold text-brand-black dark:text-white group-hover:text-primary transition-colors">Until Tomorrow Morning</div>
-              <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark">Silenced until 08:00 AM next day</div>
+              <div className="text-sm font-semibold text-brand-black dark:text-white group-hover:text-primary transition-colors">Tomorrow morning</div>
+              <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark">Silence until 08:00 AM</div>
             </div>
             <span className="material-symbols-outlined text-gray-400 dark:text-gray-500 group-hover:text-primary text-lg leading-none transition-colors">wb_sunny</span>
           </button>

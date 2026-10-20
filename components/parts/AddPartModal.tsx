@@ -83,14 +83,14 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
         <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-2xl">add_circle</span>
-            <h2 className="text-lg font-bold text-brand-black dark:text-white">Add Part to Stash</h2>
+            <h2 className="text-lg font-bold text-brand-black dark:text-white">Add Part</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            ✕
+            <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
         </div>
 

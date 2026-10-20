@@ -505,7 +505,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           <div className="flex items-center gap-1.5">
             <span className="material-symbols-outlined text-sm text-gray-500">visibility</span>
             <span className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
-              Yardi Mirror (Read-Only)
+              Yardi Sighting
             </span>
           </div>
 
@@ -528,7 +528,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 rounded-xl text-xs text-amber-900 dark:text-amber-200 flex items-center gap-2">
             <span className="material-symbols-outlined text-amber-600 text-lg">warning</span>
             <div>
-              <span className="font-bold">Flagged: Possibly closed or reassigned</span>
+              <span className="font-bold">Unseen in Yardi (7+ days)</span>
               <p className="text-[11px] text-amber-700 dark:text-amber-300">
                 {ticket.yardi_warning || 'Unseen in Yardi for 7+ days. Full local history is preserved.'}
               </p>
@@ -538,7 +538,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
             {ticket.last_seen_in_yardi
               ? `Last verified in Yardi: ${new Date(ticket.last_seen_in_yardi).toLocaleString()}`
-              : 'Status: Not yet verified in Yardi (Neutral on intake)'}
+              : 'Status: Not yet seen in Yardi'}
           </p>
         )}
       </div>
@@ -609,10 +609,10 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 <span className="material-symbols-outlined text-base text-primary">schedule</span>
                 <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark block">
-                    24-Hour Notice of Entry (Legal Gate)
+                    24h Notice of Entry
                   </span>
                   <span className="text-[11px] text-gray-500">
-                    {isNoticeNeeded ? 'Occupied unit — requires 24h advance written notice' : 'Notice of entry not required for this work order'}
+                    {isNoticeNeeded ? 'Tenant-occupied — 24h advance notice required' : 'Notice of entry not required'}
                   </span>
                 </div>
               </div>
@@ -630,8 +630,8 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 </label>
                 <p className="text-[11px] text-gray-500">
                   {isNoticeNeeded
-                    ? 'Entry gated until 24h after notice is sent by management'
-                    : 'Turn ON if unit is tenant-occupied and requires written notice'}
+                    ? 'Entry gated until 24h after management sends notice'
+                    : 'Turn ON if unit requires 24h written notice'}
                 </p>
               </div>
 
@@ -697,10 +697,10 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40">
                         <div className="space-y-0.5">
                           <span className="text-xs font-bold text-amber-800 dark:text-amber-200 block">
-                            Notice pending send
+                            Notice pending
                           </span>
                           <span className="text-[11px] text-amber-700 dark:text-amber-300">
-                            Management sends the notice. When confirmed, mark it here to start the 24h clock.
+                            Management sends notice. Mark sent here to start 24h clock.
                           </span>
                         </div>
 
@@ -732,7 +732,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                             onClick={() => setIsMarkingSent(false)}
                             className="text-xs text-gray-400 hover:text-gray-600"
                           >
-                            ✕
+                            <span className="material-symbols-outlined text-base">close</span>
                           </button>
                         </div>
 
@@ -802,10 +802,10 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             </span>
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark block">
-                Exterior Work & Rain Planning
+                Exterior Work
               </span>
               <span className="text-[11px] text-gray-500">
-                {isExterior ? 'Outdoor work requiring dry weather window' : 'Indoor job — no weather watch needed'}
+                {isExterior ? 'Outdoor job — weather dependent' : 'Indoor job — no weather watch needed'}
               </span>
             </div>
           </div>
@@ -914,7 +914,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 className="min-h-[44px] px-4 py-2 text-xs font-bold rounded-xl bg-sky-500 hover:bg-sky-600 text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 active:scale-95 transition-all"
               >
                 <span className="material-symbols-outlined text-[15px]">cloud_done</span>
-                <span>{savingWeather ? 'Saving...' : weatherWatch && weatherWatch.state !== 'resolved' ? 'Update Outlook' : 'Save Outlook & Raise Watch'}</span>
+                <span>{savingWeather ? 'Saving...' : weatherWatch && weatherWatch.state !== 'resolved' ? 'Update Outlook' : 'Save Outlook'}</span>
               </button>
             </div>
           </div>
@@ -952,7 +952,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           <div className="bg-primary/5 dark:bg-primary/10 rounded-xl p-3 border border-primary/20">
             <span className="text-xs font-bold text-primary flex items-center gap-1 mb-1">
               <span className="material-symbols-outlined text-sm">verified</span>
-              Confirmed Job Scope (Human Verified):
+              Verified Scope:
             </span>
             <p className="text-sm font-medium text-brand-black dark:text-white">
               {ticket.verified_scope}
@@ -974,7 +974,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         {ticket.verbatim_text && (
           <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 border border-gray-100 dark:border-gray-800">
             <span className="text-xs font-bold text-gray-500 block mb-1">
-              Verbatim Screenshot Text:
+              Intake Text:
             </span>
             <p className="text-xs text-gray-700 dark:text-gray-300 italic">
               "{ticket.verbatim_text}"
@@ -1009,7 +1009,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-xl">account_tree</span>
             <h2 className="text-sm font-bold text-brand-black dark:text-white uppercase tracking-wider">
-              Sub-Jobs & Children
+              Sub-Jobs
             </h2>
             <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 font-bold">
               {children.length}
@@ -1075,8 +1075,9 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     </span>
                   </div>
                   {child.blocker_reason && (
-                    <p className="text-[11px] text-brand-red truncate">
-                      ⚠ Blocker: {child.blocker_reason}
+                    <p className="text-[11px] text-brand-red truncate flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[13px]">warning</span>
+                      Blocker: {child.blocker_reason}
                     </p>
                   )}
                   {child.assigned_tech_name && (
@@ -1115,7 +1116,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-primary text-xl">history_edu</span>
           <h2 className="text-sm font-bold text-brand-black dark:text-white uppercase tracking-wider">
-            Correction History (Append-Only Audit)
+            Edit History
           </h2>
           <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 font-bold">
             {corrections.length}
@@ -1166,7 +1167,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       {isEditModalOpen && (
         <Modal onClose={() => setIsEditModalOpen(false)} className="max-w-md">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
-            <h2 className="text-base font-bold text-brand-black dark:text-white">Edit Ticket Details</h2>
+            <h2 className="text-base font-bold text-brand-black dark:text-white">Edit Ticket</h2>
             <button
               onClick={() => setIsEditModalOpen(false)}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"

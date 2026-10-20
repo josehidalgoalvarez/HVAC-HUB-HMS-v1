@@ -133,7 +133,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           <div>
             <h1 className="text-xl font-extrabold text-brand-black dark:text-white flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-2xl">assignment</span>
-              Work Orders
+              Tickets
             </h1>
           </div>
         </div>
@@ -145,7 +145,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
               id="open-watches-btn"
               onClick={onOpenWatches}
               className="px-2.5 py-1.5 rounded-xl bg-gray-100 dark:bg-card-dark text-text-main-light dark:text-text-main-dark hover:bg-gray-200 dark:hover:bg-neutral-800 text-xs font-bold flex items-center gap-1 border border-gray-200 dark:border-gray-800 transition-colors"
-              title="View Proactive Watches & Digest"
+              title="View Watches"
             >
               <span className="material-symbols-outlined text-[16px]">notifications_active</span>
               Watches
@@ -177,10 +177,10 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
         <div className="min-w-0">
           <span className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
             <span className="material-symbols-outlined text-sm">bolt</span>
-            Rapid Intake
+            Quick Intake
           </span>
           <p className="text-xs text-brand-black dark:text-white font-medium">
-            Intake from screenshot in &lt; 2 min
+            Snap photo or enter work order
           </p>
         </div>
 
@@ -190,7 +190,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           className="py-2 px-3 text-xs shadow-md shrink-0 whitespace-nowrap"
           icon="add_a_photo"
         >
-          Quick Intake
+          New Ticket
         </Button>
       </div>
 
@@ -203,7 +203,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by WO #, title, unit, or verified scope..."
+          placeholder="Search tickets, units, WO #..."
           className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
         />
         {searchQuery && (
@@ -236,7 +236,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
             }`}
         >
           <span className={`material-symbols-outlined text-xs ${activeFilter === 'safety' ? 'text-white' : 'text-brand-red'}`}>emergency</span>
-          Safety First ({safetyCount})
+          Urgent ({safetyCount})
         </button>
 
         <button
@@ -247,7 +247,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
             }`}
         >
           <span className={`material-symbols-outlined text-xs ${activeFilter === 'closable' ? 'text-white' : 'text-primary'}`}>timer</span>
-          Closable Today ({closableCount})
+          Active ({closableCount})
         </button>
 
         <button
@@ -268,7 +268,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
               : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
             }`}
         >
-          Unassigned WO ({unassignedCount})
+          No WO ({unassignedCount})
         </button>
       </div>
 
@@ -278,23 +278,23 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           {loading && tickets.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
               <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
-              <p className="text-xs font-semibold">Prioritizing work orders...</p>
+              <p className="text-xs font-semibold">Loading tickets...</p>
             </div>
           ) : filteredTickets.length === 0 ? (
             <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
               <span className="material-symbols-outlined text-4xl text-gray-300">task_alt</span>
               <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                {searchQuery || activeFilter !== 'all' ? 'No matching tickets found' : 'No active work orders'}
+                {searchQuery || activeFilter !== 'all' ? 'No matching tickets found' : 'No active tickets'}
               </p>
               <p className="text-xs text-gray-400 max-w-xs mx-auto">
-                {searchQuery ? 'Try clearing your search query or filters' : 'Snap a screenshot to intake your first job'}
+                {searchQuery ? 'Try clearing your search query or filters' : 'Snap a photo or add details to start'}
               </p>
               <Button
                 variant="primary"
                 onClick={() => setIsIntakeOpen(true)}
                 className="py-2.5 px-4 text-xs mx-auto shadow-sm"
               >
-                + Quick Intake (&lt;2m)
+                + New Ticket
               </Button>
             </div>
           ) : (

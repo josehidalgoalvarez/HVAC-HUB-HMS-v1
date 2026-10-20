@@ -85,10 +85,10 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
           <div>
             <h2 className="text-base font-bold text-brand-black dark:text-white flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">shopping_cart_checkout</span>
-              Harvest-First Shopping List
+              Parts Buy List
             </h2>
             <p className="text-xs text-gray-500">
-              Aggregates required parts from open tickets, dedupes lines, and prioritizes stockpile donors.
+              Parts needed for active tickets
             </p>
           </div>
           <div className="flex gap-1.5">
@@ -113,7 +113,7 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
         ) : (
           <div className="space-y-1.5">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
-              Active Tickets ({selectedTicketIds.length} of {tickets.length} selected):
+              Tickets ({selectedTicketIds.length} of {tickets.length} selected):
             </span>
             <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto no-scrollbar">
               {tickets.map(t => {
@@ -150,29 +150,29 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3 text-gray-400">
           <span className="material-symbols-outlined text-3xl animate-spin text-primary">sync</span>
-          <p className="text-xs font-semibold">Resolving stock availability & harvest routing...</p>
+          <p className="text-xs font-semibold">Building buy list...</p>
         </div>
       ) : !shoppingList || shoppingList.items.length === 0 ? (
         <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-2">
           <span className="material-symbols-outlined text-4xl text-gray-300">production_quantity_limits</span>
           <p className="text-sm font-bold text-gray-700 dark:text-gray-300">No parts required for selected tickets</p>
-          <p className="text-xs text-gray-400">Select open tickets that need range switches, motors, or pumps.</p>
+          <p className="text-xs text-gray-400">Select open tickets that need parts.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {/* Summary metrics bar */}
           <div className="flex items-center justify-between text-xs font-semibold text-gray-500 px-1">
             <span>
-              Deduped Lines: <strong className="text-brand-black dark:text-white">{shoppingList.total_parts_count}</strong>
+              Parts: <strong className="text-brand-black dark:text-white">{shoppingList.total_parts_count}</strong>
             </span>
             <span>
-              Total Units: <strong className="text-brand-black dark:text-white">{shoppingList.total_items_needed}</strong>
+              Total: <strong className="text-brand-black dark:text-white">{shoppingList.total_items_needed}</strong>
             </span>
             <span>
-              Harvestable: <strong className="text-emerald-600">{shoppingList.harvest_count}</strong>
+              Stockpile: <strong className="text-emerald-600">{shoppingList.harvest_count}</strong>
             </span>
             <span>
-              To Purchase: <strong className="text-primary">{shoppingList.buy_count}</strong>
+              To Buy: <strong className="text-primary">{shoppingList.buy_count}</strong>
             </span>
           </div>
 
