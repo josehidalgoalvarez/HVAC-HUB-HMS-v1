@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiClient } from '../../src/api/client';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
-import { DraftNoticeModal } from '../notices/DraftNoticeModal';
-import type { Ticket, TicketState, TicketPriority, Correction, Notice, NoticeStatus, WatchRecord } from '../../types/domain';
+import type { Ticket, TicketState, TicketPriority, Correction, WatchRecord } from '../../types/domain';
 
 interface TicketDetailViewProps {
   ticketId: string;
@@ -53,22 +52,99 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   const [sightingStamping, setSightingStamping] = useState(false);
   const [sightingSuccessMsg, setSightingSuccessMsg] = useState<string | null>(null);
 
-  // Notice State
-  const [isDraftNoticeOpen, setIsDraftNoticeOpen] = useState(false);
-  const [noticeAdvancing, setNoticeAdvancing] = useState(false);
+  // Notice Sent-Tracking State
+  const [noticeSaving, setNoticeSaving] = useState(false);
+  const [isMarkingSent, setIsMarkingSent] = useState(false);
+  const [markSentTime, setMarkSentTime] = useState<string>('');
+  const [markConfirmedBy, setMarkConfirmedBy] = useState<string>('');
+  const [noticeFeedback, setNoticeFeedback] = useState<string | null>(null);
 
-  const handleAdvanceNotice = async (noticeId: number | string, nextStatus: NoticeStatus) => {
-    setNoticeAdvancing(true);
+  const handleToggleNoticeNeeded = async (needed: boolean) => {
+    if (!ticket) return;
     try {
-      await apiClient.updateNotice(noticeId, {
-        status: nextStatus,
-        reason: `Advanced notice from ticket detail to ${nextStatus}`,
+      setNoticeSaving(true);
+      setNoticeFeedback(null);
+      const updated = await apiClient.updateTicket(ticket.id, {
+        notice_needed: needed,
+        reason: needed ? 'Toggled 24h notice needed ON' : 'Toggled 24h notice needed OFF',
       });
-      await loadTicketData();
+      setTicket(prev => prev ? { ...prev, ...updated, notice_needed: needed } : prev);
+      setNoticeFeedback(needed ? '24h Notice required: entry blocked until marked sent.' : 'Notice requirement turned off: entry permitted.');
+      setTimeout(() => setNoticeFeedback(null), 4000);
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Failed to advance notice');
+      alert(err instanceof Error ? err.message : 'Failed to update notice status');
     } finally {
-      setNoticeAdvancing(false);
+      setNoticeSaving(false);
+    }
+  };
+
+  const handleSaveMarkSent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ticket) return;
+    if (!markConfirmedBy.trim()) {
+      alert('Please enter who confirmed the notice was sent.');
+      return;
+    }
+
+    try {
+      setNoticeSaving(true);
+      setNoticeFeedback(null);
+      const sentIso = markSentTime ? new Date(markSentTime).toISOString() : new Date().toISOString();
+      const confirmedName = markConfirmedBy.trim();
+
+      const updated = await apiClient.updateTicket(ticket.id, {
+        notice_sent_at: sentIso,
+        notice_confirmed_by: confirmedName,
+        reason: `Notice marked sent at ${sentIso} confirmed by ${confirmedName}`,
+      });
+
+      setTicket(prev => prev ? {
+        ...prev,
+        ...updated,
+        notice_sent_at: sentIso,
+        notice_confirmed_by: confirmedName,
+      } : prev);
+
+      setIsMarkingSent(false);
+      setMarkConfirmedBy('');
+      setMarkSentTime('');
+      setNoticeFeedback(`Notice marked sent! Confirmed by ${confirmedName}. 24h countdown active.`);
+      setTimeout(() => setNoticeFeedback(null), 5000);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to record notice sent');
+    } finally {
+      setNoticeSaving(false);
+    }
+  };
+
+  const handleClearNoticeSent = async () => {
+    if (!ticket) return;
+    if (!window.confirm('Clear notice sent status and reset the 24h entry gate?')) {
+      return;
+    }
+
+    try {
+      setNoticeSaving(true);
+      setNoticeFeedback(null);
+      const updated = await apiClient.updateTicket(ticket.id, {
+        notice_sent_at: null,
+        notice_confirmed_by: null,
+        reason: 'Cleared 24h notice sent status (undo)',
+      });
+
+      setTicket(prev => prev ? {
+        ...prev,
+        ...updated,
+        notice_sent_at: null,
+        notice_confirmed_by: null,
+      } : prev);
+
+      setNoticeFeedback('Notice sent status cleared. Entry gate reset to blocked.');
+      setTimeout(() => setNoticeFeedback(null), 4000);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to clear notice sent status');
+    } finally {
+      setNoticeSaving(false);
     }
   };
 
@@ -467,98 +543,255 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         )}
       </div>
 
-      {/* Notice of Entry Card (24-Hour Legal Gate) */}
-      <div className="rounded-2xl p-4 border bg-gray-50/80 dark:bg-card-dark border-gray-200 dark:border-gray-800 space-y-2.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-sm text-primary">schedule</span>
-            <span className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
-              24-Hour Notice of Entry (Legal Gate)
-            </span>
-          </div>
+      {/* Notice of Entry Card (24-Hour Legal Gate Tracker) */}
+      {(() => {
+        const isNoticeNeeded = !!ticket.notice_needed;
+        const noticeSentAt = ticket.notice_sent_at || null;
+        const noticeConfirmedBy = ticket.notice_confirmed_by || null;
 
-          {ticket.notice ? (
-            <span
-              className={`px-2 py-0.5 text-[11px] font-bold rounded-lg ${
-                ticket.notice_gate_status === 'green'
-                  ? 'bg-emerald-500 text-white'
-                  : ticket.notice_gate_status === 'red'
-                  ? 'bg-brand-red text-white'
-                  : 'bg-amber-500 text-white'
-              }`}
-            >
-              {ticket.notice_gate_status === 'green'
-                ? 'CLEARED'
-                : ticket.notice_gate_status === 'red'
-                ? 'OVERDUE / BLOCKED'
-                : 'PENDING 24H'}
-            </span>
-          ) : (
-            <button
-              onClick={() => setIsDraftNoticeOpen(true)}
-              className="px-2.5 py-1 text-xs font-bold bg-primary text-white rounded-lg shadow-sm hover:bg-primary/90 flex items-center gap-1"
-            >
-              <span className="material-symbols-outlined text-[14px]">add</span>
-              Draft Notice
-            </button>
-          )}
-        </div>
+        let gateBadge = {
+          label: 'NO NOTICE REQUIRED',
+          className: 'bg-gray-100 text-gray-700 dark:bg-neutral-800 dark:text-gray-300',
+          description: 'Entry permitted — no 24h notice required for this work order.',
+          cleared: true,
+        };
 
-        {ticket.notice ? (
-          <div className="space-y-2 text-xs">
-            <div className="flex items-center justify-between bg-white dark:bg-gray-900 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800">
-              <div className="min-w-0 flex-1 pr-2">
-                <span className="font-bold text-brand-black dark:text-white block">
-                  Status: <span className="uppercase text-primary">{ticket.notice.status}</span>
-                </span>
-                <span className="text-[11px] text-gray-500 block truncate">
-                  Serve-by Deadline: {ticket.notice.serve_by_deadline ? new Date(ticket.notice.serve_by_deadline).toLocaleString() : 'Pending'}
-                </span>
-              </div>
+        if (isNoticeNeeded) {
+          if (!noticeSentAt) {
+            gateBadge = {
+              label: 'ENTRY BLOCKED',
+              className: 'bg-brand-red text-white',
+              description: 'Notice required but not yet sent. Tenant entry prohibited.',
+              cleared: false,
+            };
+          } else {
+            const sentTime = new Date(noticeSentAt).getTime();
+            if (!isNaN(sentTime)) {
+              const hoursElapsed = (Date.now() - sentTime) / (1000 * 60 * 60);
+              const validFrom = new Date(sentTime + 24 * 60 * 60 * 1000);
+              const validFromFormatted = validFrom.toLocaleString([], {
+                dateStyle: 'short',
+                timeStyle: 'short',
+              });
 
-              <div className="flex items-center gap-1 shrink-0">
-                {ticket.notice.status === 'drafted' && (
-                  <button
-                    onClick={() => handleAdvanceNotice(ticket.notice!.id, 'sent')}
-                    disabled={noticeAdvancing}
-                    className="px-2.5 py-1 bg-primary text-white text-[11px] font-bold rounded-lg shadow-sm hover:bg-blue-600 active:scale-95 transition-all"
-                  >
-                    Mark Sent
-                  </button>
-                )}
-                {ticket.notice.status === 'sent' && (
-                  <button
-                    onClick={() => handleAdvanceNotice(ticket.notice!.id, 'served')}
-                    disabled={noticeAdvancing}
-                    className="px-2.5 py-1 bg-primary text-white text-[11px] font-bold rounded-lg shadow-sm hover:bg-blue-600 active:scale-95 transition-all"
-                  >
-                    Mark Served
-                  </button>
-                )}
-                {ticket.notice.status === 'served' && (
-                  <button
-                    onClick={() => handleAdvanceNotice(ticket.notice!.id, 'verified')}
-                    disabled={noticeAdvancing}
-                    className="px-2.5 py-1 bg-primary text-white text-[11px] font-bold rounded-lg shadow-sm hover:bg-blue-600 active:scale-95 transition-all"
-                  >
-                    Verify Entry
-                  </button>
-                )}
-                {ticket.notice.status === 'verified' && (
-                  <span className="text-emerald-600 font-bold text-xs flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">verified</span>
-                    Legally Cleared
+              if (hoursElapsed >= 24) {
+                gateBadge = {
+                  label: 'CLEARED (24H MET)',
+                  className: 'bg-emerald-500 text-white',
+                  description: `Entry window open since ${validFromFormatted} (${hoursElapsed.toFixed(1)}h elapsed).`,
+                  cleared: true,
+                };
+              } else {
+                const hoursRemaining = Math.max(0, 24 - hoursElapsed);
+                gateBadge = {
+                  label: `LOCKED (${Math.ceil(hoursRemaining)}H LEFT)`,
+                  className: 'bg-amber-500 text-white',
+                  description: `Entry permitted starting ${validFromFormatted} (${hoursRemaining.toFixed(1)}h remaining).`,
+                  cleared: false,
+                };
+              }
+            } else {
+              gateBadge = {
+                label: 'ENTRY BLOCKED',
+                className: 'bg-brand-red text-white',
+                description: 'Notice timestamp invalid. Re-confirm notice sent time.',
+                cleared: false,
+              };
+            }
+          }
+        }
+
+        return (
+          <div className="rounded-2xl p-4 border bg-gray-50/80 dark:bg-card-dark border-gray-200 dark:border-gray-800 space-y-3">
+            {/* Header row: Icon, Title, and Legal Gate Badge */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-base text-primary">schedule</span>
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark block">
+                    24-Hour Notice of Entry (Legal Gate)
                   </span>
+                  <span className="text-[11px] text-gray-500">
+                    {isNoticeNeeded ? 'Occupied unit — requires 24h advance written notice' : 'Notice of entry not required for this work order'}
+                  </span>
+                </div>
+              </div>
+
+              <span className={`px-2.5 py-1 text-[11px] font-bold rounded-lg shrink-0 ${gateBadge.className}`}>
+                {gateBadge.label}
+              </span>
+            </div>
+
+            {/* Notice Needed Toggle */}
+            <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-800">
+              <div className="flex-1 pr-3">
+                <label htmlFor="notice-needed-toggle" className="text-xs font-bold text-brand-black dark:text-white block cursor-pointer">
+                  Notice needed
+                </label>
+                <p className="text-[11px] text-gray-500">
+                  {isNoticeNeeded
+                    ? 'Entry gated until 24h after notice is sent by management'
+                    : 'Turn ON if unit is tenant-occupied and requires written notice'}
+                </p>
+              </div>
+
+              <button
+                id="notice-needed-toggle"
+                type="button"
+                role="switch"
+                aria-checked={isNoticeNeeded}
+                onClick={() => handleToggleNoticeNeeded(!isNoticeNeeded)}
+                disabled={noticeSaving}
+                className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  isNoticeNeeded ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-700'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                    isNoticeNeeded ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {noticeFeedback && (
+              <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary dark:text-sky-300 text-xs flex items-center gap-1.5 animate-fadeIn">
+                <span className="material-symbols-outlined text-sm leading-none">info</span>
+                <span>{noticeFeedback}</span>
+              </div>
+            )}
+
+            {/* When Notice is Needed */}
+            {isNoticeNeeded && (
+              <div className="space-y-3 pt-2 border-t border-gray-200 dark:border-gray-800 animate-fadeIn">
+                {/* If Sent: Show sent details and clear/undo action */}
+                {noticeSentAt ? (
+                  <div className="p-3 rounded-xl bg-white dark:bg-neutral-800/80 border border-gray-200 dark:border-gray-700 space-y-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-brand-black dark:text-white">
+                          <span className="material-symbols-outlined text-sm text-emerald-500">check_circle</span>
+                          <span>
+                            Sent — {new Date(noticeSentAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })} — confirmed by <span className="text-primary">{noticeConfirmedBy || 'Management'}</span>
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-500 pl-5">
+                          {gateBadge.description}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={handleClearNoticeSent}
+                        disabled={noticeSaving}
+                        className="min-h-[44px] px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-red-400 border border-gray-200 dark:border-gray-700 hover:border-red-300 rounded-xl transition-colors shrink-0"
+                        title="Clear sent status (Undo)"
+                      >
+                        Clear / Undo
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* If Needed + Not Sent: Show Mark as sent action */
+                  <div>
+                    {!isMarkingSent ? (
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40">
+                        <div className="space-y-0.5">
+                          <span className="text-xs font-bold text-amber-800 dark:text-amber-200 block">
+                            Notice pending send
+                          </span>
+                          <span className="text-[11px] text-amber-700 dark:text-amber-300">
+                            Management sends the notice. When confirmed, mark it here to start the 24h clock.
+                          </span>
+                        </div>
+
+                        <button
+                          id="mark-notice-sent-btn"
+                          onClick={() => {
+                            setIsMarkingSent(true);
+                            const now = new Date();
+                            const pad = (n: number) => String(n).padStart(2, '0');
+                            const localNow = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+                            setMarkSentTime(localNow);
+                          }}
+                          className="min-h-[44px] px-4 py-2 bg-primary hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-sm flex items-center justify-center gap-1.5 transition-all active:scale-95 shrink-0"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">send</span>
+                          <span>Mark as sent</span>
+                        </button>
+                      </div>
+                    ) : (
+                      /* Form to capture sent timestamp & confirmed by */
+                      <form onSubmit={handleSaveMarkSent} className="p-3.5 rounded-xl bg-white dark:bg-neutral-800/90 border border-primary/30 space-y-3 animate-fadeIn">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-brand-black dark:text-white flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-sm text-primary">mark_email_read</span>
+                            Confirm Notice Sent
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setIsMarkingSent(false)}
+                            className="text-xs text-gray-400 hover:text-gray-600"
+                          >
+                            ✕
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
+                              Sent Date & Time *
+                            </label>
+                            <input
+                              type="datetime-local"
+                              required
+                              value={markSentTime}
+                              onChange={e => setMarkSentTime(e.target.value)}
+                              className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:border-primary"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
+                              Confirmed by (Name) *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="e.g. Maria (Management) / Jose"
+                              value={markConfirmedBy}
+                              onChange={e => setMarkConfirmedBy(e.target.value)}
+                              className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:border-primary"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => setIsMarkingSent(false)}
+                            disabled={noticeSaving}
+                            className="flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={noticeSaving}
+                            className="flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl bg-primary hover:bg-blue-600 text-white shadow-sm flex items-center justify-center gap-1.5 transition-all"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">check</span>
+                            <span>{noticeSaving ? 'Saving...' : 'Confirm Notice Sent'}</span>
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
                 )}
               </div>
-            </div>
+            )}
           </div>
-        ) : (
-          <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
-            No notice of entry drafted yet. Tenant entry requires 24h advance notice service.
-          </p>
-        )}
-      </div>
+        );
+      })()}
 
       {/* Exterior Work & Weather Outlook Card */}
       <div className="rounded-2xl p-4 border bg-gray-50/80 dark:bg-card-dark border-gray-200 dark:border-gray-800 space-y-3">
@@ -1194,20 +1427,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         </Modal>
       )}
 
-      {/* Draft Notice Modal */}
-      {isDraftNoticeOpen && (
-        <DraftNoticeModal
-          onClose={() => setIsDraftNoticeOpen(false)}
-          onSuccess={async () => {
-            setIsDraftNoticeOpen(false);
-            await loadTicketData();
-          }}
-          ticketId={ticket.id}
-          buildingId={ticket.buildingId}
-          unitId={ticket.unitId}
-          defaultTitle={`24-Hour Notice of Entry: ${ticket.title}`}
-        />
-      )}
+
     </div>
   );
 };

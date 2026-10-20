@@ -116,6 +116,9 @@ class Db
                 assigned_tech_id INTEGER NULL,
                 exterior_work INTEGER NOT NULL DEFAULT 0,
                 weather_note TEXT NULL,
+                notice_needed INTEGER NOT NULL DEFAULT 0,
+                notice_sent_at TEXT NULL,
+                notice_confirmed_by TEXT NULL,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             );
@@ -394,6 +397,18 @@ class Db
 
         try {
             $pdo->exec("ALTER TABLE ticket ADD COLUMN weather_note TEXT NULL");
+        } catch (\Throwable) {}
+
+        try {
+            $pdo->exec("ALTER TABLE ticket ADD COLUMN notice_needed INTEGER NOT NULL DEFAULT 0");
+        } catch (\Throwable) {}
+
+        try {
+            $pdo->exec("ALTER TABLE ticket ADD COLUMN notice_sent_at TEXT NULL");
+        } catch (\Throwable) {}
+
+        try {
+            $pdo->exec("ALTER TABLE ticket ADD COLUMN notice_confirmed_by TEXT NULL");
         } catch (\Throwable) {}
     }
 

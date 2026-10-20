@@ -163,6 +163,9 @@ export interface Ticket {
   createdByUserId?: string | null;
   exterior_work?: boolean;
   weather_note?: string | null;
+  notice_needed?: boolean;
+  notice_sent_at?: string | null;
+  notice_confirmed_by?: string | null;
   createdAt: string;
   updatedAt?: string;
 }

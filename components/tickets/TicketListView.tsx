@@ -11,14 +11,12 @@ import type { Ticket, TicketState } from '../../types/domain';
 interface TicketListViewProps {
   onBack?: () => void;
   initialSelectedTicketId?: string | null;
-  onOpenNotices?: () => void;
   onOpenWatches?: () => void;
 }
 
 export const TicketListView: React.FC<TicketListViewProps> = ({
   onBack,
   initialSelectedTicketId = null,
-  onOpenNotices,
   onOpenWatches,
 }) => {
   const fetchTickets = useCallback(() => apiClient.getTickets(), []);
@@ -141,16 +139,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5">
-          {onOpenNotices && (
-            <button
-              onClick={onOpenNotices}
-              className="px-2.5 py-1.5 rounded-xl bg-gray-100 dark:bg-card-dark text-text-main-light dark:text-text-main-dark hover:bg-gray-200 dark:hover:bg-neutral-800 text-xs font-bold flex items-center gap-1 border border-gray-200 dark:border-gray-800 transition-colors"
-              title="View 24h Notice of Entry Pipeline"
-            >
-              <span className="material-symbols-outlined text-[16px]">schedule</span>
-              24h Notices
-            </button>
-          )}
+
           {onOpenWatches && (
             <button
               id="open-watches-btn"

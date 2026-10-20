@@ -23,7 +23,7 @@ const PropertyDetailView = React.lazy(() => import('./properties/PropertyDetailV
 const ApplianceModule = React.lazy(() => import('./appliances/ApplianceModule'));
 const ProfileView = React.lazy(() => import('./profile/ProfileView'));
 const TicketListView = React.lazy(() => import('./tickets/TicketListView').then(m => ({ default: m.TicketListView })));
-const NoticePipelineView = React.lazy(() => import('./notices/NoticePipelineView').then(m => ({ default: m.NoticePipelineView })));
+
 const DayPlanView = React.lazy(() => import('./runsheets/DayPlanView').then(m => ({ default: m.DayPlanView })));
 const QuickLogWidget = React.lazy(() => import('./jobs/QuickLogWidget'));
 const PartsView = React.lazy(() => import('./parts/PartsView'));
@@ -199,7 +199,6 @@ const Router: React.FC<RouterProps> = ({
         <TicketListView
           onBack={() => setActiveView(ViewType.PROPERTIES)}
           initialSelectedTicketId={selectedTicketId}
-          onOpenNotices={() => setActiveView(ViewType.NOTICES)}
           onOpenWatches={() => setActiveView(ViewType.WATCHES)}
         />
       );
@@ -245,13 +244,12 @@ const Router: React.FC<RouterProps> = ({
       );
 
     case ViewType.NOTICES:
+      // Notice Pipeline retired per Batch A-revised: redirected to Tickets
       return (
-        <NoticePipelineView
+        <TicketListView
           onBack={() => setActiveView(ViewType.PROPERTIES)}
-          onOpenTicket={(ticketId) => {
-            setSelectedTicketId(ticketId);
-            setActiveView(ViewType.TICKETS);
-          }}
+          initialSelectedTicketId={selectedTicketId}
+          onOpenWatches={() => setActiveView(ViewType.WATCHES)}
         />
       );
 
