@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Db;
 use App\Models\Correction;
 use App\Models\Notice;
+use App\Models\Ticket;
 use App\Models\Watch;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -128,6 +129,7 @@ class WatchEngine
         return match ($watchType) {
             'notice_deadline' => self::evaluateNoticeDeadline($watch, $now),
             'notice_handoff' => self::evaluateNoticeHandoff($watch, $now),
+            'weather_manual' => self::evaluateWeatherManual($watch, $now),
             'weather_freeze' => self::evaluateWeatherFreeze($watch, $now, $options),
             'reply_waiting' => self::evaluateReplyWaiting($watch, $now),
             'scheduled_task' => self::evaluateScheduledTask($watch, $now),
@@ -175,6 +177,44 @@ class WatchEngine
         }
 
         return ['should_trigger' => false, 'reason' => 'Notice is not in handed_off status', 'data' => []];
+    }
+
+    /**
+     * Manual Weather Watch: Active while exterior_work is true and weather_note is non-empty.
+     * Auto-resolves if exterior_work is turned off or weather_note is cleared.
+     */
+    private static function evaluateWeatherManual(array $watch, DateTimeImmutable $now): array
+    {
+        $ticketId = !empty($watch['target_id']) ? (int) $watch['target_id'] : (int) ($watch['config']['ticket_id'] ?? 0);
+        if ($ticketId <= 0) {
+            return ['should_trigger' => false, 'reason' => 'No target ticket specified', 'data' => []];
+        }
+
+        $ticket = Ticket::findById($ticketId);
+        if ($ticket === null) {
+            return ['should_trigger' => false, 'reason' => "Ticket #{$ticketId} not found", 'data' => []];
+        }
+
+        if (empty($ticket['exterior_work']) || empty(trim((string) ($ticket['weather_note'] ?? '')))) {
+            Watch::resolve((int) $watch['id'], null);
+            return [
+                'should_trigger' => false,
+                'reason' => "Ticket #{$ticketId} exterior work toggled off or note cleared. Watch dismissed.",
+                'data' => $ticket,
+            ];
+        }
+
+        return [
+            'should_trigger' => true,
+            'reason' => 'Exterior work outlook: ' . trim((string) $ticket['weather_note']),
+            'data' => [
+                'ticket_id' => $ticketId,
+                'wo_number' => $ticket['wo_number'] ?? null,
+                'building_name' => $ticket['building_name'] ?? null,
+                'unit_number' => $ticket['unit_number'] ?? null,
+                'weather_note' => $ticket['weather_note'],
+            ],
+        ];
     }
 
     /**

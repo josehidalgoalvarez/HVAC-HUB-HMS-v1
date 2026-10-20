@@ -228,13 +228,15 @@ class Ticket
         $assignedTechId = !empty($data['assigned_tech_id']) ? (int) $data['assigned_tech_id'] : null;
         $createdByUserId = $userId ?? (!empty($data['created_by_user_id']) ? (int) $data['created_by_user_id'] : null);
         $lastSeenInYardi = !empty($data['last_seen_in_yardi']) ? (string) $data['last_seen_in_yardi'] : null;
+        $exteriorWork = !empty($data['exterior_work']) ? 1 : 0;
+        $weatherNote = isset($data['weather_note']) ? (string) $data['weather_note'] : null;
 
         $sql = 'INSERT INTO ticket (
                     wo_number, parent_ticket_id, building_id, unit_id, 
                     title, description, verbatim_text, verified_scope, photo_url,
                     status, priority, blocker_reason, last_seen_in_yardi,
-                    created_by_user_id, assigned_tech_id, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
+                    created_by_user_id, assigned_tech_id, exterior_work, weather_note, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
 
         Db::execute($sql, [
             $woNumber,
@@ -252,6 +254,8 @@ class Ticket
             $lastSeenInYardi,
             $createdByUserId,
             $assignedTechId,
+            $exteriorWork,
+            $weatherNote,
         ]);
 
         $newId = (int) Db::lastInsertId();
@@ -329,6 +333,8 @@ class Ticket
             'blocker_reason',
             'last_seen_in_yardi',
             'assigned_tech_id',
+            'exterior_work',
+            'weather_note',
         ];
 
         $fieldsToUpdate = [];
@@ -345,6 +351,12 @@ class Ticket
             // Normalize nulls and empty strings for string fields
             if ($field === 'wo_number' && $newVal === '') {
                 $newVal = null;
+            }
+            if ($field === 'weather_note' && $newVal === '') {
+                $newVal = null;
+            }
+            if ($field === 'exterior_work') {
+                $newVal = !empty($newVal) ? 1 : 0;
             }
 
             // Compare as strings
@@ -461,6 +473,8 @@ class Ticket
 
         $row['is_stale_yardi'] = $isStale;
         $row['yardi_warning'] = $warning;
+        $row['exterior_work'] = (bool) ($row['exterior_work'] ?? 0);
+        $row['weather_note'] = $row['weather_note'] ?? null;
 
         return $row;
     }

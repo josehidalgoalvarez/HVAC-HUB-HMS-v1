@@ -29,6 +29,12 @@ export const WatchCard: React.FC<WatchCardProps> = ({
           icon: 'ac_unit',
           bg: 'bg-slate-800 text-slate-300 border-slate-700',
         };
+      case 'weather_manual':
+        return {
+          label: 'Weather Outlook',
+          icon: 'partly_cloudy_day',
+          bg: 'bg-sky-950/60 text-sky-300 border-sky-800',
+        };
       case 'notice_deadline':
         return {
           label: 'Notice Deadline',
@@ -143,6 +149,41 @@ export const WatchCard: React.FC<WatchCardProps> = ({
           <span className="font-mono text-slate-300 bg-slate-800/80 px-2 py-0.5 rounded">
             {watch.target_type} #{watch.target_id}
           </span>
+        </div>
+      )}
+
+      {/* Manual Weather Outlook Card Box */}
+      {watch.watch_type === 'weather_manual' && (
+        <div className="mt-2 mb-3 p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-200">
+          <div className="flex items-start gap-2.5">
+            <span className="material-symbols-outlined text-sky-400 text-base leading-none shrink-0 mt-0.5">partly_cloudy_day</span>
+            <div className="flex-1 text-xs space-y-1">
+              <div className="flex items-center justify-between gap-1">
+                <span className="font-bold text-white text-[13px] truncate">
+                  {watch.config?.building_name || watch.latest_trigger_data?.building_name ? (
+                    <>
+                      {watch.config?.building_name || watch.latest_trigger_data?.building_name}
+                      {(watch.config?.unit_number || watch.latest_trigger_data?.unit_number) && (
+                        <span className="text-sky-300 font-normal ml-1">
+                          • Unit {watch.config?.unit_number || watch.latest_trigger_data?.unit_number}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span>Ticket #{watch.target_id} Exterior Work</span>
+                  )}
+                </span>
+                {(watch.config?.wo_number || watch.latest_trigger_data?.wo_number) && (
+                  <span className="font-mono text-[10px] bg-sky-950/80 border border-sky-800/60 px-1.5 py-0.5 rounded text-sky-300 shrink-0">
+                    WO: {watch.config?.wo_number || watch.latest_trigger_data?.wo_number}
+                  </span>
+                )}
+              </div>
+              <p className="text-sky-100 text-xs italic font-medium leading-relaxed">
+                "{watch.description || watch.config?.weather_note || watch.latest_trigger_data?.weather_note || 'Exterior weather planning note'}"
+              </p>
+            </div>
+          </div>
         </div>
       )}
 

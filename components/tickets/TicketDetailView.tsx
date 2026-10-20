@@ -3,7 +3,7 @@ import { apiClient } from '../../src/api/client';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { DraftNoticeModal } from '../notices/DraftNoticeModal';
-import type { Ticket, TicketState, TicketPriority, Correction, Notice, NoticeStatus } from '../../types/domain';
+import type { Ticket, TicketState, TicketPriority, Correction, Notice, NoticeStatus, WatchRecord } from '../../types/domain';
 
 interface TicketDetailViewProps {
   ticketId: string;
@@ -21,6 +21,13 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Exterior Work & Weather Outlook State
+  const [isExterior, setIsExterior] = useState(false);
+  const [weatherNote, setWeatherNote] = useState('');
+  const [weatherWatch, setWeatherWatch] = useState<WatchRecord | null>(null);
+  const [savingWeather, setSavingWeather] = useState(false);
+  const [weatherFeedback, setWeatherFeedback] = useState<string | null>(null);
+
   // Edit Modal State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editTitle, setEditTitle] = useState('');
@@ -29,6 +36,8 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   const [editState, setEditState] = useState<TicketState>('new');
   const [editScope, setEditScope] = useState('');
   const [editBlocker, setEditBlocker] = useState('');
+  const [editExterior, setEditExterior] = useState(false);
+  const [editWeatherNote, setEditWeatherNote] = useState('');
   const [editReason, setEditReason] = useState('');
   const [editSaving, setEditSaving] = useState(false);
 
@@ -67,12 +76,17 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     try {
       setLoading(true);
       setError(null);
-      const [tData, cData] = await Promise.all([
+      const [tData, cData, watchesData] = await Promise.all([
         apiClient.getTicket(ticketId),
         apiClient.getTicketCorrections(ticketId),
+        apiClient.getWatches({ target_type: 'ticket', target_id: ticketId, watch_type: 'weather_manual' }).catch(() => [] as WatchRecord[]),
       ]);
       setTicket(tData);
       setCorrections(cData || []);
+      const activeWatch = watchesData?.find((w: WatchRecord) => w.state !== 'resolved') || null;
+      setWeatherWatch(activeWatch);
+      setIsExterior(!!tData?.exterior_work);
+      setWeatherNote(tData?.weather_note || '');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to load ticket details';
       setError(msg);
@@ -85,6 +99,128 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     loadTicketData();
   }, [ticketId]);
 
+  const handleToggleExterior = async (newVal: boolean) => {
+    setIsExterior(newVal);
+    setSavingWeather(true);
+    try {
+      if (!newVal) {
+        // Toggled OFF: dismiss active watch and clear weather_note
+        if (weatherWatch && weatherWatch.state !== 'resolved') {
+          await apiClient.resolveWatch(weatherWatch.id).catch(() => {});
+          setWeatherWatch(null);
+        }
+        const updated = await apiClient.updateTicket(ticketId, {
+          exterior_work: false,
+          weather_note: null,
+          reason: 'Toggled exterior work off — dismissed weather watch',
+        });
+        setTicket(updated);
+        setWeatherNote('');
+        setWeatherFeedback('Exterior work toggled off • Weather watch dismissed');
+      } else {
+        // Toggled ON
+        const updated = await apiClient.updateTicket(ticketId, {
+          exterior_work: true,
+          reason: 'Toggled exterior work on',
+        });
+        setTicket(updated);
+        setWeatherFeedback('Exterior work enabled. Add a week outlook note to raise a watch.');
+      }
+      setTimeout(() => setWeatherFeedback(null), 3500);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to update exterior work status');
+    } finally {
+      setSavingWeather(false);
+    }
+  };
+
+  const handleSaveWeatherNote = async (noteToSave?: string) => {
+    const text = (noteToSave !== undefined ? noteToSave : weatherNote).trim();
+    if (!text) {
+      await handleClearWeatherNote();
+      return;
+    }
+
+    setSavingWeather(true);
+    try {
+      // 1. Update ticket
+      const updated = await apiClient.updateTicket(ticketId, {
+        exterior_work: true,
+        weather_note: text,
+        reason: 'Updated exterior weather outlook note',
+      });
+      setTicket(updated);
+      setIsExterior(true);
+
+      // 2. Create or update watch
+      let activeWatch = weatherWatch;
+      if (!activeWatch || activeWatch.state === 'resolved') {
+        const title = `Weather: ${updated.building_name || 'Building'}${updated.unit_number ? ' #' + updated.unit_number : ''} (WO: ${updated.wo_number || '#' + updated.id})`;
+        const newWatch = await apiClient.createWatch({
+          watch_type: 'weather_manual',
+          title,
+          description: text,
+          target_type: 'ticket',
+          target_id: Number(ticketId),
+          state: 'triggered',
+          config: {
+            ticket_id: Number(ticketId),
+            wo_number: updated.wo_number,
+            building_name: updated.building_name,
+            unit_number: updated.unit_number,
+            weather_note: text,
+          },
+        });
+        setWeatherWatch(newWatch);
+      } else {
+        const updatedWatch = await apiClient.updateWatch(activeWatch.id, {
+          description: text,
+          state: 'triggered',
+          latest_trigger_reason: `Exterior work outlook: ${text}`,
+          config: {
+            ...(activeWatch.config || {}),
+            ticket_id: Number(ticketId),
+            wo_number: updated.wo_number,
+            building_name: updated.building_name,
+            unit_number: updated.unit_number,
+            weather_note: text,
+          },
+          reason: 'Updated weather outlook note',
+        });
+        setWeatherWatch(updatedWatch);
+      }
+
+      setWeatherFeedback('Outlook saved • Active watch card in Watches section');
+      setTimeout(() => setWeatherFeedback(null), 3500);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to save weather outlook');
+    } finally {
+      setSavingWeather(false);
+    }
+  };
+
+  const handleClearWeatherNote = async () => {
+    setSavingWeather(true);
+    try {
+      if (weatherWatch && weatherWatch.state !== 'resolved') {
+        await apiClient.resolveWatch(weatherWatch.id).catch(() => {});
+        setWeatherWatch(null);
+      }
+      const updated = await apiClient.updateTicket(ticketId, {
+        weather_note: null,
+        reason: 'Cleared weather outlook note — watch dismissed',
+      });
+      setTicket(updated);
+      setWeatherNote('');
+      setWeatherFeedback('Outlook note cleared • Weather watch dismissed');
+      setTimeout(() => setWeatherFeedback(null), 3500);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to clear weather note');
+    } finally {
+      setSavingWeather(false);
+    }
+  };
+
   const openEditModal = () => {
     if (!ticket) return;
     setEditTitle(ticket.title || '');
@@ -93,6 +229,8 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     setEditState((ticket.status || ticket.state || 'new') as TicketState);
     setEditScope(ticket.verified_scope || '');
     setEditBlocker(ticket.blocker_reason || '');
+    setEditExterior(!!ticket.exterior_work);
+    setEditWeatherNote(ticket.weather_note || '');
     setEditReason('');
     setIsEditModalOpen(true);
   };
@@ -109,11 +247,60 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         status: editState,
         verified_scope: editScope.trim() || null,
         blocker_reason: editState === 'blocked' ? editBlocker.trim() : null,
+        exterior_work: editExterior,
+        weather_note: editExterior ? (editWeatherNote.trim() || null) : null,
         reason: editReason.trim() || 'Updated ticket details',
       };
 
       const updated = await apiClient.updateTicket(ticket.id, payload);
       setTicket(updated);
+
+      // Sync weather watch if needed
+      if (!editExterior || !editWeatherNote.trim()) {
+        if (weatherWatch && weatherWatch.state !== 'resolved') {
+          await apiClient.resolveWatch(weatherWatch.id).catch(() => {});
+          setWeatherWatch(null);
+        }
+      } else if (editExterior && editWeatherNote.trim()) {
+        if (!weatherWatch || weatherWatch.state === 'resolved') {
+          const title = `Weather: ${updated.building_name || 'Building'}${updated.unit_number ? ' #' + updated.unit_number : ''} (WO: ${updated.wo_number || '#' + updated.id})`;
+          const newW = await apiClient.createWatch({
+            watch_type: 'weather_manual',
+            title,
+            description: editWeatherNote.trim(),
+            target_type: 'ticket',
+            target_id: Number(ticket.id),
+            state: 'triggered',
+            config: {
+              ticket_id: Number(ticket.id),
+              wo_number: updated.wo_number,
+              building_name: updated.building_name,
+              unit_number: updated.unit_number,
+              weather_note: editWeatherNote.trim(),
+            },
+          }).catch(() => null);
+          if (newW) setWeatherWatch(newW);
+        } else {
+          const updatedW = await apiClient.updateWatch(weatherWatch.id, {
+            description: editWeatherNote.trim(),
+            state: 'triggered',
+            latest_trigger_reason: `Exterior work outlook: ${editWeatherNote.trim()}`,
+            config: {
+              ...(weatherWatch.config || {}),
+              ticket_id: Number(ticket.id),
+              wo_number: updated.wo_number,
+              building_name: updated.building_name,
+              unit_number: updated.unit_number,
+              weather_note: editWeatherNote.trim(),
+            },
+            reason: 'Updated weather outlook note',
+          }).catch(() => null);
+          if (updatedW) setWeatherWatch(updatedW);
+        }
+      }
+      setIsExterior(editExterior);
+      setWeatherNote(editExterior ? editWeatherNote.trim() : '');
+
       setIsEditModalOpen(false);
 
       // Refresh correction history
@@ -370,6 +557,134 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
             No notice of entry drafted yet. Tenant entry requires 24h advance notice service.
           </p>
+        )}
+      </div>
+
+      {/* Exterior Work & Weather Outlook Card */}
+      <div className="rounded-2xl p-4 border bg-gray-50/80 dark:bg-card-dark border-gray-200 dark:border-gray-800 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-base text-sky-500">
+              {isExterior ? 'partly_cloudy_day' : 'roofing'}
+            </span>
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark block">
+                Exterior Work & Rain Planning
+              </span>
+              <span className="text-[11px] text-gray-500">
+                {isExterior ? 'Outdoor work requiring dry weather window' : 'Indoor job — no weather watch needed'}
+              </span>
+            </div>
+          </div>
+
+          {/* Exterior Work Toggle */}
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isExterior}
+            onClick={() => handleToggleExterior(!isExterior)}
+            disabled={savingWeather}
+            className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+              isExterior ? 'bg-sky-500' : 'bg-gray-300 dark:bg-gray-700'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                isExterior ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
+
+        {weatherFeedback && (
+          <div className="p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-700 dark:text-sky-300 text-xs flex items-center gap-1.5 animate-fadeIn">
+            <span className="material-symbols-outlined text-sm leading-none text-sky-500">info</span>
+            <span>{weatherFeedback}</span>
+          </div>
+        )}
+
+        {/* When Exterior is ON: show week outlook text input */}
+        {isExterior && (
+          <div className="space-y-3 pt-2 border-t border-gray-200 dark:border-gray-800 animate-fadeIn">
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-brand-black dark:text-white flex items-center gap-1">
+                  <span>Week Outlook</span>
+                  {weatherWatch && weatherWatch.state !== 'resolved' && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/30">
+                      Watch Active
+                    </span>
+                  )}
+                </label>
+                {weatherWatch && weatherWatch.state !== 'resolved' && (
+                  <button
+                    type="button"
+                    onClick={handleClearWeatherNote}
+                    disabled={savingWeather}
+                    className="text-[11px] text-rose-500 hover:text-rose-600 font-medium hover:underline flex items-center gap-0.5"
+                  >
+                    <span className="material-symbols-outlined text-[13px]">delete</span>
+                    Dismiss Watch
+                  </button>
+                )}
+              </div>
+
+              <input
+                type="text"
+                value={weatherNote}
+                onChange={(e) => setWeatherNote(e.target.value)}
+                placeholder='e.g. "might rain Wed–Thu", "ideal: Mon–Tue"'
+                className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-brand-black dark:text-white text-xs sm:text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+              />
+            </div>
+
+            {/* Quick-pick Outlook Chips for field techs */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] text-gray-400 mr-1">Quick pick:</span>
+              {[
+                'might rain Wed–Thu',
+                'ideal: Mon–Tue',
+                'Dry window: Fri afternoon',
+                'Avoid rain Mon, re-check Tue',
+              ].map((chip) => (
+                <button
+                  key={chip}
+                  type="button"
+                  onClick={() => {
+                    setWeatherNote(chip);
+                    handleSaveWeatherNote(chip);
+                  }}
+                  disabled={savingWeather}
+                  className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-sky-400 hover:text-sky-500 transition-all active:scale-95"
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+
+            {/* Save / Update Button */}
+            <div className="flex items-center justify-end gap-2 pt-1">
+              {weatherNote && (
+                <button
+                  type="button"
+                  onClick={handleClearWeatherNote}
+                  disabled={savingWeather}
+                  className="min-h-[44px] px-3.5 py-2 text-xs font-medium text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                >
+                  Clear Note
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => handleSaveWeatherNote()}
+                disabled={savingWeather || !weatherNote.trim()}
+                className="min-h-[44px] px-4 py-2 text-xs font-bold rounded-xl bg-sky-500 hover:bg-sky-600 text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 active:scale-95 transition-all"
+              >
+                <span className="material-symbols-outlined text-[15px]">cloud_done</span>
+                <span>{savingWeather ? 'Saving...' : weatherWatch && weatherWatch.state !== 'resolved' ? 'Update Outlook' : 'Save Outlook & Raise Watch'}</span>
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
@@ -709,6 +1024,36 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 rows={2}
                 className="w-full px-3 py-2 text-sm rounded-xl border border-primary/40 bg-primary/5 dark:bg-primary/10"
               />
+            </div>
+
+            {/* Exterior Work & Weather Outlook in Edit Modal */}
+            <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 space-y-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={editExterior}
+                  onChange={(e) => setEditExterior(e.target.checked)}
+                  className="rounded text-sky-500 focus:ring-sky-400 w-4 h-4"
+                />
+                <span className="text-xs font-bold text-brand-black dark:text-white">
+                  Exterior Work (Requires dry weather window)
+                </span>
+              </label>
+
+              {editExterior && (
+                <div>
+                  <label className="block text-[11px] font-semibold text-gray-500 mb-1">
+                    Week Outlook Note
+                  </label>
+                  <input
+                    type="text"
+                    value={editWeatherNote}
+                    onChange={(e) => setEditWeatherNote(e.target.value)}
+                    placeholder='e.g. "might rain Wed–Thu", "ideal: Mon–Tue"'
+                    className="w-full px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900"
+                  />
+                </div>
+              )}
             </div>
 
             {/* MANDATORY REASON FOR EDIT */}

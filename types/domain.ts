@@ -161,6 +161,8 @@ export interface Ticket {
   notice_status?: NoticeStatus | null;
   notice_gate_status?: NoticeGateStatus | null;
   createdByUserId?: string | null;
+  exterior_work?: boolean;
+  weather_note?: string | null;
   createdAt: string;
   updatedAt?: string;
 }
@@ -564,7 +566,7 @@ export interface OutboxItem {
 }
 
 // --- Proactive Watch Engine (Phase 6) ---
-export type WatchType = 'notice_deadline' | 'notice_handoff' | 'reply_waiting' | 'weather_freeze' | 'scheduled_task';
+export type WatchType = 'notice_deadline' | 'notice_handoff' | 'reply_waiting' | 'weather_freeze' | 'scheduled_task' | 'weather_manual';
 export type WatchState = 'active' | 'triggered' | 'acknowledged' | 'snoozed' | 'resolved';
 
 export interface WatchRecord {
