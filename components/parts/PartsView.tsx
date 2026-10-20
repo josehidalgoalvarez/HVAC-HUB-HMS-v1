@@ -5,7 +5,8 @@ import { PullToRefresh } from '../common/PullToRefresh';
 import { PartSearchSection } from './PartSearchSection';
 import { ShoppingListSection } from './ShoppingListSection';
 import { SupplierDirectorySection } from './SupplierDirectorySection';
-import { LogPartUseModal } from './LogPartUseModal';
+import { LogPartUseModal, type LogPartUseResult } from './LogPartUseModal';
+import { AddPartModal } from './AddPartModal';
 import { SEED_PARTS, SEED_STOCKPILES, SEED_SUPPLIERS } from './partsSeedData';
 import type { PartRecord, Stockpile, SupplierRecord } from '../../types/domain';
 
@@ -21,11 +22,12 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
   const [stockpiles, setStockpiles] = useState<Stockpile[]>(SEED_STOCKPILES);
   const [suppliers, setSuppliers] = useState<SupplierRecord[]>(SEED_SUPPLIERS);
   const [loading, setLoading] = useState(false);
-  const [isUpdated, setIsUpdated] = useState(false);
   const [flashMsg, setFlashMsg] = useState<{ text: string; type: 'success' | 'warning' } | null>(null);
 
   // Modal state
   const [activePartForUsage, setActivePartForUsage] = useState<PartRecord | null>(null);
+  const [initialPartUsageMode, setInitialPartUsageMode] = useState<'use' | 'restock'>('use');
+  const [isAddPartOpen, setIsAddPartOpen] = useState(false);
 
   const loadPartsData = async () => {
     try {
@@ -78,15 +80,43 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
     return () => window.removeEventListener('hvachome:refresh', handleGlobalRefresh);
   }, []);
 
-  const handleUsePartSuccess = async (payload: any) => {
+  const handleUsePartSuccess = async (payload: LogPartUseResult) => {
     if (!activePartForUsage) return;
 
     try {
+      if (payload.mode === 'restock') {
+        const newQty = (activePartForUsage.quantity_on_hand || 0) + payload.quantity;
+        const updatedPart = await apiClient.updatePart(
+          activePartForUsage.id,
+          {
+            quantity_on_hand: newQty,
+            stockpile_id: payload.stockpile_id,
+            is_reorder: newQty <= activePartForUsage.reorder_point,
+          },
+          payload.reason || 'Restocked parts stash'
+        );
+
+        setParts(prev =>
+          prev.map(p => (p.id === activePartForUsage.id ? updatedPart : p))
+        );
+        appCache.set('parts', parts.map(p => (p.id === activePartForUsage.id ? updatedPart : p)));
+
+        setActivePartForUsage(null);
+        setFlashMsg({
+          text: `Added ${payload.quantity} units to stash. New stock: ${updatedPart.quantity_on_hand} pcs`,
+          type: 'success',
+        });
+        setTimeout(() => setFlashMsg(null), 5000);
+        return;
+      }
+
+      // Default: consume/use part
       const result = await apiClient.usePart(activePartForUsage.id, payload);
       // Update local state
       setParts(prev =>
         prev.map(p => (p.id === activePartForUsage.id ? (result.part || { ...p, quantity_on_hand: result.new_quantity, is_reorder: result.is_reorder }) : p))
       );
+      appCache.set('parts', parts.map(p => (p.id === activePartForUsage.id ? (result.part || { ...p, quantity_on_hand: result.new_quantity, is_reorder: result.is_reorder }) : p)));
 
       setActivePartForUsage(null);
       if (result.is_reorder) {
@@ -102,8 +132,19 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
       }
       setTimeout(() => setFlashMsg(null), 5000);
     } catch (err: any) {
-      alert(err.message || 'Failed to record part usage');
+      alert(err.message || 'Failed to update part in stash');
     }
+  };
+
+  const handleAddPartSuccess = (newPart: PartRecord) => {
+    setParts(prev => [newPart, ...prev]);
+    appCache.set('parts', [newPart, ...parts]);
+    setIsAddPartOpen(false);
+    setFlashMsg({
+      text: `Part "${newPart.name}" added to stash successfully!`,
+      type: 'success',
+    });
+    setTimeout(() => setFlashMsg(null), 5000);
   };
 
   return (
@@ -129,14 +170,26 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
           </div>
         </div>
 
-        <button
-          onClick={loadPartsData}
-          disabled={loading}
-          className="w-9 h-9 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
-          title="Refresh Catalog"
-        >
-          <span className={`material-symbols-outlined text-[18px] ${loading ? 'animate-spin' : ''}`}>sync</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            id="add-part-btn"
+            onClick={() => setIsAddPartOpen(true)}
+            className="min-h-[44px] px-3.5 py-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+            title="Add Part to Stash"
+          >
+            <span className="material-symbols-outlined text-[18px]">add</span>
+            <span>Add Part</span>
+          </button>
+
+          <button
+            onClick={loadPartsData}
+            disabled={loading}
+            className="w-11 h-11 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+            title="Refresh Catalog"
+          >
+            <span className={`material-symbols-outlined text-[18px] ${loading ? 'animate-spin' : ''}`}>sync</span>
+          </button>
+        </div>
       </div>
 
       {/* Flash Alert Message */}
@@ -160,7 +213,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
         <button
           id="parts-tab-search"
           onClick={() => setActiveTab('search')}
-          className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
             activeTab === 'search'
               ? 'bg-white dark:bg-card-dark text-primary shadow-xs'
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
@@ -173,7 +226,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
         <button
           id="parts-tab-shopping"
           onClick={() => setActiveTab('shopping')}
-          className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
             activeTab === 'shopping'
               ? 'bg-white dark:bg-card-dark text-primary shadow-xs'
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
@@ -186,7 +239,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
         <button
           id="parts-tab-suppliers"
           onClick={() => setActiveTab('suppliers')}
-          className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
             activeTab === 'suppliers'
               ? 'bg-white dark:bg-card-dark text-primary shadow-xs'
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
@@ -204,7 +257,15 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
             parts={parts}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
-            onLogUse={part => setActivePartForUsage(part)}
+            onLogUse={part => {
+              setActivePartForUsage(part);
+              setInitialPartUsageMode('use');
+            }}
+            onRestock={part => {
+              setActivePartForUsage(part);
+              setInitialPartUsageMode('restock');
+            }}
+            onAddPart={() => setIsAddPartOpen(true)}
           />
         )}
 
@@ -217,15 +278,24 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
         )}
       </PullToRefresh>
 
-      {/* Log Part Use Modal */}
+      {/* Log Part Use / Restock Modal */}
       {activePartForUsage && (
         <LogPartUseModal
           part={activePartForUsage}
           stockpiles={stockpiles}
+          initialMode={initialPartUsageMode}
           onClose={() => setActivePartForUsage(null)}
           onSuccess={handleUsePartSuccess}
         />
       )}
+
+      {/* Add Part Modal */}
+      <AddPartModal
+        isOpen={isAddPartOpen}
+        stockpiles={stockpiles}
+        onClose={() => setIsAddPartOpen(false)}
+        onSuccess={handleAddPartSuccess}
+      />
     </div>
   );
 };

@@ -50,13 +50,23 @@ class PartController
 
     /**
      * POST /api/parts
-     * Create new catalog part.
+     * Create new catalog part in stash.
+     * Writable by both technician and management roles.
      */
     public function create(Request $request, Response $response): Response
     {
         $body = $request->getParsedBody() ?? [];
+        $user = $request->getAttribute('user');
+
+        // Both technician and management roles are authorized to create parts / write to stash
+        if ($user && !in_array($user['role'] ?? '', [Auth::ROLE_TECH, Auth::ROLE_MANAGEMENT], true)) {
+            return Auth::jsonError('forbidden', "Access denied for role '{$user['role']}'. Technician or management role required.", 403);
+        }
 
         try {
+            if ($user && !empty($user['id'])) {
+                $body['user_id'] = (int) $user['id'];
+            }
             $part = Part::create($body);
             return Auth::jsonSuccess($part, 201);
         } catch (Throwable $e) {
@@ -83,6 +93,7 @@ class PartController
     /**
      * PATCH /api/parts/{id}
      * Modify part fields with append-only correction audit.
+     * Writable by technician and management roles.
      */
     public function update(Request $request, Response $response, array $args): Response
     {
@@ -90,6 +101,10 @@ class PartController
         $body = $request->getParsedBody() ?? [];
 
         $user = $request->getAttribute('user');
+        if ($user && !in_array($user['role'] ?? '', [Auth::ROLE_TECH, Auth::ROLE_MANAGEMENT], true)) {
+            return Auth::jsonError('forbidden', "Access denied for role '{$user['role']}'. Technician or management role required.", 403);
+        }
+
         $userId = $user['id'] ?? null;
         $reason = $body['reason'] ?? null;
 
@@ -108,18 +123,22 @@ class PartController
      * - Logs usage in job_part
      * - Writes append-only correction row
      * - Flags 'reorder' when dropping to/below reorder point
+     * Writable by technician and management roles.
      */
     public function usePart(Request $request, Response $response, array $args): Response
     {
         $id = (int) ($args['id'] ?? 0);
         $body = $request->getParsedBody() ?? [];
 
+        $user = $request->getAttribute('user');
+        if ($user && !in_array($user['role'] ?? '', [Auth::ROLE_TECH, Auth::ROLE_MANAGEMENT], true)) {
+            return Auth::jsonError('forbidden', "Access denied for role '{$user['role']}'. Technician or management role required.", 403);
+        }
+
         $quantity = isset($body['quantity']) ? (int) $body['quantity'] : 1;
         $jobId = !empty($body['job_id']) ? (int) $body['job_id'] : null;
         $stockpileId = !empty($body['stockpile_id']) ? (int) $body['stockpile_id'] : null;
         $reason = $body['reason'] ?? null;
-
-        $user = $request->getAttribute('user');
         $userId = $user['id'] ?? null;
 
         try {

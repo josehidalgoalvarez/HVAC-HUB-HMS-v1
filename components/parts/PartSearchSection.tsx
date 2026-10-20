@@ -6,6 +6,8 @@ interface PartSearchSectionProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onLogUse: (part: PartRecord) => void;
+  onRestock?: (part: PartRecord) => void;
+  onAddPart?: () => void;
 }
 
 export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
@@ -13,6 +15,8 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
   searchQuery,
   onSearchChange,
   onLogUse,
+  onRestock,
+  onAddPart,
 }) => {
   const [filter, setFilter] = useState<'all' | 'reorder' | 'available'>('all');
   const [expandedPriceHistoryId, setExpandedPriceHistoryId] = useState<number | null>(null);
@@ -102,12 +106,21 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
 
       {/* Parts List */}
       {filteredParts.length === 0 ? (
-        <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-2">
+        <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3 bg-white/50 dark:bg-card-dark/50">
           <span className="material-symbols-outlined text-4xl text-gray-300">inventory_2</span>
           <p className="text-base font-bold text-gray-700 dark:text-gray-300">No matching parts found</p>
           <p className="text-xs text-gray-400 max-w-xs mx-auto">
-            Try searching by part number (e.g. WB24T10025, M376) or appliance model.
+            Try searching by part number (e.g. WB24T10025, M376) or appliance model, or add this part to the stash.
           </p>
+          {onAddPart && (
+            <button
+              onClick={onAddPart}
+              className="min-h-[44px] px-4 py-2 mt-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+            >
+              <span className="material-symbols-outlined text-[16px]">add</span>
+              <span>Add New Part to Stash</span>
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid gap-4 pb-8">
@@ -254,13 +267,24 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                     Unit Cost: <span className="text-base font-extrabold text-brand-black dark:text-white">${part.unit_cost?.toFixed(2) || '42.50'}</span>
                   </div>
 
-                  <button
-                    onClick={() => onLogUse(part)}
-                    className="min-h-[44px] px-5 py-2.5 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">build</span>
-                    <span>Log Use on Job</span>
-                  </button>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      onClick={() => onRestock ? onRestock(part) : onLogUse(part)}
+                      className="min-h-[44px] px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 hover:border-primary text-brand-black dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                      title="Add units of this part to stash"
+                    >
+                      <span className="material-symbols-outlined text-[16px] text-primary">add_box</span>
+                      <span>+ Restock</span>
+                    </button>
+
+                    <button
+                      onClick={() => onLogUse(part)}
+                      className="min-h-[44px] px-4 py-2.5 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">build</span>
+                      <span>Log Use</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             );
