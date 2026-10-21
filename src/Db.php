@@ -410,6 +410,24 @@ class Db
         try {
             $pdo->exec("ALTER TABLE ticket ADD COLUMN notice_confirmed_by TEXT NULL");
         } catch (\Throwable) {}
+
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS complex (
+                id TEXT PRIMARY KEY,
+                code TEXT NOT NULL,
+                name TEXT NOT NULL,
+                description TEXT NULL,
+                address TEXT NULL,
+                building_count INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+        ");
+
+        try { $pdo->exec("ALTER TABLE building ADD COLUMN complex_id TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE building ADD COLUMN cluster_id TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE building ADD COLUMN status TEXT NOT NULL DEFAULT 'active'"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE building ADD COLUMN is_3d_ready INTEGER NOT NULL DEFAULT 0"); } catch (\Throwable) {}
     }
 
     /**

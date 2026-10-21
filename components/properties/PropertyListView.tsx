@@ -45,6 +45,41 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     return matchName && matchAddress;
   });
 
+  // Complex order map for consistent display
+  const COMPLEX_ORDER = [
+    'complex-bd',
+    'complex-amherst',
+    'complex-princess',
+    'complex-victoria',
+    'complex-alfred',
+    'complex-frontenac',
+    'complex-elm',
+    'complex-manitou',
+    'complex-singles',
+    'complex-office'
+  ];
+
+  const groupedProperties = React.useMemo(() => {
+    const map = new Map<string, { complexId: string; name: string; properties: typeof properties }>();
+    for (const p of filteredProperties) {
+      const cId = p.complexId || 'other';
+      const cName = p.complexName || (cId === 'other' ? 'Other Properties' : cId);
+      if (!map.has(cId)) {
+        map.set(cId, { complexId: cId, name: cName, properties: [] });
+      }
+      map.get(cId)!.properties.push(p);
+    }
+
+    return Array.from(map.values()).sort((a, b) => {
+      const idxA = COMPLEX_ORDER.indexOf(a.complexId);
+      const idxB = COMPLEX_ORDER.indexOf(b.complexId);
+      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+      if (idxA !== -1) return -1;
+      if (idxB !== -1) return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }, [filteredProperties]);
+
   const hasActiveFilters = activeNameFilter || activeAddressFilter;
 
   return (
@@ -66,14 +101,28 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
         </button>
       </div>
 
-      <div className="space-y-6">
-        {filteredProperties.map((p, index) => (
-          <PropertyCard
-            key={p.id}
-            id={`property-card-${index}`} // Adding ID for tutorial
-            property={p}
-            onClick={() => onPropertyClick(p.id)}
-          />
+      <div className="space-y-8">
+        {groupedProperties.map((group) => (
+          <div key={group.complexId} className="space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-200/60 dark:border-gray-800 pb-2 px-1">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-primary">
+                {group.name}
+              </h2>
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark">
+                {group.properties.length}
+              </span>
+            </div>
+            <div className="space-y-4">
+              {group.properties.map((p) => (
+                <PropertyCard
+                  key={p.id}
+                  id={`property-card-${p.id}`}
+                  property={p}
+                  onClick={() => onPropertyClick(p.id)}
+                />
+              ))}
+            </div>
+          </div>
         ))}
 
         {filteredProperties.length === 0 && (

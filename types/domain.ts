@@ -1,12 +1,61 @@
+export interface Complex {
+  id: string;
+  name: string;
+  code?: string;
+  description?: string;
+  address?: string;
+  buildingCount?: number;
+}
+
+export interface SharedSystem {
+  type: 'mechanical' | 'electrical' | 'water_heating' | 'laundry' | 'storage' | string;
+  locationBuildingId: string;
+  locationName: string;
+  description: string;
+  notes?: string;
+}
+
+export interface BuildingCluster {
+  id: string;
+  name: string;
+  complexId: string;
+  buildingIds: string[];
+  sharedSystems: SharedSystem[];
+  notes?: string;
+}
+
+export interface StorageItem {
+  id: string;
+  name: string;
+  category: 'parts' | 'appliances' | 'tools' | 'supplies' | 'equipment';
+  quantity?: number;
+  notes?: string;
+  flags?: string[];
+  provenance?: 'verified' | 'pattern';
+}
+
 export interface Building {
   id: string;
+  complexId?: string;
+  complexName?: string;
+  clusterId?: string;
   name: string;
   address: string;
   code?: string;
   imageUrl?: string;
   comments?: string;
+  status?: 'active' | 'inactive' | 'permanently_out_of_order';
   definedRooms?: string[];
   floors?: string[];
+  isStorageNode?: boolean;
+  storageInventory?: StorageItem[];
+  laundryConfig?: {
+    hasSink: boolean;
+    hasTimer?: boolean;
+    notes?: string;
+  };
+  sharedSystemsNotes?: string;
+  provenance?: 'verified' | 'pattern';
   createdAt?: string;
   updatedAt?: string;
 }
@@ -17,6 +66,17 @@ export interface Unit {
   unitNumber: string;
   floor?: string;
   comments?: string;
+  unitType?: 'apartment' | 'townhouse' | 'common' | 'storage' | string;
+  bedrooms?: number;
+  bathrooms?: number;
+  stories?: number;
+  renovated?: {
+    isRenovated: boolean;
+    renovatedDate?: string | null;
+  };
+  moveInDate?: string | null;
+  tenancyDate?: string | null;
+  provenance?: 'verified' | 'pattern';
   createdAt?: string;
   updatedAt?: string;
 }
@@ -69,13 +129,14 @@ export interface Appliance {
   name: string;
   brand: string;
   propertyId: string;
-  status: 'operational' | 'needs_service' | 'error' | 'idle' | 'connected';
+  status: 'operational' | 'needs_service' | 'error' | 'idle' | 'connected' | 'donor' | 'valved_off' | 'disconnected';
   lastService: string;
   type: string;
   category?: string;
   imageUrl?: string;
   location?: string;
   room?: string;
+  unitId?: string;
   unitNumber?: string;
   serialNumber?: string;
   modelNumber?: string;
@@ -89,6 +150,8 @@ export interface Appliance {
   ratingPlateUrl?: string;
   connectedToId?: string;
   notes?: string;
+  flags?: string[];
+  provenance?: 'verified' | 'pattern';
 }
 
 export interface MaintenanceRecord {

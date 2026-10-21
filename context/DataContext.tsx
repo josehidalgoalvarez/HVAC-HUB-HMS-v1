@@ -62,16 +62,19 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // --- Initialization with Persistence ---
   const [properties, setProperties] = useState<Property[]>(() => {
     try {
+      const version = localStorage.getItem('hvachome_portfolio_version');
+      if (version !== '2.1.0') {
+        localStorage.removeItem('hvachome_properties');
+        localStorage.removeItem('hvachome_appliances');
+        localStorage.setItem('hvachome_portfolio_version', '2.1.0');
+        return INITIAL_PROPERTIES;
+      }
       const saved = localStorage.getItem('hvachome_properties');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Clear stale prototype data if found (1727 or 1735 Bath Rd, or old prototype IDs)
-        if (Array.isArray(parsed) && parsed.some((p: Property) => p.id === 'prop-bath-1727' || p.id === 'prop-bath-1735')) {
-          localStorage.removeItem('hvachome_properties');
-          localStorage.removeItem('hvachome_appliances');
-          return INITIAL_PROPERTIES;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
         }
-        return parsed;
       }
       return INITIAL_PROPERTIES;
     } catch {
@@ -81,15 +84,16 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const [appliances, setAppliances] = useState<Appliance[]>(() => {
     try {
+      const version = localStorage.getItem('hvachome_portfolio_version');
+      if (version !== '2.1.0') {
+        return INITIAL_APPLIANCES;
+      }
       const saved = localStorage.getItem('hvachome_appliances');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Clear stale prototype appliances if old fabricated models are detected
-        if (Array.isArray(parsed) && parsed.some((a: Appliance) => a.id === 'app-bath-1719-furnace' || a.id === 'app-bath-1719-ac' || a.id === 'app-bath-1719-boiler' || a.id === 'app-bath-1723-mau' || a.modelNumber === 'RU199iN' || a.modelNumber === '59TP6B080V1716')) {
-          localStorage.removeItem('hvachome_appliances');
-          return INITIAL_APPLIANCES;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
         }
-        return parsed;
       }
       return INITIAL_APPLIANCES;
     } catch {

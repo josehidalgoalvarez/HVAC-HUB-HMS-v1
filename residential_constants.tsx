@@ -1,150 +1,1160 @@
-import { Property, Appliance } from './types/domain';
+import {
+    Complex,
+    BuildingCluster,
+    StorageItem,
+    Property,
+    Unit,
+    Appliance
+} from './types/domain';
 
-// --- Verified Kingston Portfolio Data ---
-// Verified from Jose's Patry work orders. 1727 and 1735 Bath Rd removed (no work orders).
+// --- Verified Kingston Portfolio & Complex Structure ---
+// Iteration 2: Real portfolio structure: Complex -> Building -> Unit -> Appliance.
+// Rules: Zero fabricated serial numbers, install dates, or postal codes.
+// Provenance: 'verified' (work orders/photos) vs 'pattern' (generated from rules).
 // The only verified postal code is 1723 Bath Rd (K7M 4Y9). All other postal codes are UNKNOWN.
-// Zero fabricated serial numbers, install dates, or postal codes.
+
+// ==========================================
+// 1. COMPLEXES (10 Groups: 9 Portfolio + 1 Office)
+// ==========================================
+
+export const COMPLEXES: Complex[] = [
+    {
+        id: 'complex-bd',
+        code: 'BD',
+        name: 'BD Complex',
+        description: 'Bath Road & Days Road residential complex in Kingston, ON.',
+        address: 'Bath Rd & Days Rd, Kingston, ON',
+        buildingCount: 13
+    },
+    {
+        id: 'complex-amherst',
+        code: 'AMHERST',
+        name: 'Amherst Complex',
+        description: 'Long row of 43 apartment buildings in Amherstview, ON (odd numbers 107–229).',
+        address: 'Amherstview, ON',
+        buildingCount: 43
+    },
+    {
+        id: 'complex-princess',
+        code: 'PRINCESS',
+        name: 'Princess Complex',
+        description: 'Princess Street multi-unit properties in Kingston, ON.',
+        address: 'Princess St, Kingston, ON',
+        buildingCount: 7
+    },
+    {
+        id: 'complex-victoria',
+        code: 'VICTORIA',
+        name: 'Victoria Complex',
+        description: 'Victoria Street residential properties in Kingston, ON.',
+        address: 'Victoria St, Kingston, ON',
+        buildingCount: 4
+    },
+    {
+        id: 'complex-alfred',
+        code: 'ALFRED',
+        name: 'Alfred Complex',
+        description: 'Alfred Street residential multi-unit cluster in Kingston, ON.',
+        address: 'Alfred St, Kingston, ON',
+        buildingCount: 6
+    },
+    {
+        id: 'complex-frontenac',
+        code: 'FRONTENAC',
+        name: 'Frontenac Complex',
+        description: 'Frontenac Street residential properties in Kingston, ON.',
+        address: 'Frontenac St, Kingston, ON',
+        buildingCount: 2
+    },
+    {
+        id: 'complex-elm',
+        code: 'ELM',
+        name: 'Elm & Colborne Complex',
+        description: 'Proximity cluster: 18 & 24 Elm St directly behind 203 Colborne St.',
+        address: 'Elm St & Colborne St, Kingston, ON',
+        buildingCount: 3
+    },
+    {
+        id: 'complex-manitou',
+        code: 'MANITOU',
+        name: 'Manitou Complex',
+        description: 'Manitou Crescent townhouse row (1–58 Manitou Cres).',
+        address: 'Manitou Cres, Kingston, ON',
+        buildingCount: 1
+    },
+    {
+        id: 'complex-singles',
+        code: 'SINGLES',
+        name: 'Singles & Standalone',
+        description: 'Individual standalone properties, stockpiles, and project entries across Kingston.',
+        address: 'Various locations, Kingston, ON',
+        buildingCount: 9
+    },
+    {
+        id: 'complex-office',
+        code: 'OFFICE',
+        name: 'Operations & Office',
+        description: 'Company headquarters and route dispatch origin (not a rental property).',
+        address: '698 McKay St, Kingston, ON',
+        buildingCount: 1
+    }
+];
+
+// ==========================================
+// 2. BUILDING CLUSTERS & SHARED SYSTEMS
+// ==========================================
+
+export const BUILDING_CLUSTERS: BuildingCluster[] = [
+    {
+        id: 'cluster-bd-1719-1723',
+        name: '1719–1723 Bath Rd Attached Trio',
+        complexId: 'complex-bd',
+        buildingIds: ['prop-bath-1719', 'prop-bath-1721', 'prop-bath-1723'],
+        sharedSystems: [
+            {
+                type: 'electrical',
+                locationBuildingId: 'prop-bath-1721',
+                locationName: '1721 Bath Rd Mechanical Room',
+                description: 'Shared electrical service, shutoffs, and fiber optic hub for 1719, 1721, and 1723 Bath Rd.'
+            },
+            {
+                type: 'water_heating',
+                locationBuildingId: 'prop-bath-1721',
+                locationName: '1721 Bath Rd Mechanical Room',
+                description: 'Shared water heating bank: 7 water heaters (3 operational, 2 valved-off holding stagnant water, 2 disconnected rotting).'
+            }
+        ],
+        notes: 'Attached trio. Laundry in all three: 1719 sink YES, 1721 NO, 1723 YES.'
+    },
+    {
+        id: 'cluster-bd-1731-1733',
+        name: '1731–1733 Bath Rd Attached Pair',
+        complexId: 'complex-bd',
+        buildingIds: ['prop-bath-1731', 'prop-bath-1733'],
+        sharedSystems: [
+            {
+                type: 'electrical',
+                locationBuildingId: 'prop-bath-1731',
+                locationName: '1731/1733 Shared Mechanical Room',
+                description: 'Shared electrical feed between attached pair.'
+            },
+            {
+                type: 'mechanical',
+                locationBuildingId: 'prop-bath-1731',
+                locationName: '1731/1733 Shared Mechanical Room',
+                description: 'Shared mechanical room between buildings: 1 electric water heater + 2 donor fridges (parts sources).'
+            }
+        ],
+        notes: 'Laundry in both basements: 1731 WITH sink, 1733 without sink.'
+    },
+    {
+        id: 'cluster-bd-509-511',
+        name: '509–511 Days Rd Attached Pair',
+        complexId: 'complex-bd',
+        buildingIds: ['prop-days-509', 'prop-days-511'],
+        sharedSystems: [
+            {
+                type: 'mechanical',
+                locationBuildingId: 'prop-days-511',
+                locationName: '511 Days Rd Basement & Mechanical Room',
+                description: 'Attached pair with shared mechanical room and complex storage node in 511 basement.'
+            }
+        ],
+        notes: 'Laundry: 511 WITH sink; 509 no sink (believed // TODO-verify).'
+    },
+    {
+        id: 'cluster-elm-colborne',
+        name: 'Elm & Colborne Proximity Cluster',
+        complexId: 'complex-elm',
+        buildingIds: ['prop-elm-18', 'prop-elm-24', 'prop-colborne-203'],
+        sharedSystems: [
+            {
+                type: 'proximity',
+                locationBuildingId: 'prop-colborne-203',
+                locationName: 'Colborne / Elm Shared Lot',
+                description: 'The Elm buildings sit directly behind 203 Colborne St.'
+            }
+        ]
+    }
+];
+
+// ==========================================
+// 3. STORAGE INVENTORIES (Verified)
+// ==========================================
+
+export const STORAGE_511_DAYS: StorageItem[] = [
+    { id: 'st-511-dw', name: 'Stored Dishwasher', category: 'appliances', quantity: 1, notes: 'Model TODO-verify', provenance: 'verified' },
+    { id: 'st-511-stoves', name: 'White Stoves', category: 'appliances', quantity: 2, notes: 'Models TODO-verify. White stoves rule: donor coils by size only.', provenance: 'verified' },
+    { id: 'st-511-wh', name: 'Rheem Tank Water Heater', category: 'appliances', quantity: 1, notes: 'Spare tank water heater', provenance: 'verified' },
+    { id: 'st-511-parts', name: 'Parts Stash', category: 'parts', notes: 'General HVAC/plumbing spares stash', provenance: 'verified' },
+    { id: 'st-511-ladder', name: 'Featherlite Step Ladder', category: 'tools', quantity: 1, provenance: 'verified' },
+    { id: 'st-511-tools', name: 'Hand & Power Tools', category: 'tools', provenance: 'verified' },
+    { id: 'st-511-washer', name: 'Vapor / Pressure Washer', category: 'equipment', quantity: 1, provenance: 'verified' },
+    { id: 'st-511-shovel', name: 'Snow Shovel', category: 'tools', quantity: 1, provenance: 'verified' },
+    { id: 'st-511-chems', name: 'Cleaning Supplies & Chemicals', category: 'supplies', provenance: 'verified' },
+    { id: 'st-511-vac', name: 'Kärcher Wet/Dry Vac', category: 'equipment', quantity: 1, provenance: 'verified' },
+    { id: 'st-511-tiles', name: 'USG Ceiling Tiles', category: 'supplies', notes: 'Acoustic/drop ceiling replacement tiles', provenance: 'verified' },
+    { id: 'st-511-lumber', name: 'Lumber', category: 'supplies', notes: 'Framing and repair lumber boards', provenance: 'verified' },
+    { id: 'st-511-pump', name: 'Spare Askoll M376 Drain Pump', category: 'parts', quantity: 1, notes: 'Part A16944601 for Frigidaire dishwashers', provenance: 'verified' }
+];
+
+export const STORAGE_107_AMHERST: StorageItem[] = [
+    { id: 'st-107-chems', name: 'Cleaning Chemicals', category: 'supplies', provenance: 'verified' },
+    { id: 'st-107-paint', name: 'Paint & Drywall Supplies', category: 'supplies', provenance: 'verified' },
+    { id: 'st-107-saw', name: 'Miter Saw & Tools', category: 'tools', quantity: 1, provenance: 'verified' },
+    { id: 'st-107-parts', name: 'Electrical & Plumbing Parts', category: 'parts', notes: 'Switches, fittings, valves, breakers', provenance: 'verified' },
+    { id: 'st-107-stoves', name: 'White Coil Stoves', category: 'appliances', quantity: 2, notes: 'White stoves rule: donor coils by size only — never into gray Frigidaire.', provenance: 'verified' },
+    { id: 'st-107-screens', name: 'Pre-made Window Screens & Screen Tools', category: 'supplies', provenance: 'verified' },
+    { id: 'st-107-exting', name: 'Fire Extinguisher', category: 'equipment', quantity: 1, provenance: 'verified' },
+    { id: 'st-107-firstaid', name: 'First-Aid Kit', category: 'supplies', quantity: 1, provenance: 'verified' }
+];
+
+export const STORAGE_1719_BATH: StorageItem[] = [
+    {
+        id: 'st-1719-stoves',
+        name: 'White Coil-Top Stoves',
+        category: 'appliances',
+        quantity: 4,
+        notes: 'Stoves flagged: strip usable elements -> dispose (pending job).',
+        flags: ['strip_usable_elements', 'dispose_pending'],
+        provenance: 'verified'
+    },
+    {
+        id: 'st-1719-fridges',
+        name: 'White Top-Freezer Refrigerators',
+        category: 'appliances',
+        quantity: 3,
+        notes: 'Donor appliances on site at 1719 Bath basement',
+        provenance: 'verified'
+    },
+    {
+        id: 'st-1719-danby-ac',
+        name: 'Danby Portable AC',
+        category: 'appliances',
+        quantity: 1,
+        notes: 'Portable seasonal cooling unit in basement storage',
+        provenance: 'verified'
+    }
+];
+
+// ==========================================
+// 4. PROPERTIES (89 Total across 10 Complexes)
+// ==========================================
+
+// Helper: list of 43 Amherst building numbers
+const AMHERST_NUMBERS = [
+    229, 225, 219, 217, 213, 211, 209, 207, 205, 201,
+    199, 197, 195, 193, 191, 187, 183, 179, 177, 175,
+    173, 171, 169, 167, 165, 161, 157, 153, 149, 145,
+    141, 137, 135, 133, 131, 129, 127, 125, 123, 119,
+    115, 111, 107
+];
 
 export const RESIDENTIAL_PROPERTIES: Property[] = [
-    {
-        id: 'prop-bath-1719',
-        code: 'bd1719',
-        name: '1719 Bath Road',
-        address: '1719 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
-        imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
-        applianceCount: 1,
-        comments: 'Multi-unit residential complex. Stockpile: donor appliances on site at 1719 Bath.',
-        definedRooms: ['Basement', 'Mechanical Room', 'Unit 273'],
-        floors: ['Basement', 'Main Floor', 'Second Floor'] // TODO-verify
-    },
-    {
-        id: 'prop-bath-1721',
-        code: 'bd1721',
-        name: '1721 Bath Road',
-        address: '1721 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
-        imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
-        applianceCount: 0,
-        comments: 'Multi-unit residential complex.',
-        definedRooms: ['Unit 268', 'Unit 266'],
-        floors: ['Main Floor', 'Second Floor'] // TODO-verify
-    },
-    {
-        id: 'prop-bath-1723',
-        code: 'bd1723',
-        name: '1723 Bath Road',
-        address: '1723 Bath Rd, Kingston, ON K7M 4Y9', // Verified postal code
-        imageUrl: '/uploads/photo_2aa8d094f66a8ede0a7b.jpg',
-        applianceCount: 1,
-        comments: 'Multi-unit residential complex.',
-        definedRooms: ['Unit 266', 'Unit 67', 'Kitchen'],
-        floors: ['Main Floor', 'Second Floor'] // TODO-verify
-    },
-    {
-        id: 'prop-bath-1725',
-        code: 'bd1725',
-        name: '1725 Bath Road',
-        address: '1725 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
-        imageUrl: '/uploads/photo_3fba10b6250dd34fcc10.jpg',
-        applianceCount: 0,
-        comments: 'Multi-unit residential complex.',
-        definedRooms: [], // TODO-verify: specific units/rooms unknown
-        floors: ['Main Floor', 'Second Floor'] // TODO-verify
-    },
-    {
-        id: 'prop-bath-1731',
-        code: 'bd1731',
-        name: '1731 Bath Road',
-        address: '1731 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
-        imageUrl: '/uploads/photo_6a700f6adc9bd57ba9db.jpg',
-        applianceCount: 1,
-        comments: 'Multi-unit complex. Note: building drain stack has recurring blockages.',
-        definedRooms: ['Unit G63', 'Unit 161', 'Laundry Room'],
-        floors: ['Main Floor', 'Second Floor'] // TODO-verify
-    },
-    {
-        id: 'prop-bath-1733',
-        code: 'bd1733',
-        name: '1733 Bath Road',
-        address: '1733 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
-        imageUrl: '/uploads/photo_5a0393354bd60e0ac63f.jpg',
-        applianceCount: 0,
-        comments: 'Multi-unit residential complex.',
-        definedRooms: [], // TODO-verify: specific units/rooms unknown
-        floors: ['Main Floor', 'Second Floor'] // TODO-verify
-    },
-    {
-        id: 'prop-bath-1737',
-        code: 'bd1737',
-        name: '1737 Bath Road',
-        address: '1737 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
-        imageUrl: '/uploads/photo_8db7e895c76fcfce8de5.jpg',
-        applianceCount: 0,
-        comments: 'End-of-block multi-family property.',
-        definedRooms: [], // TODO-verify: specific units/rooms unknown
-        floors: ['Main Floor', 'Second Floor'] // TODO-verify
-    },
+    // ----------------------------------------------------
+    // 1) BD Complex (Bath Rd + Days Rd) — 13 Entries
+    // ----------------------------------------------------
     {
         id: 'prop-days-505',
+        complexId: 'complex-bd',
+        complexName: 'BD Complex',
         code: 'bd0505',
         name: '505 Days Road',
         address: '505 Days Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_c61a96df0f03a7620bf1.jpg',
         applianceCount: 1,
-        comments: 'Days Road residential complex. Stockpiles nearby: 511 Days Rd storage (holds spare Askoll pump), 509 Days Rd storage rooms.',
+        comments: 'STANDALONE electrical (the exception in BD complex), different layout/floors, nothing stored here.',
         definedRooms: ['Unit 103'],
-        floors: ['Main Floor', 'Second Floor'] // TODO-verify
+        floors: ['Main Floor', 'Second Floor'],
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-days-505-pool',
+        complexId: 'complex-bd',
+        complexName: 'BD Complex',
+        code: 'bd0505-pool',
+        name: '505 Days Pool',
+        address: '505 Days Rd, Kingston, ON',
+        imageUrl: '/uploads/photo_c61a96df0f03a7620bf1.jpg',
+        applianceCount: 0,
+        status: 'permanently_out_of_order',
+        comments: 'PERMANENTLY OUT OF ORDER (inactive record, no watches/SOPs).',
+        definedRooms: ['Pool Area'],
+        provenance: 'verified'
     },
     {
         id: 'prop-days-507',
+        complexId: 'complex-bd',
+        complexName: 'BD Complex',
         code: 'bd0507',
         name: '507 Days Road',
         address: '507 Days Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_b9a7b4d1af836cee96c8.jpg',
         applianceCount: 0,
-        comments: 'Residential apartments. Stockpiles nearby: 509 & 511 Days Rd storage rooms.',
+        comments: 'TOWNHOUSES: 3 stories (2 floors + basement), 2 washrooms, own water heater per unit (believed // TODO-verify), laundry WITH sink, NO storage. 2-digit unit numbers.',
         definedRooms: ['Unit 32'],
-        floors: ['Main Floor', 'Second Floor'] // TODO-verify
+        floors: ['Basement', 'Main Floor', 'Second Floor'],
+        laundryConfig: { hasSink: true, notes: 'Laundry WITH sink' },
+        provenance: 'verified'
     },
     {
-        id: 'prop-amherst-137',
-        code: '137 Amherst Dr',
-        name: '137 Amherst Drive',
-        address: '137 Amherst Dr, Kingston, ON', // TODO-verify postal code (UNKNOWN)
-        imageUrl: '/uploads/photo_7b90897a4994f447765e.jpg',
-        applianceCount: 2,
-        comments: 'Residential units. Stockpiles nearby: 107 Amherst and 539 Armstrong.',
-        definedRooms: ['Unit 137', 'Kitchen'],
-        floors: ['Main Floor', 'Second Floor'] // TODO-verify
+        id: 'prop-days-509',
+        complexId: 'complex-bd',
+        complexName: 'BD Complex',
+        clusterId: 'cluster-bd-509-511',
+        code: 'bd0509',
+        name: '509 Days Road',
+        address: '509 Days Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_b9a7b4d1af836cee96c8.jpg',
+        applianceCount: 0,
+        comments: 'Attached pair with 511 Days Rd. Shared mechanical room with 511. Laundry: no sink (believed // TODO-verify).',
+        definedRooms: ['Mechanical Room'],
+        floors: ['Main Floor', 'Second Floor'],
+        laundryConfig: { hasSink: false, notes: 'No sink (believed // TODO-verify)' },
+        provenance: 'verified'
     },
     {
-        id: 'prop-albert-415',
-        code: '415 Albert St',
-        name: '415 Albert Street',
-        address: '415 Albert St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        id: 'prop-days-511',
+        complexId: 'complex-bd',
+        complexName: 'BD Complex',
+        clusterId: 'cluster-bd-509-511',
+        code: 'bd0511',
+        name: '511 Days Road',
+        address: '511 Days Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_c61a96df0f03a7620bf1.jpg',
+        applianceCount: 0,
+        isStorageNode: true,
+        storageInventory: STORAGE_511_DAYS,
+        comments: 'Attached pair with 509 Days Rd, SHARED mechanical room. Complex storage node in 511 basement. Laundry: WITH sink.',
+        definedRooms: ['Basement Storage', 'Mechanical Room', 'Laundry Room'],
+        floors: ['Basement', 'Main Floor', 'Second Floor'],
+        laundryConfig: { hasSink: true, notes: '511 laundry WITH sink' },
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-bath-1719',
+        complexId: 'complex-bd',
+        complexName: 'BD Complex',
+        clusterId: 'cluster-bd-1719-1723',
+        code: 'bd1719',
+        name: '1719 Bath Road',
+        address: '1719 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
+        applianceCount: 1,
+        isStorageNode: true,
+        storageInventory: STORAGE_1719_BATH,
+        comments: 'Attached trio (1719-1721-1723), SHARED electrical + water heating at 1721. Laundry: sink YES. 1719 basement storage: 3-4 white coil stoves + 2-3 fridges + Danby AC.',
+        definedRooms: ['Basement', 'Mechanical Room', 'Unit 273', 'Laundry Room'],
+        floors: ['Basement', 'Main Floor', 'Second Floor'],
+        laundryConfig: { hasSink: true, notes: 'Laundry sink YES' },
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-bath-1721',
+        complexId: 'complex-bd',
+        complexName: 'BD Complex',
+        clusterId: 'cluster-bd-1719-1723',
+        code: 'bd1721',
+        name: '1721 Bath Road',
+        address: '1721 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
+        applianceCount: 7,
+        comments: 'Attached trio hub: shared mechanical room containing 7 water heaters (3 working, 2 valved-off stagnant, 2 disconnected rotting), fiber connections, electrical shutoffs. Laundry: sink NO.',
+        definedRooms: ['Shared Mechanical Room', 'Unit 268', 'Unit 266', 'Laundry Room'],
+        floors: ['Basement', 'Main Floor', 'Second Floor'],
+        laundryConfig: { hasSink: false, notes: 'Laundry sink NO' },
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-bath-1723',
+        complexId: 'complex-bd',
+        complexName: 'BD Complex',
+        clusterId: 'cluster-bd-1719-1723',
+        code: 'bd1723',
+        name: '1723 Bath Road',
+        address: '1723 Bath Rd, Kingston, ON K7M 4Y9', // Verified postal code
+        imageUrl: '/uploads/photo_2aa8d094f66a8ede0a7b.jpg',
+        applianceCount: 1,
+        comments: 'Attached trio with 1719 & 1721. Shared electrical & water heating from 1721. Laundry: sink YES. Verified postal code: K7M 4Y9.',
+        definedRooms: ['Unit 266', 'Unit 67', 'Kitchen', 'Laundry Room'],
+        floors: ['Main Floor', 'Second Floor'],
+        laundryConfig: { hasSink: true, notes: 'Laundry sink YES' },
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-bath-1725',
+        complexId: 'complex-bd',
+        complexName: 'BD Complex',
+        code: 'bd1725',
+        name: '1725 Bath Road',
+        address: '1725 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_3fba10b6250dd34fcc10.jpg',
+        applianceCount: 0,
+        comments: 'Apartments with inner hallways. Laundry contains Bell cable setup + 1 water heater (believed // TODO-verify). Automated timer lights. NO electrical room located (open item: main panel unknown; kept power during past outage while 507 lost it). 2-digit units.',
+        definedRooms: ['Laundry Room', 'Inner Hallways'],
+        floors: ['Main Floor', 'Second Floor'],
+        laundryConfig: { hasSink: false, hasTimer: true, notes: 'Bell setup + 1 water heater (believed // TODO-verify). Lights on timer.' },
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-bath-1727',
+        complexId: 'complex-bd',
+        complexName: 'BD Complex',
+        code: 'bd1727',
+        name: '1727 Bath Road',
+        address: '1727 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
+        applianceCount: 0,
+        comments: 'TOWNHOUSES, no hallway, no communal laundry. 2-digit unit numbers. Restored verified property.',
+        definedRooms: [],
+        floors: ['Main Floor', 'Second Floor'],
+        laundryConfig: { hasSink: false, notes: 'No communal laundry' },
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-bath-1731',
+        complexId: 'complex-bd',
+        complexName: 'BD Complex',
+        clusterId: 'cluster-bd-1731-1733',
+        code: 'bd1731',
+        name: '1731 Bath Road',
+        address: '1731 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_6a700f6adc9bd57ba9db.jpg',
+        applianceCount: 3,
+        comments: 'Attached pair with 1733, SHARED electrical. Shared mechanical room between them: 1 electric water heater + 2 donor fridges (parts sources). Laundry: WITH sink. Building drain stack recurring blockages.',
+        definedRooms: ['Unit G63', 'Unit 161', 'Shared Mechanical Room', 'Laundry Room'],
+        floors: ['Basement', 'Main Floor', 'Second Floor'],
+        laundryConfig: { hasSink: true, notes: 'Laundry in basement WITH sink' },
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-bath-1733',
+        complexId: 'complex-bd',
+        complexName: 'BD Complex',
+        clusterId: 'cluster-bd-1731-1733',
+        code: 'bd1733',
+        name: '1733 Bath Road',
+        address: '1733 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_5a0393354bd60e0ac63f.jpg',
+        applianceCount: 0,
+        comments: 'Attached pair with 1731, SHARED electrical. Laundry in basement: without sink.',
+        definedRooms: ['Basement Laundry'],
+        floors: ['Basement', 'Main Floor', 'Second Floor'],
+        laundryConfig: { hasSink: false, notes: 'Laundry in basement without sink' },
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-bath-1737',
+        complexId: 'complex-bd',
+        complexName: 'BD Complex',
+        code: 'bd1737',
+        name: '1737 Bath Road',
+        address: '1737 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_8db7e895c76fcfce8de5.jpg',
+        applianceCount: 0,
+        comments: 'TOWNHOUSES (count 4-6 // TODO-verify), no hallway, no communal laundry. 2-digit unit numbers.',
+        definedRooms: [],
+        floors: ['Main Floor', 'Second Floor'],
+        laundryConfig: { hasSink: false, notes: 'No communal laundry' },
+        provenance: 'verified'
+    },
+
+    // ----------------------------------------------------
+    // 2) AMHERST Complex (Amherstview) — 43 Buildings (107–229)
+    // ----------------------------------------------------
+    ...AMHERST_NUMBERS.map(num => {
+        const id = `prop-amherst-${num}`;
+        const isTownhouse = num === 125;
+        const isStorage = num === 107;
+        const isVerifiedUnit137 = num === 137;
+
+        return {
+            id,
+            complexId: 'complex-amherst',
+            complexName: 'Amherst Complex',
+            code: `${num} Amherst Dr`,
+            name: `${num} Amherst Drive`,
+            address: `${num} Amherst Dr, Amherstview, ON`, // TODO-verify postal code (UNKNOWN)
+            imageUrl: isVerifiedUnit137
+                ? '/uploads/photo_7b90897a4994f447765e.jpg'
+                : '/uploads/photo_7b90897a4994f447765e.jpg',
+            applianceCount: isVerifiedUnit137 ? 2 : 0,
+            isStorageNode: isStorage,
+            storageInventory: isStorage ? STORAGE_107_AMHERST : undefined,
+            comments: isTownhouse
+                ? 'Amherst Townhouse building in the time tracking system.'
+                : isStorage
+                    ? 'Storage node for Amherst complex (supplies, tools, 2 white coil stoves). Unit pattern: 101-112, 201-212, 301-312 (36 units).'
+                    : isVerifiedUnit137
+                        ? 'Residential unit building. Verified unit 137 (range, water heater).'
+                        : 'Apartment building in Amherst row (odd numbers 107-229). Floor-coded units.',
+            definedRooms: isVerifiedUnit137 ? ['Unit 137', 'Kitchen'] : isStorage ? ['Storage Area', 'Utility Room'] : [],
+            floors: ['First Floor', 'Second Floor', 'Third Floor'],
+            provenance: isVerifiedUnit137 || isStorage || isTownhouse ? ('verified' as const) : ('pattern' as const)
+        };
+    }),
+
+    // ----------------------------------------------------
+    // 3) PRINCESS Complex — 7 Buildings
+    // ----------------------------------------------------
+    ...[563, 565, 567, 630, 655, 800, 837].map(num => ({
+        id: `prop-princess-${num}`,
+        complexId: 'complex-princess',
+        complexName: 'Princess Complex',
+        code: `${num} Princess St`,
+        name: `${num} Princess Street`,
+        address: `${num} Princess St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
         applianceCount: 0,
-        comments: 'Multi-unit residential property.',
-        definedRooms: ['Unit 415B', 'Unit 415E'],
-        floors: ['Main Floor', 'Second Floor'] // TODO-verify
+        comments: 'Princess Street multi-unit property.',
+        definedRooms: [],
+        floors: ['Main Floor', 'Second Floor'],
+        provenance: 'verified' as const
+    })),
+
+    // ----------------------------------------------------
+    // 4) VICTORIA Complex — 4 Buildings
+    // ----------------------------------------------------
+    ...[585, 614, 616, 620].map(num => ({
+        id: `prop-victoria-${num}`,
+        complexId: 'complex-victoria',
+        complexName: 'Victoria Complex',
+        code: `${num} Victoria St`,
+        name: `${num} Victoria Street`,
+        address: `${num} Victoria St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_6a700f6adc9bd57ba9db.jpg',
+        applianceCount: 0,
+        comments: 'Victoria Street residential property.',
+        definedRooms: [],
+        floors: ['Main Floor', 'Second Floor'],
+        provenance: 'verified' as const
+    })),
+
+    // ----------------------------------------------------
+    // 5) ALFRED Complex — 6 Buildings
+    // ----------------------------------------------------
+    ...[353, 359, 361, 376, 378, 394].map(num => ({
+        id: `prop-alfred-${num}`,
+        complexId: 'complex-alfred',
+        complexName: 'Alfred Complex',
+        code: `${num} Alfred St`,
+        name: `${num} Alfred Street`,
+        address: `${num} Alfred St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
+        applianceCount: 0,
+        comments: 'Alfred Street residential multi-unit cluster.',
+        definedRooms: [],
+        floors: ['Main Floor', 'Second Floor'],
+        provenance: 'verified' as const
+    })),
+
+    // ----------------------------------------------------
+    // 6) FRONTENAC Complex — 2 Buildings
+    // ----------------------------------------------------
+    ...[501, 520].map(num => ({
+        id: `prop-frontenac-${num}`,
+        complexId: 'complex-frontenac',
+        complexName: 'Frontenac Complex',
+        code: `${num} Frontenac St`,
+        name: `${num} Frontenac Street`,
+        address: `${num} Frontenac St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
+        applianceCount: 0,
+        comments: 'Frontenac Street residential property.',
+        definedRooms: [],
+        floors: ['Main Floor', 'Second Floor'],
+        provenance: 'verified' as const
+    })),
+
+    // ----------------------------------------------------
+    // 7) ELM Complex (Proximity Cluster) — 3 Buildings
+    // ----------------------------------------------------
+    {
+        id: 'prop-elm-18',
+        complexId: 'complex-elm',
+        complexName: 'Elm & Colborne Complex',
+        clusterId: 'cluster-elm-colborne',
+        code: '18 Elm St',
+        name: '18 Elm Street',
+        address: '18 Elm St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_3fba10b6250dd34fcc10.jpg',
+        applianceCount: 0,
+        comments: 'Sits right behind 203 Colborne St.',
+        definedRooms: [],
+        floors: ['Main Floor', 'Second Floor'],
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-elm-24',
+        complexId: 'complex-elm',
+        complexName: 'Elm & Colborne Complex',
+        clusterId: 'cluster-elm-colborne',
+        code: '24 Elm St',
+        name: '24 Elm Street',
+        address: '24 Elm St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_3fba10b6250dd34fcc10.jpg',
+        applianceCount: 0,
+        comments: 'Sits right behind 203 Colborne St.',
+        definedRooms: [],
+        floors: ['Main Floor', 'Second Floor'],
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-colborne-203',
+        complexId: 'complex-elm',
+        complexName: 'Elm & Colborne Complex',
+        clusterId: 'cluster-elm-colborne',
+        code: '203 Colborne St',
+        name: '203 Colborne Street',
+        address: '203 Colborne St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
+        applianceCount: 0,
+        comments: 'Front building facing Colborne; 18 & 24 Elm sit directly behind.',
+        definedRooms: [],
+        floors: ['Main Floor', 'Second Floor'],
+        provenance: 'verified'
+    },
+
+    // ----------------------------------------------------
+    // 8) MANITOU Complex — Townhouses 1–58
+    // ----------------------------------------------------
+    {
+        id: 'prop-manitou-cres',
+        complexId: 'complex-manitou',
+        complexName: 'Manitou Complex',
+        code: 'MANITOU',
+        name: 'Manitou Crescent Townhouses',
+        address: '1–58 Manitou Cres, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_5a0393354bd60e0ac63f.jpg',
+        applianceCount: 0,
+        comments: 'Townhouses, 1-58 Manitou Cres (top of range TODO-verify).',
+        definedRooms: [],
+        floors: ['Main Floor', 'Second Floor'],
+        provenance: 'verified'
+    },
+
+    // ----------------------------------------------------
+    // 9) SINGLES & STANDALONE — 9 Entries
+    // ----------------------------------------------------
+    {
+        id: 'prop-blackburn-810',
+        complexId: 'complex-singles',
+        complexName: 'Singles & Standalone',
+        code: '810 Blackburn Mews',
+        name: '810 Blackburn Mews',
+        address: '810 Blackburn Mews, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_8db7e895c76fcfce8de5.jpg',
+        applianceCount: 0,
+        comments: 'Commercial / standalone unit.',
+        definedRooms: [],
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-park-85',
+        complexId: 'complex-singles',
+        complexName: 'Singles & Standalone',
+        code: '85 Park St',
+        name: '85 Park Street',
+        address: '85 Park St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
+        applianceCount: 0,
+        comments: 'Residential standalone property.',
+        definedRooms: [],
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-railway-176',
+        complexId: 'complex-singles',
+        complexName: 'Singles & Standalone',
+        code: '176 Railway St',
+        name: '176 Railway Street',
+        address: '176 Railway St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
+        applianceCount: 0,
+        comments: 'Residential standalone property.',
+        definedRooms: [],
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-ontario-55',
+        complexId: 'complex-singles',
+        complexName: 'Singles & Standalone',
+        code: '55 Ontario St',
+        name: '55 Ontario Street',
+        address: '55 Ontario St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_4339fa51f592921622d8.jpg',
+        applianceCount: 0,
+        comments: 'Waterfront / downtown residential property.',
+        definedRooms: [],
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-durham-36',
+        complexId: 'complex-singles',
+        complexName: 'Singles & Standalone',
+        code: '36 Durham St',
+        name: '36 Durham Street',
+        address: '36 Durham St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_6a700f6adc9bd57ba9db.jpg',
+        applianceCount: 0,
+        comments: 'Standalone residential building.',
+        definedRooms: [],
+        provenance: 'verified'
     },
     {
         id: 'prop-ontario-265',
+        complexId: 'complex-singles',
+        complexName: 'Singles & Standalone',
         code: '265 Ontario St',
         name: '265 Ontario Street',
         address: '265 Ontario St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_4339fa51f592921622d8.jpg',
         applianceCount: 0,
-        comments: 'Residential property.',
+        comments: 'Residential property. Unit 2 verified.',
         definedRooms: ['Unit 2'],
-        floors: ['Main Floor', 'Second Floor'] // TODO-verify
+        floors: ['Main Floor', 'Second Floor'],
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-albert-415',
+        complexId: 'complex-singles',
+        complexName: 'Singles & Standalone',
+        code: '415 Albert St',
+        name: '415 Albert Street',
+        address: '415 Albert St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
+        applianceCount: 0,
+        comments: 'Multi-unit residential property. Units 415B, 415E verified.',
+        definedRooms: ['Unit 415B', 'Unit 415E'],
+        floors: ['Main Floor', 'Second Floor'],
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-armstrong-539',
+        complexId: 'complex-singles',
+        complexName: 'Singles & Standalone',
+        code: '539 Armstrong Rd',
+        name: '539 Armstrong Road',
+        address: '539 Armstrong Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_5a0393354bd60e0ac63f.jpg',
+        applianceCount: 0,
+        isStorageNode: true,
+        comments: 'Stockpile location. White stoves rule everywhere: donor coils by SIZE only — never switches into gray Frigidaire stoves.',
+        definedRooms: ['Stockpile Storage'],
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-dev-847',
+        complexId: 'complex-singles',
+        complexName: 'Singles & Standalone',
+        code: '847 Development',
+        name: '847 Development',
+        address: 'Kingston, ON',
+        imageUrl: '/uploads/photo_2aa8d094f66a8ede0a7b.jpg',
+        applianceCount: 0,
+        comments: 'Project entry, not an address.',
+        definedRooms: [],
+        provenance: 'verified'
+    },
+
+    // ----------------------------------------------------
+    // 10) OPERATIONS & OFFICE — 1 Entry
+    // ----------------------------------------------------
+    {
+        id: 'prop-office-mckay-698',
+        complexId: 'complex-office',
+        complexName: 'Operations & Office',
+        code: '698 McKay St',
+        name: '698 McKay Street (Office)',
+        address: '698 McKay St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
+        applianceCount: 0,
+        comments: 'Location type "office", not a rental property; route origin.',
+        definedRooms: ['Dispatch Office', 'Equipment Bay'],
+        provenance: 'verified'
     }
 ];
 
+// ==========================================
+// 5. PATTERN-GENERATED UNIT ROSTERS
+// ==========================================
+
+export function generateUnitRoster(building: Building): Unit[] {
+    const units: Unit[] = [];
+    const bId = building.id;
+
+    // BD Complex
+    if (building.complexId === 'complex-bd') {
+        if (bId === 'prop-days-507' || bId === 'prop-bath-1727' || bId === 'prop-bath-1737') {
+            // Townhouses: 2-digit unit numbers, 3 stories, 2 washrooms, own water heater
+            const count = bId === 'prop-days-507' ? 12 : bId === 'prop-bath-1727' ? 8 : 6;
+            for (let i = 1; i <= count; i++) {
+                const uNum = bId === 'prop-days-507' ? (i === 1 ? '32' : `${20 + i}`) : `${10 + i}`;
+                const isVerified = (bId === 'prop-days-507' && uNum === '32');
+                units.push({
+                    id: `unit-${bId}-${uNum}`,
+                    buildingId: bId,
+                    unitNumber: uNum,
+                    floor: 'Multi-Floor Townhouse',
+                    unitType: 'townhouse',
+                    stories: 3,
+                    bathrooms: 2,
+                    renovated: { isRenovated: false, renovatedDate: null },
+                    moveInDate: null,
+                    tenancyDate: null,
+                    comments: '3 stories (2 floors + basement), 2 washrooms, own water heater (believed // TODO-verify)',
+                    provenance: isVerified ? 'verified' : 'pattern'
+                });
+            }
+        } else if (bId === 'prop-days-505-pool') {
+            // No units for the pool
+            return [];
+        } else if (bId === 'prop-bath-1725') {
+            // 2-digit units
+            for (let i = 1; i <= 8; i++) {
+                const uNum = `${20 + i}`;
+                units.push({
+                    id: `unit-${bId}-${uNum}`,
+                    buildingId: bId,
+                    unitNumber: uNum,
+                    floor: i <= 4 ? 'Main Floor' : 'Second Floor',
+                    unitType: 'apartment',
+                    bedrooms: 2,
+                    bathrooms: 1,
+                    renovated: { isRenovated: false, renovatedDate: null },
+                    moveInDate: null,
+                    tenancyDate: null,
+                    provenance: 'pattern'
+                });
+            }
+        } else if (bId === 'prop-bath-1719') {
+            // Unit 273 verified
+            units.push({
+                id: `unit-${bId}-273`,
+                buildingId: bId,
+                unitNumber: '273',
+                floor: 'Basement',
+                unitType: 'apartment',
+                bedrooms: 2,
+                bathrooms: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: 'Verified unit with basement mechanical access & refrigerator',
+                provenance: 'verified'
+            });
+            for (let i = 1; i <= 6; i++) {
+                units.push({
+                    id: `unit-${bId}-10${i}`,
+                    buildingId: bId,
+                    unitNumber: `10${i}`,
+                    floor: 'First Floor',
+                    unitType: 'apartment',
+                    bedrooms: 2,
+                    bathrooms: 1,
+                    renovated: { isRenovated: false, renovatedDate: null },
+                    moveInDate: null,
+                    tenancyDate: null,
+                    provenance: 'pattern'
+                });
+            }
+        } else if (bId === 'prop-bath-1721') {
+            units.push({
+                id: `unit-${bId}-266`,
+                buildingId: bId,
+                unitNumber: '266',
+                floor: 'Second Floor',
+                unitType: 'apartment',
+                bedrooms: 2,
+                bathrooms: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                provenance: 'verified'
+            });
+            units.push({
+                id: `unit-${bId}-268`,
+                buildingId: bId,
+                unitNumber: '268',
+                floor: 'Second Floor',
+                unitType: 'apartment',
+                bedrooms: 2,
+                bathrooms: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                provenance: 'verified'
+            });
+        } else if (bId === 'prop-bath-1723') {
+            units.push({
+                id: `unit-${bId}-266`,
+                buildingId: bId,
+                unitNumber: '266',
+                floor: 'Second Floor',
+                unitType: 'apartment',
+                bedrooms: 2,
+                bathrooms: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: 'Verified unit with Frigidaire FFCD2418US3A dishwasher',
+                provenance: 'verified'
+            });
+            units.push({
+                id: `unit-${bId}-67`,
+                buildingId: bId,
+                unitNumber: '67',
+                floor: 'Main Floor',
+                unitType: 'apartment',
+                bedrooms: 2,
+                bathrooms: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                provenance: 'verified'
+            });
+        } else if (bId === 'prop-bath-1731') {
+            units.push({
+                id: `unit-${bId}-G63`,
+                buildingId: bId,
+                unitNumber: 'G63',
+                floor: 'Ground Floor',
+                unitType: 'apartment',
+                bedrooms: 2,
+                bathrooms: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                provenance: 'verified'
+            });
+            units.push({
+                id: `unit-${bId}-161`,
+                buildingId: bId,
+                unitNumber: '161',
+                floor: 'First Floor',
+                unitType: 'apartment',
+                bedrooms: 2,
+                bathrooms: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                provenance: 'verified'
+            });
+        } else if (bId === 'prop-days-505') {
+            units.push({
+                id: `unit-${bId}-103`,
+                buildingId: bId,
+                unitNumber: '103',
+                floor: 'First Floor',
+                unitType: 'apartment',
+                bedrooms: 2,
+                bathrooms: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: 'Verified unit with noisy freezer complaint (WO 19255)',
+                provenance: 'verified'
+            });
+            for (let i = 1; i <= 6; i++) {
+                if (i !== 3) {
+                    units.push({
+                        id: `unit-${bId}-10${i}`,
+                        buildingId: bId,
+                        unitNumber: `10${i}`,
+                        floor: 'First Floor',
+                        unitType: 'apartment',
+                        bedrooms: 2,
+                        bathrooms: 1,
+                        renovated: { isRenovated: false, renovatedDate: null },
+                        moveInDate: null,
+                        tenancyDate: null,
+                        provenance: 'pattern'
+                    });
+                }
+            }
+        } else {
+            // Standard BD apartment default
+            for (let i = 1; i <= 6; i++) {
+                units.push({
+                    id: `unit-${bId}-10${i}`,
+                    buildingId: bId,
+                    unitNumber: `10${i}`,
+                    floor: 'First Floor',
+                    unitType: 'apartment',
+                    bedrooms: 2,
+                    bathrooms: 1,
+                    renovated: { isRenovated: false, renovatedDate: null },
+                    moveInDate: null,
+                    tenancyDate: null,
+                    provenance: 'pattern'
+                });
+            }
+        }
+    } else if (building.complexId === 'complex-amherst') {
+        if (bId === 'prop-amherst-107') {
+            // 107 Amherst storage node & default row pattern: floor-coded 101–112, 201–212, 301–312 (36 units)
+            for (let floor = 1; floor <= 3; floor++) {
+                for (let u = 1; u <= 12; u++) {
+                    const uNum = `${floor}${u < 10 ? '0' : ''}${u}`;
+                    units.push({
+                        id: `unit-${bId}-${uNum}`,
+                        buildingId: bId,
+                        unitNumber: uNum,
+                        floor: floor === 1 ? 'First Floor' : floor === 2 ? 'Second Floor' : 'Third Floor',
+                        unitType: 'apartment',
+                        bedrooms: 2,
+                        bathrooms: 1,
+                        renovated: { isRenovated: false, renovatedDate: null },
+                        moveInDate: null,
+                        tenancyDate: null,
+                        provenance: 'pattern'
+                    });
+                }
+            }
+        } else if (bId === 'prop-amherst-125') {
+            // Townhouse building
+            for (let i = 1; i <= 8; i++) {
+                units.push({
+                    id: `unit-${bId}-${i}`,
+                    buildingId: bId,
+                    unitNumber: `${i}`,
+                    floor: 'Townhouse',
+                    unitType: 'townhouse',
+                    stories: 3,
+                    bathrooms: 2,
+                    renovated: { isRenovated: false, renovatedDate: null },
+                    moveInDate: null,
+                    tenancyDate: null,
+                    provenance: 'pattern'
+                });
+            }
+        } else if (bId === 'prop-amherst-137') {
+            units.push({
+                id: `unit-${bId}-137`,
+                buildingId: bId,
+                unitNumber: '137',
+                floor: 'First Floor',
+                unitType: 'apartment',
+                bedrooms: 2,
+                bathrooms: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: 'Verified unit with Frigidaire range & Rheem water heater (WO on hold)',
+                provenance: 'verified'
+            });
+            for (let i = 1; i <= 11; i++) {
+                const uNum = `10${i < 10 ? '0' + i : i}`;
+                units.push({
+                    id: `unit-${bId}-${uNum}`,
+                    buildingId: bId,
+                    unitNumber: uNum,
+                    floor: 'First Floor',
+                    unitType: 'apartment',
+                    bedrooms: 2,
+                    bathrooms: 1,
+                    renovated: { isRenovated: false, renovatedDate: null },
+                    moveInDate: null,
+                    tenancyDate: null,
+                    provenance: 'pattern'
+                });
+            }
+        } else {
+            // Standard Amherst pattern (6 units representative per building)
+            for (let i = 1; i <= 6; i++) {
+                units.push({
+                    id: `unit-${bId}-10${i}`,
+                    buildingId: bId,
+                    unitNumber: `10${i}`,
+                    floor: 'First Floor',
+                    unitType: 'apartment',
+                    bedrooms: 2,
+                    bathrooms: 1,
+                    renovated: { isRenovated: false, renovatedDate: null },
+                    moveInDate: null,
+                    tenancyDate: null,
+                    provenance: 'pattern'
+                });
+            }
+        }
+    } else if (bId === 'prop-manitou-cres') {
+        // Manitou 1–58 townhouses
+        for (let i = 1; i <= 58; i++) {
+            units.push({
+                id: `unit-${bId}-${i}`,
+                buildingId: bId,
+                unitNumber: `${i}`,
+                floor: 'Townhouse',
+                unitType: 'townhouse',
+                stories: 3,
+                bathrooms: 2,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: 'Manitou Crescent townhouse row (1–58 // TODO-verify)',
+                provenance: 'pattern'
+            });
+        }
+    } else if (bId === 'prop-albert-415') {
+        units.push({
+            id: `unit-${bId}-415B`,
+            buildingId: bId,
+            unitNumber: '415B',
+            floor: 'Main Floor',
+            unitType: 'apartment',
+            bedrooms: 2,
+            bathrooms: 1,
+            renovated: { isRenovated: false, renovatedDate: null },
+            moveInDate: null,
+            tenancyDate: null,
+            provenance: 'verified'
+        });
+        units.push({
+            id: `unit-${bId}-415E`,
+            buildingId: bId,
+            unitNumber: '415E',
+            floor: 'Second Floor',
+            unitType: 'apartment',
+            bedrooms: 2,
+            bathrooms: 1,
+            renovated: { isRenovated: false, renovatedDate: null },
+            moveInDate: null,
+            tenancyDate: null,
+            provenance: 'verified'
+        });
+    } else if (bId === 'prop-ontario-265') {
+        units.push({
+            id: `unit-${bId}-2`,
+            buildingId: bId,
+            unitNumber: '2',
+            floor: 'Main Floor',
+            unitType: 'apartment',
+            bedrooms: 1,
+            bathrooms: 1,
+            renovated: { isRenovated: false, renovatedDate: null },
+            moveInDate: null,
+            tenancyDate: null,
+            provenance: 'verified'
+        });
+    }
+
+    return units;
+}
+
+export const RESIDENTIAL_UNITS: Unit[] = RESIDENTIAL_PROPERTIES.flatMap(p => generateUnitRoster(p));
+
+// ==========================================
+// 6. APPLIANCES (Verified & Equipment)
+// ==========================================
+
 export const RESIDENTIAL_APPLIANCES: Appliance[] = [
+    // 1. Dishwasher — Frigidaire FFCD2418US3A — 1723 Bath Rd, Unit 266, Kitchen.
     {
         id: 'app-bath-1723-dw',
         name: 'Dishwasher',
         brand: 'Frigidaire',
+        modelNumber: 'FFCD2418US3A',
+        serialNumber: '', // TODO-verify: serial UNKNOWN
         propertyId: 'prop-bath-1723',
         status: 'operational',
         lastService: '2026-10-15',
@@ -155,9 +1165,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         unitNumber: '266',
         room: 'Kitchen',
         location: '1723 Bath Rd · Unit 266 · Kitchen',
-        modelNumber: 'FFCD2418US3A',
-        serialNumber: '', // TODO-verify: serial UNKNOWN
-        notes: 'Drain pump Askoll M376 (part A16944601) replaced 2026-10-15; status operational, load test pending.',
+        notes: 'Askoll M376 pump (part A16944601) replaced 2026-10-15; load test pending.',
+        provenance: 'verified',
         specs: {
             capacity: '14 Place Settings',
             volts: '120V',
@@ -165,13 +1174,16 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             location: '1723 Bath Rd · Unit 266 · Kitchen'
         }
     },
+    // 2. Electric range, gray — Frigidaire, model UNKNOWN — 137 Amherst Dr, Unit 137, Kitchen.
     {
         id: 'app-amherst-137-range',
         name: 'Electric Range',
         brand: 'Frigidaire',
+        modelNumber: '', // TODO-verify: model UNKNOWN
+        serialNumber: '', // TODO-verify: serial UNKNOWN
         propertyId: 'prop-amherst-137',
         status: 'needs_service',
-        lastService: '', // TODO-verify: service history unknown
+        lastService: '', // TODO-verify
         type: 'Range',
         category: 'Kitchen',
         imageUrl: '', // Leave empty for UNKNOWN-model
@@ -179,103 +1191,285 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         unitNumber: '137',
         room: 'Kitchen',
         location: '137 Amherst Dr · Unit 137 · Kitchen',
-        modelNumber: '', // TODO-verify: model UNKNOWN
-        serialNumber: '', // TODO-verify: serial UNKNOWN
-        notes: 'Gray electric range. Burner infinite switch WB24T10025 (order by model #). Status: needs repair (on hold).',
+        notes: 'Gray Frigidaire range. Switch WB24T10025; status: on hold.',
+        flags: ['on_hold', 'switch_needed'],
+        provenance: 'verified',
         specs: {
             room: 'Kitchen',
             location: '137 Amherst Dr · Unit 137 · Kitchen'
         }
     },
+    // 3. Water heater — Rheem, model UNKNOWN — 137 Amherst Dr, Unit 137.
     {
         id: 'app-amherst-137-wh',
         name: 'Water Heater',
         brand: 'Rheem',
+        modelNumber: '', // TODO-verify: model UNKNOWN
+        serialNumber: '', // TODO-verify: serial UNKNOWN
         propertyId: 'prop-amherst-137',
         status: 'needs_service',
-        lastService: '', // TODO-verify: service history unknown
+        lastService: '', // TODO-verify
         type: 'Heater',
         category: 'Water Heating',
         imageUrl: '', // Leave empty for UNKNOWN-model
         ratingPlateUrl: '', // TODO-verify: field photo pending
         unitNumber: '137',
-        room: '', // TODO-verify: room unknown
+        room: '', // TODO-verify
         location: '137 Amherst Dr · Unit 137',
-        modelNumber: '', // TODO-verify: model UNKNOWN
-        serialNumber: '', // TODO-verify: serial UNKNOWN
-        notes: 'No hot water since ~2026-10-08. Status: needs repair (on hold).',
+        notes: 'No hot water since ~2026-10-08; on hold.',
+        flags: ['on_hold', 'no_hot_water'],
+        provenance: 'verified',
         specs: {
             location: '137 Amherst Dr · Unit 137'
         }
     },
+    // 4. John Wood ProLine water heater — 1721 mech room (shared trio).
     {
-        id: 'app-bath-1731-wh',
-        name: 'Water Heater (Laundry)',
-        brand: '', // TODO-verify: brand UNKNOWN
-        propertyId: 'prop-bath-1731',
-        status: 'operational',
-        lastService: '', // TODO-verify: service history unknown
+        id: 'app-bath-1721-wh-proline',
+        name: 'Water Heater (ProLine)',
+        brand: 'John Wood',
+        modelNumber: 'ProLine', // ProLine series
+        serialNumber: '', // TODO-verify: serial UNKNOWN
+        propertyId: 'prop-bath-1721',
+        status: 'needs_service',
+        lastService: '2026-10-18', // WO 20316
         type: 'Heater',
         category: 'Water Heating',
         imageUrl: '', // Leave empty for UNKNOWN-model
         ratingPlateUrl: '', // TODO-verify: field photo pending
         unitNumber: 'Common',
-        room: 'Laundry Room',
-        location: '1731 Bath Rd · Laundry Room',
-        modelNumber: '', // TODO-verify: model UNKNOWN
-        serialNumber: '', // TODO-verify: serial UNKNOWN
-        notes: '1/2" copper supply (16–17mm OD); SharkBite 1/2" push-fit ball valve planned. Building drain stack has recurring blockages.',
+        room: 'Mechanical Room',
+        location: '1721 Bath Rd · Shared Mechanical Room',
+        notes: 'Issues: weeping at tee joint, ECO trips every few days, scaled lower element (WO 20316). Parts spec: 4500W/240V screw-in element + gasket, upper + lower thermostats.',
+        flags: ['weeping_tee', 'eco_trips', 'scaled_element'],
+        provenance: 'verified',
         specs: {
-            room: 'Laundry Room',
-            location: '1731 Bath Rd · Laundry Room'
+            volts: '240V',
+            watts: '4500W',
+            room: 'Mechanical Room',
+            location: '1721 Bath Rd · Shared Mechanical Room'
         }
     },
+    // 5. Electric water heater — 1731/1733 shared mech room.
+    {
+        id: 'app-bath-1731-wh',
+        name: 'Electric Water Heater',
+        brand: '', // TODO-verify: brand UNKNOWN
+        modelNumber: '', // TODO-verify: model UNKNOWN
+        serialNumber: '', // TODO-verify: serial UNKNOWN
+        propertyId: 'prop-bath-1731',
+        status: 'operational',
+        lastService: '', // TODO-verify
+        type: 'Heater',
+        category: 'Water Heating',
+        imageUrl: '', // Leave empty for UNKNOWN-model
+        ratingPlateUrl: '', // TODO-verify: field photo pending
+        unitNumber: 'Common',
+        room: 'Mechanical Room',
+        location: '1731/1733 Shared Mechanical Room',
+        notes: '1/2" copper supply (16–17mm OD); SharkBite 1/2" push-fit ball valve planned. Building drain stack has recurring blockages.',
+        provenance: 'verified',
+        specs: {
+            room: 'Mechanical Room',
+            location: '1731/1733 Shared Mechanical Room'
+        }
+    },
+    // 6. Refrigerator — Frigidaire FFHT1826LS9 — 1719 Bath Rd, Unit 273, Kitchen.
     {
         id: 'app-bath-1719-fridge',
         name: 'Refrigerator',
-        brand: '', // TODO-verify: brand UNKNOWN (rating-plate photo pending)
+        brand: 'Frigidaire',
+        modelNumber: 'FFHT1826LS9', // Verified from WOs 20061/20062
+        serialNumber: '', // TODO-verify: serial UNKNOWN
         propertyId: 'prop-bath-1719',
         status: 'needs_service',
-        lastService: '', // TODO-verify: service history unknown
+        lastService: '2026-10-19',
         type: 'Refrigerator',
         category: 'Kitchen',
-        imageUrl: '', // Leave empty for UNKNOWN-model
+        imageUrl: '', // Leave empty for UNKNOWN photo
         ratingPlateUrl: '', // TODO-verify: field photo pending
         unitNumber: '273',
         room: 'Kitchen',
         location: '1719 Bath Rd · Unit 273 · Kitchen',
-        modelNumber: '', // TODO-verify: model UNKNOWN (rating-plate photo pending)
-        serialNumber: '', // TODO-verify: serial UNKNOWN
-        notes: 'Needs crisper drawer + door shelf, ordered via Dependable Appliances once the model is known. Rating-plate photo pending.',
+        notes: '1719 Bath unit 273 kitchen (WOs 20061/20062). Crisper drawer 240337103 BOUGHT 2026-10-19; door shelf 240338101 ORDERED, pickup pending.',
+        flags: ['parts_ordered'],
+        provenance: 'verified',
         specs: {
             room: 'Kitchen',
             location: '1719 Bath Rd · Unit 273 · Kitchen'
         }
     },
+    // 7. Freezer — brand/model UNKNOWN — 505 Days Rd, Unit 103.
     {
         id: 'app-days-505-freezer',
         name: 'Freezer',
         brand: '', // TODO-verify: brand UNKNOWN
+        modelNumber: '', // TODO-verify: model UNKNOWN
+        serialNumber: '', // TODO-verify: serial UNKNOWN
         propertyId: 'prop-days-505',
         status: 'needs_service',
-        lastService: '', // TODO-verify: service history unknown
+        lastService: '', // TODO-verify
         type: 'Freezer',
         category: 'Kitchen',
         imageUrl: '', // Leave empty for UNKNOWN-model
         ratingPlateUrl: '', // TODO-verify: field photo pending
         unitNumber: '103',
-        room: '', // TODO-verify: room unknown
+        room: '', // TODO-verify
         location: '505 Days Rd · Unit 103',
-        modelNumber: '', // TODO-verify: model UNKNOWN
-        serialNumber: '', // TODO-verify: serial UNKNOWN
-        notes: 'Recurring noise complaint (WO 19255).',
+        notes: 'Recurring noise (WO 19255).',
+        flags: ['noise_complaint'],
+        provenance: 'verified',
         specs: {
             location: '505 Days Rd · Unit 103'
         }
+    },
+    // 8. Donor fridges ×2 — 1731/1733 mech room (parts sources, not in service).
+    {
+        id: 'app-bath-1731-donor-fridge-1',
+        name: 'Donor Refrigerator #1',
+        brand: '', // TODO-verify
+        modelNumber: '', // TODO-verify
+        serialNumber: '', // TODO-verify
+        propertyId: 'prop-bath-1731',
+        status: 'donor',
+        lastService: '',
+        type: 'Refrigerator',
+        category: 'Parts Source',
+        unitNumber: 'Common',
+        room: 'Mechanical Room',
+        location: '1731/1733 Shared Mechanical Room',
+        notes: 'Donor fridge #1 in shared mech room (parts source, not in service).',
+        provenance: 'verified'
+    },
+    {
+        id: 'app-bath-1731-donor-fridge-2',
+        name: 'Donor Refrigerator #2',
+        brand: '', // TODO-verify
+        modelNumber: '', // TODO-verify
+        serialNumber: '', // TODO-verify
+        propertyId: 'prop-bath-1731',
+        status: 'donor',
+        lastService: '',
+        type: 'Refrigerator',
+        category: 'Parts Source',
+        unitNumber: 'Common',
+        room: 'Mechanical Room',
+        location: '1731/1733 Shared Mechanical Room',
+        notes: 'Donor fridge #2 in shared mech room (parts source, not in service).',
+        provenance: 'verified'
+    },
+    // 1721 Shared Mechanical Room Bank (Other Water Heaters of the 7)
+    {
+        id: 'app-bath-1721-wh-jw',
+        name: 'Water Heater (John Wood Working)',
+        brand: 'John Wood',
+        modelNumber: '', // TODO-verify
+        serialNumber: '', // TODO-verify
+        propertyId: 'prop-bath-1721',
+        status: 'operational',
+        lastService: '',
+        type: 'Heater',
+        category: 'Water Heating',
+        unitNumber: 'Common',
+        room: 'Mechanical Room',
+        location: '1721 Bath Rd · Shared Mechanical Room',
+        notes: 'Working water heater in 1721 shared bank (working ×3 group).',
+        provenance: 'verified'
+    },
+    {
+        id: 'app-bath-1721-wh-aos',
+        name: 'Water Heater (AO Smith Working)',
+        brand: 'AO Smith',
+        modelNumber: '', // TODO-verify
+        serialNumber: '', // TODO-verify
+        propertyId: 'prop-bath-1721',
+        status: 'operational',
+        lastService: '',
+        type: 'Heater',
+        category: 'Water Heating',
+        unitNumber: 'Common',
+        room: 'Mechanical Room',
+        location: '1721 Bath Rd · Shared Mechanical Room',
+        notes: 'Working water heater in 1721 shared bank (working ×3 group).',
+        provenance: 'verified'
+    },
+    {
+        id: 'app-bath-1721-wh-valved-1',
+        name: 'Water Heater (AO Smith 46-gal Valved-Off #1)',
+        brand: 'AO Smith',
+        modelNumber: '', // TODO-verify: 46-gal AO Smith
+        serialNumber: '', // TODO-verify
+        propertyId: 'prop-bath-1721',
+        status: 'valved_off',
+        lastService: '',
+        type: 'Heater',
+        category: 'Water Heating',
+        unitNumber: 'Common',
+        room: 'Mechanical Room',
+        location: '1721 Bath Rd · Shared Mechanical Room',
+        notes: 'AO Smith 46-gal, still holding stagnant water — flag: drain + management health note.',
+        flags: ['stagnant_water', 'drain_required', 'health_note'],
+        provenance: 'verified'
+    },
+    {
+        id: 'app-bath-1721-wh-valved-2',
+        name: 'Water Heater (AO Smith 46-gal Valved-Off #2)',
+        brand: 'AO Smith',
+        modelNumber: '', // TODO-verify: 46-gal AO Smith
+        serialNumber: '', // TODO-verify
+        propertyId: 'prop-bath-1721',
+        status: 'valved_off',
+        lastService: '',
+        type: 'Heater',
+        category: 'Water Heating',
+        unitNumber: 'Common',
+        room: 'Mechanical Room',
+        location: '1721 Bath Rd · Shared Mechanical Room',
+        notes: 'AO Smith 46-gal, still holding stagnant water — flag: drain + management health note.',
+        flags: ['stagnant_water', 'drain_required', 'health_note'],
+        provenance: 'verified'
+    },
+    {
+        id: 'app-bath-1721-wh-disc-1',
+        name: 'Disconnected Water Heater #1',
+        brand: '', // TODO-verify
+        modelNumber: '', // TODO-verify
+        serialNumber: '', // TODO-verify
+        propertyId: 'prop-bath-1721',
+        status: 'disconnected',
+        lastService: '',
+        type: 'Heater',
+        category: 'Water Heating',
+        unitNumber: 'Common',
+        room: 'Mechanical Room',
+        location: '1721 Bath Rd · Shared Mechanical Room',
+        notes: 'Disconnected, rotting — flag: removal authorization pending.',
+        flags: ['rotting', 'removal_auth_pending'],
+        provenance: 'verified'
+    },
+    {
+        id: 'app-bath-1721-wh-disc-2',
+        name: 'Disconnected Water Heater #2',
+        brand: '', // TODO-verify
+        modelNumber: '', // TODO-verify
+        serialNumber: '', // TODO-verify
+        propertyId: 'prop-bath-1721',
+        status: 'disconnected',
+        lastService: '',
+        type: 'Heater',
+        category: 'Water Heating',
+        unitNumber: 'Common',
+        room: 'Mechanical Room',
+        location: '1721 Bath Rd · Shared Mechanical Room',
+        notes: 'Disconnected, rotting — flag: removal authorization pending.',
+        flags: ['rotting', 'removal_auth_pending'],
+        provenance: 'verified'
     }
 ];
 
-// --- Sensor Grid Default Reading Templates ---
+// ==========================================
+// 7. SENSOR GRID DEFAULT READING TEMPLATES
+// ==========================================
 
 export const DEFAULT_HVAC_SPECS = [
     { id: '1', label: 'Return Temp', value: '72', unit: '°F' },

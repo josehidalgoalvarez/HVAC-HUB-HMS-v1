@@ -211,6 +211,19 @@ class Routes
 
             // --- Inventory & Portfolio synchronization ---
             $group->get('/inventory', function (Request $request, Response $response): Response {
+                $complexRows = Db::fetchAll('SELECT * FROM complex ORDER BY id ASC');
+                $complexes = [];
+                foreach ($complexRows as $c) {
+                    $complexes[] = [
+                        'id' => $c['id'],
+                        'code' => $c['code'],
+                        'name' => $c['name'],
+                        'description' => $c['description'] ?? '',
+                        'address' => $c['address'] ?? '',
+                        'buildingCount' => (int) ($c['building_count'] ?? 0),
+                    ];
+                }
+
                 $buildings = Db::fetchAll('SELECT * FROM building ORDER BY id ASC');
                 $properties = [];
                 foreach ($buildings as $b) {
@@ -219,6 +232,9 @@ class Routes
                     $applianceCount = (int) (Db::fetchOne('SELECT COUNT(*) as c FROM appliance WHERE building_id = ?', [$b['id']])['c'] ?? 0);
                     $properties[] = [
                         'id' => (string) $b['id'],
+                        'complexId' => $b['complex_id'] ?? null,
+                        'clusterId' => $b['cluster_id'] ?? null,
+                        'status' => $b['status'] ?? 'active',
                         'name' => $b['name'],
                         'address' => $b['address'],
                         'type' => $b['type'] ?? 'residential',
@@ -257,6 +273,7 @@ class Routes
                 }
 
                 return Auth::jsonSuccess([
+                    'complexes' => $complexes,
                     'properties' => $properties,
                     'appliances' => $appliances,
                     'logs' => [],
