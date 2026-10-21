@@ -424,6 +424,33 @@ class Db
             );
         ");
 
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS complexes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                slug TEXT NOT NULL UNIQUE,
+                notes TEXT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS default_sets (
+                id TEXT PRIMARY KEY,
+                complex_slug TEXT NOT NULL,
+                complex_id INTEGER NULL,
+                name TEXT NOT NULL,
+                unit_type TEXT NOT NULL,
+                is_default INTEGER NOT NULL DEFAULT 0,
+                bedrooms INTEGER NULL,
+                bathrooms INTEGER NULL,
+                stories INTEGER NULL,
+                has_unit_water_heater INTEGER NOT NULL DEFAULT 0,
+                appliances_json TEXT NOT NULL,
+                notes TEXT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+        ");
+
         try { $pdo->exec("ALTER TABLE building ADD COLUMN complex_id TEXT NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE building ADD COLUMN cluster_id TEXT NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE building ADD COLUMN status TEXT NOT NULL DEFAULT 'active'"); } catch (\Throwable) {}

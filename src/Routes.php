@@ -209,18 +209,113 @@ class Routes
             $group->patch('/watches/{id}', [WatchController::class, 'update']);
             $group->delete('/watches/{id}', [WatchController::class, 'delete']);
 
+            // --- Complexes Domain (Task 1) ---
+            $group->get('/complexes', function (Request $request, Response $response): Response {
+                try {
+                    $rows = Db::fetchAll('SELECT c.*, (SELECT COUNT(*) FROM building b WHERE b.complex_id = c.id) as building_count FROM complexes c ORDER BY c.id ASC');
+                } catch (\Throwable) {
+                    $rows = Db::fetchAll('SELECT * FROM complexes ORDER BY id ASC');
+                }
+                $complexes = [];
+                foreach ($rows as $c) {
+                    $complexes[] = [
+                        'id' => (string) $c['id'],
+                        'name' => $c['name'],
+                        'slug' => $c['slug'],
+                        'notes' => $c['notes'] ?? '',
+                        'buildingCount' => (int) ($c['building_count'] ?? 0),
+                        'building_count' => (int) ($c['building_count'] ?? 0),
+                    ];
+                }
+                return Auth::jsonSuccess($complexes);
+            });
+
+            // --- Appliance Default Sets Domain (Task 3) ---
+            $group->get('/default-sets', function (Request $request, Response $response): Response {
+                $rows = Db::fetchAll('SELECT * FROM default_sets ORDER BY id ASC');
+                $sets = [];
+                foreach ($rows as $ds) {
+                    $sets[] = [
+                        'id' => $ds['id'],
+                        'complexSlug' => $ds['complex_slug'],
+                        'complex_slug' => $ds['complex_slug'],
+                        'complexId' => $ds['complex_id'] ? (string) $ds['complex_id'] : null,
+                        'complex_id' => $ds['complex_id'] ? (int) $ds['complex_id'] : null,
+                        'name' => $ds['name'],
+                        'unitType' => $ds['unit_type'],
+                        'unit_type' => $ds['unit_type'],
+                        'isDefault' => (bool) $ds['is_default'],
+                        'is_default' => (int) $ds['is_default'],
+                        'bedrooms' => $ds['bedrooms'] !== null ? (int) $ds['bedrooms'] : null,
+                        'bathrooms' => $ds['bathrooms'] !== null ? (float) $ds['bathrooms'] : null,
+                        'stories' => $ds['stories'] !== null ? (int) $ds['stories'] : null,
+                        'hasUnitWaterHeater' => (bool) ($ds['has_unit_water_heater'] ?? false),
+                        'has_unit_water_heater' => (int) ($ds['has_unit_water_heater'] ?? 0),
+                        'appliances' => !empty($ds['appliances_json']) ? json_decode($ds['appliances_json'], true) : [],
+                        'notes' => $ds['notes'] ?? '',
+                    ];
+                }
+                return Auth::jsonSuccess($sets);
+            });
+
+            $group->patch('/default-sets/{id}', function (Request $request, Response $response, array $args): Response {
+                $id = (string) ($args['id'] ?? '');
+                $body = (array) ($request->getParsedBody() ?? []);
+                $existing = Db::fetchOne('SELECT * FROM default_sets WHERE id = ?', [$id]);
+                if (!$existing) {
+                    return Auth::jsonError('not_found', 'Default set not found', 404);
+                }
+                $appliances = isset($body['appliances']) ? json_encode($body['appliances']) : $existing['appliances_json'];
+                $notes = isset($body['notes']) ? (string) $body['notes'] : $existing['notes'];
+                Db::execute('UPDATE default_sets SET appliances_json = ?, notes = ? WHERE id = ?', [$appliances, $notes, $id]);
+                return Auth::jsonSuccess(['status' => 'updated', 'id' => $id]);
+            });
+
             // --- Inventory & Portfolio synchronization ---
             $group->get('/inventory', function (Request $request, Response $response): Response {
-                $complexRows = Db::fetchAll('SELECT * FROM complex ORDER BY id ASC');
+                try {
+                    $complexRows = Db::fetchAll('SELECT c.*, (SELECT COUNT(*) FROM building b WHERE b.complex_id = c.id) as building_count FROM complexes c ORDER BY c.id ASC');
+                } catch (\Throwable) {
+                    $complexRows = Db::fetchAll('SELECT * FROM complexes ORDER BY id ASC');
+                }
+                $complexMap = [];
                 $complexes = [];
                 foreach ($complexRows as $c) {
+                    $complexMap[$c['id']] = $c['name'];
                     $complexes[] = [
-                        'id' => $c['id'],
-                        'code' => $c['code'],
+                        'id' => (string) $c['id'],
+                        'code' => strtoupper($c['slug'] ?? 'BD'),
+                        'slug' => $c['slug'] ?? '',
                         'name' => $c['name'],
-                        'description' => $c['description'] ?? '',
-                        'address' => $c['address'] ?? '',
+                        'description' => $c['notes'] ?? '',
+                        'notes' => $c['notes'] ?? '',
+                        'address' => '',
                         'buildingCount' => (int) ($c['building_count'] ?? 0),
+                        'building_count' => (int) ($c['building_count'] ?? 0),
+                    ];
+                }
+
+                $defaultSetRows = Db::fetchAll('SELECT * FROM default_sets ORDER BY id ASC');
+                $defaultSets = [];
+                foreach ($defaultSetRows as $ds) {
+                    $defaultSets[] = [
+                        'id' => $ds['id'],
+                        'complexSlug' => $ds['complex_slug'],
+                        'complex_slug' => $ds['complex_slug'],
+                        'complexId' => $ds['complex_id'] ? (string) $ds['complex_id'] : null,
+                        'complex_id' => $ds['complex_id'] ? (int) $ds['complex_id'] : null,
+                        'name' => $ds['name'],
+                        'unitType' => $ds['unit_type'],
+                        'unit_type' => $ds['unit_type'],
+                        'isDefault' => (bool) $ds['is_default'],
+                        'is_default' => (int) $ds['is_default'],
+                        'bedrooms' => $ds['bedrooms'] !== null ? (int) $ds['bedrooms'] : null,
+                        'bathrooms' => $ds['bathrooms'] !== null ? (float) $ds['bathrooms'] : null,
+                        'stories' => $ds['stories'] !== null ? (int) $ds['stories'] : null,
+                        'hasUnitWaterHeater' => (bool) ($ds['has_unit_water_heater'] ?? false),
+                        'has_unit_water_heater' => (int) ($ds['has_unit_water_heater'] ?? 0),
+                        'appliances' => !empty($ds['appliances_json']) ? json_decode($ds['appliances_json'], true) : [],
+                        'notes' => $ds['notes'] ?? '',
                     ];
                 }
 
@@ -230,9 +325,14 @@ class Routes
                     $units = Db::fetchAll('SELECT * FROM unit WHERE building_id = ? ORDER BY unit_number ASC', [$b['id']]);
                     $unitNumbers = array_column($units, 'unit_number');
                     $applianceCount = (int) (Db::fetchOne('SELECT COUNT(*) as c FROM appliance WHERE building_id = ?', [$b['id']])['c'] ?? 0);
+                    $cId = $b['complex_id'] !== null ? (int) $b['complex_id'] : null;
+                    $cName = $cId !== null ? ($complexMap[$cId] ?? null) : null;
                     $properties[] = [
                         'id' => (string) $b['id'],
-                        'complexId' => $b['complex_id'] ?? null,
+                        'complex_id' => $cId,
+                        'complex_name' => $cName,
+                        'complexId' => $cId !== null ? (string) $cId : null,
+                        'complexName' => $cName,
                         'clusterId' => $b['cluster_id'] ?? null,
                         'status' => $b['status'] ?? 'active',
                         'name' => $b['name'],
@@ -274,6 +374,7 @@ class Routes
 
                 return Auth::jsonSuccess([
                     'complexes' => $complexes,
+                    'defaultSets' => $defaultSets,
                     'properties' => $properties,
                     'appliances' => $appliances,
                     'logs' => [],

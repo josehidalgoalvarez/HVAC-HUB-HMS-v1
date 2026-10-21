@@ -90,9 +90,9 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         ];
     }
 
-    // Clean old prototype buildings that are not in verified portfolio map
+    // Clean old prototype buildings and pool
     try {
-        $pdo->exec("DELETE FROM building WHERE name IN ('1727 Bath Road', '1735 Bath Road')");
+        $pdo->exec("DELETE FROM building WHERE name IN ('1735 Bath Road', '505 Days Pool')");
         $pdo->exec("DELETE FROM appliance WHERE model_number IN ('RU199iN', '59TP6B080V1716', '24ACC636A003', 'LGB-8', 'FWA-110', 'PTC153G35AXXX')");
     } catch (\Throwable) {}
 

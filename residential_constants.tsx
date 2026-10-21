@@ -4,7 +4,8 @@ import {
     StorageItem,
     Property,
     Unit,
-    Appliance
+    Appliance,
+    ApplianceDefaultSet
 } from './types/domain';
 
 // --- Verified Kingston Portfolio & Complex Structure ---
@@ -14,89 +15,111 @@ import {
 // The only verified postal code is 1723 Bath Rd (K7M 4Y9). All other postal codes are UNKNOWN.
 
 // ==========================================
-// 1. COMPLEXES (10 Groups: 9 Portfolio + 1 Office)
+// 1. COMPLEXES (Task 1: BD + Elm/Colborne; rest Ungrouped)
 // ==========================================
 
 export const COMPLEXES: Complex[] = [
     {
-        id: 'complex-bd',
+        id: '1',
+        slug: 'bd',
         code: 'BD',
-        name: 'BD Complex',
-        description: 'Bath Road & Days Road residential complex in Kingston, ON.',
+        name: 'BD',
+        description: 'Bath Road & Days Road residential complex in Kingston, ON. 511 Days Rd is the storage building.',
         address: 'Bath Rd & Days Rd, Kingston, ON',
-        buildingCount: 13
+        buildingCount: 12
     },
     {
-        id: 'complex-amherst',
-        code: 'AMHERST',
-        name: 'Amherst Complex',
-        description: 'Long row of 43 apartment buildings in Amherstview, ON (odd numbers 107–229).',
-        address: 'Amherstview, ON',
-        buildingCount: 43
-    },
-    {
-        id: 'complex-princess',
-        code: 'PRINCESS',
-        name: 'Princess Complex',
-        description: 'Princess Street multi-unit properties in Kingston, ON.',
-        address: 'Princess St, Kingston, ON',
-        buildingCount: 7
-    },
-    {
-        id: 'complex-victoria',
-        code: 'VICTORIA',
-        name: 'Victoria Complex',
-        description: 'Victoria Street residential properties in Kingston, ON.',
-        address: 'Victoria St, Kingston, ON',
-        buildingCount: 4
-    },
-    {
-        id: 'complex-alfred',
-        code: 'ALFRED',
-        name: 'Alfred Complex',
-        description: 'Alfred Street residential multi-unit cluster in Kingston, ON.',
-        address: 'Alfred St, Kingston, ON',
-        buildingCount: 6
-    },
-    {
-        id: 'complex-frontenac',
-        code: 'FRONTENAC',
-        name: 'Frontenac Complex',
-        description: 'Frontenac Street residential properties in Kingston, ON.',
-        address: 'Frontenac St, Kingston, ON',
-        buildingCount: 2
-    },
-    {
-        id: 'complex-elm',
-        code: 'ELM',
-        name: 'Elm & Colborne Complex',
-        description: 'Proximity cluster: 18 & 24 Elm St directly behind 203 Colborne St.',
+        id: '2',
+        slug: 'elm-colborne',
+        code: 'ELM-COLBORNE',
+        name: 'Elm + Colborne',
+        description: '18 Elm St, 24 Elm St, and 203 Colborne St proximity cluster.',
         address: 'Elm St & Colborne St, Kingston, ON',
         buildingCount: 3
+    }
+];
+
+// ==========================================
+// 2. APPLIANCE DEFAULT SETS (First-Class Feature)
+// ==========================================
+
+export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
+    {
+        id: 'set-bd-apt',
+        complexSlug: 'bd',
+        complexId: '1',
+        name: 'BD / Apartment (default)',
+        unitType: 'apartment',
+        isDefault: true,
+        bedrooms: 2,
+        bathrooms: 1,
+        stories: 1,
+        hasUnitWaterHeater: false,
+        appliances: [
+            { category: 'Refrigeration', label: 'Fridge (default)', type: 'Refrigerator' },
+            { category: 'Cooking', label: 'Stove (electric coil)', type: 'Stove' },
+            { category: 'Cleaning', label: 'Dishwasher (default)', type: 'Dishwasher' },
+            { category: 'Ventilation', label: 'Range Hood (default)', type: 'Range Hood' }
+        ],
+        notes: '2 bed / 1 washroom. Shared laundry room appliances, shared water heaters on building/mechanical room.'
     },
     {
-        id: 'complex-manitou',
-        code: 'MANITOU',
-        name: 'Manitou Complex',
-        description: 'Manitou Crescent townhouse row (1–58 Manitou Cres).',
-        address: 'Manitou Cres, Kingston, ON',
-        buildingCount: 1
+        id: 'set-bd-apt-1bed',
+        complexSlug: 'bd',
+        complexId: '1',
+        name: 'BD / Apartment 1-bed (variant)',
+        unitType: 'apartment',
+        isDefault: false,
+        bedrooms: 1,
+        bathrooms: 1,
+        stories: 1,
+        hasUnitWaterHeater: false,
+        appliances: [
+            { category: 'Refrigeration', label: 'Fridge (default)', type: 'Refrigerator' },
+            { category: 'Cooking', label: 'Stove (electric coil)', type: 'Stove' },
+            { category: 'Cleaning', label: 'Dishwasher (default)', type: 'Dishwasher' },
+            { category: 'Ventilation', label: 'Range Hood (default)', type: 'Range Hood' }
+        ],
+        notes: '1 bed / 1 washroom variant. Same appliance list as default apartment set.'
     },
     {
-        id: 'complex-singles',
-        code: 'SINGLES',
-        name: 'Singles & Standalone',
-        description: 'Individual standalone properties, stockpiles, and project entries across Kingston.',
-        address: 'Various locations, Kingston, ON',
-        buildingCount: 9
+        id: 'set-bd-townhouse',
+        complexSlug: 'bd',
+        complexId: '1',
+        name: 'BD / Townhouse',
+        unitType: 'townhouse',
+        isDefault: true,
+        bedrooms: 3,
+        bathrooms: 2,
+        stories: 3,
+        hasUnitWaterHeater: true,
+        appliances: [
+            { category: 'Refrigeration', label: 'Fridge (default)', type: 'Refrigerator' },
+            { category: 'Cooking', label: 'Stove (electric coil)', type: 'Stove' },
+            { category: 'Cleaning', label: 'Dishwasher (default)', type: 'Dishwasher' },
+            { category: 'Ventilation', label: 'Range Hood (default)', type: 'Range Hood' },
+            { category: 'Water Heating', label: 'Unit Water Heater (default)', type: 'Water Heater' }
+        ],
+        notes: '3 stories (2 floors + basement), 2 washrooms, per-unit water heater.'
     },
     {
-        id: 'complex-office',
-        code: 'OFFICE',
-        name: 'Operations & Office',
-        description: 'Company headquarters and route dispatch origin (not a rental property).',
-        address: '698 McKay St, Kingston, ON',
-        buildingCount: 1
+        id: 'set-elm-apt',
+        complexSlug: 'elm-colborne',
+        complexId: '2',
+        name: 'Elm + Colborne / Apartment',
+        unitType: 'apartment',
+        isDefault: true,
+        bedrooms: 2,
+        bathrooms: 1,
+        stories: 1,
+        hasUnitWaterHeater: false,
+        appliances: [
+            { category: 'Refrigeration', label: 'Fridge (default)', type: 'Refrigerator' },
+            { category: 'Cooking', label: 'Stove (electric coil)', type: 'Stove' },
+            { category: 'Cleaning', label: 'Dishwasher (default)', type: 'Dishwasher' },
+            { category: 'Ventilation', label: 'Range Hood (default)', type: 'Range Hood' }
+        ],
+        notes: 'Independent copy of BD apartment set for Elm + Colborne. Editable in one place.'
     }
 ];
 
@@ -108,7 +131,7 @@ export const BUILDING_CLUSTERS: BuildingCluster[] = [
     {
         id: 'cluster-bd-1719-1723',
         name: '1719–1723 Bath Rd Attached Trio',
-        complexId: 'complex-bd',
+        complexId: '1',
         buildingIds: ['prop-bath-1719', 'prop-bath-1721', 'prop-bath-1723'],
         sharedSystems: [
             {
@@ -129,7 +152,7 @@ export const BUILDING_CLUSTERS: BuildingCluster[] = [
     {
         id: 'cluster-bd-1731-1733',
         name: '1731–1733 Bath Rd Attached Pair',
-        complexId: 'complex-bd',
+        complexId: '1',
         buildingIds: ['prop-bath-1731', 'prop-bath-1733'],
         sharedSystems: [
             {
@@ -150,7 +173,7 @@ export const BUILDING_CLUSTERS: BuildingCluster[] = [
     {
         id: 'cluster-bd-509-511',
         name: '509–511 Days Rd Attached Pair',
-        complexId: 'complex-bd',
+        complexId: '1',
         buildingIds: ['prop-days-509', 'prop-days-511'],
         sharedSystems: [
             {
@@ -165,7 +188,7 @@ export const BUILDING_CLUSTERS: BuildingCluster[] = [
     {
         id: 'cluster-elm-colborne',
         name: 'Elm & Colborne Proximity Cluster',
-        complexId: 'complex-elm',
+        complexId: '2',
         buildingIds: ['prop-elm-18', 'prop-elm-24', 'prop-colborne-203'],
         sharedSystems: [
             {
@@ -252,12 +275,12 @@ const AMHERST_NUMBERS = [
 
 export const RESIDENTIAL_PROPERTIES: Property[] = [
     // ----------------------------------------------------
-    // 1) BD Complex (Bath Rd + Days Rd) — 13 Entries
+    // 1) BD Complex (Bath Rd + Days Rd) — 12 Buildings
     // ----------------------------------------------------
     {
         id: 'prop-days-505',
-        complexId: 'complex-bd',
-        complexName: 'BD Complex',
+        complexId: '1',
+        complexName: 'BD',
         code: 'bd0505',
         name: '505 Days Road',
         address: '505 Days Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -269,23 +292,9 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         provenance: 'verified'
     },
     {
-        id: 'prop-days-505-pool',
-        complexId: 'complex-bd',
-        complexName: 'BD Complex',
-        code: 'bd0505-pool',
-        name: '505 Days Pool',
-        address: '505 Days Rd, Kingston, ON',
-        imageUrl: '/uploads/photo_c61a96df0f03a7620bf1.jpg',
-        applianceCount: 0,
-        status: 'permanently_out_of_order',
-        comments: 'PERMANENTLY OUT OF ORDER (inactive record, no watches/SOPs).',
-        definedRooms: ['Pool Area'],
-        provenance: 'verified'
-    },
-    {
         id: 'prop-days-507',
-        complexId: 'complex-bd',
-        complexName: 'BD Complex',
+        complexId: '1',
+        complexName: 'BD',
         code: 'bd0507',
         name: '507 Days Road',
         address: '507 Days Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -299,8 +308,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-days-509',
-        complexId: 'complex-bd',
-        complexName: 'BD Complex',
+        complexId: '1',
+        complexName: 'BD',
         clusterId: 'cluster-bd-509-511',
         code: 'bd0509',
         name: '509 Days Road',
@@ -315,8 +324,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-days-511',
-        complexId: 'complex-bd',
-        complexName: 'BD Complex',
+        complexId: '1',
+        complexName: 'BD',
         clusterId: 'cluster-bd-509-511',
         code: 'bd0511',
         name: '511 Days Road',
@@ -325,7 +334,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         applianceCount: 0,
         isStorageNode: true,
         storageInventory: STORAGE_511_DAYS,
-        comments: 'Attached pair with 509 Days Rd, SHARED mechanical room. Complex storage node in 511 basement. Laundry: WITH sink.',
+        comments: 'Attached pair with 509 Days Rd, SHARED mechanical room. Complex storage node in 511 basement. Storage building. Laundry: WITH sink.',
         definedRooms: ['Basement Storage', 'Mechanical Room', 'Laundry Room'],
         floors: ['Basement', 'Main Floor', 'Second Floor'],
         laundryConfig: { hasSink: true, notes: '511 laundry WITH sink' },
@@ -333,8 +342,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1719',
-        complexId: 'complex-bd',
-        complexName: 'BD Complex',
+        complexId: '1',
+        complexName: 'BD',
         clusterId: 'cluster-bd-1719-1723',
         code: 'bd1719',
         name: '1719 Bath Road',
@@ -351,8 +360,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1721',
-        complexId: 'complex-bd',
-        complexName: 'BD Complex',
+        complexId: '1',
+        complexName: 'BD',
         clusterId: 'cluster-bd-1719-1723',
         code: 'bd1721',
         name: '1721 Bath Road',
@@ -367,8 +376,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1723',
-        complexId: 'complex-bd',
-        complexName: 'BD Complex',
+        complexId: '1',
+        complexName: 'BD',
         clusterId: 'cluster-bd-1719-1723',
         code: 'bd1723',
         name: '1723 Bath Road',
@@ -383,8 +392,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1725',
-        complexId: 'complex-bd',
-        complexName: 'BD Complex',
+        complexId: '1',
+        complexName: 'BD',
         code: 'bd1725',
         name: '1725 Bath Road',
         address: '1725 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -398,8 +407,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1727',
-        complexId: 'complex-bd',
-        complexName: 'BD Complex',
+        complexId: '1',
+        complexName: 'BD',
         code: 'bd1727',
         name: '1727 Bath Road',
         address: '1727 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -413,8 +422,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1731',
-        complexId: 'complex-bd',
-        complexName: 'BD Complex',
+        complexId: '1',
+        complexName: 'BD',
         clusterId: 'cluster-bd-1731-1733',
         code: 'bd1731',
         name: '1731 Bath Road',
@@ -429,8 +438,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1733',
-        complexId: 'complex-bd',
-        complexName: 'BD Complex',
+        complexId: '1',
+        complexName: 'BD',
         clusterId: 'cluster-bd-1731-1733',
         code: 'bd1733',
         name: '1733 Bath Road',
@@ -445,8 +454,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1737',
-        complexId: 'complex-bd',
-        complexName: 'BD Complex',
+        complexId: '1',
+        complexName: 'BD',
         code: 'bd1737',
         name: '1737 Bath Road',
         address: '1737 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -460,7 +469,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
 
     // ----------------------------------------------------
-    // 2) AMHERST Complex (Amherstview) — 43 Buildings (107–229)
+    // 2) AMHERST (Amherstview) — 43 Buildings (107–229) [Ungrouped]
     // ----------------------------------------------------
     ...AMHERST_NUMBERS.map(num => {
         const id = `prop-amherst-${num}`;
@@ -470,8 +479,6 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
 
         return {
             id,
-            complexId: 'complex-amherst',
-            complexName: 'Amherst Complex',
             code: `${num} Amherst Dr`,
             name: `${num} Amherst Drive`,
             address: `${num} Amherst Dr, Amherstview, ON`, // TODO-verify postal code (UNKNOWN)
@@ -484,7 +491,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
             comments: isTownhouse
                 ? 'Amherst Townhouse building in the time tracking system.'
                 : isStorage
-                    ? 'Storage node for Amherst complex (supplies, tools, 2 white coil stoves). Unit pattern: 101-112, 201-212, 301-312 (36 units).'
+                    ? 'Storage node for Amherst (supplies, tools, 2 white coil stoves). Unit pattern: 101-112, 201-212, 301-312 (36 units).'
                     : isVerifiedUnit137
                         ? 'Residential unit building. Verified unit 137 (range, water heater).'
                         : 'Apartment building in Amherst row (odd numbers 107-229). Floor-coded units.',
@@ -495,12 +502,10 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     }),
 
     // ----------------------------------------------------
-    // 3) PRINCESS Complex — 7 Buildings
+    // 3) PRINCESS — 7 Buildings [Ungrouped]
     // ----------------------------------------------------
     ...[563, 565, 567, 630, 655, 800, 837].map(num => ({
         id: `prop-princess-${num}`,
-        complexId: 'complex-princess',
-        complexName: 'Princess Complex',
         code: `${num} Princess St`,
         name: `${num} Princess Street`,
         address: `${num} Princess St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
@@ -513,12 +518,10 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     })),
 
     // ----------------------------------------------------
-    // 4) VICTORIA Complex — 4 Buildings
+    // 4) VICTORIA — 4 Buildings [Ungrouped]
     // ----------------------------------------------------
     ...[585, 614, 616, 620].map(num => ({
         id: `prop-victoria-${num}`,
-        complexId: 'complex-victoria',
-        complexName: 'Victoria Complex',
         code: `${num} Victoria St`,
         name: `${num} Victoria Street`,
         address: `${num} Victoria St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
@@ -531,12 +534,10 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     })),
 
     // ----------------------------------------------------
-    // 5) ALFRED Complex — 6 Buildings
+    // 5) ALFRED — 6 Buildings [Ungrouped]
     // ----------------------------------------------------
     ...[353, 359, 361, 376, 378, 394].map(num => ({
         id: `prop-alfred-${num}`,
-        complexId: 'complex-alfred',
-        complexName: 'Alfred Complex',
         code: `${num} Alfred St`,
         name: `${num} Alfred Street`,
         address: `${num} Alfred St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
@@ -549,12 +550,10 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     })),
 
     // ----------------------------------------------------
-    // 6) FRONTENAC Complex — 2 Buildings
+    // 6) FRONTENAC — 2 Buildings [Ungrouped]
     // ----------------------------------------------------
     ...[501, 520].map(num => ({
         id: `prop-frontenac-${num}`,
-        complexId: 'complex-frontenac',
-        complexName: 'Frontenac Complex',
         code: `${num} Frontenac St`,
         name: `${num} Frontenac Street`,
         address: `${num} Frontenac St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
@@ -567,12 +566,12 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     })),
 
     // ----------------------------------------------------
-    // 7) ELM Complex (Proximity Cluster) — 3 Buildings
+    // 7) ELM + COLBORNE Complex — 3 Buildings
     // ----------------------------------------------------
     {
         id: 'prop-elm-18',
-        complexId: 'complex-elm',
-        complexName: 'Elm & Colborne Complex',
+        complexId: '2',
+        complexName: 'Elm + Colborne',
         clusterId: 'cluster-elm-colborne',
         code: '18 Elm St',
         name: '18 Elm Street',
@@ -581,13 +580,13 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         applianceCount: 0,
         comments: 'Sits right behind 203 Colborne St.',
         definedRooms: [],
-        floors: ['Main Floor', 'Second Floor'],
+        floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor'],
         provenance: 'verified'
     },
     {
         id: 'prop-elm-24',
-        complexId: 'complex-elm',
-        complexName: 'Elm & Colborne Complex',
+        complexId: '2',
+        complexName: 'Elm + Colborne',
         clusterId: 'cluster-elm-colborne',
         code: '24 Elm St',
         name: '24 Elm Street',
@@ -601,8 +600,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-colborne-203',
-        complexId: 'complex-elm',
-        complexName: 'Elm & Colborne Complex',
+        complexId: '2',
+        complexName: 'Elm + Colborne',
         clusterId: 'cluster-elm-colborne',
         code: '203 Colborne St',
         name: '203 Colborne Street',
@@ -616,12 +615,10 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
 
     // ----------------------------------------------------
-    // 8) MANITOU Complex — Townhouses 1–58
+    // 8) MANITOU — Townhouses 1–58 [Ungrouped]
     // ----------------------------------------------------
     {
         id: 'prop-manitou-cres',
-        complexId: 'complex-manitou',
-        complexName: 'Manitou Complex',
         code: 'MANITOU',
         name: 'Manitou Crescent Townhouses',
         address: '1–58 Manitou Cres, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -634,12 +631,10 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
 
     // ----------------------------------------------------
-    // 9) SINGLES & STANDALONE — 9 Entries
+    // 9) SINGLES & STANDALONE — 9 Entries [Ungrouped]
     // ----------------------------------------------------
     {
         id: 'prop-blackburn-810',
-        complexId: 'complex-singles',
-        complexName: 'Singles & Standalone',
         code: '810 Blackburn Mews',
         name: '810 Blackburn Mews',
         address: '810 Blackburn Mews, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -651,8 +646,6 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-park-85',
-        complexId: 'complex-singles',
-        complexName: 'Singles & Standalone',
         code: '85 Park St',
         name: '85 Park Street',
         address: '85 Park St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -664,8 +657,6 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-railway-176',
-        complexId: 'complex-singles',
-        complexName: 'Singles & Standalone',
         code: '176 Railway St',
         name: '176 Railway Street',
         address: '176 Railway St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -677,8 +668,6 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-ontario-55',
-        complexId: 'complex-singles',
-        complexName: 'Singles & Standalone',
         code: '55 Ontario St',
         name: '55 Ontario Street',
         address: '55 Ontario St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -690,8 +679,6 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-durham-36',
-        complexId: 'complex-singles',
-        complexName: 'Singles & Standalone',
         code: '36 Durham St',
         name: '36 Durham Street',
         address: '36 Durham St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -703,8 +690,6 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-ontario-265',
-        complexId: 'complex-singles',
-        complexName: 'Singles & Standalone',
         code: '265 Ontario St',
         name: '265 Ontario Street',
         address: '265 Ontario St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -717,8 +702,6 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-albert-415',
-        complexId: 'complex-singles',
-        complexName: 'Singles & Standalone',
         code: '415 Albert St',
         name: '415 Albert Street',
         address: '415 Albert St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -731,8 +714,6 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-armstrong-539',
-        complexId: 'complex-singles',
-        complexName: 'Singles & Standalone',
         code: '539 Armstrong Rd',
         name: '539 Armstrong Road',
         address: '539 Armstrong Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -745,8 +726,6 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-dev-847',
-        complexId: 'complex-singles',
-        complexName: 'Singles & Standalone',
         code: '847 Development',
         name: '847 Development',
         address: 'Kingston, ON',
@@ -758,12 +737,10 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
 
     // ----------------------------------------------------
-    // 10) OPERATIONS & OFFICE — 1 Entry
+    // 10) OPERATIONS & OFFICE — 1 Entry [Ungrouped]
     // ----------------------------------------------------
     {
         id: 'prop-office-mckay-698',
-        complexId: 'complex-office',
-        complexName: 'Operations & Office',
         code: '698 McKay St',
         name: '698 McKay Street (Office)',
         address: '698 McKay St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -784,10 +761,13 @@ export function generateUnitRoster(building: Building): Unit[] {
     const bId = building.id;
 
     // BD Complex
-    if (building.complexId === 'complex-bd') {
-        if (bId === 'prop-days-507' || bId === 'prop-bath-1727' || bId === 'prop-bath-1737') {
+    if (building.complexId === '1' || building.complexId === 'complex-bd') {
+        if (bId === 'prop-bath-1727') {
+            // 1727 Bath Rd: real building with no units yet
+            return [];
+        } else if (bId === 'prop-days-507' || bId === 'prop-bath-1737') {
             // Townhouses: 2-digit unit numbers, 3 stories, 2 washrooms, own water heater
-            const count = bId === 'prop-days-507' ? 12 : bId === 'prop-bath-1727' ? 8 : 6;
+            const count = bId === 'prop-days-507' ? 12 : 6;
             for (let i = 1; i <= count; i++) {
                 const uNum = bId === 'prop-days-507' ? (i === 1 ? '32' : `${20 + i}`) : `${10 + i}`;
                 const isVerified = (bId === 'prop-days-507' && uNum === '32');
@@ -797,6 +777,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                     unitNumber: uNum,
                     floor: 'Multi-Floor Townhouse',
                     unitType: 'townhouse',
+                    defaultSetId: 'set-bd-townhouse',
                     stories: 3,
                     bathrooms: 2,
                     renovated: { isRenovated: false, renovatedDate: null },
@@ -806,9 +787,6 @@ export function generateUnitRoster(building: Building): Unit[] {
                     provenance: isVerified ? 'verified' : 'pattern'
                 });
             }
-        } else if (bId === 'prop-days-505-pool') {
-            // No units for the pool
-            return [];
         } else if (bId === 'prop-bath-1725') {
             // 2-digit units
             for (let i = 1; i <= 8; i++) {
@@ -819,6 +797,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                     unitNumber: uNum,
                     floor: i <= 4 ? 'Main Floor' : 'Second Floor',
                     unitType: 'apartment',
+                    defaultSetId: 'set-bd-apt',
                     bedrooms: 2,
                     bathrooms: 1,
                     renovated: { isRenovated: false, renovatedDate: null },
@@ -835,6 +814,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                 unitNumber: '273',
                 floor: 'Basement',
                 unitType: 'apartment',
+                defaultSetId: 'set-bd-apt',
                 bedrooms: 2,
                 bathrooms: 1,
                 renovated: { isRenovated: false, renovatedDate: null },
@@ -850,6 +830,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                     unitNumber: `10${i}`,
                     floor: 'First Floor',
                     unitType: 'apartment',
+                    defaultSetId: 'set-bd-apt',
                     bedrooms: 2,
                     bathrooms: 1,
                     renovated: { isRenovated: false, renovatedDate: null },
@@ -865,6 +846,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                 unitNumber: '266',
                 floor: 'Second Floor',
                 unitType: 'apartment',
+                defaultSetId: 'set-bd-apt',
                 bedrooms: 2,
                 bathrooms: 1,
                 renovated: { isRenovated: false, renovatedDate: null },
@@ -878,6 +860,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                 unitNumber: '268',
                 floor: 'Second Floor',
                 unitType: 'apartment',
+                defaultSetId: 'set-bd-apt',
                 bedrooms: 2,
                 bathrooms: 1,
                 renovated: { isRenovated: false, renovatedDate: null },
@@ -892,6 +875,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                 unitNumber: '266',
                 floor: 'Second Floor',
                 unitType: 'apartment',
+                defaultSetId: 'set-bd-apt',
                 bedrooms: 2,
                 bathrooms: 1,
                 renovated: { isRenovated: false, renovatedDate: null },
@@ -906,6 +890,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                 unitNumber: '67',
                 floor: 'Main Floor',
                 unitType: 'apartment',
+                defaultSetId: 'set-bd-apt',
                 bedrooms: 2,
                 bathrooms: 1,
                 renovated: { isRenovated: false, renovatedDate: null },
@@ -920,6 +905,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                 unitNumber: 'G63',
                 floor: 'Ground Floor',
                 unitType: 'apartment',
+                defaultSetId: 'set-bd-apt',
                 bedrooms: 2,
                 bathrooms: 1,
                 renovated: { isRenovated: false, renovatedDate: null },
@@ -933,6 +919,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                 unitNumber: '161',
                 floor: 'First Floor',
                 unitType: 'apartment',
+                defaultSetId: 'set-bd-apt',
                 bedrooms: 2,
                 bathrooms: 1,
                 renovated: { isRenovated: false, renovatedDate: null },
@@ -947,6 +934,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                 unitNumber: '103',
                 floor: 'First Floor',
                 unitType: 'apartment',
+                defaultSetId: 'set-bd-apt',
                 bedrooms: 2,
                 bathrooms: 1,
                 renovated: { isRenovated: false, renovatedDate: null },
@@ -963,6 +951,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                         unitNumber: `10${i}`,
                         floor: 'First Floor',
                         unitType: 'apartment',
+                        defaultSetId: 'set-bd-apt',
                         bedrooms: 2,
                         bathrooms: 1,
                         renovated: { isRenovated: false, renovatedDate: null },
@@ -981,6 +970,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                     unitNumber: `10${i}`,
                     floor: 'First Floor',
                     unitType: 'apartment',
+                    defaultSetId: 'set-bd-apt',
                     bedrooms: 2,
                     bathrooms: 1,
                     renovated: { isRenovated: false, renovatedDate: null },
@@ -990,7 +980,30 @@ export function generateUnitRoster(building: Building): Unit[] {
                 });
             }
         }
-    } else if (building.complexId === 'complex-amherst') {
+    } else if (bId === 'prop-elm-18') {
+        // 18 Elm St: base numbers only 101–414 across 4 floors (specifically including 411)
+        const floors = ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor'];
+        for (let fl = 1; fl <= 4; fl++) {
+            for (let u = 1; u <= 14; u++) {
+                const uNum = `${fl}${u < 10 ? '0' + u : u}`;
+                units.push({
+                    id: `unit-${bId}-${uNum}`,
+                    buildingId: bId,
+                    unitNumber: uNum,
+                    floor: floors[fl - 1],
+                    unitType: 'apartment',
+                    defaultSetId: 'set-elm-apt',
+                    bedrooms: 2,
+                    bathrooms: 1,
+                    renovated: { isRenovated: false, renovatedDate: null },
+                    moveInDate: null,
+                    tenancyDate: null,
+                    comments: uNum === '411' ? '18 Elm St unit 411 (base unit, ignores Yardi letter suffix)' : '18 Elm St residential unit',
+                    provenance: 'pattern'
+                });
+            }
+        }
+    } else if (bId.startsWith('prop-amherst-')) {
         if (bId === 'prop-amherst-107') {
             // 107 Amherst storage node & default row pattern: floor-coded 101–112, 201–212, 301–312 (36 units)
             for (let floor = 1; floor <= 3; floor++) {

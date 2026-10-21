@@ -1,16 +1,26 @@
-
 import React, { createContext, useState, ReactNode, useMemo, useEffect } from 'react';
-import { Property, Appliance, ChangeLogEntry } from '../types';
-import { INITIAL_PROPERTIES, INITIAL_APPLIANCES } from '../constants';
+import { Property, Appliance, ChangeLogEntry, Complex, Unit, ApplianceDefaultSet } from '../types';
+import {
+  INITIAL_PROPERTIES,
+  INITIAL_APPLIANCES,
+  INITIAL_COMPLEXES,
+  INITIAL_UNITS,
+  INITIAL_DEFAULT_SETS
+} from '../constants';
 import { apiClient } from '../src/api/client';
 
-// --- Inventory Context (Properties & Appliances) ---
-// Changes infrequently.
+// --- Inventory Context (Properties, Complexes, Units, Default Sets, & Appliances) ---
 interface InventoryContextType {
   properties: Property[];
   appliances: Appliance[];
+  complexes: Complex[];
+  defaultSets: ApplianceDefaultSet[];
+  units: Unit[];
   getAppliance: (id: string) => Appliance | undefined;
   getProperty: (id: string) => Property | undefined;
+  getUnit: (id: string) => Unit | undefined;
+  getDefaultSet: (id: string) => ApplianceDefaultSet | undefined;
+  getUnitAppliances: (unit: Unit) => Appliance[];
   isTutorialActive: boolean;
   tutorialStep: number;
 }
@@ -18,7 +28,6 @@ interface InventoryContextType {
 export const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
 // --- Activity Context (Logs & Alerts) ---
-// Changes frequently.
 interface ActivityContextType {
   logs: ChangeLogEntry[];
 }
@@ -26,7 +35,6 @@ interface ActivityContextType {
 export const ActivityContext = createContext<ActivityContextType | undefined>(undefined);
 
 // --- Action Context (Functions) ---
-// Stable references to actions.
 interface ActionContextType {
   addProperty: (property: Property) => void;
   updateProperty: (updatedProperty: Property) => void;
@@ -39,7 +47,14 @@ interface ActionContextType {
   deleteAppliance: (id: string) => void;
   duplicateAppliance: (appliance: Appliance) => void;
 
-  importData: (data: { properties: Property[], appliances?: Appliance[] }) => void;
+  addUnit: (unit: Unit) => void;
+  updateUnit: (unit: Unit) => void;
+  updateDefaultSet: (updatedSet: ApplianceDefaultSet) => void;
+  applyDefaultSetToUnit: (unitId: string, defaultSetId: string, force?: boolean) => { success: boolean; overwrittenCount: number };
+  overrideUnitAppliance: (unitId: string, appliance: Appliance) => void;
+  resetUnitToDefault: (unitId: string) => void;
+
+  importData: (data: { properties: Property[]; appliances?: Appliance[]; units?: Unit[] }) => void;
   addLog: (
     action: ChangeLogEntry['action'],
     entityType: ChangeLogEntry['entityType'],
@@ -55,18 +70,23 @@ interface ActionContextType {
 
 export const ActionContext = createContext<ActionContextType | undefined>(undefined);
 
+const PORTFOLIO_VERSION = '2.2.0';
+
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Feature flag: default to false (localStorage). When true, reads through API client.
   const useApi = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_USE_API === 'true');
 
-  // --- Initialization with Persistence ---
+  // --- Initialization with Persistence & Version Cache Busting ---
   const [properties, setProperties] = useState<Property[]>(() => {
     try {
       const version = localStorage.getItem('hvachome_portfolio_version');
-      if (version !== '2.1.0') {
+      if (version !== PORTFOLIO_VERSION) {
         localStorage.removeItem('hvachome_properties');
         localStorage.removeItem('hvachome_appliances');
-        localStorage.setItem('hvachome_portfolio_version', '2.1.0');
+        localStorage.removeItem('hvachome_units');
+        localStorage.removeItem('hvachome_complexes');
+        localStorage.removeItem('hvachome_default_sets');
+        localStorage.setItem('hvachome_portfolio_version', PORTFOLIO_VERSION);
         return INITIAL_PROPERTIES;
       }
       const saved = localStorage.getItem('hvachome_properties');
@@ -85,7 +105,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [appliances, setAppliances] = useState<Appliance[]>(() => {
     try {
       const version = localStorage.getItem('hvachome_portfolio_version');
-      if (version !== '2.1.0') {
+      if (version !== PORTFOLIO_VERSION) {
         return INITIAL_APPLIANCES;
       }
       const saved = localStorage.getItem('hvachome_appliances');
@@ -98,6 +118,63 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return INITIAL_APPLIANCES;
     } catch {
       return INITIAL_APPLIANCES;
+    }
+  });
+
+  const [complexes, setComplexes] = useState<Complex[]>(() => {
+    try {
+      const version = localStorage.getItem('hvachome_portfolio_version');
+      if (version !== PORTFOLIO_VERSION) {
+        return INITIAL_COMPLEXES;
+      }
+      const saved = localStorage.getItem('hvachome_complexes');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+      return INITIAL_COMPLEXES;
+    } catch {
+      return INITIAL_COMPLEXES;
+    }
+  });
+
+  const [defaultSets, setDefaultSets] = useState<ApplianceDefaultSet[]>(() => {
+    try {
+      const version = localStorage.getItem('hvachome_portfolio_version');
+      if (version !== PORTFOLIO_VERSION) {
+        return INITIAL_DEFAULT_SETS;
+      }
+      const saved = localStorage.getItem('hvachome_default_sets');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+      return INITIAL_DEFAULT_SETS;
+    } catch {
+      return INITIAL_DEFAULT_SETS;
+    }
+  });
+
+  const [units, setUnits] = useState<Unit[]>(() => {
+    try {
+      const version = localStorage.getItem('hvachome_portfolio_version');
+      if (version !== PORTFOLIO_VERSION) {
+        return INITIAL_UNITS;
+      }
+      const saved = localStorage.getItem('hvachome_units');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+      return INITIAL_UNITS;
+    } catch {
+      return INITIAL_UNITS;
     }
   });
 
@@ -123,7 +200,13 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     if (!useApi) return;
     let isMounted = true;
-    apiClient.get<{ properties: Property[]; appliances: Appliance[]; logs?: ChangeLogEntry[] }>('/api/inventory')
+    apiClient.get<{
+      properties: Property[];
+      appliances: Appliance[];
+      complexes?: Complex[];
+      defaultSets?: ApplianceDefaultSet[];
+      logs?: ChangeLogEntry[];
+    }>('/api/inventory')
       .then(res => {
         if (!isMounted) return;
         if (res?.properties && res.properties.length > 0) {
@@ -131,6 +214,12 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
         if (res?.appliances && res.appliances.length > 0) {
           setAppliances(res.appliances);
+        }
+        if (res?.complexes && res.complexes.length > 0) {
+          setComplexes(res.complexes);
+        }
+        if (res?.defaultSets && res.defaultSets.length > 0) {
+          setDefaultSets(res.defaultSets);
         }
         if (res?.logs) setLogs(res.logs);
       })
@@ -155,6 +244,24 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     if (!useApi) {
+      localStorage.setItem('hvachome_complexes', JSON.stringify(complexes));
+    }
+  }, [complexes, useApi]);
+
+  useEffect(() => {
+    if (!useApi) {
+      localStorage.setItem('hvachome_default_sets', JSON.stringify(defaultSets));
+    }
+  }, [defaultSets, useApi]);
+
+  useEffect(() => {
+    if (!useApi) {
+      localStorage.setItem('hvachome_units', JSON.stringify(units));
+    }
+  }, [units, useApi]);
+
+  useEffect(() => {
+    if (!useApi) {
       localStorage.setItem('hvachome_logs', JSON.stringify(logs));
     }
   }, [logs, useApi]);
@@ -162,6 +269,103 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // --- Helpers ---
   const getAppliance = (id: string) => appliances.find(a => a.id === id);
   const getProperty = (id: string) => properties.find(p => p.id === id);
+  const getUnit = (id: string) => units.find(u => u.id === id);
+  const getDefaultSet = (id: string) => defaultSets.find(s => s.id === id);
+
+  /**
+   * Resolves the full appliance roster for a unit:
+   * Defaults are inherited from the unit's complex and unit type.
+   * Only per-unit overrides replace the corresponding default appliance.
+   */
+  const getUnitAppliances = (unit: Unit): Appliance[] => {
+    const bld = properties.find(p => p.id === unit.buildingId);
+    const complexIdStr = bld?.complexId ? String(bld.complexId) : null;
+    const unitType = unit.unitType || 'apartment';
+
+    // 1. Identify Default Set
+    let set: ApplianceDefaultSet | undefined;
+    if (unit.defaultSetId) {
+      set = defaultSets.find(s => s.id === unit.defaultSetId);
+    }
+    if (!set && complexIdStr) {
+      set = defaultSets.find(s =>
+        (s.complexId === complexIdStr ||
+          (complexIdStr === '1' && s.complexSlug === 'bd') ||
+          (complexIdStr === '2' && s.complexSlug === 'elm-colborne')) &&
+        s.unitType === unitType &&
+        s.isDefault
+      );
+    }
+    if (!set) {
+      set = defaultSets.find(s => s.unitType === unitType && s.isDefault) || defaultSets[0];
+    }
+
+    const overrides = unit.applianceOverrides || {};
+    const unitAppliancesInDb = appliances.filter(a =>
+      a.unitId === unit.id || (a.propertyId === unit.buildingId && a.unitNumber === unit.unitNumber)
+    );
+
+    const result: Appliance[] = [];
+
+    // 2. Add inherited appliances from default set with override resolution
+    if (set && Array.isArray(set.appliances)) {
+      for (const item of set.appliances) {
+        // A. Per-unit in-memory override
+        if (overrides[item.type]) {
+          result.push({
+            ...overrides[item.type],
+            isOverride: true,
+            isDefault: false
+          });
+          continue;
+        }
+
+        // B. Existing DB appliance record matching type
+        const directApp = unitAppliancesInDb.find(a => a.type === item.type);
+        if (directApp) {
+          result.push({
+            ...directApp,
+            isOverride: true,
+            isDefault: false
+          });
+          continue;
+        }
+
+        // C. Inherited default appliance
+        result.push({
+          id: `default-${unit.id}-${item.type.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+          propertyId: unit.buildingId,
+          unitId: unit.id,
+          unitNumber: unit.unitNumber,
+          name: item.label,
+          type: item.type,
+          category: item.category,
+          brand: 'Standard / Default',
+          modelNumber: '',
+          serialNumber: '',
+          location: unit.unitNumber ? `Unit ${unit.unitNumber}` : '',
+          room: 'Kitchen',
+          status: 'operational',
+          isDefault: true,
+          isOverride: false,
+          notes: item.notes || `Default ${item.type} (Set: ${set.name})`
+        });
+      }
+    }
+
+    // 3. Add any direct appliances not part of standard default set types
+    for (const direct of unitAppliancesInDb) {
+      if (!result.some(r => r.id === direct.id || r.type === direct.type)) {
+        result.push({
+          ...direct,
+          isOverride: true,
+          isDefault: false
+        });
+      }
+    }
+
+    return result;
+  };
 
   // --- Internal Add Log ---
   const _addLog = (
@@ -201,6 +405,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const prop = properties.find(p => p.id === id);
     setProperties(prev => prev.filter(p => p.id !== id));
     setAppliances(prev => prev.filter(a => a.propertyId !== id)); // Cascade delete
+    setUnits(prev => prev.filter(u => u.buildingId !== id));
     if (prop) {
       _addLog('DELETE', 'PROPERTY', id, prop.name, `Deleted property ${prop.name}`);
     }
@@ -234,7 +439,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const addAppliance = (newAppliance: Appliance) => {
     setAppliances(prev => [...prev, newAppliance]);
-    // Update property count
     setProperties(prev => prev.map(p =>
       p.id === newAppliance.propertyId
         ? { ...p, applianceCount: (p.applianceCount || 0) + 1 }
@@ -278,7 +482,86 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     _addLog('DUPLICATE', 'APPLIANCE', newId, newApp.name, `Duplicated from ${app.name}`, app.propertyId);
   };
 
-  const importData = (data: { properties: Property[], appliances?: Appliance[] }) => {
+  const addUnit = (unit: Unit) => {
+    setUnits(prev => [...prev, unit]);
+  };
+
+  const updateUnit = (unit: Unit) => {
+    setUnits(prev => prev.map(u => u.id === unit.id ? unit : u));
+  };
+
+  const updateDefaultSet = (updatedSet: ApplianceDefaultSet) => {
+    setDefaultSets(prev => prev.map(ds => ds.id === updatedSet.id ? updatedSet : ds));
+    if (useApi) {
+      apiClient.patch(`/api/default-sets/${updatedSet.id}`, updatedSet).catch(err => {
+        console.warn('Failed to sync updated default set to API:', err);
+      });
+    }
+    _addLog('UPDATE', 'PROPERTY', updatedSet.id, updatedSet.name, `Updated default set ${updatedSet.name}`);
+  };
+
+  const applyDefaultSetToUnit = (unitId: string, defaultSetId: string, force = false): { success: boolean; overwrittenCount: number } => {
+    const unit = units.find(u => u.id === unitId);
+    const set = defaultSets.find(s => s.id === defaultSetId);
+    if (!unit || !set) return { success: false, overwrittenCount: 0 };
+
+    const currentOverrides = unit.applianceOverrides || {};
+    const existingOverridesCount = Object.keys(currentOverrides).length;
+
+    if (existingOverridesCount > 0 && !force) {
+      return { success: false, overwrittenCount: existingOverridesCount };
+    }
+
+    const updatedUnit: Unit = {
+      ...unit,
+      defaultSetId,
+      unitType: set.unitType,
+      bedrooms: set.bedrooms ?? unit.bedrooms,
+      bathrooms: set.bathrooms ?? unit.bathrooms,
+      stories: set.stories ?? unit.stories,
+      applianceOverrides: force ? {} : currentOverrides
+    };
+
+    setUnits(prev => prev.map(u => u.id === unitId ? updatedUnit : u));
+    _addLog('UPDATE', 'PROPERTY', unitId, `Unit ${unit.unitNumber}`, `Applied default set "${set.name}" to Unit ${unit.unitNumber}`, unit.buildingId);
+    return { success: true, overwrittenCount: force ? existingOverridesCount : 0 };
+  };
+
+  const overrideUnitAppliance = (unitId: string, appliance: Appliance) => {
+    const unit = units.find(u => u.id === unitId);
+    if (!unit) return;
+    const currentOverrides = unit.applianceOverrides || {};
+    const updatedOverrides = {
+      ...currentOverrides,
+      [appliance.type]: {
+        ...appliance,
+        isOverride: true,
+        isDefault: false,
+        overrideForType: appliance.type
+      }
+    };
+    const updatedUnit: Unit = {
+      ...unit,
+      applianceOverrides: updatedOverrides
+    };
+    setUnits(prev => prev.map(u => u.id === unitId ? updatedUnit : u));
+    _addLog('UPDATE', 'APPLIANCE', appliance.id || `app-${Date.now()}`, appliance.name, `Overrode ${appliance.type} on Unit ${unit.unitNumber}`, unit.buildingId);
+  };
+
+  const resetUnitToDefault = (unitId: string) => {
+    const unit = units.find(u => u.id === unitId);
+    if (!unit) return;
+    const updatedUnit: Unit = {
+      ...unit,
+      applianceOverrides: {}
+    };
+    setUnits(prev => prev.map(u => u.id === unitId ? updatedUnit : u));
+    // Also remove any direct override appliance entries from appliances
+    setAppliances(prev => prev.filter(a => !(a.unitId === unitId && a.isOverride)));
+    _addLog('UPDATE', 'PROPERTY', unitId, `Unit ${unit.unitNumber}`, `Reset Unit ${unit.unitNumber} to defaults`, unit.buildingId);
+  };
+
+  const importData = (data: { properties: Property[]; appliances?: Appliance[]; units?: Unit[] }) => {
     if (data.properties) {
       setProperties(prev => {
         const existingIds = new Set(prev.map(p => p.id));
@@ -291,6 +574,13 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const existingIds = new Set(prev.map(a => a.id));
         const newApps = data.appliances!.filter(a => !existingIds.has(a.id));
         return [...prev, ...newApps];
+      });
+    }
+    if (data.units) {
+      setUnits(prev => {
+        const existingIds = new Set(prev.map(u => u.id));
+        const newUnits = data.units!.filter(u => !existingIds.has(u.id));
+        return [...prev, ...newUnits];
       });
     }
     _addLog('IMPORT', 'PROPERTY', 'BATCH', 'Import', 'Imported data');
@@ -335,11 +625,17 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const inventoryValue = useMemo(() => ({
     properties,
     appliances,
+    complexes,
+    defaultSets,
+    units,
     getAppliance,
     getProperty,
+    getUnit,
+    getDefaultSet,
+    getUnitAppliances,
     isTutorialActive,
     tutorialStep
-  }), [properties, appliances, isTutorialActive, tutorialStep]);
+  }), [properties, appliances, complexes, defaultSets, units, isTutorialActive, tutorialStep]);
 
   const activityValue = useMemo(() => ({
     logs
@@ -355,12 +651,18 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     updateAppliance,
     deleteAppliance,
     duplicateAppliance,
+    addUnit,
+    updateUnit,
+    updateDefaultSet,
+    applyDefaultSetToUnit,
+    overrideUnitAppliance,
+    resetUnitToDefault,
     importData,
     addLog: _addLog,
     startTutorial,
     endTutorial,
     setTutorialStep
-  }), [isTutorialActive, properties, appliances]);
+  }), [isTutorialActive, properties, appliances, units, defaultSets]);
 
   return (
     <InventoryContext.Provider value={inventoryValue}>

@@ -1,10 +1,36 @@
 export interface Complex {
   id: string;
   name: string;
+  slug?: string;
   code?: string;
+  notes?: string;
   description?: string;
   address?: string;
   buildingCount?: number;
+}
+
+export interface ApplianceDefaultItem {
+  id?: string;
+  category: string;
+  type: string;
+  name: string;
+  isDefault?: boolean;
+  notes?: string;
+}
+
+export interface ApplianceDefaultSet {
+  id: string;
+  complexSlug: 'bd' | 'elm-colborne' | string;
+  complexId?: string;
+  name: string;
+  unitType: 'apartment' | 'townhouse' | string;
+  isDefault?: boolean;
+  bedrooms?: number;
+  bathrooms?: number;
+  stories?: number;
+  hasUnitWaterHeater?: boolean;
+  appliances: ApplianceDefaultItem[];
+  notes?: string;
 }
 
 export interface SharedSystem {
@@ -36,8 +62,10 @@ export interface StorageItem {
 
 export interface Building {
   id: string;
-  complexId?: string;
-  complexName?: string;
+  complexId?: string | null;
+  complexName?: string | null;
+  complex_id?: string | number | null;
+  complex_name?: string | null;
   clusterId?: string;
   name: string;
   address: string;
@@ -70,6 +98,8 @@ export interface Unit {
   bedrooms?: number;
   bathrooms?: number;
   stories?: number;
+  defaultSetId?: string;
+  applianceOverrides?: Record<string, Appliance>;
   renovated?: {
     isRenovated: boolean;
     renovatedDate?: string | null;
@@ -152,6 +182,9 @@ export interface Appliance {
   notes?: string;
   flags?: string[];
   provenance?: 'verified' | 'pattern';
+  isDefault?: boolean;
+  isOverride?: boolean;
+  overrideForType?: string;
 }
 
 export interface MaintenanceRecord {
