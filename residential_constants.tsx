@@ -20,7 +20,7 @@ import {
 
 export const COMPLEXES: Complex[] = [
     {
-        id: '1',
+        id: 'bd',
         slug: 'bd',
         code: 'BD',
         name: 'BD',
@@ -29,7 +29,61 @@ export const COMPLEXES: Complex[] = [
         buildingCount: 12
     },
     {
-        id: '2',
+        id: 'amherst',
+        slug: 'amherst',
+        code: 'AMHERST',
+        name: 'Amherst',
+        description: 'Long row of 43 apartment buildings in Amherstview, ON (odd numbers 107–229).',
+        address: 'Amherstview, ON',
+        buildingCount: 43
+    },
+    {
+        id: 'manitou',
+        slug: 'manitou',
+        code: 'MANITOU',
+        name: 'Manitou',
+        description: 'Manitou Crescent townhouse row (1–58 Manitou Cres, anchored by 77 Manitou Cres).',
+        address: 'Manitou Cres, Kingston, ON',
+        buildingCount: 1
+    },
+    {
+        id: 'princess',
+        slug: 'princess',
+        code: 'PRINCESS',
+        name: 'Princess',
+        description: 'Princess Street multi-unit properties in Kingston, ON.',
+        address: 'Princess St, Kingston, ON',
+        buildingCount: 7
+    },
+    {
+        id: 'victoria',
+        slug: 'victoria',
+        code: 'VICTORIA',
+        name: 'Victoria',
+        description: 'Victoria Street residential properties in Kingston, ON.',
+        address: 'Victoria St, Kingston, ON',
+        buildingCount: 4
+    },
+    {
+        id: 'alfred',
+        slug: 'alfred',
+        code: 'ALFRED',
+        name: 'Alfred',
+        description: 'Alfred Street residential multi-unit cluster in Kingston, ON.',
+        address: 'Alfred St, Kingston, ON',
+        buildingCount: 6
+    },
+    {
+        id: 'frontenac',
+        slug: 'frontenac',
+        code: 'FRONTENAC',
+        name: 'Frontenac',
+        description: 'Frontenac Street residential properties in Kingston, ON.',
+        address: 'Frontenac St, Kingston, ON',
+        buildingCount: 2
+    },
+    {
+        id: 'elm-colborne',
         slug: 'elm-colborne',
         code: 'ELM-COLBORNE',
         name: 'Elm + Colborne',
@@ -47,7 +101,7 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
     {
         id: 'set-bd-apt',
         complexSlug: 'bd',
-        complexId: '1',
+        complexId: 'bd',
         name: 'BD / Apartment (default)',
         unitType: 'apartment',
         isDefault: true,
@@ -56,17 +110,17 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         stories: 1,
         hasUnitWaterHeater: false,
         appliances: [
-            { category: 'Refrigeration', label: 'Fridge (default)', type: 'Refrigerator' },
-            { category: 'Cooking', label: 'Stove (electric coil)', type: 'Stove' },
-            { category: 'Cleaning', label: 'Dishwasher (default)', type: 'Dishwasher' },
-            { category: 'Ventilation', label: 'Range Hood (default)', type: 'Range Hood' }
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: '2 bed / 1 washroom. Shared laundry room appliances, shared water heaters on building/mechanical room.'
     },
     {
         id: 'set-bd-apt-1bed',
         complexSlug: 'bd',
-        complexId: '1',
+        complexId: 'bd',
         name: 'BD / Apartment 1-bed (variant)',
         unitType: 'apartment',
         isDefault: false,
@@ -75,17 +129,17 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         stories: 1,
         hasUnitWaterHeater: false,
         appliances: [
-            { category: 'Refrigeration', label: 'Fridge (default)', type: 'Refrigerator' },
-            { category: 'Cooking', label: 'Stove (electric coil)', type: 'Stove' },
-            { category: 'Cleaning', label: 'Dishwasher (default)', type: 'Dishwasher' },
-            { category: 'Ventilation', label: 'Range Hood (default)', type: 'Range Hood' }
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: '1 bed / 1 washroom variant. Same appliance list as default apartment set.'
     },
     {
         id: 'set-bd-townhouse',
         complexSlug: 'bd',
-        complexId: '1',
+        complexId: 'bd',
         name: 'BD / Townhouse',
         unitType: 'townhouse',
         isDefault: true,
@@ -94,18 +148,18 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         stories: 3,
         hasUnitWaterHeater: true,
         appliances: [
-            { category: 'Refrigeration', label: 'Fridge (default)', type: 'Refrigerator' },
-            { category: 'Cooking', label: 'Stove (electric coil)', type: 'Stove' },
-            { category: 'Cleaning', label: 'Dishwasher (default)', type: 'Dishwasher' },
-            { category: 'Ventilation', label: 'Range Hood (default)', type: 'Range Hood' },
-            { category: 'Water Heating', label: 'Unit Water Heater (default)', type: 'Water Heater' }
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } },
+            { category: 'Water Heating', label: 'Unit Water Heater (default)', name: 'Unit Water Heater (default)', type: 'Water Heater', isDefault: true, specs: { fuelType: 'Electric', btuInput: '4500W', capacity: '60 Gallons', volts: '240' } }
         ],
         notes: '3 stories (2 floors + basement), 2 washrooms, per-unit water heater.'
     },
     {
         id: 'set-elm-apt',
         complexSlug: 'elm-colborne',
-        complexId: '2',
+        complexId: 'elm-colborne',
         name: 'Elm + Colborne / Apartment',
         unitType: 'apartment',
         isDefault: true,
@@ -114,10 +168,10 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         stories: 1,
         hasUnitWaterHeater: false,
         appliances: [
-            { category: 'Refrigeration', label: 'Fridge (default)', type: 'Refrigerator' },
-            { category: 'Cooking', label: 'Stove (electric coil)', type: 'Stove' },
-            { category: 'Cleaning', label: 'Dishwasher (default)', type: 'Dishwasher' },
-            { category: 'Ventilation', label: 'Range Hood (default)', type: 'Range Hood' }
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: 'Independent copy of BD apartment set for Elm + Colborne. Editable in one place.'
     }
@@ -131,7 +185,7 @@ export const BUILDING_CLUSTERS: BuildingCluster[] = [
     {
         id: 'cluster-bd-1719-1723',
         name: '1719–1723 Bath Rd Attached Trio',
-        complexId: '1',
+        complexId: 'bd',
         buildingIds: ['prop-bath-1719', 'prop-bath-1721', 'prop-bath-1723'],
         sharedSystems: [
             {
@@ -152,7 +206,7 @@ export const BUILDING_CLUSTERS: BuildingCluster[] = [
     {
         id: 'cluster-bd-1731-1733',
         name: '1731–1733 Bath Rd Attached Pair',
-        complexId: '1',
+        complexId: 'bd',
         buildingIds: ['prop-bath-1731', 'prop-bath-1733'],
         sharedSystems: [
             {
@@ -173,7 +227,7 @@ export const BUILDING_CLUSTERS: BuildingCluster[] = [
     {
         id: 'cluster-bd-509-511',
         name: '509–511 Days Rd Attached Pair',
-        complexId: '1',
+        complexId: 'bd',
         buildingIds: ['prop-days-509', 'prop-days-511'],
         sharedSystems: [
             {
@@ -188,7 +242,7 @@ export const BUILDING_CLUSTERS: BuildingCluster[] = [
     {
         id: 'cluster-elm-colborne',
         name: 'Elm & Colborne Proximity Cluster',
-        complexId: '2',
+        complexId: 'elm-colborne',
         buildingIds: ['prop-elm-18', 'prop-elm-24', 'prop-colborne-203'],
         sharedSystems: [
             {
@@ -279,7 +333,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     // ----------------------------------------------------
     {
         id: 'prop-days-505',
-        complexId: '1',
+        complexId: 'bd',
         complexName: 'BD',
         code: 'bd0505',
         name: '505 Days Road',
@@ -293,7 +347,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-days-507',
-        complexId: '1',
+        complexId: 'bd',
         complexName: 'BD',
         code: 'bd0507',
         name: '507 Days Road',
@@ -308,7 +362,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-days-509',
-        complexId: '1',
+        complexId: 'bd',
         complexName: 'BD',
         clusterId: 'cluster-bd-509-511',
         code: 'bd0509',
@@ -324,7 +378,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-days-511',
-        complexId: '1',
+        complexId: 'bd',
         complexName: 'BD',
         clusterId: 'cluster-bd-509-511',
         code: 'bd0511',
@@ -342,7 +396,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1719',
-        complexId: '1',
+        complexId: 'bd',
         complexName: 'BD',
         clusterId: 'cluster-bd-1719-1723',
         code: 'bd1719',
@@ -360,7 +414,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1721',
-        complexId: '1',
+        complexId: 'bd',
         complexName: 'BD',
         clusterId: 'cluster-bd-1719-1723',
         code: 'bd1721',
@@ -376,7 +430,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1723',
-        complexId: '1',
+        complexId: 'bd',
         complexName: 'BD',
         clusterId: 'cluster-bd-1719-1723',
         code: 'bd1723',
@@ -392,7 +446,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1725',
-        complexId: '1',
+        complexId: 'bd',
         complexName: 'BD',
         code: 'bd1725',
         name: '1725 Bath Road',
@@ -407,7 +461,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1727',
-        complexId: '1',
+        complexId: 'bd',
         complexName: 'BD',
         code: 'bd1727',
         name: '1727 Bath Road',
@@ -422,7 +476,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1731',
-        complexId: '1',
+        complexId: 'bd',
         complexName: 'BD',
         clusterId: 'cluster-bd-1731-1733',
         code: 'bd1731',
@@ -438,7 +492,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1733',
-        complexId: '1',
+        complexId: 'bd',
         complexName: 'BD',
         clusterId: 'cluster-bd-1731-1733',
         code: 'bd1733',
@@ -454,7 +508,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-bath-1737',
-        complexId: '1',
+        complexId: 'bd',
         complexName: 'BD',
         code: 'bd1737',
         name: '1737 Bath Road',
@@ -469,7 +523,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
 
     // ----------------------------------------------------
-    // 2) AMHERST (Amherstview) — 43 Buildings (107–229) [Ungrouped]
+    // 2) AMHERST (Amherstview) — 43 Buildings (107–229)
     // ----------------------------------------------------
     ...AMHERST_NUMBERS.map(num => {
         const id = `prop-amherst-${num}`;
@@ -479,6 +533,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
 
         return {
             id,
+            complexId: 'amherst',
+            complexName: 'Amherst',
             code: `${num} Amherst Dr`,
             name: `${num} Amherst Drive`,
             address: `${num} Amherst Dr, Amherstview, ON`, // TODO-verify postal code (UNKNOWN)
@@ -502,10 +558,12 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     }),
 
     // ----------------------------------------------------
-    // 3) PRINCESS — 7 Buildings [Ungrouped]
+    // 3) PRINCESS — 7 Buildings
     // ----------------------------------------------------
     ...[563, 565, 567, 630, 655, 800, 837].map(num => ({
         id: `prop-princess-${num}`,
+        complexId: 'princess',
+        complexName: 'Princess',
         code: `${num} Princess St`,
         name: `${num} Princess Street`,
         address: `${num} Princess St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
@@ -518,10 +576,12 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     })),
 
     // ----------------------------------------------------
-    // 4) VICTORIA — 4 Buildings [Ungrouped]
+    // 4) VICTORIA — 4 Buildings
     // ----------------------------------------------------
     ...[585, 614, 616, 620].map(num => ({
         id: `prop-victoria-${num}`,
+        complexId: 'victoria',
+        complexName: 'Victoria',
         code: `${num} Victoria St`,
         name: `${num} Victoria Street`,
         address: `${num} Victoria St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
@@ -534,10 +594,12 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     })),
 
     // ----------------------------------------------------
-    // 5) ALFRED — 6 Buildings [Ungrouped]
+    // 5) ALFRED — 6 Buildings
     // ----------------------------------------------------
     ...[353, 359, 361, 376, 378, 394].map(num => ({
         id: `prop-alfred-${num}`,
+        complexId: 'alfred',
+        complexName: 'Alfred',
         code: `${num} Alfred St`,
         name: `${num} Alfred Street`,
         address: `${num} Alfred St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
@@ -550,10 +612,12 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     })),
 
     // ----------------------------------------------------
-    // 6) FRONTENAC — 2 Buildings [Ungrouped]
+    // 6) FRONTENAC — 2 Buildings
     // ----------------------------------------------------
     ...[501, 520].map(num => ({
         id: `prop-frontenac-${num}`,
+        complexId: 'frontenac',
+        complexName: 'Frontenac',
         code: `${num} Frontenac St`,
         name: `${num} Frontenac Street`,
         address: `${num} Frontenac St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
@@ -570,7 +634,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     // ----------------------------------------------------
     {
         id: 'prop-elm-18',
-        complexId: '2',
+        complexId: 'elm-colborne',
         complexName: 'Elm + Colborne',
         clusterId: 'cluster-elm-colborne',
         code: '18 Elm St',
@@ -585,7 +649,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-elm-24',
-        complexId: '2',
+        complexId: 'elm-colborne',
         complexName: 'Elm + Colborne',
         clusterId: 'cluster-elm-colborne',
         code: '24 Elm St',
@@ -600,7 +664,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-colborne-203',
-        complexId: '2',
+        complexId: 'elm-colborne',
         complexName: 'Elm + Colborne',
         clusterId: 'cluster-elm-colborne',
         code: '203 Colborne St',
@@ -615,16 +679,18 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
 
     // ----------------------------------------------------
-    // 8) MANITOU — Townhouses 1–58 [Ungrouped]
+    // 8) MANITOU — Townhouses 1–58
     // ----------------------------------------------------
     {
         id: 'prop-manitou-cres',
+        complexId: 'manitou',
+        complexName: 'Manitou',
         code: 'MANITOU',
         name: 'Manitou Crescent Townhouses',
         address: '1–58 Manitou Cres, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_5a0393354bd60e0ac63f.jpg',
         applianceCount: 0,
-        comments: 'Townhouses, 1-58 Manitou Cres (top of range TODO-verify).',
+        comments: 'Townhouses, 1-58 Manitou Cres (anchored by 77 Manitou Cres entry).',
         definedRooms: [],
         floors: ['Main Floor', 'Second Floor'],
         provenance: 'verified'
@@ -1185,7 +1251,15 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             volts: '120V',
             room: 'Kitchen',
             location: '1723 Bath Rd · Unit 266 · Kitchen'
-        }
+        },
+        maintenanceHistory: [
+            {
+                date: '2026-10-15',
+                type: 'Repair',
+                notes: 'Drain pump replaced (Askoll M376, part A16944601). Load test still pending.',
+                technician: 'Technician'
+            }
+        ]
     },
     // 2. Electric range, gray — Frigidaire, model UNKNOWN — 137 Amherst Dr, Unit 137, Kitchen.
     {
@@ -1196,7 +1270,7 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: '', // TODO-verify: serial UNKNOWN
         propertyId: 'prop-amherst-137',
         status: 'needs_service',
-        lastService: '', // TODO-verify
+        lastService: '2026-09-30',
         type: 'Range',
         category: 'Kitchen',
         imageUrl: '', // Leave empty for UNKNOWN-model
@@ -1210,7 +1284,15 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         specs: {
             room: 'Kitchen',
             location: '137 Amherst Dr · Unit 137 · Kitchen'
-        }
+        },
+        maintenanceHistory: [
+            {
+                date: '2026-09-30',
+                type: 'Inspection',
+                notes: 'Rear burner heats to half dial then stops (failing infinite switch WB24T10025, order by model); front burner receptacle worn. Work on hold.',
+                technician: 'Technician'
+            }
+        ]
     },
     // 3. Water heater — Rheem, model UNKNOWN — 137 Amherst Dr, Unit 137.
     {
@@ -1221,7 +1303,7 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: '', // TODO-verify: serial UNKNOWN
         propertyId: 'prop-amherst-137',
         status: 'needs_service',
-        lastService: '', // TODO-verify
+        lastService: '2026-10-08',
         type: 'Heater',
         category: 'Water Heating',
         imageUrl: '', // Leave empty for UNKNOWN-model
@@ -1234,7 +1316,15 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         provenance: 'verified',
         specs: {
             location: '137 Amherst Dr · Unit 137'
-        }
+        },
+        maintenanceHistory: [
+            {
+                date: '2026-10-08',
+                type: 'Inspection',
+                notes: 'No hot water reported. Work on hold pending management.',
+                technician: 'Technician'
+            }
+        ]
     },
     // 4. John Wood ProLine water heater — 1721 mech room (shared trio).
     {
@@ -1245,7 +1335,7 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: '', // TODO-verify: serial UNKNOWN
         propertyId: 'prop-bath-1721',
         status: 'needs_service',
-        lastService: '2026-10-18', // WO 20316
+        lastService: '2026-10-19', // WO 20316
         type: 'Heater',
         category: 'Water Heating',
         imageUrl: '', // Leave empty for UNKNOWN-model
@@ -1261,7 +1351,15 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
             watts: '4500W',
             room: 'Mechanical Room',
             location: '1721 Bath Rd · Shared Mechanical Room'
-        }
+        },
+        maintenanceHistory: [
+            {
+                date: '2026-10-19',
+                type: 'Inspection',
+                notes: 'Weeping at tee joint; ECO trips every few days; scaled lower element. Planned: 4500W/240V element + gasket, upper/lower thermostats (WO 20316).',
+                technician: 'Technician'
+            }
+        ]
     },
     // 5. Electric water heater — 1731/1733 shared mech room.
     {
@@ -1272,7 +1370,7 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: '', // TODO-verify: serial UNKNOWN
         propertyId: 'prop-bath-1731',
         status: 'operational',
-        lastService: '', // TODO-verify
+        lastService: '2026-10-16',
         type: 'Heater',
         category: 'Water Heating',
         imageUrl: '', // Leave empty for UNKNOWN-model
@@ -1285,7 +1383,15 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         specs: {
             room: 'Mechanical Room',
             location: '1731/1733 Shared Mechanical Room'
-        }
+        },
+        maintenanceHistory: [
+            {
+                date: '2026-10-16',
+                type: 'Inspection',
+                notes: 'Hot-water gate valve on 1/2" copper (16–17mm OD) to be replaced with SharkBite 1/2" push-fit ball valve.',
+                technician: 'Technician'
+            }
+        ]
     },
     // 6. Refrigerator — Frigidaire FFHT1826LS9 — 1719 Bath Rd, Unit 273, Kitchen.
     {
@@ -1310,7 +1416,15 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         specs: {
             room: 'Kitchen',
             location: '1719 Bath Rd · Unit 273 · Kitchen'
-        }
+        },
+        maintenanceHistory: [
+            {
+                date: '2026-10-19',
+                type: 'Repair',
+                notes: 'Crisper drawer 240337103 replaced (bought at Dependable). Door shelf 240338101 ordered, pickup pending.',
+                technician: 'Technician'
+            }
+        ]
     },
     // 7. Freezer — brand/model UNKNOWN — 505 Days Rd, Unit 103.
     {
@@ -1321,7 +1435,7 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: '', // TODO-verify: serial UNKNOWN
         propertyId: 'prop-days-505',
         status: 'needs_service',
-        lastService: '', // TODO-verify
+        lastService: '2026-09-30',
         type: 'Freezer',
         category: 'Kitchen',
         imageUrl: '', // Leave empty for UNKNOWN-model
@@ -1334,7 +1448,15 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         provenance: 'verified',
         specs: {
             location: '505 Days Rd · Unit 103'
-        }
+        },
+        maintenanceHistory: [
+            {
+                date: '2026-09-30',
+                type: 'Inspection',
+                notes: 'Recurring freezer noise complaint (WO 19255). Tenant called first before visits.',
+                technician: 'Technician'
+            }
+        ]
     },
     // 8. Donor fridges ×2 — 1731/1733 mech room (parts sources, not in service).
     {
@@ -1345,14 +1467,22 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: '', // TODO-verify
         propertyId: 'prop-bath-1731',
         status: 'donor',
-        lastService: '',
+        lastService: '2026-10-20',
         type: 'Refrigerator',
         category: 'Parts Source',
         unitNumber: 'Common',
         room: 'Mechanical Room',
         location: '1731/1733 Shared Mechanical Room',
         notes: 'Donor fridge #1 in shared mech room (parts source, not in service).',
-        provenance: 'verified'
+        provenance: 'verified',
+        maintenanceHistory: [
+            {
+                date: '2026-10-20',
+                type: 'Note',
+                notes: 'Held as parts sources, not in service.',
+                technician: 'Technician'
+            }
+        ]
     },
     {
         id: 'app-bath-1731-donor-fridge-2',
@@ -1362,14 +1492,22 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         serialNumber: '', // TODO-verify
         propertyId: 'prop-bath-1731',
         status: 'donor',
-        lastService: '',
+        lastService: '2026-10-20',
         type: 'Refrigerator',
         category: 'Parts Source',
         unitNumber: 'Common',
         room: 'Mechanical Room',
         location: '1731/1733 Shared Mechanical Room',
         notes: 'Donor fridge #2 in shared mech room (parts source, not in service).',
-        provenance: 'verified'
+        provenance: 'verified',
+        maintenanceHistory: [
+            {
+                date: '2026-10-20',
+                type: 'Note',
+                notes: 'Held as parts sources, not in service.',
+                technician: 'Technician'
+            }
+        ]
     },
     // 1721 Shared Mechanical Room Bank (Other Water Heaters of the 7)
     {
@@ -1387,7 +1525,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         room: 'Mechanical Room',
         location: '1721 Bath Rd · Shared Mechanical Room',
         notes: 'Working water heater in 1721 shared bank (working ×3 group).',
-        provenance: 'verified'
+        provenance: 'verified',
+        maintenanceHistory: []
     },
     {
         id: 'app-bath-1721-wh-aos',
@@ -1404,7 +1543,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         room: 'Mechanical Room',
         location: '1721 Bath Rd · Shared Mechanical Room',
         notes: 'Working water heater in 1721 shared bank (working ×3 group).',
-        provenance: 'verified'
+        provenance: 'verified',
+        maintenanceHistory: []
     },
     {
         id: 'app-bath-1721-wh-valved-1',
@@ -1422,7 +1562,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         location: '1721 Bath Rd · Shared Mechanical Room',
         notes: 'AO Smith 46-gal, still holding stagnant water — flag: drain + management health note.',
         flags: ['stagnant_water', 'drain_required', 'health_note'],
-        provenance: 'verified'
+        provenance: 'verified',
+        maintenanceHistory: []
     },
     {
         id: 'app-bath-1721-wh-valved-2',
@@ -1440,7 +1581,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         location: '1721 Bath Rd · Shared Mechanical Room',
         notes: 'AO Smith 46-gal, still holding stagnant water — flag: drain + management health note.',
         flags: ['stagnant_water', 'drain_required', 'health_note'],
-        provenance: 'verified'
+        provenance: 'verified',
+        maintenanceHistory: []
     },
     {
         id: 'app-bath-1721-wh-disc-1',
@@ -1458,7 +1600,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         location: '1721 Bath Rd · Shared Mechanical Room',
         notes: 'Disconnected, rotting — flag: removal authorization pending.',
         flags: ['rotting', 'removal_auth_pending'],
-        provenance: 'verified'
+        provenance: 'verified',
+        maintenanceHistory: []
     },
     {
         id: 'app-bath-1721-wh-disc-2',
@@ -1476,7 +1619,8 @@ export const RESIDENTIAL_APPLIANCES: Appliance[] = [
         location: '1721 Bath Rd · Shared Mechanical Room',
         notes: 'Disconnected, rotting — flag: removal authorization pending.',
         flags: ['rotting', 'removal_auth_pending'],
-        provenance: 'verified'
+        provenance: 'verified',
+        maintenanceHistory: []
     }
 ];
 

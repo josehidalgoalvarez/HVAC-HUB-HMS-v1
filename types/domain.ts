@@ -14,8 +14,10 @@ export interface ApplianceDefaultItem {
   category: string;
   type: string;
   name: string;
+  label?: string;
   isDefault?: boolean;
   notes?: string;
+  specs?: ApplianceSpecs;
 }
 
 export interface ApplianceDefaultSet {

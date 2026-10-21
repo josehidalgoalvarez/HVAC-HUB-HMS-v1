@@ -55,16 +55,11 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Tabs Configuration
-  const availableTabs = useMemo(() => {
-    const tabs = [
-      { id: 'dashboard', label: 'DASHBOARD' },
-      { id: 'specs', label: 'SPECS' }
-    ];
-    if ((appliance.maintenanceHistory && appliance.maintenanceHistory.length > 0) || true) {
-      tabs.push({ id: 'history', label: 'HISTORY' });
-    }
-    return tabs;
-  }, [appliance]);
+  const availableTabs = useMemo(() => [
+    { id: 'dashboard', label: 'DASHBOARD' },
+    { id: 'specs', label: 'SPECS' },
+    { id: 'history', label: 'HISTORY' }
+  ], []);
 
   // Handlers
   const handleStatusChange = (newStatus: Appliance['status']) => {

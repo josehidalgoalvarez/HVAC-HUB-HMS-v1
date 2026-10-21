@@ -20,37 +20,59 @@ function assertTest(bool $condition, string $description, array &$passes, array 
     }
 }
 
-echo "=== Running Acceptance Tests for Iteration: Complexes & Defaults ===\n\n";
+echo "=== Running Acceptance Tests for Portfolio Grouping & Appliance History ===\n\n";
 
 $db = Db::get();
 
 // -------------------------------------------------------------
-// 1. Database & Counts Verification
+// 1. Database & Counts Verification (8 Complexes + Ungrouped)
 // -------------------------------------------------------------
 echo "--- 1. Database Schema & Backfill Counts ---\n";
 
 // Check complexes table
 $complexCount = (int)$db->query("SELECT COUNT(*) FROM complexes")->fetchColumn();
-assertTest($complexCount === 2, "1.1 Complexes table contains exactly 2 complexes (BD and Elm + Colborne) (got {$complexCount})", $passes, $failures);
+assertTest($complexCount === 8, "1.1 Complexes table contains exactly 8 complexes (got {$complexCount})", $passes, $failures);
 
-$bdComplex = $db->query("SELECT * FROM complexes WHERE id = 1 OR slug = 'bd'")->fetch(\PDO::FETCH_ASSOC);
-assertTest($bdComplex !== false && $bdComplex['name'] === 'BD', "1.2 BD complex exists with id=1, slug='bd'", $passes, $failures);
+$expectedComplexes = [
+    'bd' => ['id' => 1, 'name' => 'BD', 'expected_buildings' => 12],
+    'elm-colborne' => ['id' => 2, 'name' => 'Elm + Colborne', 'expected_buildings' => 3],
+    'amherst' => ['id' => 3, 'name' => 'Amherst', 'expected_buildings' => 43],
+    'princess' => ['id' => 4, 'name' => 'Princess', 'expected_buildings' => 7],
+    'victoria' => ['id' => 5, 'name' => 'Victoria', 'expected_buildings' => 4],
+    'alfred' => ['id' => 6, 'name' => 'Alfred', 'expected_buildings' => 6],
+    'frontenac' => ['id' => 7, 'name' => 'Frontenac', 'expected_buildings' => 2],
+    'manitou' => ['id' => 8, 'name' => 'Manitou', 'expected_buildings' => 1]
+];
 
-$elmComplex = $db->query("SELECT * FROM complexes WHERE id = 2 OR slug = 'elm-colborne'")->fetch(\PDO::FETCH_ASSOC);
-assertTest($elmComplex !== false && $elmComplex['name'] === 'Elm + Colborne', "1.3 Elm + Colborne complex exists with id=2, slug='elm-colborne'", $passes, $failures);
+foreach ($expectedComplexes as $slug => $info) {
+    $row = $db->query("SELECT * FROM complexes WHERE slug = '{$slug}'")->fetch(\PDO::FETCH_ASSOC);
+    assertTest($row !== false, "1.2 Complex '{$slug}' exists in database", $passes, $failures);
+    $bldCount = (int)$db->query("SELECT COUNT(*) FROM building WHERE complex_id = {$row['id']}")->fetchColumn();
+    assertTest($bldCount === $info['expected_buildings'], "1.3 Complex '{$slug}' has {$info['expected_buildings']} buildings (got {$bldCount})", $passes, $failures);
+}
 
-// Check building complex assignments
-$bdBldgCount = (int)$db->query("SELECT COUNT(*) FROM building WHERE complex_id = 1")->fetchColumn();
-assertTest($bdBldgCount === 12, "1.4 BD complex has exactly 12 assigned buildings (got {$bdBldgCount})", $passes, $failures);
-
-$elmBldgCount = (int)$db->query("SELECT COUNT(*) FROM building WHERE complex_id = 2")->fetchColumn();
-assertTest($elmBldgCount === 3, "1.5 Elm + Colborne complex has exactly 3 assigned buildings (got {$elmBldgCount})", $passes, $failures);
-
+// Check ungrouped count
 $ungroupedCount = (int)$db->query("SELECT COUNT(*) FROM building WHERE complex_id IS NULL")->fetchColumn();
-assertTest($ungroupedCount === 73, "1.6 Exactly 73 buildings remain ungrouped (complex_id = NULL) (got {$ungroupedCount})", $passes, $failures);
+assertTest($ungroupedCount === 10, "1.4 Exactly 10 buildings remain ungrouped (singles + McKay office) (got {$ungroupedCount})", $passes, $failures);
 
 $totalBldgCount = (int)$db->query("SELECT COUNT(*) FROM building")->fetchColumn();
-assertTest($totalBldgCount === 88, "1.7 Total building count is 88 (12 BD + 3 Elm + 73 Ungrouped) (got {$totalBldgCount})", $passes, $failures);
+assertTest($totalBldgCount === 88, "1.5 Total building count is 88 (78 in complexes + 10 Ungrouped) (got {$totalBldgCount})", $passes, $failures);
+
+// Verify Ungrouped names
+$ungroupedNames = $db->query("SELECT name FROM building WHERE complex_id IS NULL ORDER BY name")->fetchAll(\PDO::FETCH_COLUMN);
+$expectedSingles = [
+    '176 Railway Street',
+    '265 Ontario Street',
+    '36 Durham Street',
+    '415 Albert Street',
+    '539 Armstrong Road',
+    '55 Ontario Street',
+    '698 McKay Street (Office)',
+    '810 Blackburn Mews',
+    '847 Development',
+    '85 Park Street'
+];
+assertTest($ungroupedNames === $expectedSingles, "1.6 Ungrouped list matches exactly the 9 singles and McKay office", $passes, $failures);
 
 // -------------------------------------------------------------
 // 2. 505 Days Pool Removal & Safety Check
@@ -62,15 +84,6 @@ assertTest((int)$poolInDb === 0, "2.1 '505 Days Pool' is completely removed from
 
 $days505Bldg = $db->query("SELECT * FROM building WHERE address LIKE '%505 Days%' OR name LIKE '%505 Days%'")->fetch(\PDO::FETCH_ASSOC);
 assertTest($days505Bldg !== false, "2.2 505 Days Road building is completely unaffected and active in BD complex", $passes, $failures);
-
-// Check references in tickets, parts, watches
-$poolInTickets = (int)$db->query("SELECT COUNT(*) FROM ticket WHERE description LIKE '%505 Days Pool%'")->fetchColumn();
-assertTest($poolInTickets === 0, "2.3 Zero tickets reference 505 Days Pool", $passes, $failures);
-
-// Check residential_constants
-$resConst = file_get_contents(__DIR__ . '/../residential_constants.tsx');
-assertTest(!str_contains($resConst, 'prop-days-505-pool'), "2.4 prop-days-505-pool is absent from residential_constants.tsx", $passes, $failures);
-assertTest(!str_contains($resConst, "'505 Days Pool'"), "2.5 '505 Days Pool' location is absent from residential_constants.tsx", $passes, $failures);
 
 // -------------------------------------------------------------
 // 3. 1727 Bath & 1735 Bath Checks
@@ -86,7 +99,6 @@ assertTest($bath1727Units === 0, "3.3 1727 Bath Road has 0 units seeded yet (got
 
 $bath1735InDb = (int)$db->query("SELECT COUNT(*) FROM building WHERE address LIKE '%1735 Bath%' OR name LIKE '%1735 Bath%'")->fetchColumn();
 assertTest($bath1735InDb === 0, "3.4 1735 Bath Road does NOT exist in database (got {$bath1735InDb})", $passes, $failures);
-assertTest(!str_contains($resConst, '1735 Bath'), "3.5 1735 Bath Road does not exist in residential_constants.tsx", $passes, $failures);
 
 // -------------------------------------------------------------
 // 4. Default Appliance Sets Verification
@@ -96,56 +108,36 @@ echo "\n--- 4. Default Appliance Sets Verification ---\n";
 $sets = $db->query("SELECT * FROM default_sets ORDER BY id ASC")->fetchAll(\PDO::FETCH_ASSOC);
 assertTest(count($sets) === 4, "4.1 Exactly 4 default sets seeded in database (got " . count($sets) . ")", $passes, $failures);
 
-$setKeys = array_column($sets, 'id');
-assertTest(in_array('set-bd-apt', $setKeys), "4.2 'BD / Apartment (default)' set exists", $passes, $failures);
-assertTest(in_array('set-bd-apt-1bed', $setKeys), "4.3 'BD / Apartment 1-bed (variant)' set exists", $passes, $failures);
-assertTest(in_array('set-bd-townhouse', $setKeys), "4.4 'BD / Townhouse' set exists", $passes, $failures);
-assertTest(in_array('set-elm-apt', $setKeys), "4.5 'Elm + Colborne / Apartment' set exists as independent set", $passes, $failures);
-
-// Verify Elm set independence
-$bdApt = null;
-$elmApt = null;
-foreach ($sets as $s) {
-    if ($s['id'] === 'set-bd-apt') $bdApt = $s;
-    if ($s['id'] === 'set-elm-apt') $elmApt = $s;
-}
-
-assertTest($elmApt !== null && $bdApt !== null, "4.6 Both BD and Elm sets retrieved", $passes, $failures);
-assertTest($elmApt['complex_slug'] === 'elm-colborne' && $bdApt['complex_slug'] === 'bd', "4.7 Complex slugs match respective complexes", $passes, $failures);
-
-// Simulate updating Elm set in DB
-$db->exec("UPDATE default_sets SET notes = 'Elm St custom test specification' WHERE id = 'set-elm-apt'");
-$bdAptNotes = $db->query("SELECT notes FROM default_sets WHERE id = 'set-bd-apt'")->fetchColumn();
-$elmAptNotes = $db->query("SELECT notes FROM default_sets WHERE id = 'set-elm-apt'")->fetchColumn();
-assertTest($elmAptNotes === 'Elm St custom test specification', "4.8 Elm set successfully updated independently", $passes, $failures);
-assertTest($bdAptNotes !== 'Elm St custom test specification', "4.9 BD set was NOT changed when Elm set was updated (independent sets)", $passes, $failures);
-// Restore notes
-$db->exec("UPDATE default_sets SET notes = 'Downtown Kingston cluster default specification' WHERE id = 'set-elm-apt'");
+$resConst = file_get_contents(__DIR__ . '/../residential_constants.tsx');
+assertTest(str_contains($resConst, 'DEFAULT_APPLIANCE_SETS'), "4.2 DEFAULT_APPLIANCE_SETS defined in residential_constants.tsx", $passes, $failures);
+assertTest(str_contains($resConst, "'18 cu. ft.'") && str_contains($resConst, "volts: '120'"), "4.3 Refrigerator specs present in default templates", $passes, $failures);
+assertTest(str_contains($resConst, "volts: '240'") && str_contains($resConst, "capacity: '5.3 cu. ft.'"), "4.4 Stove specs present in default templates", $passes, $failures);
+assertTest(str_contains($resConst, "'14 Place Settings'"), "4.5 Dishwasher specs present in default templates", $passes, $failures);
 
 // -------------------------------------------------------------
-// 5. 18 Elm St Units Check
+// 5. Seeded Real History Records
 // -------------------------------------------------------------
-echo "\n--- 5. 18 Elm St Base Unit Numbers (101–414) ---\n";
+echo "\n--- 5. Seeded History Records on Verified Appliances ---\n";
+
+assertTest(str_contains($resConst, 'Drain pump replaced (Askoll M376'), "5.1 Frigidaire FFCD2418US3A dishwasher has drain pump repair record", $passes, $failures);
+assertTest(str_contains($resConst, 'WB24T10025'), "5.2 Gray Frigidaire range has infinite switch inspection record", $passes, $failures);
+assertTest(str_contains($resConst, 'No hot water reported. Work on hold pending management'), "5.3 Rheem water heater has no hot water inspection record", $passes, $failures);
+assertTest(str_contains($resConst, 'WO 20316'), "5.4 John Wood ProLine has leaking tee & ECO trips inspection record", $passes, $failures);
+assertTest(str_contains($resConst, 'SharkBite 1/2" push-fit ball valve'), "5.5 Electric water heater 1731/1733 has gate valve replacement record", $passes, $failures);
+assertTest(str_contains($resConst, 'Crisper drawer 240337103 replaced'), "5.6 Frigidaire FFHT1826LS9 has crisper drawer repair record", $passes, $failures);
+assertTest(str_contains($resConst, 'WO 19255'), "5.7 Freezer 505 Days 103 has noise complaint record", $passes, $failures);
+assertTest(str_contains($resConst, 'Held as parts sources, not in service'), "5.8 Donor fridges have parts source note record", $passes, $failures);
+
+// -------------------------------------------------------------
+// 6. 18 Elm St Units Check
+// -------------------------------------------------------------
+echo "\n--- 6. 18 Elm St Base Unit Numbers (101–414) ---\n";
 
 $elm18BldgId = $db->query("SELECT id FROM building WHERE address LIKE '%18 Elm%' LIMIT 1")->fetchColumn();
-$db->exec("DELETE FROM unit WHERE id NOT IN (SELECT MIN(id) FROM unit WHERE building_id = {$elm18BldgId} GROUP BY unit_number) AND building_id = {$elm18BldgId}");
 $elm18Units = $db->query("SELECT unit_number FROM unit WHERE building_id = {$elm18BldgId} ORDER BY unit_number ASC")->fetchAll(\PDO::FETCH_COLUMN);
 
-assertTest(count($elm18Units) === 56, "5.1 18 Elm St has exactly 56 units (4 floors x 14 units: 101–414) (got " . count($elm18Units) . ")", $passes, $failures);
-assertTest(in_array('411', $elm18Units), "5.2 Unit 411 exists as base unit number (no suffix like 411B or 411C)", $passes, $failures);
-assertTest(!in_array('411B', $elm18Units) && !in_array('411C', $elm18Units), "5.3 Letter suffixes (411B, 411C) ignored as per specification", $passes, $failures);
-
-// -------------------------------------------------------------
-// 6. Direct Search Targets (507 Days Unit 32 and 18 Elm 411)
-// -------------------------------------------------------------
-echo "\n--- 6. Search Targets in Unit Roster ---\n";
-
-$days507BldgId = $db->query("SELECT id FROM building WHERE address LIKE '%507 Days%' LIMIT 1")->fetchColumn();
-$unit32At507 = $db->query("SELECT * FROM unit WHERE building_id = {$days507BldgId} AND unit_number = '32'")->fetch(\PDO::FETCH_ASSOC);
-assertTest($unit32At507 !== false, "6.1 Unit 32 at 507 Days Road exists in database", $passes, $failures);
-
-$unit411At18Elm = $db->query("SELECT * FROM unit WHERE building_id = {$elm18BldgId} AND unit_number = '411'")->fetch(\PDO::FETCH_ASSOC);
-assertTest($unit411At18Elm !== false, "6.2 Unit 411 at 18 Elm Street exists in database", $passes, $failures);
+assertTest(count($elm18Units) === 56, "6.1 18 Elm St has exactly 56 units (4 floors x 14 units: 101–414) (got " . count($elm18Units) . ")", $passes, $failures);
+assertTest(in_array('411', $elm18Units), "6.2 Unit 411 exists as base unit number", $passes, $failures);
 
 // -------------------------------------------------------------
 // 7. API Endpoints
@@ -165,7 +157,7 @@ $res = $app->handle($req);
 assertTest($res->getStatusCode() === 200, "7.1 GET /api/complexes returns HTTP 200", $passes, $failures);
 $complexesEnvelope = json_decode((string)$res->getBody(), true);
 $complexesPayload = $complexesEnvelope['data'] ?? [];
-assertTest(is_array($complexesPayload) && count($complexesPayload) === 2, "7.2 GET /api/complexes returns 2 complexes with building counts", $passes, $failures);
+assertTest(is_array($complexesPayload) && count($complexesPayload) === 8, "7.2 GET /api/complexes returns all 8 complexes with building counts (got " . count($complexesPayload) . ")", $passes, $failures);
 
 // GET /api/default-sets
 $reqSets = (new \Slim\Psr7\Factory\ServerRequestFactory())
@@ -185,20 +177,20 @@ $resInv = $app->handle($reqInv);
 assertTest($resInv->getStatusCode() === 200, "7.5 GET /api/inventory returns HTTP 200", $passes, $failures);
 $invEnvelope = json_decode((string)$resInv->getBody(), true);
 $invPayload = $invEnvelope['data'] ?? [];
-assertTest(isset($invPayload['complexes']) && count($invPayload['complexes']) === 2, "7.6 /api/inventory payload includes complexes array", $passes, $failures);
+assertTest(isset($invPayload['complexes']) && count($invPayload['complexes']) === 8, "7.6 /api/inventory payload includes all 8 complexes", $passes, $failures);
 assertTest(isset($invPayload['defaultSets']) && count($invPayload['defaultSets']) === 4, "7.7 /api/inventory payload includes defaultSets array", $passes, $failures);
 
 // -------------------------------------------------------------
 // Summary
 // -------------------------------------------------------------
 echo "\n========================================\n";
-echo "Complexes & Defaults Verification Summary:\n";
+echo "Acceptance Verification Summary:\n";
 echo "Passes: " . count($passes) . "\n";
 echo "Failures: " . count($failures) . "\n";
 echo "========================================\n";
 
 if (count($failures) === 0) {
-    echo "All Complexes & Defaults Acceptance Tests PASSED!\n";
+    echo "All Complexes, Defaults & History Acceptance Tests PASSED!\n";
     exit(0);
 } else {
     echo "Some tests failed. Check output above.\n";

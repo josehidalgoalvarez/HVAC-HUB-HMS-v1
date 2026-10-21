@@ -46,7 +46,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
                   </div>
               ))
           ) : (
-              <div className="pl-6 text-sm text-text-sub-light dark:text-text-sub-dark italic">No maintenance history recorded yet.</div>
+              <div className="pl-6 text-sm text-text-sub-light dark:text-text-sub-dark italic">No service history yet</div>
           )}
        </div>
     </div>

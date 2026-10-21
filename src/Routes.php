@@ -219,9 +219,10 @@ class Routes
                 $complexes = [];
                 foreach ($rows as $c) {
                     $complexes[] = [
-                        'id' => (string) $c['id'],
+                        'id' => $c['slug'] ?? (string) $c['id'],
+                        'slug' => $c['slug'] ?? '',
+                        'db_id' => (int) $c['id'],
                         'name' => $c['name'],
-                        'slug' => $c['slug'],
                         'notes' => $c['notes'] ?? '',
                         'buildingCount' => (int) ($c['building_count'] ?? 0),
                         'building_count' => (int) ($c['building_count'] ?? 0),
@@ -279,13 +280,16 @@ class Routes
                     $complexRows = Db::fetchAll('SELECT * FROM complexes ORDER BY id ASC');
                 }
                 $complexMap = [];
+                $complexSlugMap = [];
                 $complexes = [];
                 foreach ($complexRows as $c) {
                     $complexMap[$c['id']] = $c['name'];
+                    $complexSlugMap[$c['id']] = $c['slug'];
                     $complexes[] = [
-                        'id' => (string) $c['id'],
+                        'id' => $c['slug'] ?? (string) $c['id'],
                         'code' => strtoupper($c['slug'] ?? 'BD'),
                         'slug' => $c['slug'] ?? '',
+                        'db_id' => (int) $c['id'],
                         'name' => $c['name'],
                         'description' => $c['notes'] ?? '',
                         'notes' => $c['notes'] ?? '',
@@ -302,7 +306,7 @@ class Routes
                         'id' => $ds['id'],
                         'complexSlug' => $ds['complex_slug'],
                         'complex_slug' => $ds['complex_slug'],
-                        'complexId' => $ds['complex_id'] ? (string) $ds['complex_id'] : null,
+                        'complexId' => $ds['complex_slug'] ?? ($ds['complex_id'] ? (string) $ds['complex_id'] : null),
                         'complex_id' => $ds['complex_id'] ? (int) $ds['complex_id'] : null,
                         'name' => $ds['name'],
                         'unitType' => $ds['unit_type'],
@@ -327,11 +331,13 @@ class Routes
                     $applianceCount = (int) (Db::fetchOne('SELECT COUNT(*) as c FROM appliance WHERE building_id = ?', [$b['id']])['c'] ?? 0);
                     $cId = $b['complex_id'] !== null ? (int) $b['complex_id'] : null;
                     $cName = $cId !== null ? ($complexMap[$cId] ?? null) : null;
+                    $cSlug = $cId !== null ? ($complexSlugMap[$cId] ?? null) : null;
                     $properties[] = [
                         'id' => (string) $b['id'],
                         'complex_id' => $cId,
                         'complex_name' => $cName,
-                        'complexId' => $cId !== null ? (string) $cId : null,
+                        'complexId' => $cSlug ?? ($cId !== null ? (string) $cId : null),
+                        'complexSlug' => $cSlug,
                         'complexName' => $cName,
                         'clusterId' => $b['cluster_id'] ?? null,
                         'status' => $b['status'] ?? 'active',

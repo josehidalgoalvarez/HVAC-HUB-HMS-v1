@@ -48,56 +48,54 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
   const [editSetModalSet, setEditSetModalSet] = useState<ApplianceDefaultSet | null>(null);
   const [editSetForm, setEditSetForm] = useState({ name: '', bedrooms: 2, bathrooms: 1, stories: 1, notes: '' });
 
-  // Map Complexes and Ungrouped Properties
-  const complexList = useMemo(() => {
-    // BD and Elm + Colborne from state or fallback
-    const bd = complexes.find(c => c.id === '1' || c.slug === 'bd') || {
-      id: '1',
-      name: 'BD',
-      slug: 'bd',
-      notes: 'Bath Rd (1719–1737) & Days Rd (505–511). 511 Days Rd central storage building.'
-    };
+  // 1. Group buildings into complexes by complexId (reads complexId from data, zero address matching)
+  const { complexCards, ungroupedProperties } = useMemo(() => {
+    const map = new Map<string, Property[]>();
+    complexes.forEach(c => {
+      map.set(c.id, []);
+      if (c.slug && c.slug !== c.id) map.set(c.slug, map.get(c.id)!);
+    });
 
-    const elm = complexes.find(c => c.id === '2' || c.slug === 'elm-colborne') || {
-      id: '2',
-      name: 'Elm + Colborne',
-      slug: 'elm-colborne',
-      notes: '18 Elm St, 24 Elm St, 203 Colborne St downtown cluster.'
-    };
+    const ungrouped: Property[] = [];
 
-    return [bd, elm];
-  }, [complexes]);
+    properties.forEach(p => {
+      if (p.name.includes('Pool')) return; // ignore virtual pool entry
+      if (p.complexId && map.has(p.complexId)) {
+        map.get(p.complexId)!.push(p);
+      } else {
+        ungrouped.push(p);
+      }
+    });
 
-  const bdProperties = useMemo(() => {
-    return properties.filter(p => p.complexId === '1' || p.complexId === 'complex-bd' || (p.address && (p.address.includes('Bath') || p.address.includes('Days')) && !p.name.includes('Pool')));
-  }, [properties]);
+    const cards = complexes.map(c => ({
+      ...c,
+      buildings: map.get(c.id) || []
+    }));
 
-  const elmProperties = useMemo(() => {
-    return properties.filter(p => p.complexId === '2' || p.complexId === 'complex-elm' || (p.address && (p.address.includes('Elm') || p.address.includes('Colborne'))));
-  }, [properties]);
-
-  const ungroupedProperties = useMemo(() => {
-    const bdIds = new Set(bdProperties.map(p => p.id));
-    const elmIds = new Set(elmProperties.map(p => p.id));
-    return properties.filter(p => !bdIds.has(p.id) && !elmIds.has(p.id) && !p.name.includes('Pool'));
-  }, [properties, bdProperties, elmProperties]);
+    return { complexCards: cards, ungroupedProperties: ungrouped };
+  }, [complexes, properties]);
 
   // Selected entities
   const activeComplex = useMemo(() => {
     if (!selectedComplexId) return null;
     if (selectedComplexId === 'ungrouped') {
-      return { id: 'ungrouped', name: 'Ungrouped', slug: 'ungrouped', notes: 'Properties without a complex assignment' };
+      return {
+        id: 'ungrouped',
+        name: 'Ungrouped',
+        slug: 'ungrouped',
+        notes: 'Single rental homes, commercial storefronts, and office.'
+      };
     }
-    return complexList.find(c => c.id === selectedComplexId || c.slug === selectedComplexId) || null;
-  }, [selectedComplexId, complexList]);
+    return complexes.find(c => c.id === selectedComplexId || c.slug === selectedComplexId) || null;
+  }, [selectedComplexId, complexes]);
 
   const activeComplexProperties = useMemo(() => {
     if (!selectedComplexId) return [];
-    if (selectedComplexId === '1' || selectedComplexId === 'bd') return bdProperties;
-    if (selectedComplexId === '2' || selectedComplexId === 'elm-colborne') return elmProperties;
     if (selectedComplexId === 'ungrouped') return ungroupedProperties;
-    return properties.filter(p => p.complexId === selectedComplexId);
-  }, [selectedComplexId, bdProperties, elmProperties, ungroupedProperties, properties]);
+    const match = complexes.find(c => c.id === selectedComplexId || c.slug === selectedComplexId);
+    if (!match) return [];
+    return properties.filter(p => !p.name.includes('Pool') && (p.complexId === match.id || p.complexId === match.slug));
+  }, [selectedComplexId, ungroupedProperties, complexes, properties]);
 
   const activeBuilding = useMemo(() => {
     if (!selectedBuildingId) return null;
@@ -119,51 +117,40 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     return getUnitAppliances(activeUnit);
   }, [activeUnit, getUnitAppliances]);
 
-  // Active complex default sets
   const activeComplexDefaultSets = useMemo(() => {
     if (!selectedComplexId || selectedComplexId === 'ungrouped') {
       return defaultSets;
     }
-    const slug = selectedComplexId === '1' ? 'bd' : selectedComplexId === '2' ? 'elm-colborne' : selectedComplexId;
-    return defaultSets.filter(s => s.complexId === selectedComplexId || s.complexSlug === slug);
+    return defaultSets.filter(s => s.complexId === selectedComplexId || s.complexSlug === selectedComplexId);
   }, [selectedComplexId, defaultSets]);
 
-  // Direct Search Logic: Matches units and buildings directly without opening folders
+  // Direct Search Logic
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return null;
 
-    // Tokens without noise words like 'rd', 'st', 'road', 'street', 'unit'
     const tokens = q
       .replace(/,/g, ' ')
       .split(/\s+/)
       .filter(t => t.length > 0 && t !== 'unit' && t !== 'apt');
 
-    // Match Buildings
     const matchedBuildings = properties.filter(p => {
       if (p.name.includes('Pool')) return false;
       const target = `${p.name} ${p.address}`.toLowerCase();
       return tokens.every(t => target.includes(t));
     });
 
-    // Match Units: search in unitNumber + building name + building address
     const matchedUnits = units.filter(u => {
       const bld = properties.find(p => p.id === u.buildingId);
       if (!bld || bld.name.includes('Pool')) return false;
-
       const fullString = `unit ${u.unitNumber} ${bld.name} ${bld.address}`.toLowerCase();
-
-      // Check if every token matches the unit's context
       return tokens.every(t => fullString.includes(t));
     });
 
-    return {
-      buildings: matchedBuildings,
-      units: matchedUnits
-    };
+    return { buildings: matchedBuildings, units: matchedUnits };
   }, [searchQuery, properties, units]);
 
-  // Breadcrumb Helpers
+  // Navigation Handlers
   const handleNavRoot = () => {
     setNavLevel('root');
     setSelectedComplexId(null);
@@ -183,13 +170,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
   const handleNavBuilding = (bId: string) => {
     const bld = properties.find(p => p.id === bId);
     if (bld) {
-      if (bld.complexId === '1' || bld.complexId === 'complex-bd' || bld.address.includes('Bath') || bld.address.includes('Days')) {
-        setSelectedComplexId('1');
-      } else if (bld.complexId === '2' || bld.complexId === 'complex-elm' || bld.address.includes('Elm') || bld.address.includes('Colborne')) {
-        setSelectedComplexId('2');
-      } else {
-        setSelectedComplexId('ungrouped');
-      }
+      setSelectedComplexId(bld.complexId || 'ungrouped');
     }
     setSelectedBuildingId(bId);
     setSelectedUnitId(null);
@@ -200,7 +181,9 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
   const handleNavUnit = (uId: string) => {
     const u = units.find(unit => unit.id === uId);
     if (u) {
-      handleNavBuilding(u.buildingId);
+      const bld = properties.find(p => p.id === u.buildingId);
+      if (bld) setSelectedComplexId(bld.complexId || 'ungrouped');
+      setSelectedBuildingId(u.buildingId);
     }
     setSelectedUnitId(uId);
     setNavLevel('unit');
@@ -230,7 +213,6 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
   const handleStartApplyDefaultSet = (set: ApplianceDefaultSet) => {
     setApplySetModalSet(set);
-    // Default to first unit in current complex
     if (activeBuildingUnits.length > 0) {
       setApplyTargetUnitId(activeBuildingUnits[0].id);
     } else {
@@ -245,7 +227,6 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
     const result = applyDefaultSetToUnit(applyTargetUnitId, applySetModalSet.id, force);
     if (!result.success && result.overwrittenCount > 0) {
-      // Need confirmation
       setPendingApplyData({
         unitId: applyTargetUnitId,
         defaultSetId: applySetModalSet.id,
@@ -281,30 +262,29 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
   const handleSaveEditSet = () => {
     if (!editSetModalSet) return;
-    const updated: ApplianceDefaultSet = {
+    updateDefaultSet({
       ...editSetModalSet,
       name: editSetForm.name,
       bedrooms: Number(editSetForm.bedrooms),
       bathrooms: Number(editSetForm.bathrooms),
       stories: Number(editSetForm.stories),
       notes: editSetForm.notes
-    };
-    updateDefaultSet(updated);
+    });
     setEditSetModalSet(null);
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] text-slate-900 dark:text-slate-100 font-sans pb-32">
-      {/* 1. TOP HEADER & BREADCRUMBS (BRUTALIST / SHARP 0PX) */}
-      <div className="sticky top-0 z-30 bg-white dark:bg-[#1E293B] border-b-2 border-slate-900 dark:border-slate-700 px-4 py-3">
+    <div className="flex flex-col min-h-screen bg-gray-50/50 dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-sans pb-32">
+      {/* 1. TOP HEADER & BREADCRUMBS */}
+      <div className="sticky top-0 z-30 bg-white/95 dark:bg-card-dark/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 px-4 py-3 shadow-xs">
         {/* Breadcrumb Bar */}
-        <nav className="flex items-center gap-1.5 text-xs font-mono tracking-wider overflow-x-auto whitespace-nowrap py-1">
+        <nav className="flex items-center gap-1.5 text-xs overflow-x-auto whitespace-nowrap py-1">
           <button
             onClick={handleNavRoot}
-            className={`font-bold uppercase px-2 py-1 border transition-colors ${
+            className={`font-semibold px-2.5 py-1 rounded-lg transition-colors ${
               navLevel === 'root'
-                ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-900 dark:border-slate-100'
-                : 'bg-transparent text-slate-600 dark:text-slate-400 border-transparent hover:border-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-primary/10 text-primary dark:bg-primary/20 font-bold'
+                : 'text-text-sub-light dark:text-text-sub-dark hover:bg-gray-100 dark:hover:bg-neutral-800'
             }`}
           >
             All Complexes
@@ -312,13 +292,13 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
           {activeComplex && navLevel !== 'root' && (
             <>
-              <span className="text-slate-400">/</span>
+              <span className="text-gray-300 dark:text-gray-600">/</span>
               <button
                 onClick={() => handleNavComplex(activeComplex.id)}
-                className={`font-bold uppercase px-2 py-1 border transition-colors ${
+                className={`font-semibold px-2.5 py-1 rounded-lg transition-colors ${
                   navLevel === 'complex'
-                    ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-900 dark:border-slate-100'
-                    : 'bg-transparent text-slate-600 dark:text-slate-400 border-transparent hover:border-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-primary/10 text-primary dark:bg-primary/20 font-bold'
+                    : 'text-text-sub-light dark:text-text-sub-dark hover:bg-gray-100 dark:hover:bg-neutral-800'
                 }`}
               >
                 {activeComplex.name}
@@ -328,13 +308,13 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
           {activeBuilding && (navLevel === 'building' || navLevel === 'unit') && (
             <>
-              <span className="text-slate-400">/</span>
+              <span className="text-gray-300 dark:text-gray-600">/</span>
               <button
                 onClick={() => handleNavBuilding(activeBuilding.id)}
-                className={`font-bold uppercase px-2 py-1 border transition-colors ${
+                className={`font-semibold px-2.5 py-1 rounded-lg transition-colors ${
                   navLevel === 'building'
-                    ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-900 dark:border-slate-100'
-                    : 'bg-transparent text-slate-600 dark:text-slate-400 border-transparent hover:border-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-primary/10 text-primary dark:bg-primary/20 font-bold'
+                    : 'text-text-sub-light dark:text-text-sub-dark hover:bg-gray-100 dark:hover:bg-neutral-800'
                 }`}
               >
                 {activeBuilding.name}
@@ -344,8 +324,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
           {activeUnit && navLevel === 'unit' && (
             <>
-              <span className="text-slate-400">/</span>
-              <span className="font-bold uppercase px-2 py-1 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border border-slate-900 dark:border-slate-100">
+              <span className="text-gray-300 dark:text-gray-600">/</span>
+              <span className="font-bold px-2.5 py-1 rounded-lg bg-primary/10 text-primary dark:bg-primary/20">
                 Unit {activeUnit.unitNumber}
               </span>
             </>
@@ -353,8 +333,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
           {navLevel === 'defaults' && (
             <>
-              <span className="text-slate-400">/</span>
-              <span className="font-bold uppercase px-2 py-1 bg-[#0077B6] text-white border border-[#0077B6]">
+              <span className="text-gray-300 dark:text-gray-600">/</span>
+              <span className="font-bold px-2.5 py-1 rounded-lg bg-primary text-white">
                 Appliance Defaults
               </span>
             </>
@@ -363,21 +343,21 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
         {/* Direct Global Search Bar */}
         <div className="mt-2.5 relative">
-          <div className="flex items-center border-2 border-slate-900 dark:border-slate-500 bg-white dark:bg-[#0F172A]">
-            <span className="material-symbols-outlined px-2.5 text-slate-500 dark:text-slate-400 text-[20px]">
+          <div className="flex items-center rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-card-dark px-3 shadow-xs focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
+            <span className="material-symbols-outlined text-gray-400 text-[20px]">
               search
             </span>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Direct search: unit 32, 507 Days or 18 Elm 411..."
-              className="w-full py-2 pr-3 text-sm bg-transparent outline-none font-mono text-slate-900 dark:text-white placeholder:text-slate-400"
+              placeholder="Search address, building, or unit (e.g. 137 Amherst, 507 Days, Unit 266)..."
+              className="w-full py-2.5 px-2.5 text-sm bg-transparent outline-none text-text-main-light dark:text-white placeholder:text-gray-400"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="px-2.5 text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm font-bold"
+                className="p-1 text-gray-400 hover:text-text-main-light dark:hover:text-white"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
@@ -387,28 +367,25 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
       </div>
 
       <div className="max-w-4xl mx-auto w-full px-4 pt-4">
-        {/* ============================================================== */}
-        {/* DIRECT SEARCH RESULTS PANEL (WITHOUT OPENING FOLDERS FIRST)     */}
-        {/* ============================================================== */}
+        {/* DIRECT SEARCH RESULTS PANEL */}
         {searchResults ? (
           <div className="space-y-6">
-            <div className="flex items-center justify-between border-b-2 border-slate-900 dark:border-slate-700 pb-2">
+            <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#0077B6] dark:text-[#38BDF8]">manage_search</span>
-                <h2 className="text-sm font-mono font-bold uppercase tracking-wider">
+                <span className="material-symbols-outlined text-primary">manage_search</span>
+                <h2 className="text-sm font-bold text-brand-black dark:text-white">
                   Search Results for &quot;{searchQuery}&quot;
                 </h2>
               </div>
-              <span className="text-xs font-mono font-bold bg-slate-200 dark:bg-slate-800 px-2 py-0.5 border border-slate-400">
+              <span className="text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark px-2.5 py-1 rounded-full">
                 {searchResults.units.length} Units · {searchResults.buildings.length} Buildings
               </span>
             </div>
 
-            {/* Units Matching Direct Query */}
             {searchResults.units.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Direct Unit Matches ({searchResults.units.length})
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
+                  Units ({searchResults.units.length})
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {searchResults.units.map(unit => {
@@ -417,28 +394,27 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       <div
                         key={unit.id}
                         onClick={() => handleNavUnit(unit.id)}
-                        className="p-3 border-2 border-slate-900 dark:border-slate-700 bg-white dark:bg-[#1E293B] hover:border-[#0077B6] dark:hover:border-[#38BDF8] cursor-pointer transition-all"
+                        className="group rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 p-4 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between"
                       >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-base font-mono font-bold text-[#0077B6] dark:text-[#38BDF8]">
-                            Unit {unit.unitNumber}
-                          </span>
-                          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800">
-                            {unit.unitType || 'Apartment'}
-                          </span>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
+                              Unit {unit.unitNumber}
+                            </span>
+                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                              {unit.unitType || 'Apartment'}
+                            </span>
+                          </div>
+                          <p className="text-xs font-medium text-text-sub-light dark:text-text-sub-dark">
+                            {bld?.name} · {bld?.address}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {unit.bedrooms || 2} Bed · {unit.bathrooms || 1} Bath
+                          </p>
                         </div>
-                        <p className="text-xs font-medium text-slate-800 dark:text-slate-200">
-                          {bld?.name || 'Building'}
-                        </p>
-                        <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
-                          {bld?.address}
-                        </p>
-                        <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-[11px] font-mono text-slate-600 dark:text-slate-300">
-                          <span>{unit.bedrooms || 2} Bed / {unit.bathrooms || 1} Bath</span>
-                          <span className="flex items-center gap-1 text-[#0077B6] dark:text-[#38BDF8] font-bold">
-                            Open Unit <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-                          </span>
-                        </div>
+                        <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl shrink-0">
+                          chevron_right
+                        </span>
                       </div>
                     );
                   })}
@@ -446,11 +422,10 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
               </div>
             )}
 
-            {/* Buildings Matching Direct Query */}
             {searchResults.buildings.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Direct Building Matches ({searchResults.buildings.length})
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
+                  Buildings ({searchResults.buildings.length})
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {searchResults.buildings.map(bld => {
@@ -459,27 +434,29 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       <div
                         key={bld.id}
                         onClick={() => handleNavBuilding(bld.id)}
-                        className="p-3 border-2 border-slate-900 dark:border-slate-700 bg-white dark:bg-[#1E293B] hover:border-[#0077B6] dark:hover:border-[#38BDF8] cursor-pointer transition-all"
+                        className="group rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 p-4 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between"
                       >
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                            {bld.name}
-                          </h4>
-                          {bld.isStorageNode && (
-                            <span className="text-[10px] font-mono uppercase bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200 border border-amber-600 px-1.5 py-0.5">
-                              Storage Node
-                            </span>
-                          )}
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
+                              {bld.name}
+                            </h4>
+                            {bld.id === 'prop-days-511' && (
+                              <span className="text-[11px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                                Storage Node
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
+                            {bld.address}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {uCount > 0 ? `${uCount} Units` : '0 Units (Roster pending)'}
+                          </p>
                         </div>
-                        <p className="text-xs font-mono text-slate-600 dark:text-slate-400 mb-2">
-                          {bld.address}
-                        </p>
-                        <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-700 text-xs font-mono text-slate-600 dark:text-slate-300">
-                          <span>{uCount > 0 ? `${uCount} Units` : '0 Units (Roster pending)'}</span>
-                          <span className="flex items-center gap-1 text-[#0077B6] dark:text-[#38BDF8] font-bold">
-                            View Building <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-                          </span>
-                        </div>
+                        <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl shrink-0">
+                          chevron_right
+                        </span>
                       </div>
                     );
                   })}
@@ -488,141 +465,136 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
             )}
 
             {searchResults.units.length === 0 && searchResults.buildings.length === 0 && (
-              <div className="p-8 text-center border-2 border-dashed border-slate-400 dark:border-slate-600">
-                <span className="material-symbols-outlined text-3xl text-slate-400 mb-1">search_off</span>
-                <p className="text-sm font-mono font-bold">No units or buildings match &quot;{searchQuery}&quot;</p>
-                <p className="text-xs text-slate-500 font-mono mt-1">Try &quot;unit 32, 507 Days&quot; or &quot;18 Elm 411&quot;</p>
+              <div className="p-12 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-card-dark/50 space-y-2">
+                <span className="material-symbols-outlined text-3xl text-gray-400">search_off</span>
+                <p className="text-sm font-bold text-brand-black dark:text-white">No matches for &quot;{searchQuery}&quot;</p>
+                <p className="text-xs text-text-sub-light dark:text-text-sub-dark">Try searching by building name, address, or unit number</p>
               </div>
             )}
           </div>
         ) : (
-          /* ============================================================== */
-          /* REGULAR FOLDER & DRILL-DOWN HIERARCHY NAVIGATION               */
-          /* ============================================================== */
+          /* REGULAR HIERARCHY NAVIGATION */
           <div>
             {/* LEVEL 0: ROOT FOLDER VIEW */}
             {navLevel === 'root' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between border-b-2 border-slate-900 dark:border-slate-700 pb-2">
+                <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
                   <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[#0077B6] dark:text-[#38BDF8]">folder</span>
-                    <h1 className="text-sm font-mono font-bold uppercase tracking-wider">
-                      Complex Folders ({properties.length} Total Properties)
+                    <span className="material-symbols-outlined text-primary text-xl">domain</span>
+                    <h1 className="text-sm font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
+                      Portfolio ({properties.length} Total Buildings)
                     </h1>
                   </div>
                   <button
                     onClick={() => handleNavDefaults()}
-                    className="flex items-center gap-1 text-xs font-mono font-bold uppercase px-3 py-1 bg-white dark:bg-[#1E293B] border-2 border-slate-900 dark:border-slate-600 hover:border-[#0077B6] dark:hover:border-[#38BDF8] transition-colors"
+                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 text-text-main-light dark:text-white hover:border-primary/40 hover:text-primary shadow-xs transition-colors"
                   >
                     <span className="material-symbols-outlined text-[16px]">tune</span>
-                    All Default Sets
+                    Default Sets
                   </button>
                 </div>
 
+                {/* 8 Defined Complexes Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* FOLDER 1: BD COMPLEX */}
-                  <div className="border-2 border-slate-900 dark:border-slate-700 bg-white dark:bg-[#1E293B] p-4 flex flex-col justify-between shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]">
-                    <div>
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="material-symbols-outlined text-2xl text-[#0077B6] dark:text-[#38BDF8]">folder</span>
-                          <h2 className="text-lg font-bold font-mono tracking-tight text-slate-900 dark:text-white">BD</h2>
-                        </div>
-                        <span className="text-xs font-mono font-bold px-2 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-900 dark:border-slate-600">
-                          {bdProperties.length} Buildings
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-600 dark:text-slate-300 mb-3">
-                        Bath Rd (1719, 1721, 1723, 1725, 1727, 1731, 1733, 1737) &amp; Days Rd (505, 507, 509, 511).
-                      </p>
-                      <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 p-2 border border-amber-300 dark:border-amber-800 mb-4">
-                        <span className="material-symbols-outlined text-[16px]">inventory_2</span>
-                        <span>511 Days Rd: Central Storage Building</span>
-                      </div>
-                    </div>
+                  {complexCards.map(c => {
+                    const isBD = c.slug === 'bd';
+                    const isElm = c.slug === 'elm-colborne';
 
-                    <div className="flex items-center gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
-                      <button
-                        onClick={() => handleNavComplex('1')}
-                        className="flex-1 py-2 text-xs font-mono font-bold uppercase bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border border-slate-900 dark:border-slate-100 hover:bg-[#0077B6] dark:hover:bg-[#38BDF8] dark:hover:text-slate-900 transition-colors flex items-center justify-center gap-1"
+                    return (
+                      <div
+                        key={c.id}
+                        onClick={() => handleNavComplex(c.id)}
+                        className="group rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 p-5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer flex flex-col justify-between"
                       >
-                        <span className="material-symbols-outlined text-[16px]">folder_open</span>
-                        Open Folder
-                      </button>
-                      <button
-                        onClick={() => handleNavDefaults('1')}
-                        className="px-3 py-2 text-xs font-mono font-bold uppercase bg-white dark:bg-[#1E293B] border border-slate-900 dark:border-slate-600 hover:border-[#0077B6] text-slate-900 dark:text-white transition-colors"
-                        title="View & Configure Default Sets"
-                      >
-                        Defaults
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* FOLDER 2: ELM + COLBORNE COMPLEX */}
-                  <div className="border-2 border-slate-900 dark:border-slate-700 bg-white dark:bg-[#1E293B] p-4 flex flex-col justify-between shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]">
-                    <div>
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="material-symbols-outlined text-2xl text-[#0077B6] dark:text-[#38BDF8]">folder</span>
-                          <h2 className="text-lg font-bold font-mono tracking-tight text-slate-900 dark:text-white">Elm + Colborne</h2>
-                        </div>
-                        <span className="text-xs font-mono font-bold px-2 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-900 dark:border-slate-600">
-                          {elmProperties.length} Buildings
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-600 dark:text-slate-300 mb-3">
-                        Downtown residential cluster: 18 Elm St, 24 Elm St, and 203 Colborne St.
-                      </p>
-                      <div className="flex items-center gap-1.5 text-[11px] font-mono text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 p-2 border border-slate-300 dark:border-slate-700 mb-4">
-                        <span className="material-symbols-outlined text-[16px]">apartment</span>
-                        <span>18 Elm base units 101–414 (standard numbering)</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
-                      <button
-                        onClick={() => handleNavComplex('2')}
-                        className="flex-1 py-2 text-xs font-mono font-bold uppercase bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border border-slate-900 dark:border-slate-100 hover:bg-[#0077B6] dark:hover:bg-[#38BDF8] dark:hover:text-slate-900 transition-colors flex items-center justify-center gap-1"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">folder_open</span>
-                        Open Folder
-                      </button>
-                      <button
-                        onClick={() => handleNavDefaults('2')}
-                        className="px-3 py-2 text-xs font-mono font-bold uppercase bg-white dark:bg-[#1E293B] border border-slate-900 dark:border-slate-600 hover:border-[#0077B6] text-slate-900 dark:text-white transition-colors"
-                        title="View & Configure Default Sets"
-                      >
-                        Defaults
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* FOLDER 3: UNGROUPED */}
-                  <div className="border-2 border-slate-900 dark:border-slate-700 bg-white dark:bg-[#1E293B] p-4 flex flex-col justify-between shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] md:col-span-2">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-2xl text-slate-500">folder_special</span>
                         <div>
-                          <h2 className="text-lg font-bold font-mono tracking-tight text-slate-900 dark:text-white">Ungrouped</h2>
-                          <p className="text-xs text-slate-500 font-mono">Properties without complex assignment</p>
+                          <div className="flex items-start justify-between gap-3 mb-2">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                <span className="material-symbols-outlined text-[22px]">apartment</span>
+                              </div>
+                              <div>
+                                <h2 className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
+                                  {c.name}
+                                </h2>
+                                <p className="text-xs text-text-sub-light dark:text-text-sub-dark line-clamp-1">
+                                  {c.notes || `${c.buildings.length} Buildings`}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                                {c.buildings.length} Buildings
+                              </span>
+                              <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
+                                chevron_right
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Preserved Note Callouts */}
+                          {isBD && (
+                            <div className="mt-3 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-xs flex items-center gap-2">
+                              <span className="material-symbols-outlined text-[18px] text-amber-600 shrink-0">inventory_2</span>
+                              <span className="font-medium">511 Days Rd: Central Storage Building</span>
+                            </div>
+                          )}
+
+                          {isElm && (
+                            <div className="mt-3 p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-300 text-xs flex items-center gap-2">
+                              <span className="material-symbols-outlined text-[18px] text-blue-600 shrink-0">tag</span>
+                              <span className="font-medium">18 Elm base units 101–414 (standard numbering)</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="pt-3 mt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub-light dark:text-text-sub-dark">
+                          <span>
+                            {c.buildings.reduce((acc, b) => acc + units.filter(u => u.buildingId === b.id).length, 0)} Configured Units
+                          </span>
+                          <span className="text-primary font-semibold flex items-center gap-0.5 text-xs">
+                            View Complex <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                          </span>
                         </div>
                       </div>
-                      <span className="text-xs font-mono font-bold px-2 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-900 dark:border-slate-600">
-                        {ungroupedProperties.length} Properties
-                      </span>
+                    );
+                  })}
+
+                  {/* UNGROUPED CARD (Singles & Office Only) */}
+                  <div
+                    onClick={() => handleNavComplex('ungrouped')}
+                    className="group rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 p-5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer flex flex-col justify-between md:col-span-2"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 flex items-center justify-center shrink-0">
+                            <span className="material-symbols-outlined text-[22px]">home_work</span>
+                          </div>
+                          <div>
+                            <h2 className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
+                              Ungrouped
+                            </h2>
+                            <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
+                              Single rental homes, commercial storefronts, and office
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                            {ungroupedProperties.length} Properties
+                          </span>
+                          <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
+                            chevron_right
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 mb-3">
-                      Single rental homes, commercial storefronts, and independent multi-units across Kingston.
-                    </p>
-                    <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
-                      <button
-                        onClick={() => handleNavComplex('ungrouped')}
-                        className="w-full py-2 text-xs font-mono font-bold uppercase bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white border-2 border-slate-900 dark:border-slate-600 hover:border-[#0077B6] hover:text-[#0077B6] dark:hover:border-[#38BDF8] dark:hover:text-[#38BDF8] transition-colors flex items-center justify-center gap-1"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">folder_open</span>
-                        Browse Ungrouped Properties ({ungroupedProperties.length})
-                      </button>
+
+                    <div className="pt-3 mt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub-light dark:text-text-sub-dark">
+                      <span>9 Singles + 1 McKay Office</span>
+                      <span className="text-primary font-semibold flex items-center gap-0.5 text-xs">
+                        Browse Ungrouped <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -631,10 +603,10 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 {isEditMode && (
                   <div
                     onClick={onAddProperty}
-                    className="p-4 border-2 border-dashed border-slate-400 dark:border-slate-600 text-center hover:border-[#0077B6] cursor-pointer transition-colors"
+                    className="p-5 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-center hover:border-primary cursor-pointer transition-colors"
                   >
-                    <span className="material-symbols-outlined text-2xl text-[#0077B6] mb-1">add_location_alt</span>
-                    <p className="text-xs font-mono font-bold uppercase">Add New Property to Portfolio</p>
+                    <span className="material-symbols-outlined text-2xl text-primary mb-1">add_location_alt</span>
+                    <p className="text-xs font-bold uppercase text-primary">Add New Property to Portfolio</p>
                   </div>
                 )}
               </div>
@@ -643,26 +615,28 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
             {/* LEVEL 1: COMPLEX LEVEL (BUILDINGS IN COMPLEX) */}
             {navLevel === 'complex' && activeComplex && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between border-b-2 border-slate-900 dark:border-slate-700 pb-2">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center gap-3">
                     <button
                       onClick={handleNavRoot}
-                      className="p-1 border border-slate-400 hover:border-slate-900 dark:hover:border-white transition-colors"
+                      className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
                     >
                       <span className="material-symbols-outlined text-[18px]">arrow_back</span>
                     </button>
                     <div>
-                      <h2 className="text-base font-mono font-bold uppercase text-slate-900 dark:text-white">
-                        {activeComplex.name} Folder
+                      <h2 className="text-base font-bold text-brand-black dark:text-white">
+                        {activeComplex.name}
                       </h2>
-                      <p className="text-xs font-mono text-slate-500">{activeComplexProperties.length} Buildings in Complex</p>
+                      <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
+                        {activeComplexProperties.length} Buildings in Complex
+                      </p>
                     </div>
                   </div>
 
                   {activeComplex.id !== 'ungrouped' && (
                     <button
                       onClick={() => handleNavDefaults(activeComplex.id)}
-                      className="flex items-center gap-1 text-xs font-mono font-bold uppercase px-3 py-1.5 bg-[#0077B6] text-white border border-[#0077B6] hover:bg-[#005d90] transition-colors"
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs"
                     >
                       <span className="material-symbols-outlined text-[16px]">tune</span>
                       {activeComplex.name} Defaults
@@ -670,7 +644,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   )}
                 </div>
 
-                {/* List of Buildings in this Complex */}
+                {/* Whole-Box Building Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {activeComplexProperties.map(bld => {
                     const bldUnits = units.filter(u => u.buildingId === bld.id);
@@ -680,44 +654,40 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     return (
                       <div
                         key={bld.id}
-                        className="p-4 border-2 border-slate-900 dark:border-slate-700 bg-white dark:bg-[#1E293B] flex flex-col justify-between"
+                        onClick={() => handleNavBuilding(bld.id)}
+                        className="group rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 p-4 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer flex flex-col justify-between"
                       >
                         <div>
                           <div className="flex items-start justify-between gap-2 mb-1">
-                            <h3 className="text-sm font-bold font-mono text-slate-900 dark:text-white">
+                            <h3 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
                               {bld.name}
                             </h3>
                             {is511Storage && (
-                              <span className="text-[10px] font-mono font-bold bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-200 border border-amber-600 px-1.5 py-0.5 whitespace-nowrap">
-                                STORAGE BLDG
+                              <span className="text-[11px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                Storage Node
                               </span>
                             )}
                             {is1727Bath && (
-                              <span className="text-[10px] font-mono font-bold bg-blue-50 dark:bg-blue-950 text-blue-900 dark:text-blue-200 border border-blue-500 px-1.5 py-0.5 whitespace-nowrap">
-                                0 UNITS (EMPTY)
+                              <span className="text-[11px] font-semibold bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                0 Units (Empty)
                               </span>
                             )}
                           </div>
-                          <p className="text-xs font-mono text-slate-500 dark:text-slate-400 mb-2">
+                          <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">
                             {bld.address}
                           </p>
                           {bld.comments && (
-                            <p className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-2 mb-3">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2">
                               {bld.comments}
                             </p>
                           )}
                         </div>
 
-                        <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                          <span className="text-xs font-mono font-bold text-slate-600 dark:text-slate-300">
-                            {bldUnits.length} Units
+                        <div className="pt-3 mt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub-light dark:text-text-sub-dark">
+                          <span>{bldUnits.length} Units</span>
+                          <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
+                            chevron_right
                           </span>
-                          <button
-                            onClick={() => handleNavBuilding(bld.id)}
-                            className="flex items-center gap-1 text-xs font-mono font-bold uppercase text-[#0077B6] dark:text-[#38BDF8] hover:underline"
-                          >
-                            Explore Units <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-                          </button>
                         </div>
                       </div>
                     );
@@ -729,52 +699,55 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
             {/* LEVEL 2: BUILDING LEVEL (UNITS IN BUILDING) */}
             {navLevel === 'building' && activeBuilding && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between border-b-2 border-slate-900 dark:border-slate-700 pb-2">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleNavComplex(selectedComplexId || 'ungrouped')}
-                      className="p-1 border border-slate-400 hover:border-slate-900 dark:hover:border-white transition-colors"
+                      className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
                     >
                       <span className="material-symbols-outlined text-[18px]">arrow_back</span>
                     </button>
                     <div>
-                      <h2 className="text-base font-mono font-bold uppercase text-slate-900 dark:text-white">
+                      <h2 className="text-base font-bold text-brand-black dark:text-white">
                         {activeBuilding.name}
                       </h2>
-                      <p className="text-xs font-mono text-slate-500">{activeBuilding.address}</p>
+                      <p className="text-xs text-text-sub-light dark:text-text-sub-dark">{activeBuilding.address}</p>
                     </div>
                   </div>
 
                   <button
                     onClick={() => onPropertyClick(activeBuilding.id)}
-                    className="text-xs font-mono font-bold uppercase px-2.5 py-1.5 border border-slate-900 dark:border-slate-500 hover:border-[#0077B6] transition-colors"
+                    className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-800 text-text-main-light dark:text-white hover:border-primary/40 hover:text-primary transition-colors"
                   >
                     Building Details
                   </button>
                 </div>
 
-                {/* Central Storage Indicator if 511 Days */}
+                {/* Storage Callout if 511 Days */}
                 {activeBuilding.id === 'prop-days-511' && (
-                  <div className="p-3 border-2 border-amber-600 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 font-mono text-xs flex items-center gap-2">
+                  <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-200 text-xs flex items-center gap-2.5">
                     <span className="material-symbols-outlined text-amber-600 text-xl">inventory_2</span>
                     <div>
-                      <strong>CENTRAL STORAGE BUILDING:</strong> 511 Days Rd basement houses primary replacement inventory for BD complex.
+                      <strong>Central Storage Building:</strong> 511 Days Rd basement houses primary replacement inventory for BD complex.
                     </div>
                   </div>
                 )}
 
-                {/* 1727 Bath Notice if applicable */}
+                {/* Empty Notice if 1727 Bath */}
                 {activeBuilding.id === 'prop-bath-1727' && (
-                  <div className="p-4 border-2 border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 font-mono text-xs">
-                    <strong>1727 BATH ROAD:</strong> Real property registered in portfolio with no units yet.
+                  <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-800 dark:text-blue-200 text-xs flex items-center gap-2.5">
+                    <span className="material-symbols-outlined text-blue-600 text-xl">info</span>
+                    <div>
+                      <strong>1727 Bath Road:</strong> Registered in portfolio with 0 active units.
+                    </div>
                   </div>
                 )}
 
-                {/* Units List */}
+                {/* Whole-Box Unit Cards */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
-                      Roster of Units ({activeBuildingUnits.length})
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
+                      Units ({activeBuildingUnits.length})
                     </h3>
                   </div>
 
@@ -788,33 +761,31 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           <div
                             key={unit.id}
                             onClick={() => handleNavUnit(unit.id)}
-                            className="p-3 border-2 border-slate-900 dark:border-slate-700 bg-white dark:bg-[#1E293B] hover:border-[#0077B6] dark:hover:border-[#38BDF8] cursor-pointer transition-all"
+                            className="group rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 p-4 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer"
                           >
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-base font-mono font-bold text-slate-900 dark:text-white">
+                              <span className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
                                 Unit {unit.unitNumber}
                               </span>
-                              <div className="flex items-center gap-1.5">
-                                {overrideCount > 0 ? (
-                                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 bg-[#0077B6] text-white">
-                                    {overrideCount} OVERRIDE{overrideCount > 1 ? 'S' : ''}
-                                  </span>
-                                ) : (
-                                  <span className="text-[10px] font-mono px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700">
-                                    DEFAULT SET
-                                  </span>
-                                )}
-                              </div>
+                              {overrideCount > 0 ? (
+                                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                  {overrideCount} Override{overrideCount > 1 ? 's' : ''}
+                                </span>
+                              ) : (
+                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                                  Default Set
+                                </span>
+                              )}
                             </div>
 
-                            <p className="text-xs font-mono text-slate-500 mb-2">
-                              {unit.unitType?.toUpperCase() || 'APARTMENT'} · {unit.bedrooms || 2} Bed / {unit.bathrooms || 1} Bath {unit.stories ? `· ${unit.stories} Stories` : ''}
+                            <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-3">
+                              {unit.unitType?.toUpperCase() || 'APARTMENT'} · {unit.bedrooms || 2} Bed · {unit.bathrooms || 1} Bath {unit.stories ? `· ${unit.stories} Stories` : ''}
                             </p>
 
-                            <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-[11px] font-mono text-slate-600 dark:text-slate-300">
+                            <div className="pt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub-light dark:text-text-sub-dark">
                               <span>{unitApps.length} Appliances</span>
-                              <span className="flex items-center gap-1 text-[#0077B6] dark:text-[#38BDF8] font-bold">
-                                View Appliances <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                              <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
+                                chevron_right
                               </span>
                             </div>
                           </div>
@@ -822,72 +793,66 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       })}
                     </div>
                   ) : (
-                    <div className="p-8 text-center border-2 border-dashed border-slate-400 dark:border-slate-600">
-                      <span className="material-symbols-outlined text-3xl text-slate-400 mb-1">door_front</span>
-                      <p className="text-sm font-mono font-bold">No units configured for this building yet.</p>
+                    <div className="p-12 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-card-dark/50">
+                      <span className="material-symbols-outlined text-3xl text-gray-400 mb-1">door_front</span>
+                      <p className="text-sm font-bold text-brand-black dark:text-white">No units configured for this building yet.</p>
                     </div>
                   )}
                 </div>
               </div>
             )}
 
-            {/* LEVEL 3: UNIT LEVEL (APPLIANCES WITH DEFAULT / OVERRIDE BADGES) */}
+            {/* LEVEL 3: UNIT LEVEL (APPLIANCES IN UNIT) */}
             {navLevel === 'unit' && activeUnit && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between border-b-2 border-slate-900 dark:border-slate-700 pb-2">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleNavBuilding(activeUnit.buildingId)}
-                      className="p-1 border border-slate-400 hover:border-slate-900 dark:hover:border-white transition-colors"
+                      className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
                     >
                       <span className="material-symbols-outlined text-[18px]">arrow_back</span>
                     </button>
                     <div>
-                      <h2 className="text-base font-mono font-bold uppercase text-slate-900 dark:text-white">
+                      <h2 className="text-base font-bold text-brand-black dark:text-white">
                         Unit {activeUnit.unitNumber}
                       </h2>
-                      <p className="text-xs font-mono text-slate-500">
+                      <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
                         {activeBuilding?.name} · {activeUnit.bedrooms || 2} Bed / {activeUnit.bathrooms || 1} Bath
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    {Object.keys(activeUnit.applianceOverrides || {}).length > 0 && (
-                      <button
-                        onClick={() => resetUnitToDefault(activeUnit.id)}
-                        className="text-xs font-mono font-bold uppercase px-3 py-1.5 border border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-950 transition-colors flex items-center gap-1"
-                      >
-                        <span className="material-symbols-outlined text-[14px]">restart_alt</span>
-                        Reset to Default
-                      </button>
-                    )}
-                  </div>
+                  {Object.keys(activeUnit.applianceOverrides || {}).length > 0 && (
+                    <button
+                      onClick={() => resetUnitToDefault(activeUnit.id)}
+                      className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-red-200 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors flex items-center gap-1"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">restart_alt</span>
+                      Reset to Default
+                    </button>
+                  )}
                 </div>
 
                 {/* Default Set Status Card */}
-                <div className="p-3 border-2 border-slate-900 dark:border-slate-700 bg-white dark:bg-[#1E293B]">
-                  <div className="flex items-center justify-between text-xs font-mono">
-                    <span className="text-slate-500">APPLIED DEFAULT SET:</span>
-                    <span className="font-bold text-[#0077B6] dark:text-[#38BDF8]">
+                <div className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-text-sub-light dark:text-text-sub-dark font-medium">Applied Default Set:</span>
+                    <span className="font-bold text-primary">
                       {activeUnit.defaultSetId
                         ? defaultSets.find(s => s.id === activeUnit.defaultSetId)?.name || activeUnit.defaultSetId
                         : 'Inherited from Complex'}
                     </span>
                   </div>
-                  <div className="mt-2 text-[11px] font-mono text-slate-500 flex items-center justify-between border-t border-slate-200 dark:border-slate-700 pt-1.5">
-                    <span>
-                      {Object.keys(activeUnit.applianceOverrides || {}).length} Per-Unit Override(s) Stored
-                    </span>
-                    <span>
-                      {activeUnitAppliances.filter(a => a.isDefault).length} Inherited from Default Set
-                    </span>
+                  <div className="mt-2 text-xs text-text-sub-light dark:text-text-sub-dark flex items-center justify-between border-t border-gray-100 dark:border-gray-800 pt-2">
+                    <span>{Object.keys(activeUnit.applianceOverrides || {}).length} Unit Override(s)</span>
+                    <span>{activeUnitAppliances.filter(a => a.isDefault).length} Inherited from Default Set</span>
                   </div>
                 </div>
 
                 {/* Appliances List */}
                 <div className="space-y-3">
-                  <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
                     Appliances in Unit ({activeUnitAppliances.length})
                   </h3>
 
@@ -895,16 +860,16 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     {activeUnitAppliances.map(app => (
                       <div
                         key={app.id || app.type}
-                        className={`p-4 border-2 bg-white dark:bg-[#1E293B] ${
+                        className={`p-4 rounded-2xl bg-white dark:bg-card-dark border shadow-sm ${
                           app.isOverride
-                            ? 'border-[#0077B6] dark:border-[#38BDF8]'
-                            : 'border-slate-900 dark:border-slate-700'
+                            ? 'border-primary/50'
+                            : 'border-gray-100 dark:border-gray-800'
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2 mb-2">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="material-symbols-outlined text-slate-700 dark:text-slate-300 text-[20px]">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 flex items-center justify-center shrink-0">
+                              <span className="material-symbols-outlined text-[20px]">
                                 {app.type.includes('FRIDGE')
                                   ? 'kitchen'
                                   : app.type.includes('STOVE') || app.type.includes('RANGE')
@@ -913,46 +878,47 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                   ? 'dishwasher_gen'
                                   : app.type.includes('WATER_HEATER')
                                   ? 'water_heater'
-                                  : 'device_unknown'}
+                                  : 'home_repair_service'}
                               </span>
-                              <h4 className="text-sm font-mono font-bold text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-bold text-brand-black dark:text-white">
                                 {app.name || app.type}
                               </h4>
+                              <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
+                                {app.category || 'Appliance'} · {app.type}
+                              </p>
                             </div>
-                            <p className="text-xs font-mono text-slate-500 mt-0.5">
-                              CATEGORY: {app.category || 'APPLIANCE'} · TYPE: {app.type}
-                            </p>
                           </div>
 
-                          {/* DEFAULT vs OVERRIDE BADGE */}
                           {app.isOverride ? (
-                            <span className="text-xs font-mono font-bold px-2 py-0.5 bg-[#0077B6] text-white tracking-wider">
-                              [OVERRIDE]
+                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                              Override
                             </span>
                           ) : (
-                            <span className="text-xs font-mono font-bold px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 tracking-wider">
-                              [DEFAULT]
+                            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                              Default
                             </span>
                           )}
                         </div>
 
                         {/* Specs & Info */}
-                        <div className="grid grid-cols-2 gap-2 text-xs font-mono text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 p-2 border border-slate-200 dark:border-slate-700 mb-3">
+                        <div className="grid grid-cols-2 gap-2 text-xs text-text-sub-light dark:text-text-sub-dark bg-gray-50/80 dark:bg-gray-800/50 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800 mb-3">
                           <div>
-                            <span className="text-slate-400">BRAND:</span> {app.brand || 'Default / Standard'}
+                            <span className="text-gray-400">Brand:</span> {app.brand || 'Standard / Default'}
                           </div>
                           <div>
-                            <span className="text-slate-400">MODEL:</span> {app.modelNumber || 'Standard Default Spec'}
+                            <span className="text-gray-400">Model:</span> {app.modelNumber || 'Standard Spec'}
                           </div>
                           {app.notes && (
-                            <div className="col-span-2 text-[11px] text-slate-500 italic">
+                            <div className="col-span-2 text-xs italic text-gray-500">
                               {app.notes}
                             </div>
                           )}
                         </div>
 
                         {/* Override Action Button */}
-                        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
                           <button
                             onClick={() => {
                               setOverrideModalAppliance(app);
@@ -963,10 +929,10 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                 notes: app.notes || ''
                               });
                             }}
-                            className="px-3 py-1.5 text-xs font-mono font-bold uppercase bg-white dark:bg-[#1E293B] border border-slate-900 dark:border-slate-600 hover:border-[#0077B6] text-slate-900 dark:text-white transition-colors flex items-center gap-1"
+                            className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 hover:border-primary text-text-main-light dark:text-white transition-colors flex items-center gap-1 shadow-xs"
                           >
                             <span className="material-symbols-outlined text-[14px]">edit</span>
-                            {app.isOverride ? 'Edit Override' : 'Override This Appliance'}
+                            {app.isOverride ? 'Edit Override' : 'Override Appliance'}
                           </button>
                         </div>
                       </div>
@@ -976,23 +942,23 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
               </div>
             )}
 
-            {/* LEVEL 4: DEFAULTS VIEW (LIST OF ALL 4 SEEDED SETS & VARIATIONS) */}
+            {/* LEVEL 4: DEFAULTS VIEW */}
             {navLevel === 'defaults' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between border-b-2 border-slate-900 dark:border-slate-700 pb-2">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center gap-3">
                     <button
                       onClick={() => (selectedComplexId ? handleNavComplex(selectedComplexId) : handleNavRoot())}
-                      className="p-1 border border-slate-400 hover:border-slate-900 dark:hover:border-white transition-colors"
+                      className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
                     >
                       <span className="material-symbols-outlined text-[18px]">arrow_back</span>
                     </button>
                     <div>
-                      <h2 className="text-base font-mono font-bold uppercase text-slate-900 dark:text-white">
+                      <h2 className="text-base font-bold text-brand-black dark:text-white">
                         Appliance Default Sets
                       </h2>
-                      <p className="text-xs font-mono text-slate-500">
-                        {activeComplex ? `${activeComplex.name} Scoped Sets` : 'All 4 Seeded Sets'}
+                      <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
+                        {activeComplex ? `${activeComplex.name} Sets` : 'All Seeded Sets'}
                       </p>
                     </div>
                   </div>
@@ -1002,74 +968,74 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   {activeComplexDefaultSets.map(set => (
                     <div
                       key={set.id}
-                      className="p-4 border-2 border-slate-900 dark:border-slate-700 bg-white dark:bg-[#1E293B] shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]"
+                      className="rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 p-5 shadow-sm space-y-4"
                     >
-                      <div className="flex items-start justify-between gap-2 mb-3">
+                      <div className="flex items-start justify-between gap-2">
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="text-base font-mono font-bold text-slate-900 dark:text-white">
+                            <h3 className="text-base font-bold text-brand-black dark:text-white">
                               {set.name}
                             </h3>
                             {set.isDefault && (
-                              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 bg-[#0077B6] text-white">
-                                PRIMARY
+                              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                Primary
                               </span>
                             )}
                           </div>
-                          <p className="text-xs font-mono text-slate-500 mt-0.5">
-                            COMPLEX: {set.complexSlug.toUpperCase()} · UNIT TYPE: {set.unitType.toUpperCase()}
+                          <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
+                            Complex: {set.complexSlug.toUpperCase()} · Type: {set.unitType.toUpperCase()}
                           </p>
                         </div>
 
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleStartEditSet(set)}
-                            className="px-2.5 py-1 text-xs font-mono font-bold uppercase bg-white dark:bg-[#1E293B] border border-slate-900 dark:border-slate-600 hover:border-[#0077B6] transition-colors"
+                            className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 hover:border-primary transition-colors"
                           >
                             Edit Set
                           </button>
                           <button
                             onClick={() => handleStartApplyDefaultSet(set)}
-                            className="px-3 py-1 text-xs font-mono font-bold uppercase bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border border-slate-900 dark:border-slate-100 hover:bg-[#0077B6] dark:hover:bg-[#38BDF8] transition-colors"
+                            className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs"
                           >
                             Apply to Unit
                           </button>
                         </div>
                       </div>
 
-                      {/* Facts Matrix */}
-                      <div className="grid grid-cols-3 gap-2 text-xs font-mono p-2 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 mb-3">
+                      {/* Facts Grid */}
+                      <div className="grid grid-cols-3 gap-2 text-xs p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
                         <div>
-                          <span className="text-slate-400">BEDROOMS:</span> {set.bedrooms ?? 2}
+                          <span className="text-gray-400">Bedrooms:</span> {set.bedrooms ?? 2}
                         </div>
                         <div>
-                          <span className="text-slate-400">WASHROOMS:</span> {set.bathrooms ?? 1}
+                          <span className="text-gray-400">Bathrooms:</span> {set.bathrooms ?? 1}
                         </div>
                         <div>
-                          <span className="text-slate-400">STORIES:</span> {set.stories ?? 1}
+                          <span className="text-gray-400">Stories:</span> {set.stories ?? 1}
                         </div>
                       </div>
 
                       {/* Appliance List in Set */}
-                      <div className="space-y-1.5">
-                        <span className="text-[11px] font-mono font-bold uppercase text-slate-400 tracking-wider">
+                      <div className="space-y-2">
+                        <span className="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider">
                           Standard Appliances ({set.appliances.length}):
                         </span>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           {set.appliances.map((appItem, idx) => (
                             <div
                               key={idx}
-                              className="p-2 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex items-center justify-between text-xs font-mono"
+                              className="p-2.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex items-center justify-between text-xs"
                             >
-                              <div className="flex items-center gap-1.5">
-                                <span className="material-symbols-outlined text-[16px] text-[#0077B6] dark:text-[#38BDF8]">
-                                  check_box
+                              <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[16px] text-primary">
+                                  check_circle
                                 </span>
-                                <span className="font-bold text-slate-800 dark:text-slate-200">
+                                <span className="font-semibold text-brand-black dark:text-white">
                                   {appItem.label}
                                 </span>
                               </div>
-                              <span className="text-[10px] text-slate-500 uppercase">
+                              <span className="text-[10px] text-gray-400 uppercase">
                                 {appItem.category}
                               </span>
                             </div>
@@ -1078,7 +1044,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       </div>
 
                       {set.notes && (
-                        <p className="mt-3 text-xs font-mono text-slate-500 italic border-t border-slate-200 dark:border-slate-700 pt-2">
+                        <p className="text-xs italic text-gray-500 border-t border-gray-100 dark:border-gray-800 pt-2">
                           Note: {set.notes}
                         </p>
                       )}
@@ -1091,84 +1057,82 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
         )}
       </div>
 
-      {/* ============================================================== */}
-      {/* MODAL 1: APPLIANCE OVERRIDE EDITOR                             */}
-      {/* ============================================================== */}
+      {/* MODAL 1: APPLIANCE OVERRIDE EDITOR */}
       {overrideModalAppliance && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-none">
-          <div className="bg-white dark:bg-[#1E293B] border-2 border-slate-900 dark:border-white p-6 max-w-md w-full shadow-[8px_8px_0px_0px_rgba(15,23,42,1)]">
-            <div className="flex items-center justify-between mb-4 border-b-2 border-slate-900 dark:border-slate-700 pb-2">
-              <h3 className="text-sm font-mono font-bold uppercase text-slate-900 dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-200 dark:border-gray-800 p-6 max-w-md w-full shadow-2xl">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-800">
+              <h3 className="text-sm font-bold text-brand-black dark:text-white">
                 Override Appliance ({overrideModalAppliance.type})
               </h3>
               <button
                 onClick={() => setOverrideModalAppliance(null)}
-                className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-white"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
-            <p className="text-xs font-mono text-slate-600 dark:text-slate-300 mb-4">
-              Saving an override stores a deviation specifically for this unit. All other appliances remain inherited from the complex default set.
+            <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-4">
+              Saving an override stores a specific deviation for this unit. All other appliances remain inherited from the complex default set.
             </p>
 
-            <div className="space-y-3 font-mono text-xs">
+            <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-500 uppercase mb-1">Brand</label>
+                <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Brand</label>
                 <input
                   type="text"
                   value={overrideForm.brand}
                   onChange={e => setOverrideForm(prev => ({ ...prev, brand: e.target.value }))}
                   placeholder="e.g. Frigidaire / Whirlpool"
-                  className="w-full p-2 border-2 border-slate-900 dark:border-slate-600 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white outline-none"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-500 uppercase mb-1">Model Number</label>
+                <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Model Number</label>
                 <input
                   type="text"
                   value={overrideForm.model}
                   onChange={e => setOverrideForm(prev => ({ ...prev, model: e.target.value }))}
                   placeholder="e.g. FFCD2418US3A"
-                  className="w-full p-2 border-2 border-slate-900 dark:border-slate-600 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white outline-none"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-500 uppercase mb-1">Serial Number (Optional)</label>
+                <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Serial Number (Optional)</label>
                 <input
                   type="text"
                   value={overrideForm.serial}
                   onChange={e => setOverrideForm(prev => ({ ...prev, serial: e.target.value }))}
                   placeholder="Verified serial if known"
-                  className="w-full p-2 border-2 border-slate-900 dark:border-slate-600 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white outline-none"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-500 uppercase mb-1">Notes</label>
+                <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Notes</label>
                 <textarea
                   value={overrideForm.notes}
                   onChange={e => setOverrideForm(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder="e.g. Upgraded stainless replacement"
-                  className="w-full p-2 border-2 border-slate-900 dark:border-slate-600 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white outline-none"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
                   rows={2}
                 />
               </div>
             </div>
 
-            <div className="mt-6 pt-3 border-t border-slate-200 dark:border-slate-700 flex gap-2">
+            <div className="mt-6 pt-3 border-t border-gray-100 dark:border-gray-800 flex gap-2">
               <button
                 onClick={() => setOverrideModalAppliance(null)}
-                className="flex-1 py-2 text-xs font-mono font-bold uppercase border-2 border-slate-900 dark:border-slate-600 bg-white dark:bg-transparent text-slate-900 dark:text-white"
+                className="flex-1 py-2.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-800 text-text-main-light dark:text-white hover:bg-gray-50 dark:hover:bg-neutral-800"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveApplianceOverride}
-                className="flex-1 py-2 text-xs font-mono font-bold uppercase bg-[#0077B6] text-white border-2 border-[#0077B6] hover:bg-[#005d90]"
+                className="flex-1 py-2.5 text-xs font-bold rounded-xl bg-primary text-white hover:bg-primary-hover shadow-xs"
               >
                 Save Override
               </button>
@@ -1177,34 +1141,32 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
         </div>
       )}
 
-      {/* ============================================================== */}
-      {/* MODAL 2: APPLY DEFAULT SET TO UNIT                             */}
-      {/* ============================================================== */}
+      {/* MODAL 2: APPLY DEFAULT SET TO UNIT */}
       {applySetModalSet && !showOverrideWarningModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-none">
-          <div className="bg-white dark:bg-[#1E293B] border-2 border-slate-900 dark:border-white p-6 max-w-md w-full shadow-[8px_8px_0px_0px_rgba(15,23,42,1)]">
-            <div className="flex items-center justify-between mb-4 border-b-2 border-slate-900 dark:border-slate-700 pb-2">
-              <h3 className="text-sm font-mono font-bold uppercase text-slate-900 dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-200 dark:border-gray-800 p-6 max-w-md w-full shadow-2xl">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-800">
+              <h3 className="text-sm font-bold text-brand-black dark:text-white">
                 Apply Set: {applySetModalSet.name}
               </h3>
               <button
                 onClick={() => setApplySetModalSet(null)}
-                className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-white"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
-            <p className="text-xs font-mono text-slate-600 dark:text-slate-300 mb-4">
+            <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-4">
               Select a target unit in the complex to inherit this default appliance set:
             </p>
 
-            <div className="space-y-3 font-mono text-xs">
-              <label className="block text-slate-500 uppercase">Target Unit</label>
+            <div className="space-y-3 text-xs">
+              <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark">Target Unit</label>
               <select
                 value={applyTargetUnitId}
                 onChange={e => setApplyTargetUnitId(e.target.value)}
-                className="w-full p-2 border-2 border-slate-900 dark:border-slate-600 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white outline-none"
+                className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
               >
                 {units.map(u => {
                   const bld = properties.find(p => p.id === u.buildingId);
@@ -1217,16 +1179,16 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
               </select>
             </div>
 
-            <div className="mt-6 pt-3 border-t border-slate-200 dark:border-slate-700 flex gap-2">
+            <div className="mt-6 pt-3 border-t border-gray-100 dark:border-gray-800 flex gap-2">
               <button
                 onClick={() => setApplySetModalSet(null)}
-                className="flex-1 py-2 text-xs font-mono font-bold uppercase border-2 border-slate-900 dark:border-slate-600 bg-white dark:bg-transparent text-slate-900 dark:text-white"
+                className="flex-1 py-2.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-800 text-text-main-light dark:text-white hover:bg-gray-50 dark:hover:bg-neutral-800"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleExecuteApplyDefaultSet(false)}
-                className="flex-1 py-2 text-xs font-mono font-bold uppercase bg-[#0077B6] text-white border-2 border-[#0077B6] hover:bg-[#005d90]"
+                className="flex-1 py-2.5 text-xs font-bold rounded-xl bg-primary text-white hover:bg-primary-hover shadow-xs"
               >
                 Apply Set
               </button>
@@ -1235,41 +1197,39 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
         </div>
       )}
 
-      {/* ============================================================== */}
-      {/* MODAL 3: OVERWRITE WARNING MODAL                               */}
-      {/* ============================================================== */}
+      {/* MODAL 3: OVERWRITE WARNING MODAL */}
       {showOverrideWarningModal && pendingApplyData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-none">
-          <div className="bg-white dark:bg-[#1E293B] border-2 border-red-600 p-6 max-w-md w-full shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-white dark:bg-card-dark rounded-2xl border border-red-500/30 p-6 max-w-md w-full shadow-2xl">
             <div className="flex items-center gap-2 mb-3 text-red-600 dark:text-red-400">
               <span className="material-symbols-outlined text-2xl">warning</span>
-              <h3 className="text-sm font-mono font-bold uppercase">
-                Caution: Existing Overrides Present
+              <h3 className="text-sm font-bold">
+                Existing Overrides Present
               </h3>
             </div>
 
-            <p className="text-xs font-mono text-slate-700 dark:text-slate-200 mb-4">
-              This unit currently has <strong>{pendingApplyData.overrideCount} custom appliance override(s)</strong> stored.
+            <p className="text-xs text-text-main-light dark:text-text-main-dark mb-3">
+              This unit has <strong>{pendingApplyData.overrideCount} custom appliance override(s)</strong>.
               Applying a new default set will overwrite them.
             </p>
 
-            <p className="text-xs font-mono text-slate-500 mb-4">
+            <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-4">
               Do you want to discard existing overrides and reset the unit completely to this default set?
             </p>
 
-            <div className="flex gap-2 pt-2 border-t border-slate-200 dark:border-slate-700 font-mono text-xs">
+            <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-800 text-xs">
               <button
                 onClick={() => {
                   setShowOverrideWarningModal(false);
                   setPendingApplyData(null);
                 }}
-                className="flex-1 py-2 font-bold uppercase border-2 border-slate-900 dark:border-slate-600 text-slate-900 dark:text-white"
+                className="flex-1 py-2.5 font-semibold rounded-xl border border-gray-200 dark:border-gray-800 text-text-main-light dark:text-white"
               >
                 Keep Overrides
               </button>
               <button
                 onClick={handleConfirmOverwriteApply}
-                className="flex-1 py-2 font-bold uppercase bg-red-600 text-white border-2 border-red-600 hover:bg-red-700"
+                className="flex-1 py-2.5 font-bold rounded-xl bg-red-600 text-white hover:bg-red-700 shadow-xs"
               >
                 Overwrite
               </button>
@@ -1278,91 +1238,84 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
         </div>
       )}
 
-      {/* ============================================================== */}
-      {/* MODAL 4: EDIT DEFAULT SET (INDEPENDENT SET EDITOR)             */}
-      {/* ============================================================== */}
+      {/* MODAL 4: EDIT DEFAULT SET */}
       {editSetModalSet && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-none">
-          <div className="bg-white dark:bg-[#1E293B] border-2 border-slate-900 dark:border-white p-6 max-w-md w-full shadow-[8px_8px_0px_0px_rgba(15,23,42,1)]">
-            <div className="flex items-center justify-between mb-4 border-b-2 border-slate-900 dark:border-slate-700 pb-2">
-              <h3 className="text-sm font-mono font-bold uppercase text-slate-900 dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-200 dark:border-gray-800 p-6 max-w-md w-full shadow-2xl">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-800">
+              <h3 className="text-sm font-bold text-brand-black dark:text-white">
                 Edit Set: {editSetModalSet.name}
               </h3>
               <button
                 onClick={() => setEditSetModalSet(null)}
-                className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-white"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
-            <p className="text-xs font-mono text-slate-600 dark:text-slate-300 mb-4">
-              Changes apply exclusively to <strong>{editSetModalSet.name}</strong> ({editSetModalSet.complexSlug.toUpperCase()} complex).
-              Other complexes remain unchanged.
-            </p>
-
-            <div className="space-y-3 font-mono text-xs">
+            <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-500 uppercase mb-1">Set Name</label>
+                <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Set Name</label>
                 <input
                   type="text"
                   value={editSetForm.name}
                   onChange={e => setEditSetForm(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full p-2 border-2 border-slate-900 dark:border-slate-600 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white outline-none"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-slate-500 uppercase mb-1">Beds</label>
+                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Beds</label>
                   <input
                     type="number"
                     value={editSetForm.bedrooms}
                     onChange={e => setEditSetForm(prev => ({ ...prev, bedrooms: Number(e.target.value) }))}
-                    className="w-full p-2 border-2 border-slate-900 dark:border-slate-600 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white outline-none"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-500 uppercase mb-1">Baths</label>
+                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Baths</label>
                   <input
                     type="number"
                     value={editSetForm.bathrooms}
                     onChange={e => setEditSetForm(prev => ({ ...prev, bathrooms: Number(e.target.value) }))}
-                    className="w-full p-2 border-2 border-slate-900 dark:border-slate-600 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white outline-none"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-500 uppercase mb-1">Stories</label>
+                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Stories</label>
                   <input
                     type="number"
                     value={editSetForm.stories}
                     onChange={e => setEditSetForm(prev => ({ ...prev, stories: Number(e.target.value) }))}
-                    className="w-full p-2 border-2 border-slate-900 dark:border-slate-600 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white outline-none"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-500 uppercase mb-1">Notes</label>
+                <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Notes</label>
                 <textarea
                   value={editSetForm.notes}
                   onChange={e => setEditSetForm(prev => ({ ...prev, notes: e.target.value }))}
-                  className="w-full p-2 border-2 border-slate-900 dark:border-slate-600 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white outline-none"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
                   rows={2}
                 />
               </div>
             </div>
 
-            <div className="mt-6 pt-3 border-t border-slate-200 dark:border-slate-700 flex gap-2">
+            <div className="mt-6 pt-3 border-t border-gray-100 dark:border-gray-800 flex gap-2">
               <button
                 onClick={() => setEditSetModalSet(null)}
-                className="flex-1 py-2 text-xs font-mono font-bold uppercase border-2 border-slate-900 dark:border-slate-600 bg-white dark:bg-transparent text-slate-900 dark:text-white"
+                className="flex-1 py-2.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-800 text-text-main-light dark:text-white hover:bg-gray-50 dark:hover:bg-neutral-800"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEditSet}
-                className="flex-1 py-2 text-xs font-mono font-bold uppercase bg-[#0077B6] text-white border-2 border-[#0077B6] hover:bg-[#005d90]"
+                className="flex-1 py-2.5 text-xs font-bold rounded-xl bg-primary text-white hover:bg-primary-hover shadow-xs"
               >
                 Save Changes
               </button>

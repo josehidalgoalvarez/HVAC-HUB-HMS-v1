@@ -70,7 +70,7 @@ interface ActionContextType {
 
 export const ActionContext = createContext<ActionContextType | undefined>(undefined);
 
-const PORTFOLIO_VERSION = '2.2.0';
+const PORTFOLIO_VERSION = '2.3.0';
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Feature flag: default to false (localStorage). When true, reads through API client.
@@ -282,16 +282,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const complexIdStr = bld?.complexId ? String(bld.complexId) : null;
     const unitType = unit.unitType || 'apartment';
 
-    // 1. Identify Default Set
-    let set: ApplianceDefaultSet | undefined;
-    if (unit.defaultSetId) {
-      set = defaultSets.find(s => s.id === unit.defaultSetId);
-    }
+    let set = unit.defaultSetId ? defaultSets.find(s => s.id === unit.defaultSetId) : undefined;
     if (!set && complexIdStr) {
       set = defaultSets.find(s =>
-        (s.complexId === complexIdStr ||
-          (complexIdStr === '1' && s.complexSlug === 'bd') ||
-          (complexIdStr === '2' && s.complexSlug === 'elm-colborne')) &&
+        (s.complexId === complexIdStr || s.complexSlug === complexIdStr) &&
         s.unitType === unitType &&
         s.isDefault
       );
@@ -307,12 +301,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const result: Appliance[] = [];
 
-    // 2. Add inherited appliances from default set with override resolution
     if (set && Array.isArray(set.appliances)) {
       for (const item of set.appliances) {
-        // A. Per-unit in-memory override
         if (overrides[item.type]) {
           result.push({
+            maintenanceHistory: [],
             ...overrides[item.type],
             isOverride: true,
             isDefault: false
@@ -320,10 +313,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           continue;
         }
 
-        // B. Existing DB appliance record matching type
         const directApp = unitAppliancesInDb.find(a => a.type === item.type);
         if (directApp) {
           result.push({
+            maintenanceHistory: [],
             ...directApp,
             isOverride: true,
             isDefault: false
@@ -331,7 +324,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           continue;
         }
 
-        // C. Inherited default appliance
         result.push({
           id: `default-${unit.id}-${item.type.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
           propertyId: unit.buildingId,
@@ -348,15 +340,18 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           status: 'operational',
           isDefault: true,
           isOverride: false,
-          notes: item.notes || `Default ${item.type} (Set: ${set.name})`
+          notes: item.notes || `Default ${item.type} (Set: ${set.name})`,
+          specs: item.specs || {},
+          maintenanceHistory: [],
+          lastService: ''
         });
       }
     }
 
-    // 3. Add any direct appliances not part of standard default set types
     for (const direct of unitAppliancesInDb) {
       if (!result.some(r => r.id === direct.id || r.type === direct.type)) {
         result.push({
+          maintenanceHistory: [],
           ...direct,
           isOverride: true,
           isDefault: false
