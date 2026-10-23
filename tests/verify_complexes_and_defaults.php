@@ -136,8 +136,9 @@ echo "\n--- 6. 18 Elm St Base Unit Numbers (101–414) ---\n";
 $elm18BldgId = $db->query("SELECT id FROM building WHERE address LIKE '%18 Elm%' LIMIT 1")->fetchColumn();
 $elm18Units = $db->query("SELECT unit_number FROM unit WHERE building_id = {$elm18BldgId} ORDER BY unit_number ASC")->fetchAll(\PDO::FETCH_COLUMN);
 
-assertTest(count($elm18Units) === 56, "6.1 18 Elm St has exactly 56 units (4 floors x 14 units: 101–414) (got " . count($elm18Units) . ")", $passes, $failures);
+assertTest(count($elm18Units) === 17, "6.1 18 Elm St has exactly 17 verified units (got " . count($elm18Units) . ")", $passes, $failures);
 assertTest(in_array('411', $elm18Units), "6.2 Unit 411 exists as base unit number", $passes, $failures);
+assertTest(in_array('101P', $elm18Units), "6.3 Unit 101P exists as verified base exception", $passes, $failures);
 
 // -------------------------------------------------------------
 // 7. API Endpoints

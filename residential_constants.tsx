@@ -407,6 +407,17 @@ export const STORAGE_1719_BATH: StorageItem[] = [
     }
 ];
 
+export const STORAGE_18_ELM: StorageItem[] = [
+    {
+        id: 'st-18-wh',
+        name: 'Spare Water Heaters',
+        category: 'appliances',
+        quantity: 2,
+        notes: 'Small storage stockpile for water heaters',
+        provenance: 'verified'
+    }
+];
+
 // ==========================================
 // 4. PROPERTIES (89 Total across 10 Complexes)
 // ==========================================
@@ -773,8 +784,10 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '18 Elm St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_3fba10b6250dd34fcc10.jpg',
         applianceCount: 0,
-        comments: 'Sits right behind 203 Colborne St.',
-        definedRooms: [],
+        isStorageNode: true,
+        storageInventory: STORAGE_18_ELM,
+        comments: 'Sits right behind 203 Colborne St. Small-storage role (water heaters).',
+        definedRooms: ['Water Heater Storage'],
         floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor'],
         provenance: 'verified'
     },
@@ -788,9 +801,9 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '24 Elm St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_3fba10b6250dd34fcc10.jpg',
         applianceCount: 0,
-        comments: 'Sits right behind 203 Colborne St.',
+        comments: 'Sits right behind 203 Colborne St. TODO-verify: 304/404 absent in Yardi; 303D/403D may be the physical 4th units on floors 3–4.',
         definedRooms: [],
-        floors: ['Main Floor', 'Second Floor'],
+        floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor'],
         provenance: 'verified'
     },
     {
@@ -1097,6 +1110,20 @@ export const MANITOU_YARDI_ROSTERS: Record<string, {
     }
 };
 
+export const ELM_YARDI_ROSTERS: Record<string, {
+    name: string;
+    units: string[];
+}> = {
+    'prop-elm-18': {
+        name: '18 Elm Street',
+        units: ['101P', '111', '112', '113', '114', '211', '212', '213', '214', '311', '312', '313', '314', '411', '412', '413', '414']
+    },
+    'prop-elm-24': {
+        name: '24 Elm Street',
+        units: ['101', '102', '103', '104', '201', '202', '203', '204', '301', '302', '303', '401', '402', '403']
+    }
+};
+
 export function generateUnitRoster(building: Building): Unit[] {
     const units: Unit[] = [];
     const bId = building.id;
@@ -1144,28 +1171,36 @@ export function generateUnitRoster(building: Building): Unit[] {
             });
         }
         return units;
-    } else if (bId === 'prop-elm-18') {
-        // 18 Elm St: base numbers only 101–414 across 4 floors (specifically including 411)
-        const floors = ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor'];
-        for (let fl = 1; fl <= 4; fl++) {
-            for (let u = 1; u <= 14; u++) {
-                const uNum = `${fl}${u < 10 ? '0' + u : u}`;
-                units.push({
-                    id: `unit-${bId}-${uNum}`,
-                    buildingId: bId,
-                    unitNumber: uNum,
-                    floor: floors[fl - 1],
-                    unitType: 'apartment',
-                    defaultSetId: 'set-elm-apt',
-                    bedrooms: 2,
-                    bathrooms: 1,
-                    renovated: { isRenovated: false, renovatedDate: null },
-                    moveInDate: null,
-                    tenancyDate: null,
-                    comments: uNum === '411' ? '18 Elm St unit 411 (base unit, ignores Yardi letter suffix)' : '18 Elm St residential unit',
-                    provenance: 'pattern'
-                });
+    } else if (bId in ELM_YARDI_ROSTERS) {
+        const spec = ELM_YARDI_ROSTERS[bId as keyof typeof ELM_YARDI_ROSTERS];
+        for (const uNum of spec.units) {
+            let floor = 'First Floor';
+            if (uNum.startsWith('2')) {
+                floor = 'Second Floor';
+            } else if (uNum.startsWith('3')) {
+                floor = 'Third Floor';
+            } else if (uNum.startsWith('4')) {
+                floor = 'Fourth Floor';
             }
+
+            units.push({
+                id: `unit-${bId}-${uNum}`,
+                buildingId: bId,
+                unitNumber: uNum,
+                floor,
+                unitType: 'apartment',
+                defaultSetId: 'set-elm-apt',
+                bedrooms: 2,
+                bathrooms: 1,
+                stories: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: bId === 'prop-elm-18'
+                    ? (uNum === '101P' ? '18 Elm St unit 101P (verified base exception, no plain 101)' : '18 Elm St residential unit (verified base number)')
+                    : '24 Elm St residential unit (verified base number, no 24- prefix)',
+                provenance: 'verified — Yardi extract 2026-10-22'
+            });
         }
     } else if (bId.startsWith('prop-amherst-')) {
         const numStr = bId.replace('prop-amherst-', '');

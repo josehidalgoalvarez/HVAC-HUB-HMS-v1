@@ -95,6 +95,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         $pdo->exec("DELETE FROM building WHERE name IN ('1735 Bath Road', '505 Days Pool')");
         $pdo->exec("DELETE FROM appliance WHERE model_number IN ('RU199iN', '59TP6B080V1716', '24ACC636A003', 'LGB-8', 'FWA-110', 'PTC153G35AXXX')");
         $pdo->exec("DELETE FROM unit WHERE building_id IN (81, 91, 92, 93) AND provenance != 'verified — Yardi extract 2026-10-22'");
+        $pdo->exec("DELETE FROM unit WHERE building_id IN (78, 79) AND provenance != 'verified — Yardi extract 2026-10-22'");
     } catch (\Throwable) {}
 
     // Seed Verified Buildings (15 properties: 12 BD + Amherst 137, Albert 415, Ontario 265)
@@ -118,6 +119,8 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         [91, '77A Manitou Crescent', '77A Manitou Crescent, Kingston, ON', 'Apartment building, 10 units. Shares numbering pool with 77B and 77C (floor 1: 101–110, floor 2: 201–210, floor 3: 301–310, sliced A/B/C).'],
         [92, '77B Manitou Crescent', '77B Manitou Crescent, Kingston, ON', 'Apartment building, 11 units. Shares numbering pool with 77A and 77C (floor 1: 101–110, floor 2: 201–210, floor 3: 301–310, sliced A/B/C).'],
         [93, '77C Manitou Crescent', '77C Manitou Crescent, Kingston, ON', 'Apartment building, 9 units. Shares numbering pool with 77A and 77B (floor 1: 101–110, floor 2: 201–210, floor 3: 301–310, sliced A/B/C).'],
+        [78, '18 Elm Street', '18 Elm St, Kingston, ON', 'Sits right behind 203 Colborne St. Small-storage role (water heaters).'],
+        [79, '24 Elm Street', '24 Elm St, Kingston, ON', 'Sits right behind 203 Colborne St. TODO-verify: 304/404 absent in Yardi; 303D/403D may be the physical 4th units on floors 3–4.'],
         [11, '415 Albert Street', '415 Albert St, Kingston, ON', 'Multi-unit residential property.'],
         [12, '265 Ontario Street', '265 Ontario St, Kingston, ON', 'Residential property.']
     ];
@@ -130,7 +133,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             $update = $pdo->prepare("UPDATE building SET name = ?, address = ?, comments = ? WHERE id = ?");
             $update->execute([$b[1], $b[2], $b[3], $b[0]]);
         } else {
-            $cId = in_array($b[0], [81, 91, 92, 93]) ? 8 : (in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null));
+            $cId = in_array($b[0], [78, 79]) ? 2 : (in_array($b[0], [81, 91, 92, 93]) ? 8 : (in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null)));
             $insert = $pdo->prepare("INSERT INTO building (id, name, address, comments, complex_id) VALUES (?, ?, ?, ?, ?)");
             $insert->execute([$b[0], $b[1], $b[2], $b[3], $cId]);
         }
@@ -325,6 +328,22 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     ];
     foreach ($manitou77c as [$uNum, $fl]) {
         $units[] = [93, $uNum, $fl, $manitouProv, $manitouProv];
+    }
+
+    // Add Elm verified units (31 units across 18 Elm and 24 Elm from Yardi extract 2026-10-22)
+    $elmProv = 'verified — Yardi extract 2026-10-22';
+    // 18 Elm St (17 units)
+    $elm18Units = ['101P', '111', '112', '113', '114', '211', '212', '213', '214', '311', '312', '313', '314', '411', '412', '413', '414'];
+    foreach ($elm18Units as $uNum) {
+        $fl = str_starts_with($uNum, '1') ? 'First Floor' : (str_starts_with($uNum, '2') ? 'Second Floor' : (str_starts_with($uNum, '3') ? 'Third Floor' : 'Fourth Floor'));
+        $note = $uNum === '101P' ? '18 Elm St unit 101P (verified base exception, no plain 101)' : '18 Elm St residential unit (verified base number)';
+        $units[] = [78, $uNum, $fl, $note, $elmProv];
+    }
+    // 24 Elm St (14 units)
+    $elm24Units = ['101', '102', '103', '104', '201', '202', '203', '204', '301', '302', '303', '401', '402', '403'];
+    foreach ($elm24Units as $uNum) {
+        $fl = str_starts_with($uNum, '1') ? 'First Floor' : (str_starts_with($uNum, '2') ? 'Second Floor' : (str_starts_with($uNum, '3') ? 'Third Floor' : 'Fourth Floor'));
+        $units[] = [79, $uNum, $fl, '24 Elm St residential unit (verified base number, no 24- prefix)', $elmProv];
     }
 
     // Other non-BD verified units

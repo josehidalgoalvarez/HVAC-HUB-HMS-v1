@@ -81,7 +81,7 @@ try {
             $sql = preg_replace('/,\s*PRIMARY\s+KEY\s*\([^)]+\)/i', '', $sql);
             $sql = preg_replace('/PRIMARY\s+KEY\s*\([^)]+\),?/i', '', $sql);
 
-            $statements = array_filter(array_map('trim', explode(';', $sql)));
+            $statements = array_filter(array_map('trim', preg_split('/;\s*(?=[\r\n]|$)/', $sql)));
             $pdo->beginTransaction();
             try {
                 foreach ($statements as $stmt) {
