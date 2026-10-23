@@ -104,7 +104,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
               <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 text-[10px] font-bold uppercase">{property.applianceCount} Units</span>
               {property.role && property.role !== 'standard' && (
                 <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-[10px] font-bold uppercase">
-                  {property.role === 'storage' ? (property.id === 'prop-days-511' ? 'Storage Node (Central)' : 'Storage Node') : property.role === 'mechanical' ? 'Mechanical Hub' : property.role === 'office' ? 'Office' : property.role}
+                  {property.role === 'storage' ? (property.id === 'prop-days-511' || property.id === '15' || property.name?.includes('511 Days') ? 'Storage Node (Central)' : 'Storage Node') : property.role === 'mechanical' ? 'Mechanical Hub' : property.role === 'office' ? 'Office' : property.role}
                 </span>
               )}
               {property.responsibility === 'external' && (

@@ -272,8 +272,137 @@ class Routes
                 }
                 $appliances = isset($body['appliances']) ? json_encode($body['appliances']) : $existing['appliances_json'];
                 $notes = isset($body['notes']) ? (string) $body['notes'] : $existing['notes'];
-                Db::execute('UPDATE default_sets SET appliances_json = ?, notes = ? WHERE id = ?', [$appliances, $notes, $id]);
+                $bedrooms = array_key_exists('bedrooms', $body) ? ($body['bedrooms'] !== null ? (int) $body['bedrooms'] : null) : $existing['bedrooms'];
+                $bathrooms = array_key_exists('washrooms', $body) ? ($body['washrooms'] !== null ? (float) $body['washrooms'] : null) : (array_key_exists('bathrooms', $body) ? ($body['bathrooms'] !== null ? (float) $body['bathrooms'] : null) : $existing['bathrooms']);
+                $stories = array_key_exists('storeys', $body) ? ($body['storeys'] !== null ? (int) $body['storeys'] : null) : (array_key_exists('stories', $body) ? ($body['stories'] !== null ? (int) $body['stories'] : null) : $existing['stories']);
+
+                Db::execute('UPDATE default_sets SET appliances_json = ?, notes = ?, bedrooms = ?, bathrooms = ?, stories = ? WHERE id = ?', [$appliances, $notes, $bedrooms, $bathrooms, $stories, $id]);
                 return Auth::jsonSuccess(['status' => 'updated', 'id' => $id]);
+            });
+
+            // --- Unit Domain Endpoints ---
+            $group->get('/units', function (Request $request, Response $response): Response {
+                $rows = Db::fetchAll('SELECT * FROM unit ORDER BY building_id ASC, unit_number ASC');
+                $units = [];
+                foreach ($rows as $u) {
+                    $units[] = [
+                        'id' => (string) $u['id'],
+                        'buildingId' => (string) $u['building_id'],
+                        'unitNumber' => $u['unit_number'],
+                        'floor' => $u['floor'],
+                        'unitType' => $u['unit_type'] ?? 'apartment',
+                        'defaultSetId' => $u['default_set_id'],
+                        'bedrooms' => $u['bedrooms'] !== null ? (int) $u['bedrooms'] : null,
+                        'washrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
+                        'bathrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
+                        'storeys' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
+                        'stories' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
+                        'washerDryerState' => $u['washer_dryer_state'] ?? null,
+                        'washer_dryer_state' => $u['washer_dryer_state'] ?? null,
+                        'comments' => $u['comments'] ?? null,
+                        'provenance' => $u['provenance'] ?? 'verified',
+                    ];
+                }
+                return Auth::jsonSuccess($units);
+            });
+
+            $group->get('/units/{id}', function (Request $request, Response $response, array $args): Response {
+                $id = (string) ($args['id'] ?? '');
+                $u = Db::fetchOne('SELECT * FROM unit WHERE id = ?', [$id]);
+                if (!$u && preg_match('/^unit-(\d+)-(.+)$/', $id, $matches)) {
+                    $u = Db::fetchOne('SELECT * FROM unit WHERE building_id = ? AND unit_number = ?', [$matches[1], $matches[2]]);
+                }
+                if (!$u) {
+                    return Auth::jsonError('not_found', 'Unit not found', 404);
+                }
+                return Auth::jsonSuccess([
+                    'id' => (string) $u['id'],
+                    'buildingId' => (string) $u['building_id'],
+                    'unitNumber' => $u['unit_number'],
+                    'floor' => $u['floor'],
+                    'unitType' => $u['unit_type'] ?? 'apartment',
+                    'defaultSetId' => $u['default_set_id'],
+                    'bedrooms' => $u['bedrooms'] !== null ? (int) $u['bedrooms'] : null,
+                    'washrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
+                    'bathrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
+                    'storeys' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
+                    'stories' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
+                    'washerDryerState' => $u['washer_dryer_state'] ?? null,
+                    'washer_dryer_state' => $u['washer_dryer_state'] ?? null,
+                    'comments' => $u['comments'] ?? null,
+                    'provenance' => $u['provenance'] ?? 'verified',
+                ]);
+            });
+
+            $group->patch('/units/{id}', function (Request $request, Response $response, array $args): Response {
+                $id = (string) ($args['id'] ?? '');
+                $existing = Db::fetchOne('SELECT * FROM unit WHERE id = ?', [$id]);
+                if (!$existing && preg_match('/^unit-(\d+)-(.+)$/', $id, $matches)) {
+                    $existing = Db::fetchOne('SELECT * FROM unit WHERE building_id = ? AND unit_number = ?', [$matches[1], $matches[2]]);
+                }
+                if (!$existing) {
+                    return Auth::jsonError('not_found', 'Unit not found', 404);
+                }
+
+                $body = (array) ($request->getParsedBody() ?? []);
+                $fieldMap = [
+                    'defaultSetId' => 'default_set_id',
+                    'unitType' => 'unit_type',
+                    'washerDryerState' => 'washer_dryer_state',
+                ];
+                foreach ($fieldMap as $camel => $snake) {
+                    if (isset($body[$camel]) && !isset($body[$snake])) {
+                        $body[$snake] = $body[$camel];
+                    }
+                }
+                if (isset($body['bathrooms']) && !isset($body['washrooms'])) {
+                    $body['washrooms'] = $body['bathrooms'];
+                }
+                if (isset($body['stories']) && !isset($body['storeys'])) {
+                    $body['storeys'] = $body['stories'];
+                }
+
+                $allowedFields = ['bedrooms', 'washrooms', 'storeys', 'washer_dryer_state', 'comments', 'default_set_id', 'unit_type', 'floor'];
+                $updates = [];
+                $params = [];
+                $user = $request->getAttribute('user');
+                $userId = is_array($user) && isset($user['id']) ? (int) $user['id'] : null;
+
+                foreach ($allowedFields as $field) {
+                    if (array_key_exists($field, $body)) {
+                        $oldVal = $existing[$field] !== null ? (string) $existing[$field] : null;
+                        $newVal = $body[$field] !== null ? (string) $body[$field] : null;
+                        if ($oldVal !== $newVal) {
+                            \App\Models\Correction::record('unit', (int) $existing['id'], $field, $oldVal, $newVal, $userId, 'Field update via PATCH /api/units');
+                        }
+                        $updates[] = "`$field` = ?";
+                        $params[] = $body[$field];
+                    }
+                }
+
+                if (!empty($updates)) {
+                    $params[] = $existing['id'];
+                    Db::execute('UPDATE unit SET ' . implode(', ', $updates) . ' WHERE id = ?', $params);
+                }
+
+                $u = Db::fetchOne('SELECT * FROM unit WHERE id = ?', [$existing['id']]);
+                return Auth::jsonSuccess([
+                    'id' => (string) $u['id'],
+                    'buildingId' => (string) $u['building_id'],
+                    'unitNumber' => $u['unit_number'],
+                    'floor' => $u['floor'],
+                    'unitType' => $u['unit_type'] ?? 'apartment',
+                    'defaultSetId' => $u['default_set_id'],
+                    'bedrooms' => $u['bedrooms'] !== null ? (int) $u['bedrooms'] : null,
+                    'washrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
+                    'bathrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
+                    'storeys' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
+                    'stories' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
+                    'washerDryerState' => $u['washer_dryer_state'] ?? null,
+                    'washer_dryer_state' => $u['washer_dryer_state'] ?? null,
+                    'comments' => $u['comments'] ?? null,
+                    'provenance' => $u['provenance'] ?? 'verified',
+                ]);
             });
 
             // --- Inventory & Portfolio synchronization ---
@@ -329,8 +458,28 @@ class Routes
 
                 $buildings = Db::fetchAll('SELECT * FROM building ORDER BY id ASC');
                 $properties = [];
+                $allUnits = [];
                 foreach ($buildings as $b) {
                     $units = Db::fetchAll('SELECT * FROM unit WHERE building_id = ? ORDER BY unit_number ASC', [$b['id']]);
+                    foreach ($units as $u) {
+                        $allUnits[] = [
+                            'id' => (string) $u['id'],
+                            'buildingId' => (string) $u['building_id'],
+                            'unitNumber' => $u['unit_number'],
+                            'floor' => $u['floor'],
+                            'unitType' => $u['unit_type'] ?? 'apartment',
+                            'defaultSetId' => $u['default_set_id'],
+                            'bedrooms' => $u['bedrooms'] !== null ? (int) $u['bedrooms'] : null,
+                            'washrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
+                            'bathrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
+                            'storeys' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
+                            'stories' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
+                            'washerDryerState' => $u['washer_dryer_state'] ?? null,
+                            'washer_dryer_state' => $u['washer_dryer_state'] ?? null,
+                            'comments' => $u['comments'] ?? null,
+                            'provenance' => $u['provenance'] ?? 'verified',
+                        ];
+                    }
                     $unitNumbers = array_column($units, 'unit_number');
                     $applianceCount = (int) (Db::fetchOne('SELECT COUNT(*) as c FROM appliance WHERE building_id = ?', [$b['id']])['c'] ?? 0);
                     $cId = $b['complex_id'] !== null ? (int) $b['complex_id'] : null;
@@ -353,6 +502,8 @@ class Routes
                         'rooms' => !empty($unitNumbers) ? array_map(fn($u) => "Unit {$u}", $unitNumbers) : ['Basement', 'Mechanical Room'],
                         'imageUrl' => $b['image_url'] ?? '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
                         'comments' => $b['comments'] ?? '',
+                        'role' => $b['role'] ?? 'standard',
+                        'responsibility' => $b['responsibility'] ?? 'internal',
                         'createdAt' => $b['created_at'],
                     ];
                 }
@@ -387,6 +538,7 @@ class Routes
                     'defaultSets' => $defaultSets,
                     'properties' => $properties,
                     'appliances' => $appliances,
+                    'units' => $allUnits,
                     'logs' => [],
                 ]);
             });

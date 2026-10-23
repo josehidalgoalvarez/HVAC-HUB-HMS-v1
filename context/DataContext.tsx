@@ -205,6 +205,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       appliances: Appliance[];
       complexes?: Complex[];
       defaultSets?: ApplianceDefaultSet[];
+      units?: Unit[];
       logs?: ChangeLogEntry[];
     }>('/api/inventory')
       .then(res => {
@@ -220,6 +221,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
         if (res?.defaultSets && res.defaultSets.length > 0) {
           setDefaultSets(res.defaultSets);
+        }
+        if (res?.units && res.units.length > 0) {
+          setUnits(res.units);
         }
         if (res?.logs) setLogs(res.logs);
       })
@@ -324,6 +328,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           continue;
         }
 
+        const itemModel = item.model || item.specs?.model || '';
+        const itemBrand = item.specs?.brand || (itemModel.toLowerCase().includes('frigidaire') ? 'Frigidaire' : 'Standard / Default');
         result.push({
           id: `default-${unit.id}-${item.type.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
           propertyId: unit.buildingId,
@@ -332,8 +338,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           name: item.label,
           type: item.type,
           category: item.category,
-          brand: 'Standard / Default',
-          modelNumber: '',
+          brand: itemBrand,
+          modelNumber: itemModel,
           serialNumber: '',
           location: unit.unitNumber ? `Unit ${unit.unitNumber}` : '',
           room: 'Kitchen',
@@ -341,7 +347,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           isDefault: true,
           isOverride: false,
           notes: item.notes || `Default ${item.type} (Set: ${set.name})`,
-          specs: item.specs || {},
+          specs: item.specs || (itemModel ? { model: itemModel } : {}),
           maintenanceHistory: [],
           lastService: ''
         });
@@ -483,6 +489,19 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateUnit = (unit: Unit) => {
     setUnits(prev => prev.map(u => u.id === unit.id ? unit : u));
+    if (useApi) {
+      apiClient.patch(`/api/units/${unit.id}`, {
+        bedrooms: unit.bedrooms,
+        washrooms: unit.washrooms ?? unit.bathrooms,
+        storeys: unit.storeys ?? unit.stories,
+        washer_dryer_state: unit.washerDryerState,
+        comments: unit.comments,
+        default_set_id: unit.defaultSetId,
+      }).catch(err => {
+        console.warn('Failed to sync updated unit to API:', err);
+      });
+    }
+    _addLog('UPDATE', 'PROPERTY', unit.id, `Unit ${unit.unitNumber}`, `Updated unit attributes for Unit ${unit.unitNumber}`, unit.buildingId);
   };
 
   const updateDefaultSet = (updatedSet: ApplianceDefaultSet) => {

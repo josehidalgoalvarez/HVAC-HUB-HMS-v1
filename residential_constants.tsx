@@ -107,34 +107,17 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         isDefault: true,
         bedrooms: 2,
         bathrooms: 1,
+        washrooms: 1,
         stories: 1,
+        storeys: 1,
         hasUnitWaterHeater: false,
         appliances: [
             { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
             { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
-        notes: '2 bed / 1 washroom. Shared laundry room appliances, shared water heaters on building/mechanical room.'
-    },
-    {
-        id: 'set-bd-apt-1bed',
-        complexSlug: 'bd',
-        complexId: 'bd',
-        name: 'BD / Apartment 1-bed (variant)',
-        unitType: 'apartment',
-        isDefault: false,
-        bedrooms: 1,
-        bathrooms: 1,
-        stories: 1,
-        hasUnitWaterHeater: false,
-        appliances: [
-            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
-            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
-            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
-        ],
-        notes: '1 bed / 1 washroom variant. Same appliance list as default apartment set.'
+        notes: '2 bed / 1 washroom (default). Shared laundry room appliances, shared water heaters on building/mechanical room. Per-unit bedrooms overridable via unit attribute.'
     },
     {
         id: 'set-bd-townhouse',
@@ -145,12 +128,14 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         isDefault: true,
         bedrooms: 3,
         bathrooms: 2,
+        washrooms: 2,
         stories: 3,
+        storeys: 3,
         hasUnitWaterHeater: true,
         appliances: [
             { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
             { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } },
             { category: 'Water Heating', label: 'Unit Water Heater (default)', name: 'Unit Water Heater (default)', type: 'Water Heater', isDefault: true, specs: { fuelType: 'Electric', btuInput: '4500W', capacity: '60 Gallons', volts: '240' } }
         ],
@@ -165,12 +150,14 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         isDefault: true,
         bedrooms: 2,
         bathrooms: 1,
+        washrooms: 1,
         stories: 1,
+        storeys: 1,
         hasUnitWaterHeater: false,
         appliances: [
             { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
             { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: 'Independent copy of BD apartment set for Elm + Colborne. Editable in one place.'
@@ -189,7 +176,7 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         appliances: [
             { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
             { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: 'Amherst apartment default specification.'
@@ -208,7 +195,7 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         appliances: [
             { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
             { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } },
             { category: 'Water Heating', label: 'Unit Water Heater (default)', name: 'Unit Water Heater (default)', type: 'Water Heater', isDefault: true, specs: { fuelType: 'Electric', btuInput: '4500W', capacity: '60 Gallons', volts: '240' } }
         ],
@@ -228,7 +215,7 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         appliances: [
             { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
             { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } },
             { category: 'Water Heating', label: 'Unit Water Heater (default)', name: 'Unit Water Heater (default)', type: 'Water Heater', isDefault: true, specs: { fuelType: 'Electric', btuInput: '4500W', capacity: '60 Gallons', volts: '240' } }
         ],
@@ -248,7 +235,7 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         appliances: [
             { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
             { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: 'Manitou apartment default specification (77A, 77B, 77C).'
@@ -267,7 +254,7 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         appliances: [
             { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
             { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: 'Quadrant converted house apartment default specification (Princess, Victoria, Alfred, Frontenac).'
@@ -286,7 +273,7 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         appliances: [
             { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
             { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: 'Frontenac single condo building default specification.'
@@ -305,7 +292,7 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         appliances: [
             { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
             { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: 'Princess Street multi-unit apartment default specification.'
@@ -345,7 +332,7 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         appliances: [
             { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
             { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: 'Singles and standalone properties default apartment specification.'
@@ -1118,7 +1105,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '203 Colborne St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
         applianceCount: 0,
-        comments: 'Front building facing Colborne; 18 & 24 Elm sit directly behind.',
+        comments: 'Front building facing Colborne; 18 & 24 Elm sit directly behind. Layout varies per unit (some two-storey, 1–2 washrooms) — TODO-verify per unit.',
         definedRooms: [],
         floors: ['Main Floor', 'Second Floor'],
         provenance: 'verified'
@@ -1961,10 +1948,12 @@ export function generateUnitRoster(building: Building): Unit[] {
                 floor,
                 unitType: isTownhouse ? 'townhouse' : 'apartment',
                 defaultSetId: isTownhouse ? 'set-bd-townhouse' : 'set-bd-apt',
-                stories: isTownhouse ? 3 : undefined,
+                storeys: isTownhouse ? 3 : 1,
+                stories: isTownhouse ? 3 : 1,
+                washrooms: isTownhouse ? 2 : 1,
                 bathrooms: isTownhouse ? 2 : 1,
-                bedrooms: isTownhouse ? undefined : 2,
-                comments: config.customNotes?.[uNum] || (isTownhouse ? '3 stories (2 floors + basement), 2 washrooms, own water heater (believed // TODO-verify)' : undefined),
+                bedrooms: isTownhouse ? 3 : 2,
+                comments: config.customNotes?.[uNum] || (isTownhouse ? '3 storeys (2 floors + basement), 2 washrooms, own water heater (believed // TODO-verify)' : undefined),
                 provenance: 'verified — Yardi extract 2026-10-22',
                 renovated: { isRenovated: false, renovatedDate: null },
                 moveInDate: null,
@@ -1992,7 +1981,9 @@ export function generateUnitRoster(building: Building): Unit[] {
                 unitType: 'apartment',
                 defaultSetId: 'set-elm-apt',
                 bedrooms: 2,
+                washrooms: 1,
                 bathrooms: 1,
+                storeys: 1,
                 stories: 1,
                 renovated: { isRenovated: false, renovatedDate: null },
                 moveInDate: null,

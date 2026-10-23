@@ -16,6 +16,7 @@ interface ProfileViewProps {
   onToggleEditMode: (enabled: boolean) => void;
   onOpenParts?: () => void;
   onOpenWatches?: () => void;
+  onOpenDefaults?: () => void;
 }
 
 const ProfileView: React.FC<ProfileViewProps> = ({
@@ -24,7 +25,8 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   isEditMode,
   onToggleEditMode,
   onOpenParts,
-  onOpenWatches
+  onOpenWatches,
+  onOpenDefaults
 }) => {
   const { properties, appliances, logs: changeLogs, isTutorialActive } = useData();
   const { importData, duplicateProperty, deleteProperty, startTutorial, endTutorial } = useActions();
@@ -135,6 +137,12 @@ const ProfileView: React.FC<ProfileViewProps> = ({
       icon: 'notifications_active',
       label: 'Watches & Alerts',
       action: onOpenWatches,
+      color: 'text-primary'
+    }] : []),
+    ...(onOpenDefaults ? [{
+      icon: 'tune',
+      label: 'Appliance Defaults Library',
+      action: onOpenDefaults,
       color: 'text-primary'
     }] : []),
     {

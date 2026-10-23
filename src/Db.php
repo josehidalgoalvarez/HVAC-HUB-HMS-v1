@@ -94,6 +94,9 @@ class Db
                 building_id INTEGER NOT NULL,
                 unit_number TEXT NOT NULL,
                 floor TEXT NULL,
+                bedrooms INTEGER NULL,
+                washrooms INTEGER NULL,
+                storeys INTEGER NULL,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             );
@@ -460,6 +463,9 @@ class Db
         try { $pdo->exec("ALTER TABLE building ADD COLUMN cluster_id TEXT NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE building ADD COLUMN status TEXT NOT NULL DEFAULT 'active'"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE building ADD COLUMN is_3d_ready INTEGER NOT NULL DEFAULT 0"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE unit ADD COLUMN bedrooms INTEGER NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE unit ADD COLUMN washrooms INTEGER NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE unit ADD COLUMN storeys INTEGER NULL"); } catch (\Throwable) {}
     }
 
     /**

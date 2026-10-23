@@ -17,6 +17,7 @@ export interface ApplianceDefaultItem {
   label?: string;
   isDefault?: boolean;
   notes?: string;
+  model?: string;
   specs?: ApplianceSpecs;
 }
 
@@ -29,7 +30,9 @@ export interface ApplianceDefaultSet {
   isDefault?: boolean;
   bedrooms?: number;
   bathrooms?: number;
+  washrooms?: number;
   stories?: number;
+  storeys?: number;
   hasUnitWaterHeater?: boolean;
   appliances: ApplianceDefaultItem[];
   notes?: string;
@@ -105,9 +108,11 @@ export interface Unit {
   comments?: string;
   unitType?: 'apartment' | 'townhouse' | 'common' | 'storage' | string;
   ownership?: 'patry' | 'external' | string;
-  bedrooms?: number;
-  bathrooms?: number;
-  stories?: number;
+  bedrooms?: number | null;
+  washrooms?: number | null;
+  bathrooms?: number | null;
+  storeys?: number | null;
+  stories?: number | null;
   defaultSetId?: string;
   washerDryerState?: 'building_installed' | 'tenant_owned' | 'none';
   applianceOverrides?: Record<string, Appliance>;
@@ -154,6 +159,8 @@ export interface ApplianceSpecs {
   filterSize?: string;
   refrigerantType?: string;
   efficiency?: string;
+  model?: string;
+  notes?: string;
   // Dashboard Specific Specs
   returnTemp?: string;
   supplyTemp?: string;

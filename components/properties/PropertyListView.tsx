@@ -6,6 +6,8 @@ interface PropertyListViewProps {
   onPropertyClick: (id: string) => void;
   onAddProperty: () => void;
   isEditMode: boolean;
+  initialNavLevel?: ViewNavLevel;
+  onNavLevelChange?: (level: ViewNavLevel) => void;
 }
 
 type ViewNavLevel = 'root' | 'complex' | 'building' | 'unit' | 'defaults';
@@ -13,7 +15,9 @@ type ViewNavLevel = 'root' | 'complex' | 'building' | 'unit' | 'defaults';
 const PropertyListView: React.FC<PropertyListViewProps> = ({
   onPropertyClick,
   onAddProperty,
-  isEditMode
+  isEditMode,
+  initialNavLevel,
+  onNavLevelChange
 }) => {
   const {
     properties,
@@ -24,11 +28,22 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     overrideUnitAppliance,
     resetUnitToDefault,
     applyDefaultSetToUnit,
-    updateDefaultSet
+    updateDefaultSet,
+    updateUnit
   } = useData();
 
   // Navigation State
-  const [navLevel, setNavLevel] = useState<ViewNavLevel>('root');
+  const [navLevel, setNavLevelState] = useState<ViewNavLevel>(initialNavLevel || 'root');
+  const setNavLevel = (level: ViewNavLevel) => {
+    setNavLevelState(level);
+    onNavLevelChange?.(level);
+  };
+  React.useEffect(() => {
+    if (initialNavLevel && initialNavLevel !== navLevel) {
+      setNavLevelState(initialNavLevel);
+    }
+  }, [initialNavLevel]);
+
   const [selectedComplexId, setSelectedComplexId] = useState<string | null>(null);
   const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
@@ -47,6 +62,24 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
   const [editSetModalSet, setEditSetModalSet] = useState<ApplianceDefaultSet | null>(null);
   const [editSetForm, setEditSetForm] = useState({ name: '', bedrooms: 2, bathrooms: 1, stories: 1, notes: '' });
+
+  const [editSpecModalData, setEditSpecModalData] = useState<{
+    set: ApplianceDefaultSet;
+    applianceIndex: number;
+  } | null>(null);
+  const [editSpecForm, setEditSpecForm] = useState({
+    type: '',
+    model: '',
+    fuelType: '',
+    volts: '',
+    capacity: '',
+    btuInput: '',
+    btuOutput: '',
+    filterSize: '',
+    notes: ''
+  });
+
+  const [defaultsSectionFilter, setDefaultsSectionFilter] = useState<string>('all');
 
   // 1. Group buildings into complexes by complexId (reads complexId from data, zero address matching)
   const { complexCards, ungroupedProperties } = useMemo(() => {
@@ -117,12 +150,107 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     return getUnitAppliances(activeUnit);
   }, [activeUnit, getUnitAppliances]);
 
+  const activeDefaultSet = useMemo(() => {
+    if (!activeUnit) return null;
+    if (activeUnit.defaultSetId) {
+      return defaultSets.find(s => s.id === activeUnit.defaultSetId) || null;
+    }
+    const bld = properties.find(p => p.id === activeUnit.buildingId);
+    if (bld?.complexId) {
+      return defaultSets.find(s => (s.complexId === bld.complexId || s.complexSlug === bld.complexId) && s.unitType === (activeUnit.unitType || 'apartment') && s.isDefault) || null;
+    }
+    return defaultSets.find(s => s.unitType === (activeUnit.unitType || 'apartment') && s.isDefault) || null;
+  }, [activeUnit, defaultSets, properties]);
+
   const activeComplexDefaultSets = useMemo(() => {
     if (!selectedComplexId || selectedComplexId === 'ungrouped') {
       return defaultSets;
     }
     return defaultSets.filter(s => s.complexId === selectedComplexId || s.complexSlug === selectedComplexId);
   }, [selectedComplexId, defaultSets]);
+
+  const mapComplexIdToSection = (cId?: string): string => {
+    if (!cId) return 'all';
+    const lower = cId.toLowerCase();
+    if (lower.includes('bd') || lower.includes('bath') || lower.includes('days')) return 'bd';
+    if (lower.includes('elm') || lower.includes('colborne')) return 'elm-colborne';
+    if (lower.includes('amherst')) return 'amherst';
+    if (lower.includes('manitou')) return 'manitou';
+    if (lower.includes('frontenac')) return 'frontenac';
+    if (lower.includes('princess') || lower.includes('alfred') || lower.includes('quadrant')) return 'princess-quadrant';
+    if (lower.includes('skyfall') || lower.includes('sante') || lower.includes('armstrong')) return 'armstrong-skyfall';
+    if (lower.includes('single')) return 'singles';
+    return 'all';
+  };
+
+  const getApplianceIcon = (type: string) => {
+    const t = (type || '').toLowerCase();
+    if (t.includes('fridge') || t.includes('refrigerator')) return 'kitchen';
+    if (t.includes('stove') || t.includes('range') || t.includes('cooktop') || t.includes('oven')) return 'soup_kitchen';
+    if (t.includes('dish')) return 'countertops';
+    if (t.includes('water heater') || t.includes('hwt') || t.includes('tank')) return 'water_drop';
+    if (t.includes('ac') || t.includes('air condition') || t.includes('heat pump')) return 'ac_unit';
+    if (t.includes('furnace') || t.includes('heating')) return 'local_fire_department';
+    if (t.includes('thermostat')) return 'thermostat';
+    if (t.includes('hood') || t.includes('fan')) return 'air';
+    if (t.includes('wash') || t.includes('dryer') || t.includes('laundry')) return 'local_laundry_service';
+    if (t.includes('fireplace')) return 'fireplace';
+    return 'devices';
+  };
+
+  const groupedDefaultSets = useMemo(() => {
+    const complexGroups: { id: string; title: string; subtitle: string; icon: string; sets: ApplianceDefaultSet[] }[] = [
+      { id: 'bd', title: 'Bath Road & Days Road (BD)', subtitle: 'BD Apartments & Townhouses', icon: 'apartment', sets: [] },
+      { id: 'elm-colborne', title: 'Elm + Colborne', subtitle: '18 Elm, 24 Elm & 203 Colborne', icon: 'home_work', sets: [] },
+      { id: 'amherst', title: 'Amherstview', subtitle: 'Amherst Apartments & Townhouses', icon: 'domain', sets: [] },
+      { id: 'manitou', title: 'Manitou Crescent', subtitle: 'Manitou Townhouses & Apartments', icon: 'holiday_village', sets: [] },
+      { id: 'princess-quadrant', title: 'Princess Trio & Quadrant', subtitle: 'Alfred, Victoria, Frontenac & Princess multi-unit properties', icon: 'location_city', sets: [] },
+      { id: 'frontenac', title: 'Frontenac Condo', subtitle: 'Frontenac single condo building', icon: 'domain_add', sets: [] },
+      { id: 'armstrong-skyfall', title: 'Skyfall & Le Santé (Uniform Building)', subtitle: '2274 Princess St / Uniform specifications', icon: 'stars', sets: [] },
+      { id: 'singles', title: 'Singles & Standalone', subtitle: 'Single rental homes, commercial storefronts & office', icon: 'cottage', sets: [] },
+    ];
+
+    const groupMap = new Map<string, { id: string; title: string; subtitle: string; icon: string; sets: ApplianceDefaultSet[] }>();
+    complexGroups.forEach(g => groupMap.set(g.id, g));
+
+    const otherSets: ApplianceDefaultSet[] = [];
+
+    defaultSets.forEach(s => {
+      const slug = (s.complexSlug || s.complexId || '').toLowerCase();
+      if (slug === 'bd') {
+        groupMap.get('bd')!.sets.push(s);
+      } else if (slug === 'elm-colborne' || slug === 'elm') {
+        groupMap.get('elm-colborne')!.sets.push(s);
+      } else if (slug === 'amherst') {
+        groupMap.get('amherst')!.sets.push(s);
+      } else if (slug === 'manitou') {
+        groupMap.get('manitou')!.sets.push(s);
+      } else if (slug === 'alfred' || slug === 'princess' || slug === 'princess-trio' || slug === 'quadrant') {
+        groupMap.get('princess-quadrant')!.sets.push(s);
+      } else if (slug === 'frontenac') {
+        groupMap.get('frontenac')!.sets.push(s);
+      } else if (slug === 'armstrong-skyfall' || slug === 'skyfall') {
+        groupMap.get('armstrong-skyfall')!.sets.push(s);
+      } else if (slug === 'singles') {
+        groupMap.get('singles')!.sets.push(s);
+      } else {
+        otherSets.push(s);
+      }
+    });
+
+    const result = complexGroups.filter(g => g.sets.length > 0);
+    if (otherSets.length > 0) {
+      result.push({
+        id: 'other',
+        title: 'Other Default Sets',
+        subtitle: 'Additional specifications',
+        icon: 'devices_other',
+        sets: otherSets
+      });
+    }
+
+    return result;
+  }, [defaultSets]);
 
   // Direct Search Logic
   const searchResults = useMemo(() => {
@@ -193,7 +321,13 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
   };
 
   const handleNavDefaults = (cId?: string) => {
-    if (cId) setSelectedComplexId(cId);
+    if (cId) {
+      setSelectedComplexId(cId);
+      setDefaultsSectionFilter(mapComplexIdToSection(cId));
+    } else {
+      setSelectedComplexId(null);
+      setDefaultsSectionFilter('all');
+    }
     setNavLevel('defaults');
     setSearchQuery('');
   };
@@ -273,6 +407,73 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
       notes: editSetForm.notes
     });
     setEditSetModalSet(null);
+  };
+
+  const handleStartEditApplianceSpec = (set: ApplianceDefaultSet, applianceIndex: number) => {
+    const appItem = set.appliances[applianceIndex];
+    if (!appItem) return;
+    setEditSpecModalData({ set, applianceIndex });
+    setEditSpecForm({
+      type: appItem.type || '',
+      model: appItem.model || appItem.specs?.model || '',
+      fuelType: appItem.specs?.fuelType || '',
+      volts: appItem.specs?.volts || '',
+      capacity: appItem.specs?.capacity || '',
+      btuInput: appItem.specs?.btuInput || '',
+      btuOutput: appItem.specs?.btuOutput || '',
+      filterSize: appItem.specs?.filterSize || '',
+      notes: appItem.notes || appItem.specs?.notes || ''
+    });
+  };
+
+  const handleSaveApplianceSpec = () => {
+    if (!editSpecModalData) return;
+    const { set, applianceIndex } = editSpecModalData;
+    const updatedAppliances = set.appliances.map((app, idx) => {
+      if (idx !== applianceIndex) return app;
+      const modelVal = editSpecForm.model.trim();
+      const notesVal = editSpecForm.notes.trim();
+      return {
+        ...app,
+        type: editSpecForm.type.trim() || app.type,
+        model: modelVal || undefined,
+        notes: notesVal || undefined,
+        specs: {
+          ...app.specs,
+          model: modelVal || undefined,
+          fuelType: editSpecForm.fuelType.trim() || undefined,
+          volts: editSpecForm.volts.trim() || undefined,
+          capacity: editSpecForm.capacity.trim() || undefined,
+          btuInput: editSpecForm.btuInput.trim() || undefined,
+          btuOutput: editSpecForm.btuOutput.trim() || undefined,
+          filterSize: editSpecForm.filterSize.trim() || undefined,
+          notes: notesVal || undefined,
+        }
+      };
+    });
+    updateDefaultSet({
+      ...set,
+      appliances: updatedAppliances
+    });
+    setEditSpecModalData(null);
+  };
+
+  const handleUpdateUnitAttribute = (field: keyof Unit, value: any) => {
+    if (!activeUnit) return;
+    const updatedUnit: Unit = {
+      ...activeUnit,
+      [field]: value
+    };
+    if (field === 'washrooms') {
+      updatedUnit.bathrooms = value;
+    } else if (field === 'bathrooms') {
+      updatedUnit.washrooms = value;
+    } else if (field === 'storeys') {
+      updatedUnit.stories = value;
+    } else if (field === 'stories') {
+      updatedUnit.storeys = value;
+    }
+    updateUnit(updatedUnit);
   };
 
   return (
@@ -394,6 +595,10 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     const bld = properties.find(p => p.id === unit.buildingId);
                     const isExternal = unit.ownership === 'external';
                     const wdState = unit.washerDryerState;
+                    const unitDs = defaultSets.find(s => s.id === unit.defaultSetId);
+                    const bedCount = unit.bedrooms ?? unitDs?.bedrooms ?? 2;
+                    const bathCount = unit.washrooms ?? unit.bathrooms ?? unitDs?.bathrooms ?? 1;
+                    const storeyCount = unit.storeys ?? unit.stories ?? unitDs?.stories;
                     return (
                       <div
                         key={unit.id}
@@ -433,7 +638,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             {bld?.name} · {bld?.address}
                           </p>
                           <p className="text-xs text-gray-400">
-                            {unit.bedrooms || 2} Bed · {unit.bathrooms || 1} Bath
+                            {bedCount} Bed · {bathCount} Bath{storeyCount ? ` · ${storeyCount} Storey${storeyCount > 1 ? 's' : ''}` : ''}
                           </p>
                         </div>
                         <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl shrink-0">
@@ -476,7 +681,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             </h4>
                             {hasSpecialRole && (
                               <span className="text-[11px] font-semibold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full capitalize">
-                                {bld.role === 'storage' ? (bld.id === 'prop-days-511' ? 'Storage Node (Central)' : 'Storage Node') : bld.role === 'mechanical' ? 'Mechanical Hub' : bld.role === 'office' ? 'Office' : bld.role}
+                                {bld.role === 'storage' ? (bld.id === 'prop-days-511' || bld.id === '15' || bld.name?.includes('511 Days') ? 'Storage Node (Central)' : 'Storage Node') : bld.role === 'mechanical' ? 'Mechanical Hub' : bld.role === 'office' ? 'Office' : bld.role}
                               </span>
                             )}
                             {isExternal && (
@@ -709,7 +914,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {hasSpecialRole && (
                                 <span className="text-[11px] font-semibold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full capitalize whitespace-nowrap">
-                                  {bld.role === 'storage' ? (bld.id === 'prop-days-511' ? 'Storage Node (Central)' : 'Storage Node') : bld.role === 'mechanical' ? 'Mechanical Hub' : bld.role === 'office' ? 'Office' : bld.role}
+                                  {bld.role === 'storage' ? (bld.id === 'prop-days-511' || bld.id === '15' || bld.name?.includes('511 Days') ? 'Storage Node (Central)' : 'Storage Node') : bld.role === 'mechanical' ? 'Mechanical Hub' : bld.role === 'office' ? 'Office' : bld.role}
                                 </span>
                               )}
                               {isExternal && (
@@ -776,7 +981,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       {activeBuilding.role === 'storage' ? 'inventory_2' : activeBuilding.role === 'mechanical' ? 'settings_suggest' : 'corporate_fare'}
                     </span>
                     <div>
-                      {activeBuilding.id === 'prop-days-511' ? (
+                      {activeBuilding.id === 'prop-days-511' || activeBuilding.id === '15' || activeBuilding.name?.includes('511 Days') ? (
                         <><strong>Central Storage Building:</strong> 511 Days Rd basement houses primary replacement inventory for BD complex.</>
                       ) : activeBuilding.role === 'storage' ? (
                         <><strong>Storage Node:</strong> Key storage depot for parts, spare equipment, and replacement inventory.</>
@@ -883,9 +1088,17 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               </div>
                             </div>
 
-                            <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-3">
-                              {unit.unitType?.toUpperCase() || 'APARTMENT'} · {unit.bedrooms || 2} Bed · {unit.bathrooms || 1} Bath {unit.stories ? `· ${unit.stories} Stories` : ''}
-                            </p>
+                            {(() => {
+                              const unitDs = defaultSets.find(s => s.id === unit.defaultSetId);
+                              const bedCount = unit.bedrooms ?? unitDs?.bedrooms ?? 2;
+                              const bathCount = unit.washrooms ?? unit.bathrooms ?? unitDs?.bathrooms ?? 1;
+                              const storeyCount = unit.storeys ?? unit.stories ?? unitDs?.stories;
+                              return (
+                                <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-3">
+                                  {unit.unitType?.toUpperCase() || 'APARTMENT'} · {bedCount} Bed · {bathCount} Bath{storeyCount ? ` · ${storeyCount} Storey${storeyCount > 1 ? 's' : ''}` : ''}
+                                </p>
+                              );
+                            })()}
 
                             <div className="pt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub-light dark:text-text-sub-dark">
                               <span>{unitApps.length} Appliances</span>
@@ -923,7 +1136,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         Unit {activeUnit.unitNumber}
                       </h2>
                       <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
-                        {activeBuilding?.name} · {activeUnit.bedrooms || 2} Bed / {activeUnit.bathrooms || 1} Bath
+                        {activeBuilding?.name} · {activeUnit.bedrooms ?? activeDefaultSet?.bedrooms ?? 2} Bed / {activeUnit.washrooms ?? activeUnit.bathrooms ?? activeDefaultSet?.bathrooms ?? 1} Bath{activeUnit.storeys || activeUnit.stories ? ` · ${activeUnit.storeys || activeUnit.stories} Storey${(activeUnit.storeys || activeUnit.stories) > 1 ? 's' : ''}` : ''}
                       </p>
                     </div>
                   </div>
@@ -937,6 +1150,111 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       Reset to Default
                     </button>
                   )}
+                </div>
+
+                {/* Unit Layout & Attributes Card (Dropdowns) */}
+                <div className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary text-[18px]">tune</span>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
+                        Unit Layout Attributes
+                      </h3>
+                    </div>
+                    <span className="text-[11px] font-semibold text-gray-400">
+                      Overrides Set Default
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {/* Bedrooms Dropdown */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                        Bedrooms
+                      </label>
+                      <select
+                        aria-label="Bedrooms"
+                        value={activeUnit.bedrooms !== undefined && activeUnit.bedrooms !== null ? String(activeUnit.bedrooms) : ''}
+                        onChange={e => handleUpdateUnitAttribute('bedrooms', e.target.value === '' ? null : Number(e.target.value))}
+                        className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
+                      >
+                        <option value="">Default ({activeDefaultSet?.bedrooms ?? 2})</option>
+                        <option value="1">1 Bedroom</option>
+                        <option value="2">2 Bedrooms</option>
+                        <option value="3">3 Bedrooms</option>
+                        <option value="4">4 Bedrooms</option>
+                        <option value="5">5 Bedrooms</option>
+                      </select>
+                    </div>
+
+                    {/* Washrooms Dropdown */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                        Washrooms
+                      </label>
+                      <select
+                        aria-label="Washrooms"
+                        value={activeUnit.washrooms !== undefined && activeUnit.washrooms !== null ? String(activeUnit.washrooms) : (activeUnit.bathrooms !== undefined && activeUnit.bathrooms !== null ? String(activeUnit.bathrooms) : '')}
+                        onChange={e => handleUpdateUnitAttribute('washrooms', e.target.value === '' ? null : Number(e.target.value))}
+                        className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
+                      >
+                        <option value="">Default ({activeDefaultSet?.bathrooms ?? 1})</option>
+                        <option value="1">1 Washroom</option>
+                        <option value="1.5">1.5 Washrooms</option>
+                        <option value="2">2 Washrooms</option>
+                        <option value="2.5">2.5 Washrooms</option>
+                        <option value="3">3 Washrooms</option>
+                      </select>
+                    </div>
+
+                    {/* Storeys Dropdown */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                        Storeys
+                      </label>
+                      <select
+                        aria-label="Storeys"
+                        value={activeUnit.storeys !== undefined && activeUnit.storeys !== null ? String(activeUnit.storeys) : (activeUnit.stories !== undefined && activeUnit.stories !== null ? String(activeUnit.stories) : '')}
+                        onChange={e => handleUpdateUnitAttribute('storeys', e.target.value === '' ? null : Number(e.target.value))}
+                        className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
+                      >
+                        <option value="">Default ({activeDefaultSet?.stories ?? 1})</option>
+                        <option value="1">1 Storey</option>
+                        <option value="2">2 Storeys</option>
+                        <option value="3">3 Storeys</option>
+                      </select>
+                    </div>
+
+                    {/* Washer / Dryer Dropdown */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                        Washer / Dryer
+                      </label>
+                      <select
+                        aria-label="Washer / Dryer"
+                        value={activeUnit.washerDryerState || ''}
+                        onChange={e => handleUpdateUnitAttribute('washerDryerState', e.target.value === '' ? null : e.target.value)}
+                        className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
+                      >
+                        <option value="">Unknown / None</option>
+                        <option value="building_installed">Building-Installed</option>
+                        <option value="tenant_owned">Tenant-Owned</option>
+                        <option value="none">Shared Laundry / None</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center gap-1.5 text-text-sub-light dark:text-text-sub-dark">
+                      <span>Default Set:</span>
+                      <span className="font-bold text-primary">
+                        {activeDefaultSet?.name || activeUnit.defaultSetId || 'Inherited from Complex'}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-gray-400">
+                      Bed/bath line updates immediately while default set reference remains constant.
+                    </span>
+                  </div>
                 </div>
 
                 {/* Default Set Status Card */}
@@ -1065,114 +1383,274 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
               </div>
             )}
 
-            {/* LEVEL 4: DEFAULTS VIEW */}
+            {/* LEVEL 4: APPLIANCE DEFAULTS LIBRARY */}
             {navLevel === 'defaults' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => (selectedComplexId ? handleNavComplex(selectedComplexId) : handleNavRoot())}
-                      className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-                    </button>
-                    <div>
-                      <h2 className="text-base font-bold text-brand-black dark:text-white">
-                        Appliance Default Sets
-                      </h2>
-                      <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
-                        {activeComplex ? `${activeComplex.name} Sets` : 'All Seeded Sets'}
-                      </p>
+                <div className="flex flex-col gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => (selectedComplexId ? handleNavComplex(selectedComplexId) : handleNavRoot())}
+                        className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+                        title="Back to navigation"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                      </button>
+                      <div>
+                        <h2 className="text-lg font-bold text-brand-black dark:text-white flex items-center gap-2">
+                          <span>Appliance Defaults Library</span>
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                            {defaultSets.length} Sets
+                          </span>
+                        </h2>
+                        <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
+                          Standard specifications inherited by reference across all units. Edits propagate automatically.
+                        </p>
+                      </div>
                     </div>
+                  </div>
+
+                  {/* Section Filter Pills */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                    <button
+                      onClick={() => setDefaultsSectionFilter('all')}
+                      className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap transition-colors ${
+                        defaultsSectionFilter === 'all'
+                          ? 'bg-primary text-white shadow-xs'
+                          : 'bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 text-text-sub-light dark:text-text-sub-dark hover:text-primary'
+                      }`}
+                    >
+                      All Sections ({defaultSets.length})
+                    </button>
+                    {groupedDefaultSets.map(group => (
+                      <button
+                        key={group.id}
+                        onClick={() => setDefaultsSectionFilter(group.id)}
+                        className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+                          defaultsSectionFilter === group.id
+                            ? 'bg-primary text-white shadow-xs'
+                            : 'bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 text-text-sub-light dark:text-text-sub-dark hover:text-primary'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[15px]">{group.icon}</span>
+                        <span>{group.title.split(' (')[0]}</span>
+                        <span className="text-[10px] opacity-75">({group.sets.length})</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  {activeComplexDefaultSets.map(set => (
-                    <div
-                      key={set.id}
-                      className="rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 p-5 shadow-sm space-y-4"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-base font-bold text-brand-black dark:text-white">
-                              {set.name}
-                            </h3>
-                            {set.isDefault && (
-                              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                                Primary
-                              </span>
-                            )}
+                {/* Grouped Default Sets */}
+                <div className="space-y-8">
+                  {groupedDefaultSets
+                    .filter(group => defaultsSectionFilter === 'all' || group.id === defaultsSectionFilter)
+                    .map(group => (
+                      <div key={group.id} className="space-y-4">
+                        <div className="flex items-center justify-between pb-1 border-b border-gray-200/60 dark:border-gray-800">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                              <span className="material-symbols-outlined text-[18px]">{group.icon}</span>
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-bold text-brand-black dark:text-white">
+                                {group.title}
+                              </h3>
+                              <p className="text-[11px] text-text-sub-light dark:text-text-sub-dark">
+                                {group.subtitle}
+                              </p>
+                            </div>
                           </div>
-                          <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
-                            Complex: {set.complexSlug.toUpperCase()} · Type: {set.unitType.toUpperCase()}
-                          </p>
+                          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                            {group.sets.length} {group.sets.length === 1 ? 'Specification Set' : 'Specification Sets'}
+                          </span>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleStartEditSet(set)}
-                            className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 hover:border-primary transition-colors"
-                          >
-                            Edit Set
-                          </button>
-                          <button
-                            onClick={() => handleStartApplyDefaultSet(set)}
-                            className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs"
-                          >
-                            Apply to Unit
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Facts Grid */}
-                      <div className="grid grid-cols-3 gap-2 text-xs p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
-                        <div>
-                          <span className="text-gray-400">Bedrooms:</span> {set.bedrooms ?? 2}
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Bathrooms:</span> {set.bathrooms ?? 1}
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Stories:</span> {set.stories ?? 1}
-                        </div>
-                      </div>
-
-                      {/* Appliance List in Set */}
-                      <div className="space-y-2">
-                        <span className="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider">
-                          Standard Appliances ({set.appliances.length}):
-                        </span>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {set.appliances.map((appItem, idx) => (
+                        <div className="space-y-5">
+                          {group.sets.map(set => (
                             <div
-                              key={idx}
-                              className="p-2.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex items-center justify-between text-xs"
+                              key={set.id}
+                              className="rounded-2xl bg-white dark:bg-card-dark border border-gray-200/80 dark:border-gray-800 p-5 shadow-xs space-y-4"
                             >
-                              <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-[16px] text-primary">
-                                  check_circle
-                                </span>
-                                <span className="font-semibold text-brand-black dark:text-white">
-                                  {appItem.label}
-                                </span>
+                              {/* Set Header */}
+                              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                                <div>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <h4 className="text-base font-bold text-brand-black dark:text-white">
+                                      {set.name}
+                                    </h4>
+                                    {set.isDefault && (
+                                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                        Primary Default
+                                      </span>
+                                    )}
+                                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 capitalize">
+                                      {set.unitType}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-1">
+                                    Default layout: {set.bedrooms ?? 2} Bed · {set.washrooms ?? set.bathrooms ?? 1} Washroom · {set.storeys ?? set.stories ?? 1} Storey{((set.storeys ?? set.stories ?? 1) > 1) ? 's' : ''} · {set.hasUnitWaterHeater ? 'Dedicated Unit Tank' : 'Building / Shared Mechanical Room'}
+                                  </p>
+                                </div>
+
+                                <div className="flex items-center gap-2 self-start">
+                                  <button
+                                    onClick={() => handleStartEditSet(set)}
+                                    className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 hover:border-primary transition-colors flex items-center gap-1.5"
+                                  >
+                                    <span className="material-symbols-outlined text-[15px]">edit</span>
+                                    <span>Edit Set</span>
+                                  </button>
+                                  <button
+                                    onClick={() => handleStartApplyDefaultSet(set)}
+                                    className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs flex items-center gap-1.5"
+                                  >
+                                    <span className="material-symbols-outlined text-[15px]">input</span>
+                                    <span>Apply to Unit</span>
+                                  </button>
+                                </div>
                               </div>
-                              <span className="text-[10px] text-gray-400 uppercase">
-                                {appItem.category}
-                              </span>
+
+                              {/* Layout Summary Grid */}
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs p-3 rounded-xl bg-gray-50/70 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800">
+                                <div>
+                                  <span className="text-gray-400 block text-[10px] uppercase font-semibold">Bedrooms</span>
+                                  <span className="font-semibold">{set.bedrooms ?? 2} <span className="text-[10px] text-gray-400 font-normal">(overridable per unit)</span></span>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400 block text-[10px] uppercase font-semibold">Washrooms</span>
+                                  <span className="font-semibold">{set.washrooms ?? set.bathrooms ?? 1}</span>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400 block text-[10px] uppercase font-semibold">Storeys (Floors)</span>
+                                  <span className="font-semibold">{set.storeys ?? set.stories ?? 1}</span>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400 block text-[10px] uppercase font-semibold">Water Heater Node</span>
+                                  <span className="font-semibold">{set.hasUnitWaterHeater ? 'In-Unit Tank' : 'Shared / Central'}</span>
+                                </div>
+                              </div>
+
+                              {/* Appliances & Specifications Section */}
+                              <div className="space-y-3 pt-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-bold text-brand-black dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-primary text-[16px]">tune</span>
+                                    <span>Standard Appliances & Full Specifications ({set.appliances.length})</span>
+                                  </span>
+                                  <span className="text-[11px] text-text-sub-light dark:text-text-sub-dark italic">
+                                    Inherited by reference
+                                  </span>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-3">
+                                  {set.appliances.map((appItem, idx) => {
+                                    const appModel = appItem.model || appItem.specs?.model;
+                                    const iconName = getApplianceIcon(appItem.type || appItem.name);
+                                    return (
+                                      <div
+                                        key={idx}
+                                        className="p-3.5 rounded-xl border border-gray-200/70 dark:border-gray-800 bg-white dark:bg-gray-900/40 hover:border-primary/40 transition-all space-y-3"
+                                      >
+                                        {/* Appliance Header */}
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                          <div className="flex items-center gap-2.5">
+                                            <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 text-primary flex items-center justify-center shrink-0">
+                                              <span className="material-symbols-outlined text-[18px]">
+                                                {iconName}
+                                              </span>
+                                            </div>
+                                            <div>
+                                              <div className="flex items-center gap-2">
+                                                <h5 className="font-bold text-sm text-brand-black dark:text-white">
+                                                  {appItem.label || appItem.name}
+                                                </h5>
+                                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 uppercase">
+                                                  {appItem.category}
+                                                </span>
+                                              </div>
+                                              <p className="text-[11px] text-text-sub-light dark:text-text-sub-dark">
+                                                Type: <strong className="text-brand-black dark:text-white font-medium">{appItem.type || 'Standard'}</strong>
+                                              </p>
+                                            </div>
+                                          </div>
+
+                                          <div className="flex items-center gap-2 self-start sm:self-auto">
+                                            {appModel ? (
+                                              <span className="px-2.5 py-1 text-xs font-mono font-bold rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1">
+                                                <span className="material-symbols-outlined text-[13px]">verified</span>
+                                                <span>Model: {appModel}</span>
+                                              </span>
+                                            ) : (
+                                              <span className="text-[11px] text-gray-400 dark:text-gray-500 italic px-2 py-0.5">
+                                                Model: Not specified
+                                              </span>
+                                            )}
+                                            <button
+                                              onClick={() => handleStartEditApplianceSpec(set, idx)}
+                                              className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-gray-50 hover:bg-primary/10 hover:text-primary dark:bg-gray-800 dark:hover:bg-primary/20 border border-gray-200 dark:border-gray-700 transition-colors flex items-center gap-1"
+                                              title="Edit specification for this default set"
+                                            >
+                                              <span className="material-symbols-outlined text-[14px]">edit</span>
+                                              <span>Edit Spec</span>
+                                            </button>
+                                          </div>
+                                        </div>
+
+                                        {/* FULL SPECIFICATION FIELDS */}
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-800/80 text-xs">
+                                          <div>
+                                            <span className="text-gray-400 block text-[10px] uppercase font-semibold">Fuel Type</span>
+                                            <span className="font-medium text-brand-black dark:text-white">
+                                              {appItem.specs?.fuelType || '—'}
+                                            </span>
+                                          </div>
+                                          <div>
+                                            <span className="text-gray-400 block text-[10px] uppercase font-semibold">Voltage</span>
+                                            <span className="font-medium text-brand-black dark:text-white">
+                                              {appItem.specs?.volts ? `${appItem.specs.volts}V` : '—'}
+                                            </span>
+                                          </div>
+                                          <div>
+                                            <span className="text-gray-400 block text-[10px] uppercase font-semibold">Capacity</span>
+                                            <span className="font-medium text-brand-black dark:text-white">
+                                              {appItem.specs?.capacity || '—'}
+                                            </span>
+                                          </div>
+                                          <div>
+                                            <span className="text-gray-400 block text-[10px] uppercase font-semibold">BTU / Power</span>
+                                            <span className="font-medium text-brand-black dark:text-white">
+                                              {[appItem.specs?.btuInput, appItem.specs?.btuOutput].filter(Boolean).join(' / ') || '—'}
+                                            </span>
+                                          </div>
+                                          <div>
+                                            <span className="text-gray-400 block text-[10px] uppercase font-semibold">Filter Size</span>
+                                            <span className="font-medium text-brand-black dark:text-white">
+                                              {appItem.specs?.filterSize || '—'}
+                                            </span>
+                                          </div>
+                                          <div className="col-span-2 sm:col-span-3">
+                                            <span className="text-gray-400 block text-[10px] uppercase font-semibold">Notes</span>
+                                            <span className="font-medium text-brand-black dark:text-white">
+                                              {appItem.notes || appItem.specs?.notes || '—'}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+
+                              {set.notes && (
+                                <p className="text-xs italic text-gray-500 border-t border-gray-100 dark:border-gray-800 pt-2">
+                                  Set Notes: {set.notes}
+                                </p>
+                              )}
                             </div>
                           ))}
                         </div>
                       </div>
-
-                      {set.notes && (
-                        <p className="text-xs italic text-gray-500 border-t border-gray-100 dark:border-gray-800 pt-2">
-                          Note: {set.notes}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             )}
@@ -1441,6 +1919,155 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 className="flex-1 py-2.5 text-xs font-bold rounded-xl bg-primary text-white hover:bg-primary-hover shadow-xs"
               >
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 5: EDIT APPLIANCE SPECIFICATION */}
+      {editSpecModalData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-200 dark:border-gray-800 p-6 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-800">
+              <div>
+                <h3 className="text-sm font-bold text-brand-black dark:text-white">
+                  Edit Appliance Specification
+                </h3>
+                <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
+                  Set: {editSpecModalData.set.name} · {editSpecModalData.set.appliances[editSpecModalData.applianceIndex]?.label}
+                </p>
+              </div>
+              <button
+                onClick={() => setEditSpecModalData(null)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-white p-1"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 p-2.5 rounded-xl mb-4">
+              <strong>Single Editable Source:</strong> Edits to this specification immediately update this default set and propagate by reference to every unit referencing this set.
+            </p>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                  Model Number (Verified models only — serial numbers NEVER in defaults)
+                </label>
+                <input
+                  type="text"
+                  value={editSpecForm.model}
+                  onChange={e => setEditSpecForm(prev => ({ ...prev, model: e.target.value }))}
+                  placeholder="e.g. Frigidaire FFCD2418US3A"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary font-mono text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Appliance Type</label>
+                  <input
+                    type="text"
+                    value={editSpecForm.type}
+                    onChange={e => setEditSpecForm(prev => ({ ...prev, type: e.target.value }))}
+                    placeholder="e.g. Dishwasher, Range, Refrigerator"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Fuel Type</label>
+                  <input
+                    type="text"
+                    value={editSpecForm.fuelType}
+                    onChange={e => setEditSpecForm(prev => ({ ...prev, fuelType: e.target.value }))}
+                    placeholder="e.g. Electric, Natural Gas"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Voltage (Volts)</label>
+                  <input
+                    type="text"
+                    value={editSpecForm.volts}
+                    onChange={e => setEditSpecForm(prev => ({ ...prev, volts: e.target.value }))}
+                    placeholder="e.g. 120, 240, 208, 24"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Capacity</label>
+                  <input
+                    type="text"
+                    value={editSpecForm.capacity}
+                    onChange={e => setEditSpecForm(prev => ({ ...prev, capacity: e.target.value }))}
+                    placeholder="e.g. 18 cu. ft., 14 Place Settings, 60 Gallons"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">BTU Input / Power</label>
+                  <input
+                    type="text"
+                    value={editSpecForm.btuInput}
+                    onChange={e => setEditSpecForm(prev => ({ ...prev, btuInput: e.target.value }))}
+                    placeholder="e.g. 4500W, 60,000 BTU"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">BTU Output</label>
+                  <input
+                    type="text"
+                    value={editSpecForm.btuOutput}
+                    onChange={e => setEditSpecForm(prev => ({ ...prev, btuOutput: e.target.value }))}
+                    placeholder="e.g. 48,000 BTU"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Filter Size</label>
+                <input
+                  type="text"
+                  value={editSpecForm.filterSize}
+                  onChange={e => setEditSpecForm(prev => ({ ...prev, filterSize: e.target.value }))}
+                  placeholder="e.g. 16x25x1"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Specification Notes</label>
+                <textarea
+                  value={editSpecForm.notes}
+                  onChange={e => setEditSpecForm(prev => ({ ...prev, notes: e.target.value }))}
+                  placeholder="e.g. Standard field replacement or installation notes"
+                  rows={2}
+                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 pt-3 border-t border-gray-100 dark:border-gray-800 flex gap-2">
+              <button
+                onClick={() => setEditSpecModalData(null)}
+                className="flex-1 py-2.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-800 text-text-main-light dark:text-white hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveApplianceSpec}
+                className="flex-1 py-2.5 text-xs font-bold rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs"
+              >
+                Save Spec Changes
               </button>
             </div>
           </div>

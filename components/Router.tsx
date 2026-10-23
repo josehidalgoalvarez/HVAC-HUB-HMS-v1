@@ -68,6 +68,7 @@ const Router: React.FC<RouterProps> = ({
 }) => {
   const [selectedTicketId, setSelectedTicketId] = React.useState<string | null>(null);
   const [selectedBlockForQuickLog, setSelectedBlockForQuickLog] = React.useState<RunSheetBlock | null>(null);
+  const [propertyNavLevel, setPropertyNavLevel] = React.useState<'root' | 'complex' | 'building' | 'unit' | 'defaults'>('root');
 
   // --- Navigation Handlers ---
 
@@ -105,6 +106,8 @@ const Router: React.FC<RouterProps> = ({
           onPropertyClick={handlePropertyClick}
           onAddProperty={() => setActiveView(ViewType.ADD_PROPERTY)}
           isEditMode={isEditMode}
+          initialNavLevel={propertyNavLevel}
+          onNavLevelChange={setPropertyNavLevel}
         />
       );
 
@@ -191,6 +194,10 @@ const Router: React.FC<RouterProps> = ({
           onToggleEditMode={setIsEditMode}
           onOpenParts={() => setActiveView(ViewType.PARTS)}
           onOpenWatches={() => setActiveView(ViewType.WATCHES)}
+          onOpenDefaults={() => {
+            setPropertyNavLevel('defaults');
+            setActiveView(ViewType.PROPERTIES);
+          }}
         />
       );
 
