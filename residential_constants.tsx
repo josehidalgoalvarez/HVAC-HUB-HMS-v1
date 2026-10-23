@@ -271,6 +271,25 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: 'Quadrant converted house apartment default specification (Princess, Victoria, Alfred, Frontenac).'
+    },
+    {
+        id: 'set-frontenac-condo',
+        complexSlug: 'frontenac',
+        complexId: 'frontenac',
+        name: 'Frontenac / Condo (default)',
+        unitType: 'apartment',
+        isDefault: true,
+        bedrooms: 2,
+        bathrooms: 1,
+        stories: 1,
+        hasUnitWaterHeater: false,
+        appliances: [
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
+        ],
+        notes: 'Frontenac single condo building default specification.'
     }
 ];
 
@@ -862,20 +881,35 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     // ----------------------------------------------------
     // 6) FRONTENAC — 2 Buildings
     // ----------------------------------------------------
-    ...[501, 520].map(num => ({
-        id: `prop-frontenac-${num}`,
+    {
+        id: 'prop-frontenac-501',
         complexId: 'frontenac',
         complexName: 'Frontenac',
-        code: `${num} Frontenac St`,
-        name: `${num} Frontenac Street`,
-        address: `${num} Frontenac St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
+        code: '501 Frontenac St',
+        name: '501 Frontenac St',
+        address: '495 Frontenac Street, Kingston, ON',
+        aliases: ['495 Frontenac Street', 'The Frontenac'],
+        imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
+        applianceCount: 0,
+        comments: 'Frontenac condos — single condo building, MIXED OWNERSHIP: some units belong to other companies, not Patry/Kenlar. Yardi letter suffixes (B/C/D/P) are rooms/spaces inside the apartment, not units.',
+        definedRooms: [],
+        floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor'],
+        provenance: 'verified' as const
+    },
+    {
+        id: 'prop-frontenac-520',
+        complexId: 'frontenac',
+        complexName: 'Frontenac',
+        code: '520 Frontenac St',
+        name: '520 Frontenac Street',
+        address: '520 Frontenac St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
         applianceCount: 0,
         comments: 'Frontenac Street residential property.',
         definedRooms: [],
         floors: ['Main Floor', 'Second Floor'],
         provenance: 'verified' as const
-    })),
+    },
 
     // ----------------------------------------------------
     // 7) ELM + COLBORNE Complex — 3 Buildings
@@ -1280,6 +1314,32 @@ export const ALFRED_YARDI_ROSTERS: Record<string, {
     }
 };
 
+export const FRONTENAC_YARDI_ROSTERS: Record<string, {
+    name: string;
+    units: string[];
+}> = {
+    'prop-frontenac-501': {
+        name: '501 Frontenac St',
+        units: [
+            // Floor 1 (17 units: 101-107, 111-120; no 108, 109, 110)
+            '101', '102', '103', '104', '105', '106', '107',
+            '111', '112', '113', '114', '115', '116', '117', '118', '119', '120',
+            // Floor 2 (21 units: 201-221)
+            '201', '202', '203', '204', '205', '206', '207', '208', '209', '210',
+            '211', '212', '213', '214', '215', '216', '217', '218', '219', '220', '221',
+            // Floor 3 (21 units: 301-321)
+            '301', '302', '303', '304', '305', '306', '307', '308', '309', '310',
+            '311', '312', '313', '314', '315', '316', '317', '318', '319', '320', '321',
+            // Floor 4 (21 units: 401-421)
+            '401', '402', '403', '404', '405', '406', '407', '408', '409', '410',
+            '411', '412', '413', '414', '415', '416', '417', '418', '419', '420', '421',
+            // Floor 5 (21 units: 501-516, 519-523; no 517, 518)
+            '501', '502', '503', '504', '505', '506', '507', '508', '509', '510',
+            '511', '512', '513', '514', '515', '516', '519', '520', '521', '522', '523'
+        ]
+    }
+};
+
 export function generateUnitRoster(building: Building): Unit[] {
     const units: Unit[] = [];
     const bId = building.id;
@@ -1375,6 +1435,38 @@ export function generateUnitRoster(building: Building): Unit[] {
                 moveInDate: null,
                 tenancyDate: null,
                 comments: 'Converted house apartment (base unit, ignores Yardi letter room suffixes)',
+                provenance: 'verified — Yardi extract 2026-10-22'
+            });
+        }
+    } else if (bId in FRONTENAC_YARDI_ROSTERS) {
+        const spec = FRONTENAC_YARDI_ROSTERS[bId as keyof typeof FRONTENAC_YARDI_ROSTERS];
+        for (const uNum of spec.units) {
+            let floor = 'First Floor';
+            if (uNum.startsWith('2')) {
+                floor = 'Second Floor';
+            } else if (uNum.startsWith('3')) {
+                floor = 'Third Floor';
+            } else if (uNum.startsWith('4')) {
+                floor = 'Fourth Floor';
+            } else if (uNum.startsWith('5')) {
+                floor = 'Fifth Floor';
+            }
+
+            units.push({
+                id: `unit-${bId}-${uNum}`,
+                buildingId: bId,
+                unitNumber: uNum,
+                floor,
+                unitType: 'apartment',
+                ownership: 'patry',
+                defaultSetId: 'set-frontenac-condo',
+                bedrooms: 2,
+                bathrooms: 1,
+                stories: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: 'Frontenac condo apartment (base unit, ignores Yardi letter room suffixes)',
                 provenance: 'verified — Yardi extract 2026-10-22'
             });
         }

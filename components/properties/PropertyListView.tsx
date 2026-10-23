@@ -136,14 +136,14 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
     const matchedBuildings = properties.filter(p => {
       if (p.name.includes('Pool')) return false;
-      const target = `${p.name} ${p.address}`.toLowerCase();
+      const target = `${p.name} ${p.address} ${(p.aliases || []).join(' ')} ${p.comments || ''}`.toLowerCase();
       return tokens.every(t => target.includes(t));
     });
 
     const matchedUnits = units.filter(u => {
       const bld = properties.find(p => p.id === u.buildingId);
       if (!bld || bld.name.includes('Pool')) return false;
-      const fullString = `unit ${u.unitNumber} ${bld.name} ${bld.address}`.toLowerCase();
+      const fullString = `unit ${u.unitNumber} ${bld.name} ${bld.address} ${(bld.aliases || []).join(' ')} ${bld.comments || ''}`.toLowerCase();
       return tokens.every(t => fullString.includes(t));
     });
 
@@ -390,17 +390,27 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {searchResults.units.map(unit => {
                     const bld = properties.find(p => p.id === unit.buildingId);
+                    const isExternal = unit.ownership === 'external';
                     return (
                       <div
                         key={unit.id}
                         onClick={() => handleNavUnit(unit.id)}
-                        className="group rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 p-4 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between"
+                        className={`group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center justify-between ${
+                          isExternal
+                            ? 'opacity-65 bg-gray-50/80 dark:bg-card-dark/40 border border-dashed border-gray-300 dark:border-gray-700'
+                            : 'bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:border-primary/40'
+                        }`}
                       >
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
                               Unit {unit.unitNumber}
                             </span>
+                            {isExternal && (
+                              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                External
+                              </span>
+                            )}
                             <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                               {unit.unitType || 'Apartment'}
                             </span>
@@ -752,15 +762,26 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         const unitApps = getUnitAppliances(unit);
                         const overrideCount = Object.keys(unit.applianceOverrides || {}).length;
 
+                        const isExternal = unit.ownership === 'external';
+
                         return (
                           <div
                             key={unit.id}
                             onClick={() => handleNavUnit(unit.id)}
-                            className="group rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 p-4 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer"
+                            className={`group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${
+                              isExternal
+                                ? 'opacity-65 bg-gray-50/80 dark:bg-card-dark/40 border border-dashed border-gray-300 dark:border-gray-700'
+                                : 'bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:border-primary/40'
+                            }`}
                           >
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
+                              <span className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors flex items-center gap-2">
                                 Unit {unit.unitNumber}
+                                {isExternal && (
+                                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                    External
+                                  </span>
+                                )}
                               </span>
                               {overrideCount > 0 ? (
                                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">

@@ -72,6 +72,7 @@ export interface Building {
   name: string;
   address: string;
   code?: string;
+  aliases?: string[];
   externalIds?: string[];
   yardiCodes?: string[];
   imageUrl?: string;
@@ -100,6 +101,7 @@ export interface Unit {
   floor?: string;
   comments?: string;
   unitType?: 'apartment' | 'townhouse' | 'common' | 'storage' | string;
+  ownership?: 'patry' | 'external' | string;
   bedrooms?: number;
   bathrooms?: number;
   stories?: number;

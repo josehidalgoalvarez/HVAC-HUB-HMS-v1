@@ -127,6 +127,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         [73, '376 Alfred Street', '376 Alfred St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units.'],
         [74, '378 Alfred Street', '378 Alfred St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units. Duplicate records in Yardi, one building. Yardi codes: 378alfr, alfr378.'],
         [75, '394 Alfred Street', '394 Alfred St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units. Quadrant main storage node. Yardi codes: 394alfr, alfr394.'],
+        [76, '501 Frontenac St', '495 Frontenac Street, Kingston, ON', 'Frontenac condos — single condo building, MIXED OWNERSHIP: some units belong to other companies, not Patry/Kenlar. Yardi letter suffixes (B/C/D/P) are rooms/spaces inside the apartment, not units.'],
         [11, '415 Albert Street', '415 Albert St, Kingston, ON', 'Multi-unit residential property.'],
         [12, '265 Ontario Street', '265 Ontario St, Kingston, ON', 'Residential property.']
     ];
@@ -139,9 +140,14 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             $update = $pdo->prepare("UPDATE building SET name = ?, address = ?, comments = ? WHERE id = ?");
             $update->execute([$b[1], $b[2], $b[3], $b[0]]);
         } else {
-            $cId = in_array($b[0], [70, 71, 72, 73, 74, 75]) ? 6 : (in_array($b[0], [78, 79]) ? 2 : (in_array($b[0], [81, 91, 92, 93]) ? 8 : (in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null))));
+            $cId = in_array($b[0], [70, 71, 72, 73, 74, 75]) ? 6 : (in_array($b[0], [76, 77]) ? 7 : (in_array($b[0], [78, 79]) ? 2 : (in_array($b[0], [81, 91, 92, 93]) ? 8 : (in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null)))));
             $insert = $pdo->prepare("INSERT INTO building (id, name, address, comments, complex_id) VALUES (?, ?, ?, ?, ?)");
             $insert->execute([$b[0], $b[1], $b[2], $b[3], $cId]);
+        }
+        if ($b[0] === 76) {
+            try {
+                $pdo->prepare("UPDATE building SET aliases = ? WHERE id = ?")->execute(['495 Frontenac Street, The Frontenac', 76]);
+            } catch (\Throwable) {}
         }
         if (in_array($b[0], [74, 75])) {
             $codes = $b[0] === 74 ? '378alfr,alfr378' : '394alfr,alfr394';
@@ -152,7 +158,8 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         $bldCount++;
     }
 
-    // Clean up old pattern units for Alfred buildings (70-75)
+    // Clean up old pattern units for Frontenac (76) and Alfred buildings (70-75)
+    $pdo->exec("DELETE FROM unit WHERE building_id = 76 AND provenance != 'verified — Yardi extract 2026-10-22'");
     $pdo->exec("DELETE FROM unit WHERE building_id IN (70, 71, 72, 73, 74, 75) AND provenance != 'verified — Yardi extract 2026-10-22'");
 
     // Seed Verified Units (130 BD units from Yardi extract 2026-10-22 + external verified units)
@@ -381,6 +388,27 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         $units[] = [75, (string)$u, $fl, 'Converted house apartment (base unit, ignores Yardi letter room suffixes)', $alfredProv];
     }
 
+    // Add Frontenac verified units (101 units for 501 Frontenac from Yardi extract 2026-10-22)
+    $frontenacProv = 'verified — Yardi extract 2026-10-22';
+    $frontenacF1 = ['101', '102', '103', '104', '105', '106', '107', '111', '112', '113', '114', '115', '116', '117', '118', '119', '120'];
+    foreach ($frontenacF1 as $uNum) {
+        $units[] = [76, $uNum, 'First Floor', 'Frontenac condo apartment (base unit, ignores Yardi letter room suffixes)', $frontenacProv, 'patry'];
+    }
+    for ($fl = 2; $fl <= 4; $fl++) {
+        $flLabel = $fl === 2 ? 'Second Floor' : ($fl === 3 ? 'Third Floor' : 'Fourth Floor');
+        for ($u = 1; $u <= 21; $u++) {
+            $uNum = $fl . sprintf('%02d', $u);
+            $units[] = [76, $uNum, $flLabel, 'Frontenac condo apartment (base unit, ignores Yardi letter room suffixes)', $frontenacProv, 'patry'];
+        }
+    }
+    $frontenacF5 = array_merge(
+        array_map(fn($n) => (string)$n, range(501, 516)),
+        ['519', '520', '521', '522', '523']
+    );
+    foreach ($frontenacF5 as $uNum) {
+        $units[] = [76, $uNum, 'Fifth Floor', 'Frontenac condo apartment (base unit, ignores Yardi letter room suffixes)', $frontenacProv, 'patry'];
+    }
+
     // Other non-BD verified units
     $units[] = [11, '415B', 'Main Floor', 'Verified residential unit', 'verified'];
     $units[] = [11, '415E', 'Second Floor', 'Verified residential unit', 'verified'];
@@ -391,12 +419,13 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         $stmt = $pdo->prepare("SELECT id FROM unit WHERE building_id = ? AND unit_number = ?");
         $stmt->execute([$u[0], $u[1]]);
         $existing = $stmt->fetch();
+        $ownership = $u[5] ?? 'patry';
         if ($existing) {
-            $update = $pdo->prepare("UPDATE unit SET floor = ?, comments = ?, provenance = ? WHERE id = ?");
-            $update->execute([$u[2], $u[3], $u[4], $existing['id']]);
+            $update = $pdo->prepare("UPDATE unit SET floor = ?, comments = ?, provenance = ?, ownership = ? WHERE id = ?");
+            $update->execute([$u[2], $u[3], $u[4], $ownership, $existing['id']]);
         } else {
-            $insert = $pdo->prepare("INSERT INTO unit (building_id, unit_number, floor, comments, provenance) VALUES (?, ?, ?, ?, ?)");
-            $insert->execute([$u[0], $u[1], $u[2], $u[3], $u[4]]);
+            $insert = $pdo->prepare("INSERT INTO unit (building_id, unit_number, floor, comments, provenance, ownership) VALUES (?, ?, ?, ?, ?, ?)");
+            $insert->execute([$u[0], $u[1], $u[2], $u[3], $u[4], $ownership]);
         }
         $unitCount++;
     }
