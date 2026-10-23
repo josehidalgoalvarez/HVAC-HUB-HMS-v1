@@ -290,6 +290,25 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: 'Frontenac single condo building default specification.'
+    },
+    {
+        id: 'set-princess-apt',
+        complexSlug: 'princess',
+        complexId: 'princess',
+        name: 'Princess / Apartment (default)',
+        unitType: 'apartment',
+        isDefault: true,
+        bedrooms: 2,
+        bathrooms: 1,
+        stories: 1,
+        hasUnitWaterHeater: false,
+        appliances: [
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
+        ],
+        notes: 'Princess Street multi-unit apartment default specification.'
     }
 ];
 
@@ -751,7 +770,49 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     // ----------------------------------------------------
     // 3) PRINCESS — 7 Buildings
     // ----------------------------------------------------
-    ...[563, 565, 567, 630, 655, 800, 837].map(num => ({
+    {
+        id: 'prop-princess-563',
+        complexId: 'princess',
+        complexName: 'Princess',
+        code: '563 Princess St',
+        name: '563 Princess Street',
+        address: '563 Princess St, Kingston, ON',
+        imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
+        applianceCount: 0,
+        comments: 'Part of the 563/565/567 Princess site — displayed building number is 565. Yardi letter suffixes are rooms inside the unit.',
+        definedRooms: [],
+        floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor', 'Sixth Floor'],
+        provenance: 'verified' as const
+    },
+    {
+        id: 'prop-princess-565',
+        complexId: 'princess',
+        complexName: 'Princess',
+        code: '565 Princess St',
+        name: '565 Princess Street',
+        address: '565 Princess St, Kingston, ON',
+        imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
+        applianceCount: 0,
+        comments: 'Part of the 563/565/567 Princess site — displayed building number is 565. Yardi letter suffixes are rooms inside the unit.',
+        definedRooms: [],
+        floors: ['First Floor'],
+        provenance: 'verified' as const
+    },
+    {
+        id: 'prop-princess-567',
+        complexId: 'princess',
+        complexName: 'Princess',
+        code: '567 Princess St',
+        name: '567 Princess Street',
+        address: '567 Princess St, Kingston, ON',
+        imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
+        applianceCount: 0,
+        comments: 'Part of the 563/565/567 Princess site — displayed building number is 565. Yardi letter suffixes are rooms inside the unit.',
+        definedRooms: [],
+        floors: ['First Floor'],
+        provenance: 'verified' as const
+    },
+    ...[630, 655, 800, 837].map(num => ({
         id: `prop-princess-${num}`,
         complexId: 'princess',
         complexName: 'Princess',
@@ -1340,6 +1401,59 @@ export const FRONTENAC_YARDI_ROSTERS: Record<string, {
     }
 };
 
+export const PRINCESS_TRIO_YARDI_ROSTERS: Record<string, {
+    name: string;
+    units: Array<{ unitNumber: string; floor: string; unitType?: 'house' | 'apartment'; comments?: string }>;
+}> = {
+    'prop-princess-563': {
+        name: '563 Princess Street',
+        units: [
+            // House-style unit
+            { unitNumber: '1', floor: 'First Floor', unitType: 'house', comments: 'House-style unit (Yardi 563-1)' },
+            // Floor 1 (3 units: 101, 102, 103)
+            { unitNumber: '101', floor: 'First Floor', unitType: 'apartment' },
+            { unitNumber: '102', floor: 'First Floor', unitType: 'apartment' },
+            { unitNumber: '103', floor: 'First Floor', unitType: 'apartment' },
+            // Floor 2 (4 units: 201-204)
+            { unitNumber: '201', floor: 'Second Floor', unitType: 'apartment' },
+            { unitNumber: '202', floor: 'Second Floor', unitType: 'apartment' },
+            { unitNumber: '203', floor: 'Second Floor', unitType: 'apartment' },
+            { unitNumber: '204', floor: 'Second Floor', unitType: 'apartment' },
+            // Floor 3 (4 units: 301-304)
+            { unitNumber: '301', floor: 'Third Floor', unitType: 'apartment' },
+            { unitNumber: '302', floor: 'Third Floor', unitType: 'apartment' },
+            { unitNumber: '303', floor: 'Third Floor', unitType: 'apartment' },
+            { unitNumber: '304', floor: 'Third Floor', unitType: 'apartment' },
+            // Floor 4 (4 units: 401-404)
+            { unitNumber: '401', floor: 'Fourth Floor', unitType: 'apartment' },
+            { unitNumber: '402', floor: 'Fourth Floor', unitType: 'apartment' },
+            { unitNumber: '403', floor: 'Fourth Floor', unitType: 'apartment' },
+            { unitNumber: '404', floor: 'Fourth Floor', unitType: 'apartment' },
+            // Floor 5 (4 units: 501-504)
+            { unitNumber: '501', floor: 'Fifth Floor', unitType: 'apartment' },
+            { unitNumber: '502', floor: 'Fifth Floor', unitType: 'apartment' },
+            { unitNumber: '503', floor: 'Fifth Floor', unitType: 'apartment' },
+            { unitNumber: '504', floor: 'Fifth Floor', unitType: 'apartment' },
+            // Floor 6 (3 units: 601, 603, 604; no 602)
+            { unitNumber: '601', floor: 'Sixth Floor', unitType: 'apartment' },
+            { unitNumber: '603', floor: 'Sixth Floor', unitType: 'apartment' },
+            { unitNumber: '604', floor: 'Sixth Floor', unitType: 'apartment' }
+        ]
+    },
+    'prop-princess-565': {
+        name: '565 Princess Street',
+        units: [
+            { unitNumber: '1', floor: 'First Floor', unitType: 'house', comments: 'House unit (Yardi 565-1)' }
+        ]
+    },
+    'prop-princess-567': {
+        name: '567 Princess Street',
+        units: [
+            { unitNumber: '1', floor: 'First Floor', unitType: 'house', comments: 'House unit (Yardi 567-1)' }
+        ]
+    }
+};
+
 export function generateUnitRoster(building: Building): Unit[] {
     const units: Unit[] = [];
     const bId = building.id;
@@ -1467,6 +1581,26 @@ export function generateUnitRoster(building: Building): Unit[] {
                 moveInDate: null,
                 tenancyDate: null,
                 comments: 'Frontenac condo apartment (base unit, ignores Yardi letter room suffixes)',
+                provenance: 'verified — Yardi extract 2026-10-22'
+            });
+        }
+    } else if (bId in PRINCESS_TRIO_YARDI_ROSTERS) {
+        const spec = PRINCESS_TRIO_YARDI_ROSTERS[bId as keyof typeof PRINCESS_TRIO_YARDI_ROSTERS];
+        for (const u of spec.units) {
+            units.push({
+                id: `unit-${bId}-${u.unitNumber}`,
+                buildingId: bId,
+                unitNumber: u.unitNumber,
+                floor: u.floor,
+                unitType: u.unitType || 'apartment',
+                defaultSetId: 'set-princess-apt',
+                bedrooms: 2,
+                bathrooms: 1,
+                stories: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: u.comments || 'Part of 563/565/567 Princess site (base unit, ignores Yardi letter room suffixes)',
                 provenance: 'verified — Yardi extract 2026-10-22'
             });
         }

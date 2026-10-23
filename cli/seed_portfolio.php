@@ -128,6 +128,9 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         [74, '378 Alfred Street', '378 Alfred St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units. Duplicate records in Yardi, one building. Yardi codes: 378alfr, alfr378.'],
         [75, '394 Alfred Street', '394 Alfred St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units. Quadrant main storage node. Yardi codes: 394alfr, alfr394.'],
         [76, '501 Frontenac St', '495 Frontenac Street, Kingston, ON', 'Frontenac condos — single condo building, MIXED OWNERSHIP: some units belong to other companies, not Patry/Kenlar. Yardi letter suffixes (B/C/D/P) are rooms/spaces inside the apartment, not units.'],
+        [59, '563 Princess Street', '563 Princess St, Kingston, ON', 'Part of the 563/565/567 Princess site — displayed building number is 565. Yardi letter suffixes are rooms inside the unit.'],
+        [60, '565 Princess Street', '565 Princess St, Kingston, ON', 'Part of the 563/565/567 Princess site — displayed building number is 565. Yardi letter suffixes are rooms inside the unit.'],
+        [61, '567 Princess Street', '567 Princess St, Kingston, ON', 'Part of the 563/565/567 Princess site — displayed building number is 565. Yardi letter suffixes are rooms inside the unit.'],
         [11, '415 Albert Street', '415 Albert St, Kingston, ON', 'Multi-unit residential property.'],
         [12, '265 Ontario Street', '265 Ontario St, Kingston, ON', 'Residential property.']
     ];
@@ -140,7 +143,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             $update = $pdo->prepare("UPDATE building SET name = ?, address = ?, comments = ? WHERE id = ?");
             $update->execute([$b[1], $b[2], $b[3], $b[0]]);
         } else {
-            $cId = in_array($b[0], [70, 71, 72, 73, 74, 75]) ? 6 : (in_array($b[0], [76, 77]) ? 7 : (in_array($b[0], [78, 79]) ? 2 : (in_array($b[0], [81, 91, 92, 93]) ? 8 : (in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null)))));
+            $cId = in_array($b[0], [59, 60, 61, 62, 63, 64, 65]) ? 4 : (in_array($b[0], [70, 71, 72, 73, 74, 75]) ? 6 : (in_array($b[0], [76, 77]) ? 7 : (in_array($b[0], [78, 79]) ? 2 : (in_array($b[0], [81, 91, 92, 93]) ? 8 : (in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null))))));
             $insert = $pdo->prepare("INSERT INTO building (id, name, address, comments, complex_id) VALUES (?, ?, ?, ?, ?)");
             $insert->execute([$b[0], $b[1], $b[2], $b[3], $cId]);
         }
@@ -158,7 +161,8 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         $bldCount++;
     }
 
-    // Clean up old pattern units for Frontenac (76) and Alfred buildings (70-75)
+    // Clean up old pattern units for Princess trio (59, 60, 61), Frontenac (76) and Alfred buildings (70-75)
+    $pdo->exec("DELETE FROM unit WHERE building_id IN (59, 60, 61) AND provenance != 'verified — Yardi extract 2026-10-22'");
     $pdo->exec("DELETE FROM unit WHERE building_id = 76 AND provenance != 'verified — Yardi extract 2026-10-22'");
     $pdo->exec("DELETE FROM unit WHERE building_id IN (70, 71, 72, 73, 74, 75) AND provenance != 'verified — Yardi extract 2026-10-22'");
 
@@ -408,6 +412,30 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     foreach ($frontenacF5 as $uNum) {
         $units[] = [76, $uNum, 'Fifth Floor', 'Frontenac condo apartment (base unit, ignores Yardi letter room suffixes)', $frontenacProv, 'patry'];
     }
+
+    // Add Princess trio verified units (25 units across 563, 565, 567 Princess from Yardi extract 2026-10-22)
+    $princessProv = 'verified — Yardi extract 2026-10-22';
+    // 563 Princess (23 units)
+    $units[] = [59, '1', 'First Floor', 'House-style unit (Yardi 563-1)', $princessProv, 'patry'];
+    $p563F1 = ['101', '102', '103'];
+    foreach ($p563F1 as $uNum) {
+        $units[] = [59, $uNum, 'First Floor', 'Part of 563/565/567 Princess site (base unit, ignores Yardi letter room suffixes)', $princessProv, 'patry'];
+    }
+    for ($fl = 2; $fl <= 5; $fl++) {
+        $flLabel = $fl === 2 ? 'Second Floor' : ($fl === 3 ? 'Third Floor' : ($fl === 4 ? 'Fourth Floor' : 'Fifth Floor'));
+        for ($u = 1; $u <= 4; $u++) {
+            $uNum = "{$fl}0{$u}";
+            $units[] = [59, $uNum, $flLabel, 'Part of 563/565/567 Princess site (base unit, ignores Yardi letter room suffixes)', $princessProv, 'patry'];
+        }
+    }
+    $p563F6 = ['601', '603', '604'];
+    foreach ($p563F6 as $uNum) {
+        $units[] = [59, $uNum, 'Sixth Floor', 'Part of 563/565/567 Princess site (base unit, ignores Yardi letter room suffixes)', $princessProv, 'patry'];
+    }
+    // 565 Princess (1 unit: '1')
+    $units[] = [60, '1', 'First Floor', 'House unit (Yardi 565-1)', $princessProv, 'patry'];
+    // 567 Princess (1 unit: '1')
+    $units[] = [61, '1', 'First Floor', 'House unit (Yardi 567-1)', $princessProv, 'patry'];
 
     // Other non-BD verified units
     $units[] = [11, '415B', 'Main Floor', 'Verified residential unit', 'verified'];
