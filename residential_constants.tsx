@@ -330,6 +330,25 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
             { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } }
         ],
         notes: 'Uniform building default specification (Skyfall / Le Santé / 2274 Princess): dedicated AC, water heater, thermostat, dishwasher, fridge, stove in every unit.'
+    },
+    {
+        id: 'set-singles-apt',
+        complexSlug: 'singles',
+        complexId: 'singles',
+        name: 'Singles & Standalone / Apartment (default)',
+        unitType: 'apartment',
+        isDefault: true,
+        bedrooms: 2,
+        bathrooms: 1,
+        stories: 1,
+        hasUnitWaterHeater: false,
+        appliances: [
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
+        ],
+        notes: 'Singles and standalone properties default apartment specification.'
     }
 ];
 
@@ -1173,8 +1192,11 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '810 Blackburn Mews, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_8db7e895c76fcfce8de5.jpg',
         applianceCount: 0,
-        comments: 'Commercial / standalone unit.',
+        aliases: ['Stonecrest', '810 Blackburn Mews'],
+        isStorageNode: true,
+        comments: 'Commercial / standalone unit (Stonecrest). Keeps storage role. The five B-suffixed entries (110B, 114B, 116B, 212B, 312B) are rooms/splits, not units.',
         definedRooms: [],
+        floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor'],
         provenance: 'verified'
     },
     {
@@ -1184,8 +1206,10 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '85 Park St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
         applianceCount: 0,
-        comments: 'Residential standalone property.',
+        isStorageNode: true,
+        comments: 'Residential standalone property. Keeps storage role.',
         definedRooms: [],
+        floors: ['Main Floor'],
         provenance: 'verified'
     },
     {
@@ -1217,8 +1241,9 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '36 Durham St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_6a700f6adc9bd57ba9db.jpg',
         applianceCount: 0,
-        comments: 'Standalone residential building.',
+        comments: 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units.',
         definedRooms: [],
+        floors: ['Main Floor'],
         provenance: 'verified'
     },
     {
@@ -1228,9 +1253,10 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '265 Ontario St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_4339fa51f592921622d8.jpg',
         applianceCount: 0,
-        comments: 'Residential property. Unit 2 verified.',
-        definedRooms: ['Unit 2'],
-        floors: ['Main Floor', 'Second Floor'],
+        isStorageNode: true,
+        comments: 'Residential property. Keeps storage role.',
+        definedRooms: [],
+        floors: ['Main Floor'],
         provenance: 'verified'
     },
     {
@@ -1240,8 +1266,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '415 Albert St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
         applianceCount: 0,
-        comments: 'Multi-unit residential property. Units 415B, 415E verified.',
-        definedRooms: ['Unit 415B', 'Unit 415E'],
+        comments: 'Multi-unit residential property. Lettered units are separate apartments at this address (exception to the rooms convention).',
+        definedRooms: [],
         floors: ['Main Floor', 'Second Floor'],
         provenance: 'verified'
     },
@@ -1252,9 +1278,11 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '539 Armstrong Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_5a0393354bd60e0ac63f.jpg',
         applianceCount: 0,
+        aliases: ['Riverstone', '539 Armstrong Road', '539 Armstrong Rd'],
         isStorageNode: true,
-        comments: 'Stockpile location. White stoves rule everywhere: donor coils by SIZE only — never switches into gray Frigidaire stoves.',
+        comments: 'Stockpile location. White stoves rule everywhere: donor coils by SIZE only — never switches into gray Frigidaire stoves. TODO-verify: units 516–522 were obscured by a stitch artifact in the source screenshot; included by count validation (116 entries) and floor pattern.',
         definedRooms: ['Stockpile Storage'],
+        floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor'],
         provenance: 'verified'
     },
     {
@@ -1758,6 +1786,120 @@ export const LE_SANTE_YARDI_ROSTER: {
     ]
 };
 
+export const SINGLES_YARDI_ROSTERS: Record<string, {
+    name: string;
+    units: Array<{ unitNumber: string; floor: string; unitType: 'apartment'; comments?: string }>;
+}> = {
+    'prop-armstrong-539': {
+        name: '539 Armstrong Road',
+        units: [
+            // F1: 101–109, 111–123 (22 units; 110 missing)
+            ...[...Array.from({ length: 9 }, (_, i) => String(101 + i)), ...Array.from({ length: 13 }, (_, i) => String(111 + i))].map(num => ({
+                unitNumber: num,
+                floor: 'First Floor',
+                unitType: 'apartment' as const,
+                comments: '539 Armstrong Road apartment (Riverstone)'
+            })),
+            // F2: 201–209, 211–223 (22 units; 210 missing)
+            ...[...Array.from({ length: 9 }, (_, i) => String(201 + i)), ...Array.from({ length: 13 }, (_, i) => String(211 + i))].map(num => ({
+                unitNumber: num,
+                floor: 'Second Floor',
+                unitType: 'apartment' as const,
+                comments: '539 Armstrong Road apartment (Riverstone)'
+            })),
+            // F3: 301–323 (23 units)
+            ...Array.from({ length: 23 }, (_, i) => ({
+                unitNumber: String(301 + i),
+                floor: 'Third Floor',
+                unitType: 'apartment' as const,
+                comments: '539 Armstrong Road apartment (Riverstone)'
+            })),
+            // F4: 401–423 (23 units)
+            ...Array.from({ length: 23 }, (_, i) => ({
+                unitNumber: String(401 + i),
+                floor: 'Fourth Floor',
+                unitType: 'apartment' as const,
+                comments: '539 Armstrong Road apartment (Riverstone)'
+            })),
+            // F5: 501–509, 511–523 (22 units; 510 missing)
+            ...[...Array.from({ length: 9 }, (_, i) => String(501 + i)), ...Array.from({ length: 13 }, (_, i) => String(511 + i))].map(num => ({
+                unitNumber: num,
+                floor: 'Fifth Floor',
+                unitType: 'apartment' as const,
+                comments: '539 Armstrong Road apartment (Riverstone)'
+            }))
+        ]
+    },
+    'prop-blackburn-810': {
+        name: '810 Blackburn Mews',
+        units: [
+            // F1: 101–116 (16 units)
+            ...Array.from({ length: 16 }, (_, i) => ({
+                unitNumber: String(101 + i),
+                floor: 'First Floor',
+                unitType: 'apartment' as const,
+                comments: '810 Blackburn Mews unit (Stonecrest)'
+            })),
+            // F2: 201–216 (16 units)
+            ...Array.from({ length: 16 }, (_, i) => ({
+                unitNumber: String(201 + i),
+                floor: 'Second Floor',
+                unitType: 'apartment' as const,
+                comments: '810 Blackburn Mews unit (Stonecrest)'
+            })),
+            // F3: 301–318 (18 units)
+            ...Array.from({ length: 18 }, (_, i) => ({
+                unitNumber: String(301 + i),
+                floor: 'Third Floor',
+                unitType: 'apartment' as const,
+                comments: '810 Blackburn Mews unit (Stonecrest)'
+            })),
+            // F4: 401–416 (16 units)
+            ...Array.from({ length: 16 }, (_, i) => ({
+                unitNumber: String(401 + i),
+                floor: 'Fourth Floor',
+                unitType: 'apartment' as const,
+                comments: '810 Blackburn Mews unit (Stonecrest)'
+            }))
+        ]
+    },
+    'prop-park-85': {
+        name: '85 Park Street',
+        units: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '14', '15', '16'].map(num => ({
+            unitNumber: num,
+            floor: 'Main Floor',
+            unitType: 'apartment' as const,
+            comments: '85 Park Street residential unit'
+        }))
+    },
+    'prop-ontario-265': {
+        name: '265 Ontario Street',
+        units: Array.from({ length: 14 }, (_, i) => ({
+            unitNumber: String(1 + i),
+            floor: 'Main Floor',
+            unitType: 'apartment' as const,
+            comments: '265 Ontario Street residential unit'
+        }))
+    },
+    'prop-albert-415': {
+        name: '415 Albert Street',
+        units: [
+            { unitNumber: '415', floor: 'Main Floor', unitType: 'apartment' as const, comments: '415 Albert Street separate apartment unit' },
+            { unitNumber: '415B', floor: 'Main Floor', unitType: 'apartment' as const, comments: '415 Albert Street separate apartment unit' },
+            { unitNumber: '415C', floor: 'Main Floor', unitType: 'apartment' as const, comments: '415 Albert Street separate apartment unit' },
+            { unitNumber: '415D', floor: 'Second Floor', unitType: 'apartment' as const, comments: '415 Albert Street separate apartment unit' },
+            { unitNumber: '415E', floor: 'Second Floor', unitType: 'apartment' as const, comments: '415 Albert Street separate apartment unit' },
+            { unitNumber: '415F', floor: 'Second Floor', unitType: 'apartment' as const, comments: '415 Albert Street separate apartment unit' }
+        ]
+    },
+    'prop-durham-36': {
+        name: '36 Durham Street',
+        units: [
+            { unitNumber: '1', floor: 'Main Floor', unitType: 'apartment' as const, comments: '36 Durham Street residential unit (base unit, ignores Yardi letter room suffixes)' }
+        ]
+    }
+};
+
 export function generateUnitRoster(building: Building): Unit[] {
     const units: Unit[] = [];
     const bId = building.id;
@@ -2118,47 +2260,26 @@ export function generateUnitRoster(building: Building): Unit[] {
                 provenance: 'verified — Yardi extract 2026-10-22'
             });
         }
-    } else if (bId === 'prop-albert-415') {
-        units.push({
-            id: `unit-${bId}-415B`,
-            buildingId: bId,
-            unitNumber: '415B',
-            floor: 'Main Floor',
-            unitType: 'apartment',
-            bedrooms: 2,
-            bathrooms: 1,
-            renovated: { isRenovated: false, renovatedDate: null },
-            moveInDate: null,
-            tenancyDate: null,
-            provenance: 'verified'
-        });
-        units.push({
-            id: `unit-${bId}-415E`,
-            buildingId: bId,
-            unitNumber: '415E',
-            floor: 'Second Floor',
-            unitType: 'apartment',
-            bedrooms: 2,
-            bathrooms: 1,
-            renovated: { isRenovated: false, renovatedDate: null },
-            moveInDate: null,
-            tenancyDate: null,
-            provenance: 'verified'
-        });
-    } else if (bId === 'prop-ontario-265') {
-        units.push({
-            id: `unit-${bId}-2`,
-            buildingId: bId,
-            unitNumber: '2',
-            floor: 'Main Floor',
-            unitType: 'apartment',
-            bedrooms: 1,
-            bathrooms: 1,
-            renovated: { isRenovated: false, renovatedDate: null },
-            moveInDate: null,
-            tenancyDate: null,
-            provenance: 'verified'
-        });
+    } else if (bId in SINGLES_YARDI_ROSTERS) {
+        const config = SINGLES_YARDI_ROSTERS[bId as keyof typeof SINGLES_YARDI_ROSTERS];
+        for (const u of config.units) {
+            units.push({
+                id: `unit-${bId}-${u.unitNumber}`,
+                buildingId: bId,
+                unitNumber: u.unitNumber,
+                floor: u.floor,
+                unitType: u.unitType || 'apartment',
+                defaultSetId: 'set-singles-apt',
+                bedrooms: 2,
+                bathrooms: 1,
+                stories: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: u.comments,
+                provenance: 'verified — Yardi extract 2026-10-22'
+            });
+        }
     }
 
     return units;

@@ -136,8 +136,12 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         [94, '800 Princess St — annex', '800 Princess St, Kingston, ON', 'TODO-verify: second Yardi record at 800 Princess; its 301/302 are distinct from the main building\'s 301/302 until verified.'],
         [95, '2274 Princess St', '2274 Princess St, Kingston, ON', 'Princess Street multi-unit property (verified Yardi roster, 236 units).'],
         [96, 'Le Santé', '300 Skyfall Lane, Kingston, ON', 'Le Santé — 300 Skyfall Lane (Yardi spells it "300 Skyfal Lane"). Phased build-out: ~334 units planned; roster grows as phases release — re-extract periodically. Yardi labels 19 units "Sante" instead of the address (126, 133, 134, 235, 255, 416, 418, 421, 424, 426, 456, 516, 518, 521, 523, 524, 526, 621, 656) — TODO-verify whether that is a separate phase.'],
-        [11, '415 Albert Street', '415 Albert St, Kingston, ON', 'Multi-unit residential property.'],
-        [12, '265 Ontario Street', '265 Ontario St, Kingston, ON', 'Residential property.']
+        [87, '539 Armstrong Road', '539 Armstrong Rd, Kingston, ON', 'Stockpile location. Riverstone development. White stoves rule everywhere: donor coils by SIZE only. TODO-verify: units 516–522 were obscured by a stitch artifact in the source screenshot; included by count validation (116 entries) and floor pattern.'],
+        [82, '810 Blackburn Mews', '810 Blackburn Mews, Kingston, ON', 'Stonecrest. The five B-suffixed entries (110B, 114B, 116B, 212B, 312B) are rooms/splits.'],
+        [83, '85 Park Street', '85 Park St, Kingston, ON', 'Residential standalone property (no unit 13).'],
+        [12, '265 Ontario Street', '265 Ontario St, Kingston, ON', 'Residential property (14 units continuous 1–14).'],
+        [11, '415 Albert Street', '415 Albert St, Kingston, ON', 'Multi-unit residential property. Lettered units are separate apartments at this address (exception to the rooms convention).'],
+        [86, '36 Durham Street', '36 Durham St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units.']
     ];
 
     $bldCount = 0;
@@ -183,6 +187,16 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
                 ]);
             } catch (\Throwable) {}
         }
+        if ($b[0] === 87) {
+            try {
+                $pdo->prepare("UPDATE building SET aliases = ? WHERE id = ?")->execute(['Riverstone', 87]);
+            } catch (\Throwable) {}
+        }
+        if ($b[0] === 82) {
+            try {
+                $pdo->prepare("UPDATE building SET aliases = ? WHERE id = ?")->execute(['Stonecrest', 82]);
+            } catch (\Throwable) {}
+        }
         $bldCount++;
     }
 
@@ -191,6 +205,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     $pdo->exec("DELETE FROM unit WHERE building_id = 76 AND provenance != 'verified — Yardi extract 2026-10-22'");
     $pdo->exec("DELETE FROM unit WHERE building_id IN (70, 71, 72, 73, 74, 75) AND provenance != 'verified — Yardi extract 2026-10-22'");
     $pdo->exec("DELETE FROM unit WHERE building_id = 96 AND provenance != 'verified — Yardi extract 2026-10-22'");
+    $pdo->exec("DELETE FROM unit WHERE building_id IN (87, 82, 83, 12, 11, 86) AND provenance != 'verified — Yardi extract 2026-10-22'");
     $pdo->exec("UPDATE complex SET building_count = 9 WHERE id = 'complex-princess'");
 
     // Ensure Uniform Appliance Default Set exists
@@ -207,6 +222,21 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         ]);
         $pdo->prepare("INSERT INTO default_sets (id, complex_slug, complex_id, name, unit_type, is_default, bedrooms, bathrooms, stories, has_unit_water_heater, appliances_json, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")->execute([
             'set-skyfall-sante-uniform', 'princess', 4, 'Uniform Building / Apartment (Skyfall / Le Santé default)', 'apartment', 1, 2, 1, 1, 1, $appJson, 'Uniform building default specification (Skyfall / Le Santé / 2274 Princess): dedicated AC, water heater, thermostat, dishwasher, fridge, stove in every unit.'
+        ]);
+    }
+
+    // Ensure Singles & Standalone Default Set exists
+    $singlesDsStmt = $pdo->prepare("SELECT id FROM default_sets WHERE id = 'set-singles-apt'");
+    $singlesDsStmt->execute();
+    if (!$singlesDsStmt->fetch()) {
+        $singlesAppJson = json_encode([
+            ["category" => "Kitchen", "type" => "Refrigerator", "name" => "Fridge (default)", "isDefault" => true, "specs" => ["capacity" => "18 cu. ft.", "volts" => "120", "fuelType" => "Electric"]],
+            ["category" => "Kitchen", "type" => "Range", "name" => "Stove (electric coil) (default)", "isDefault" => true, "specs" => ["fuelType" => "Electric", "volts" => "240", "capacity" => "5.3 cu. ft."]],
+            ["category" => "Kitchen", "type" => "Dishwasher", "name" => "Dishwasher (default)", "isDefault" => true, "specs" => ["volts" => "120", "capacity" => "14 Place Settings", "fuelType" => "Electric"]],
+            ["category" => "Kitchen", "type" => "Range Hood", "name" => "Range Hood (default)", "isDefault" => true, "specs" => ["volts" => "120", "fuelType" => "Electric", "capacity" => "300 CFM"]]
+        ]);
+        $pdo->prepare("INSERT INTO default_sets (id, complex_slug, complex_id, name, unit_type, is_default, bedrooms, bathrooms, stories, has_unit_water_heater, appliances_json, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")->execute([
+            'set-singles-apt', 'singles', null, 'Singles & Standalone / Apartment (default)', 'apartment', 1, 2, 1, 1, 0, $singlesAppJson, 'Singles and standalone properties default apartment specification.'
         ]);
     }
 
@@ -548,10 +578,60 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         }
     }
 
-    // Other non-BD verified units
-    $units[] = [11, '415B', 'Main Floor', 'Verified residential unit', 'verified'];
-    $units[] = [11, '415E', 'Second Floor', 'Verified residential unit', 'verified'];
-    $units[] = [12, '2', 'Main Floor', 'Verified residential unit', 'verified'];
+    // Singles & Standalone (214 units across 6 buildings, verified Yardi extract 2026-10-22)
+    $singlesProv = 'verified — Yardi extract 2026-10-22';
+
+    // 539 Armstrong Road (112 units)
+    foreach (array_merge(range(101, 109), range(111, 123)) as $u) {
+        $units[] = [87, (string)$u, 'First Floor', '539 Armstrong Road apartment (Riverstone)', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    }
+    foreach (array_merge(range(201, 209), range(211, 223)) as $u) {
+        $units[] = [87, (string)$u, 'Second Floor', '539 Armstrong Road apartment (Riverstone)', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    }
+    foreach (range(301, 323) as $u) {
+        $units[] = [87, (string)$u, 'Third Floor', '539 Armstrong Road apartment (Riverstone)', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    }
+    foreach (range(401, 423) as $u) {
+        $units[] = [87, (string)$u, 'Fourth Floor', '539 Armstrong Road apartment (Riverstone)', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    }
+    foreach (array_merge(range(501, 509), range(511, 523)) as $u) {
+        $units[] = [87, (string)$u, 'Fifth Floor', '539 Armstrong Road apartment (Riverstone)', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    }
+
+    // 810 Blackburn Mews (66 units)
+    foreach (range(101, 116) as $u) {
+        $units[] = [82, (string)$u, 'First Floor', '810 Blackburn Mews unit (Stonecrest)', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    }
+    foreach (range(201, 216) as $u) {
+        $units[] = [82, (string)$u, 'Second Floor', '810 Blackburn Mews unit (Stonecrest)', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    }
+    foreach (range(301, 318) as $u) {
+        $units[] = [82, (string)$u, 'Third Floor', '810 Blackburn Mews unit (Stonecrest)', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    }
+    foreach (range(401, 416) as $u) {
+        $units[] = [82, (string)$u, 'Fourth Floor', '810 Blackburn Mews unit (Stonecrest)', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    }
+
+    // 85 Park Street (15 units)
+    foreach ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16] as $u) {
+        $units[] = [83, (string)$u, 'Main Floor', '85 Park Street residential unit', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    }
+
+    // 265 Ontario Street (14 units)
+    foreach (range(1, 14) as $u) {
+        $units[] = [12, (string)$u, 'Main Floor', '265 Ontario Street residential unit', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    }
+
+    // 415 Albert Street (6 units)
+    $units[] = [11, '415', 'Main Floor', '415 Albert Street separate apartment unit', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    $units[] = [11, '415B', 'Main Floor', '415 Albert Street separate apartment unit', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    $units[] = [11, '415C', 'Main Floor', '415 Albert Street separate apartment unit', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    $units[] = [11, '415D', 'Second Floor', '415 Albert Street separate apartment unit', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    $units[] = [11, '415E', 'Second Floor', '415 Albert Street separate apartment unit', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+    $units[] = [11, '415F', 'Second Floor', '415 Albert Street separate apartment unit', $singlesProv, 'patry', 'set-singles-apt', 'none'];
+
+    // 36 Durham Street (1 unit)
+    $units[] = [86, '1', 'Main Floor', '36 Durham Street residential unit (base unit, ignores Yardi letter room suffixes)', $singlesProv, 'patry', 'set-singles-apt', 'none'];
 
     $unitCount = 0;
     foreach ($units as $u) {
