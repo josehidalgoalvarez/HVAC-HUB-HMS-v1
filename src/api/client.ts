@@ -94,7 +94,14 @@ export class ApiClient {
     if (typeof window === 'undefined' || !window.sessionStorage) {
       return null;
     }
-    return window.sessionStorage.getItem(this.storageKey);
+    const stored = window.sessionStorage.getItem(this.storageKey);
+    if (stored) return stored;
+    // In local dev/preview on localhost, default to test-tech-token so the field tech app loads out-of-the-box
+    const host = window.location?.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return 'test-tech-token';
+    }
+    return null;
   }
 
   public setToken(token: string | null): void {
