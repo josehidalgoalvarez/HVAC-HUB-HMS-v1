@@ -76,6 +76,7 @@ export interface Building {
   comments?: string;
   status?: 'active' | 'inactive' | 'permanently_out_of_order';
   definedRooms?: string[];
+  spaces?: Array<{ name: string; type: string; notes?: string }>;
   floors?: string[];
   isStorageNode?: boolean;
   storageInventory?: StorageItem[];

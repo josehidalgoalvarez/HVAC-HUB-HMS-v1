@@ -110,7 +110,9 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         [14, '509 Days Road', '509 Days Rd, Kingston, ON', 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Attached pair with 511 Days Rd. Shared mechanical room with 511. Laundry: no sink (believed // TODO-verify).'],
         [15, '511 Days Road', '511 Days Rd, Kingston, ON', 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Attached pair with 509 Days Rd, SHARED mechanical room. Complex storage node in 511 basement. Storage building. Laundry: WITH sink.'],
         [16, '1727 Bath Road', '1727 Bath Rd, Kingston, ON', '2-digit pool runs 33–56 across 1727/1737/1725 (1727 has townhouses 33–36). 3 stories, 2 washrooms, dedicated water heater per unit. No communal laundry.'],
-        [10, '137 Amherst Drive', '137 Amherst Dr, Kingston, ON', 'Residential units. Stockpiles nearby: 107 Amherst and 539 Armstrong.'],
+        [10, '137 Amherst Drive', '137 Amherst Dr, Kingston, ON', 'Residential townhouse building. Verified unit 137 (range, water heater).'],
+        [58, '107 Amherst Drive', '107 Amherst Dr, Amherstview, ON', 'Floor 1 skips 105 (utility/laundry space). Storage node for Amherst complex (supplies, tools, 2 white coil stoves).'],
+        [90, '103 Amherst Drive', '103 Amherst Dr, Amherstview, ON', 'Floor 1 skips 105 (utility/laundry space). Twin building of 107 Amherst. Non-residential space: UTILITY.'],
         [11, '415 Albert Street', '415 Albert St, Kingston, ON', 'Multi-unit residential property.'],
         [12, '265 Ontario Street', '265 Ontario St, Kingston, ON', 'Residential property.']
     ];
@@ -123,8 +125,9 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             $update = $pdo->prepare("UPDATE building SET name = ?, address = ?, comments = ? WHERE id = ?");
             $update->execute([$b[1], $b[2], $b[3], $b[0]]);
         } else {
-            $insert = $pdo->prepare("INSERT INTO building (id, name, address, comments) VALUES (?, ?, ?, ?)");
-            $insert->execute([$b[0], $b[1], $b[2], $b[3]]);
+            $cId = in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null);
+            $insert = $pdo->prepare("INSERT INTO building (id, name, address, comments, complex_id) VALUES (?, ?, ?, ?, ?)");
+            $insert->execute([$b[0], $b[1], $b[2], $b[3], $cId]);
         }
         $bldCount++;
     }
@@ -213,8 +216,79 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         }
     }
 
-    // Add non-BD verified units
-    $units[] = [10, '137', 'Main Floor', 'Verified residential unit with range and water heater', 'verified'];
+    // Add Amherst verified units (208 units across 44 buildings from Yardi extract 2026-10-22)
+    $amherstProv = 'verified — Yardi extract 2026-10-22';
+    $streetToBldgId = [
+        103 => 90, 107 => 58, 111 => 57, 115 => 56, 119 => 55, 123 => 54, 125 => 53, 127 => 52, 129 => 51,
+        131 => 50, 133 => 49, 135 => 48, 137 => 10, 141 => 47, 145 => 46, 149 => 45, 153 => 44, 157 => 43,
+        161 => 42, 165 => 41, 167 => 40, 169 => 39, 171 => 38, 173 => 37, 175 => 36, 177 => 35, 179 => 34,
+        183 => 33, 187 => 32, 191 => 31, 193 => 30, 195 => 29, 197 => 28, 199 => 27, 201 => 26, 205 => 25,
+        207 => 24, 209 => 23, 211 => 22, 213 => 21, 217 => 20, 219 => 19, 225 => 18, 229 => 17
+    ];
+    $threeTwoTwoStreets = [111, 115, 119, 141, 145, 149, 153, 157, 161, 183, 187];
+    $fourByFourStreets = [225, 229];
+    $townhouseStreets = [
+        123, 125, 127, 129, 131, 133, 135, 137,
+        165, 167, 169, 171, 173, 175, 177, 179,
+        191, 193, 195, 197, 199, 201, 205, 207,
+        209, 211, 213, 217, 219
+    ];
+
+    // 107 and 103 (35 units each)
+    foreach ([107, 103] as $st) {
+        $bId = $streetToBldgId[$st];
+        for ($u = 1; $u <= 12; $u++) {
+            if ($u === 5) continue; // Floor 1 skips 105
+            $uNum = '1' . sprintf('%02d', $u);
+            $units[] = [$bId, $uNum, 'First Floor', $amherstProv, $amherstProv];
+        }
+        for ($fl = 2; $fl <= 3; $fl++) {
+            $flLabel = $fl === 2 ? 'Second Floor' : 'Third Floor';
+            for ($u = 1; $u <= 12; $u++) {
+                $uNum = $fl . sprintf('%02d', $u);
+                $units[] = [$bId, $uNum, $flLabel, $amherstProv, $amherstProv];
+            }
+        }
+    }
+
+    // 11 3-2-2 buildings
+    $threeTwoTwoRoster = [
+        ['101', 'First Floor'], ['102', 'First Floor'], ['103', 'First Floor'],
+        ['201', 'Second Floor'], ['202', 'Second Floor'],
+        ['301', 'Third Floor'], ['302', 'Third Floor']
+    ];
+    foreach ($threeTwoTwoStreets as $st) {
+        $bId = $streetToBldgId[$st];
+        foreach ($threeTwoTwoRoster as [$uNum, $fl]) {
+            $units[] = [$bId, $uNum, $fl, $amherstProv, $amherstProv];
+        }
+    }
+
+    // 2 4x4 buildings
+    foreach ($fourByFourStreets as $st) {
+        $bId = $streetToBldgId[$st];
+        for ($fl = 1; $fl <= 4; $fl++) {
+            $flLabel = $fl === 1 ? 'First Floor' : ($fl === 2 ? 'Second Floor' : ($fl === 3 ? 'Third Floor' : 'Fourth Floor'));
+            for ($u = 1; $u <= 4; $u++) {
+                $uNum = "{$fl}0{$u}";
+                $units[] = [$bId, $uNum, $flLabel, $amherstProv, $amherstProv];
+            }
+        }
+    }
+
+    // 29 townhouses
+    foreach ($townhouseStreets as $st) {
+        $bId = $streetToBldgId[$st];
+        $comment = $amherstProv;
+        if ($st === 137) {
+            $comment = 'Verified unit with Frigidaire range & Rheem water heater (WO on hold)';
+        } elseif ($st === 125) {
+            $comment = 'Amherst Townhouse verified unit';
+        }
+        $units[] = [$bId, (string)$st, 'Multi-Floor Townhouse', $comment, $amherstProv];
+    }
+
+    // Other non-BD verified units
     $units[] = [11, '415B', 'Main Floor', 'Verified residential unit', 'verified'];
     $units[] = [11, '415E', 'Second Floor', 'Verified residential unit', 'verified'];
     $units[] = [12, '2', 'Main Floor', 'Verified residential unit', 'verified'];

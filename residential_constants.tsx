@@ -33,9 +33,9 @@ export const COMPLEXES: Complex[] = [
         slug: 'amherst',
         code: 'AMHERST',
         name: 'Amherst',
-        description: 'Long row of 43 apartment buildings in Amherstview, ON (odd numbers 107–229).',
+        description: 'Long row of 44 apartment buildings in Amherstview, ON (odd numbers 103–229).',
         address: 'Amherstview, ON',
-        buildingCount: 43
+        buildingCount: 44
     },
     {
         id: 'manitou',
@@ -174,6 +174,45 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: 'Independent copy of BD apartment set for Elm + Colborne. Editable in one place.'
+    },
+    {
+        id: 'set-amherst-apt',
+        complexSlug: 'amherst',
+        complexId: 'amherst',
+        name: 'Amherst / Apartment',
+        unitType: 'apartment',
+        isDefault: true,
+        bedrooms: 2,
+        bathrooms: 1,
+        stories: 1,
+        hasUnitWaterHeater: false,
+        appliances: [
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
+        ],
+        notes: 'Amherst apartment default specification.'
+    },
+    {
+        id: 'set-amherst-townhouse',
+        complexSlug: 'amherst',
+        complexId: 'amherst',
+        name: 'Amherst / Townhouse',
+        unitType: 'townhouse',
+        isDefault: true,
+        bedrooms: 3,
+        bathrooms: 2,
+        stories: 3,
+        hasUnitWaterHeater: true,
+        appliances: [
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } },
+            { category: 'Water Heating', label: 'Unit Water Heater (default)', name: 'Unit Water Heater (default)', type: 'Water Heater', isDefault: true, specs: { fuelType: 'Electric', btuInput: '4500W', capacity: '60 Gallons', volts: '240' } }
+        ],
+        notes: 'Amherst townhouse default specification (dedicated water heater).'
     }
 ];
 
@@ -318,14 +357,23 @@ export const STORAGE_1719_BATH: StorageItem[] = [
 // 4. PROPERTIES (89 Total across 10 Complexes)
 // ==========================================
 
-// Helper: list of 43 Amherst building numbers
+// Helper: list of 44 Amherst building numbers
 const AMHERST_NUMBERS = [
     229, 225, 219, 217, 213, 211, 209, 207, 205, 201,
     199, 197, 195, 193, 191, 187, 183, 179, 177, 175,
     173, 171, 169, 167, 165, 161, 157, 153, 149, 145,
     141, 137, 135, 133, 131, 129, 127, 125, 123, 119,
-    115, 111, 107
+    115, 111, 107, 103
 ];
+
+const AMHERST_TOWNHOUSE_NUMBERS = [
+    123, 125, 127, 129, 131, 133, 135, 137,
+    165, 167, 169, 171, 173, 175, 177, 179,
+    191, 193, 195, 197, 199, 201, 205, 207,
+    209, 211, 213, 217, 219
+];
+const AMHERST_322_NUMBERS = [111, 115, 119, 141, 145, 149, 153, 157, 161, 183, 187];
+const AMHERST_44_NUMBERS = [225, 229];
 
 export const RESIDENTIAL_PROPERTIES: Property[] = [
     // ----------------------------------------------------
@@ -523,13 +571,48 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
 
     // ----------------------------------------------------
-    // 2) AMHERST (Amherstview) — 43 Buildings (107–229)
+    // 2) AMHERST (Amherstview) — 44 Buildings (103–229)
     // ----------------------------------------------------
     ...AMHERST_NUMBERS.map(num => {
         const id = `prop-amherst-${num}`;
-        const isTownhouse = num === 125;
+        const is103 = num === 103;
         const isStorage = num === 107;
+        const isTownhouse = AMHERST_TOWNHOUSE_NUMBERS.includes(num);
+        const is125 = num === 125;
         const isVerifiedUnit137 = num === 137;
+        const is322 = AMHERST_322_NUMBERS.includes(num);
+        const is44 = AMHERST_44_NUMBERS.includes(num);
+
+        let comments = 'Apartment building in Amherst row.';
+        if (is103) {
+            comments = 'Floor 1 skips 105 (utility/laundry space). Twin building of 107 Amherst. Non-residential space: UTILITY.';
+        } else if (isStorage) {
+            comments = 'Floor 1 skips 105 (utility/laundry space). Storage node for Amherst complex (supplies, tools, 2 white coil stoves). Unit pattern: 101-112, 201-212, 301-312 (35 units, skipping 105).';
+        } else if (is125) {
+            comments = 'Amherst Townhouse building in the time tracking system. Single-unit townhouse (unit 125).';
+        } else if (isVerifiedUnit137) {
+            comments = 'Residential unit building. Verified unit 137 (range, water heater).';
+        } else if (isTownhouse) {
+            comments = `Single-unit Amherst townhouse (unit ${num}).`;
+        } else if (is322) {
+            comments = '3-2-2 apartment building (7 units: 101-103, 201-202, 301-302).';
+        } else if (is44) {
+            comments = '4x4 apartment building (16 units: 101-104, 201-204, 301-304, 401-404).';
+        }
+
+        const definedRooms = is103
+            ? ['UTILITY']
+            : isVerifiedUnit137
+                ? ['Unit 137', 'Kitchen']
+                : isStorage
+                    ? ['Storage Area', 'Utility Room']
+                    : [];
+
+        const floors = is44
+            ? ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor']
+            : isTownhouse
+                ? ['Main Floor', 'Second Floor', 'Basement']
+                : ['First Floor', 'Second Floor', 'Third Floor'];
 
         return {
             id,
@@ -544,16 +627,10 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
             applianceCount: isVerifiedUnit137 ? 2 : 0,
             isStorageNode: isStorage,
             storageInventory: isStorage ? STORAGE_107_AMHERST : undefined,
-            comments: isTownhouse
-                ? 'Amherst Townhouse building in the time tracking system.'
-                : isStorage
-                    ? 'Storage node for Amherst (supplies, tools, 2 white coil stoves). Unit pattern: 101-112, 201-212, 301-312 (36 units).'
-                    : isVerifiedUnit137
-                        ? 'Residential unit building. Verified unit 137 (range, water heater).'
-                        : 'Apartment building in Amherst row (odd numbers 107-229). Floor-coded units.',
-            definedRooms: isVerifiedUnit137 ? ['Unit 137', 'Kitchen'] : isStorage ? ['Storage Area', 'Utility Room'] : [],
-            floors: ['First Floor', 'Second Floor', 'Third Floor'],
-            provenance: isVerifiedUnit137 || isStorage || isTownhouse ? ('verified' as const) : ('pattern' as const)
+            comments,
+            definedRooms,
+            floors,
+            provenance: 'verified' as const
         };
     }),
 
@@ -968,60 +1045,16 @@ export function generateUnitRoster(building: Building): Unit[] {
             }
         }
     } else if (bId.startsWith('prop-amherst-')) {
-        if (bId === 'prop-amherst-107') {
-            // 107 Amherst storage node & default row pattern: floor-coded 101–112, 201–212, 301–312 (36 units)
-            for (let floor = 1; floor <= 3; floor++) {
-                for (let u = 1; u <= 12; u++) {
-                    const uNum = `${floor}${u < 10 ? '0' : ''}${u}`;
-                    units.push({
-                        id: `unit-${bId}-${uNum}`,
-                        buildingId: bId,
-                        unitNumber: uNum,
-                        floor: floor === 1 ? 'First Floor' : floor === 2 ? 'Second Floor' : 'Third Floor',
-                        unitType: 'apartment',
-                        bedrooms: 2,
-                        bathrooms: 1,
-                        renovated: { isRenovated: false, renovatedDate: null },
-                        moveInDate: null,
-                        tenancyDate: null,
-                        provenance: 'pattern'
-                    });
-                }
-            }
-        } else if (bId === 'prop-amherst-125') {
-            // Townhouse building
-            for (let i = 1; i <= 8; i++) {
-                units.push({
-                    id: `unit-${bId}-${i}`,
-                    buildingId: bId,
-                    unitNumber: `${i}`,
-                    floor: 'Townhouse',
-                    unitType: 'townhouse',
-                    stories: 3,
-                    bathrooms: 2,
-                    renovated: { isRenovated: false, renovatedDate: null },
-                    moveInDate: null,
-                    tenancyDate: null,
-                    provenance: 'pattern'
-                });
-            }
-        } else if (bId === 'prop-amherst-137') {
-            units.push({
-                id: `unit-${bId}-137`,
-                buildingId: bId,
-                unitNumber: '137',
-                floor: 'First Floor',
-                unitType: 'apartment',
-                bedrooms: 2,
-                bathrooms: 1,
-                renovated: { isRenovated: false, renovatedDate: null },
-                moveInDate: null,
-                tenancyDate: null,
-                comments: 'Verified unit with Frigidaire range & Rheem water heater (WO on hold)',
-                provenance: 'verified'
-            });
-            for (let i = 1; i <= 11; i++) {
-                const uNum = `10${i < 10 ? '0' + i : i}`;
+        const numStr = bId.replace('prop-amherst-', '');
+        const stNum = parseInt(numStr, 10);
+        const prov = 'verified — Yardi extract 2026-10-22';
+
+        if (stNum === 107 || stNum === 103) {
+            // 107 and 103 Amherst: 35 units each (skipping 105)
+            // 101–112 (except 105), 201–212, 301–312
+            for (let u = 1; u <= 12; u++) {
+                if (u === 5) continue; // Floor 1 skips 105 (utility/laundry space)
+                const uNum = `1${u < 10 ? '0' : ''}${u}`;
                 units.push({
                     id: `unit-${bId}-${uNum}`,
                     buildingId: bId,
@@ -1030,29 +1063,103 @@ export function generateUnitRoster(building: Building): Unit[] {
                     unitType: 'apartment',
                     bedrooms: 2,
                     bathrooms: 1,
+                    defaultSetId: 'set-amherst-apt',
                     renovated: { isRenovated: false, renovatedDate: null },
                     moveInDate: null,
                     tenancyDate: null,
-                    provenance: 'pattern'
+                    provenance: prov
                 });
             }
-        } else {
-            // Standard Amherst pattern (6 units representative per building)
-            for (let i = 1; i <= 6; i++) {
+            for (let floor = 2; floor <= 3; floor++) {
+                for (let u = 1; u <= 12; u++) {
+                    const uNum = `${floor}${u < 10 ? '0' : ''}${u}`;
+                    units.push({
+                        id: `unit-${bId}-${uNum}`,
+                        buildingId: bId,
+                        unitNumber: uNum,
+                        floor: floor === 2 ? 'Second Floor' : 'Third Floor',
+                        unitType: 'apartment',
+                        bedrooms: 2,
+                        bathrooms: 1,
+                        defaultSetId: 'set-amherst-apt',
+                        renovated: { isRenovated: false, renovatedDate: null },
+                        moveInDate: null,
+                        tenancyDate: null,
+                        provenance: prov
+                    });
+                }
+            }
+        } else if (AMHERST_322_NUMBERS.includes(stNum)) {
+            // Eleven identical "3-2-2" buildings (7 units each: 101, 102, 103, 201, 202, 301, 302)
+            const threeTwoTwo = [
+                { num: '101', floor: 'First Floor' },
+                { num: '102', floor: 'First Floor' },
+                { num: '103', floor: 'First Floor' },
+                { num: '201', floor: 'Second Floor' },
+                { num: '202', floor: 'Second Floor' },
+                { num: '301', floor: 'Third Floor' },
+                { num: '302', floor: 'Third Floor' }
+            ];
+            for (const item of threeTwoTwo) {
                 units.push({
-                    id: `unit-${bId}-10${i}`,
+                    id: `unit-${bId}-${item.num}`,
                     buildingId: bId,
-                    unitNumber: `10${i}`,
-                    floor: 'First Floor',
+                    unitNumber: item.num,
+                    floor: item.floor,
                     unitType: 'apartment',
                     bedrooms: 2,
                     bathrooms: 1,
+                    defaultSetId: 'set-amherst-apt',
                     renovated: { isRenovated: false, renovatedDate: null },
                     moveInDate: null,
                     tenancyDate: null,
-                    provenance: 'pattern'
+                    provenance: prov
                 });
             }
+        } else if (AMHERST_44_NUMBERS.includes(stNum)) {
+            // Two "4×4" buildings (16 units each: 101–104, 201–204, 301–304, 401–404)
+            for (let floor = 1; floor <= 4; floor++) {
+                const floorLabel = floor === 1 ? 'First Floor' : floor === 2 ? 'Second Floor' : floor === 3 ? 'Third Floor' : 'Fourth Floor';
+                for (let u = 1; u <= 4; u++) {
+                    const uNum = `${floor}0${u}`;
+                    units.push({
+                        id: `unit-${bId}-${uNum}`,
+                        buildingId: bId,
+                        unitNumber: uNum,
+                        floor: floorLabel,
+                        unitType: 'apartment',
+                        bedrooms: 2,
+                        bathrooms: 1,
+                        defaultSetId: 'set-amherst-apt',
+                        renovated: { isRenovated: false, renovatedDate: null },
+                        moveInDate: null,
+                        tenancyDate: null,
+                        provenance: prov
+                    });
+                }
+            }
+        } else {
+            // 29 Townhouses (single unit each whose label equals street number)
+            const uNum = String(stNum);
+            units.push({
+                id: `unit-${bId}-${uNum}`,
+                buildingId: bId,
+                unitNumber: uNum,
+                floor: 'Multi-Floor Townhouse',
+                unitType: 'townhouse',
+                stories: 3,
+                bathrooms: 2,
+                defaultSetId: 'set-amherst-townhouse',
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: stNum === 137
+                    ? 'Verified unit with Frigidaire range & Rheem water heater (WO on hold)'
+                    : stNum === 125
+                        ? 'Amherst Townhouse verified unit'
+                        : undefined,
+                provenance: prov
+            });
         }
     } else if (bId === 'prop-manitou-cres') {
         // Manitou 1–58 townhouses

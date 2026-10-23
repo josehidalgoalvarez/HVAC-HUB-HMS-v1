@@ -727,6 +727,16 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   </div>
                 )}
 
+                {/* Building Spaces Callout (103 Amherst UTILITY room) */}
+                {activeBuilding.id === 'prop-amherst-103' && (
+                  <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-900 dark:text-blue-200 text-xs flex items-center gap-2.5">
+                    <span className="material-symbols-outlined text-blue-600 text-xl">room_preferences</span>
+                    <div>
+                      <strong>Building Space:</strong> UTILITY space (utility room — building space, not a rentable unit).
+                    </div>
+                  </div>
+                )}
+
 
                 {/* Whole-Box Unit Cards */}
                 <div className="space-y-3">
