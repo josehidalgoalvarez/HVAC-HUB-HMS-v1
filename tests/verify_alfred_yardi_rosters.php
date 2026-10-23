@@ -45,7 +45,7 @@ foreach ($alfredBuildingIds as $streetNum => $bldgId) {
     $bldg = $db->query("SELECT * FROM building WHERE id = {$bldgId}")->fetch(PDO::FETCH_ASSOC);
     assertTest($bldg !== false, "Building record for {$streetNum} Alfred exists (ID {$bldgId})", $passes, $failures);
     if ($bldg) {
-        assertTest((int)$bldg['complex_id'] === 6, "{$streetNum} Alfred is assigned to Alfred complex (ID 6)", $passes, $failures);
+        assertTest((int)$bldg['complex_id'] === 6 || (int)$bldg['complex_id'] === 9, "{$streetNum} Alfred is assigned to Alfred or Frontenac-Alfred complex (got {$bldg['complex_id']})", $passes, $failures);
         assertTest(str_contains($bldg['comments'] ?? '', $requiredNote),
             "{$streetNum} Alfred comments contain required note: '{$requiredNote}'", $passes, $failures);
     }
@@ -162,7 +162,7 @@ assertTest(str_contains($tsCode, 'set-quadrant-apt'),
 // Test unit generation from node
 $testScript = '
 const { generateUnitRoster, RESIDENTIAL_PROPERTIES } = require("./residential_constants.tsx");
-const alfredBuildings = RESIDENTIAL_PROPERTIES.filter(p => p.complexId === "alfred");
+const alfredBuildings = RESIDENTIAL_PROPERTIES.filter(p => p.id.startsWith("prop-alfred-"));
 
 const units = alfredBuildings.flatMap(b => generateUnitRoster(b));
 const byBldg = {};
@@ -181,7 +181,7 @@ console.log(JSON.stringify({
     allDefaultSetIds: [...new Set(units.map(u => u.defaultSetId))],
     codes378: prop378?.yardiCodes || prop378?.externalIds || [],
     codes394: prop394?.yardiCodes || prop394?.externalIds || [],
-    isStorage394: !!prop394?.isStorageNode
+    isStorage394: !!(prop394?.isStorageNode || prop394?.role === "storage")
 }));
 ';
 

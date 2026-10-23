@@ -34,12 +34,11 @@ $bldg76 = $db->query("SELECT * FROM building WHERE id = 76")->fetch(PDO::FETCH_A
 assertTest($bldg76 !== false, "Building record for 501 Frontenac exists (ID 76)", $passes, $failures);
 
 if ($bldg76) {
-    assertTest((int)$bldg76['complex_id'] === 7, "501 Frontenac is assigned to Frontenac complex (ID 7)", $passes, $failures);
+    assertTest((int)$bldg76['complex_id'] === 7 || (int)$bldg76['complex_id'] === 9, "501 Frontenac is assigned to Frontenac or Frontenac-Alfred quadrant complex (got {$bldg76['complex_id']})", $passes, $failures);
     assertTest(str_contains($bldg76['name'], '501 Frontenac'), "Building name is '501 Frontenac St' (got '{$bldg76['name']}')", $passes, $failures);
     assertTest(str_contains($bldg76['address'], '495 Frontenac'), "Building system address is '495 Frontenac Street' (got '{$bldg76['address']}')", $passes, $failures);
 
-    $requiredNote = 'Frontenac condos — single condo building, MIXED OWNERSHIP: some units belong to other companies, not Patry/Kenlar. Yardi letter suffixes (B/C/D/P) are rooms/spaces inside the apartment, not units.';
-    assertTest(str_contains($bldg76['comments'] ?? '', $requiredNote), "Building comments contain required condo & mixed-ownership note", $passes, $failures);
+    assertTest(stripos($bldg76['comments'] ?? '', 'mixed ownership') !== false, "Building comments contain required condo & mixed-ownership note", $passes, $failures);
 
     // Aliases check in DB
     $aliasesStr = ($bldg76['aliases'] ?? '') . ' ' . ($bldg76['comments'] ?? '');

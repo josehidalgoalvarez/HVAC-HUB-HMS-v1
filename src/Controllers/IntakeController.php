@@ -42,12 +42,30 @@ class IntakeController
             }
         }
 
+        $buildingId = !empty($body['building_id']) ? (int) $body['building_id'] : null;
+
         $verbatimText = !empty($body['verbatim_text']) ? trim((string) $body['verbatim_text']) : null;
         $verifiedScope = !empty($body['verified_scope']) ? trim((string) $body['verified_scope']) : null;
         $woNumber = !empty($body['wo_number']) ? trim((string) $body['wo_number']) : null;
-        $buildingId = (int) ($body['building_id'] ?? 1);
         $unitId = !empty($body['unit_id']) ? (int) $body['unit_id'] : null;
         $priority = !empty($body['priority']) ? (string) $body['priority'] : 'medium';
+
+        // Auto-resolve building from text/aliases if not explicitly provided or defaulted
+        if ($buildingId === null || $buildingId === 1) {
+            $textForResolution = implode(' ', array_filter([
+                $verbatimText,
+                $verifiedScope,
+                $woNumber,
+                $body['address'] ?? null,
+                $body['building_name'] ?? null,
+            ]));
+            $resolvedId = $this->resolveBuildingFromText($textForResolution);
+            if ($resolvedId !== null) {
+                $buildingId = $resolvedId;
+            } elseif ($buildingId === null) {
+                $buildingId = 1;
+            }
+        }
 
         // Require at least one piece of context: verbatim text, verified scope, or photo
         if (empty($verbatimText) && empty($verifiedScope) && empty($photoUrl) && empty($body['title'])) {
@@ -156,4 +174,48 @@ class IntakeController
         imagedestroy($img);
         imagedestroy($resized);
     }
+
+    private function resolveBuildingFromText(string $text): ?int
+    {
+        if (trim($text) === '') {
+            return null;
+        }
+
+        $buildings = \App\Db::fetchAll('SELECT id, name, address, aliases FROM building');
+        $cleanText = strtolower($text);
+
+        // First pass: check aliases (exact alias match or simplified alias)
+        foreach ($buildings as $b) {
+            if (!empty($b['aliases'])) {
+                $aliases = array_map('trim', explode(',', (string) $b['aliases']));
+                foreach ($aliases as $alias) {
+                    if ($alias === '') continue;
+                    $cleanAlias = strtolower($alias);
+                    if (str_contains($cleanText, $cleanAlias)) {
+                        return (int) $b['id'];
+                    }
+                    $simplifiedAlias = preg_replace('/\b(st|street|rd|road|ave|avenue|dr|drive|lane)\b/i', '', $alias);
+                    $simplifiedAlias = trim(preg_replace('/\s+/', ' ', (string) $simplifiedAlias));
+                    if (strlen($simplifiedAlias) >= 4 && str_contains($cleanText, strtolower($simplifiedAlias))) {
+                        return (int) $b['id'];
+                    }
+                }
+            }
+        }
+
+        // Second pass: check building address or name
+        foreach ($buildings as $b) {
+            $name = strtolower($b['name'] ?? '');
+            $address = strtolower($b['address'] ?? '');
+            if ($name !== '' && str_contains($cleanText, $name)) {
+                return (int) $b['id'];
+            }
+            if ($address !== '' && str_contains($cleanText, $address)) {
+                return (int) $b['id'];
+            }
+        }
+
+        return null;
+    }
 }
+

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import type { PartRecord } from '../../types/domain';
+import type { PartRecord, Stockpile } from '../../types/domain';
 
 interface PartSearchSectionProps {
   parts: PartRecord[];
+  stockpiles?: Stockpile[];
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onLogUse: (part: PartRecord) => void;
@@ -12,6 +13,7 @@ interface PartSearchSectionProps {
 
 export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
   parts,
+  stockpiles = [],
   searchQuery,
   onSearchChange,
   onLogUse,
@@ -19,6 +21,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
   onAddPart,
 }) => {
   const [filter, setFilter] = useState<'all' | 'reorder' | 'available'>('all');
+  const [selectedStockpileId, setSelectedStockpileId] = useState<string>('all');
   const [expandedPriceHistoryId, setExpandedPriceHistoryId] = useState<number | null>(null);
 
   const filteredParts = parts.filter(p => {
@@ -27,6 +30,13 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
     }
     if (filter === 'available' && p.quantity_on_hand <= 0) {
       return false;
+    }
+
+    if (selectedStockpileId !== 'all') {
+      const spIdNum = parseInt(selectedStockpileId, 10);
+      const inStockpile = p.stockpiles?.some(sp => sp.stockpile_id === spIdNum && sp.quantity > 0)
+        || p.stockpile_id === spIdNum;
+      if (!inStockpile) return false;
     }
 
     if (!searchQuery.trim()) return true;
@@ -103,6 +113,42 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
           In Stock ({parts.filter(p => p.quantity_on_hand > 0).length})
         </button>
       </div>
+
+      {/* Storage Location Filter Chips */}
+      {stockpiles && stockpiles.length > 0 && (
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark shrink-0 flex items-center gap-1">
+            <span className="material-symbols-outlined text-[15px] text-amber-500">warehouse</span>
+            Depot:
+          </span>
+          <button
+            onClick={() => setSelectedStockpileId('all')}
+            className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+              selectedStockpileId === 'all'
+                ? 'bg-amber-500 text-brand-black shadow-xs'
+                : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
+            }`}
+          >
+            All Locations ({stockpiles.length})
+          </button>
+          {stockpiles.map(sp => {
+            const isSelected = selectedStockpileId === String(sp.id);
+            return (
+              <button
+                key={sp.id}
+                onClick={() => setSelectedStockpileId(isSelected ? 'all' : String(sp.id))}
+                className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                  isSelected
+                    ? 'bg-amber-500 text-brand-black font-bold shadow-xs'
+                    : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
+                }`}
+              >
+                {sp.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Parts List */}
       {filteredParts.length === 0 ? (
@@ -262,11 +308,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                 )}
 
                 {/* Action Row */}
-                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                    Unit Cost: <span className="text-base font-extrabold text-brand-black dark:text-white">${part.unit_cost?.toFixed(2) || '42.50'}</span>
-                  </div>
-
+                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-end gap-3">
                   <div className="flex items-center gap-2 flex-wrap">
                     <button
                       onClick={() => onRestock ? onRestock(part) : onLogUse(part)}

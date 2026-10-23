@@ -136,14 +136,16 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
     const matchedBuildings = properties.filter(p => {
       if (p.name.includes('Pool')) return false;
-      const target = `${p.name} ${p.address} ${(p.aliases || []).join(' ')} ${p.comments || ''}`.toLowerCase();
+      const allAliases = [...(p.aliases || []), ...(p.addressAliases || [])].join(' ');
+      const target = `${p.name} ${p.address} ${allAliases} ${p.comments || ''}`.toLowerCase();
       return tokens.every(t => target.includes(t));
     });
 
     const matchedUnits = units.filter(u => {
       const bld = properties.find(p => p.id === u.buildingId);
       if (!bld || bld.name.includes('Pool')) return false;
-      const fullString = `unit ${u.unitNumber} ${bld.name} ${bld.address} ${(bld.aliases || []).join(' ')} ${bld.comments || ''}`.toLowerCase();
+      const allAliases = [...(bld.aliases || []), ...(bld.addressAliases || [])].join(' ');
+      const fullString = `unit ${u.unitNumber} ${bld.name} ${bld.address} ${allAliases} ${bld.comments || ''}`.toLowerCase();
       return tokens.every(t => fullString.includes(t));
     });
 
@@ -391,6 +393,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   {searchResults.units.map(unit => {
                     const bld = properties.find(p => p.id === unit.buildingId);
                     const isExternal = unit.ownership === 'external';
+                    const wdState = unit.washerDryerState;
                     return (
                       <div
                         key={unit.id}
@@ -402,13 +405,24 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         }`}
                       >
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
                               Unit {unit.unitNumber}
                             </span>
                             {isExternal && (
                               <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                                 External
+                              </span>
+                            )}
+                            {wdState && (
+                              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                                wdState === 'building_installed'
+                                  ? 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20'
+                                  : wdState === 'tenant_owned'
+                                  ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20'
+                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700'
+                              }`}>
+                                {wdState === 'building_installed' ? 'W/D: Installed' : wdState === 'tenant_owned' ? 'W/D: Tenant' : 'W/D: None'}
                               </span>
                             )}
                             <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
@@ -440,20 +454,34 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {searchResults.buildings.map(bld => {
                     const uCount = units.filter(u => u.buildingId === bld.id).length;
+                    const hasSpecialRole = bld.role && bld.role !== 'standard';
+                    const isExternal = bld.responsibility === 'external';
+
                     return (
                       <div
                         key={bld.id}
                         onClick={() => handleNavBuilding(bld.id)}
-                        className="group rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 p-4 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between"
+                        className={`group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center justify-between ${
+                          isExternal
+                            ? 'opacity-65 bg-gray-50/80 dark:bg-card-dark/40 border border-dashed border-gray-300 dark:border-gray-700'
+                            : hasSpecialRole
+                            ? 'border-2 border-amber-400/80 bg-amber-500/5 dark:bg-amber-500/10 hover:border-amber-500 shadow-sm shadow-amber-500/5'
+                            : 'bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:border-primary/40'
+                        }`}
                       >
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <h4 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
                               {bld.name}
                             </h4>
-                            {bld.id === 'prop-days-511' && (
-                              <span className="text-[11px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-full">
-                                Storage Node
+                            {hasSpecialRole && (
+                              <span className="text-[11px] font-semibold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full capitalize">
+                                {bld.role === 'storage' ? (bld.id === 'prop-days-511' ? 'Storage Node (Central)' : 'Storage Node') : bld.role === 'mechanical' ? 'Mechanical Hub' : bld.role === 'office' ? 'Office' : bld.role}
+                              </span>
+                            )}
+                            {isExternal && (
+                              <span className="text-[11px] font-semibold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
+                                External Super (Not Jose)
                               </span>
                             )}
                           </div>
@@ -601,7 +629,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     </div>
 
                     <div className="pt-3 mt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub-light dark:text-text-sub-dark">
-                      <span>9 Singles + 1 McKay Office</span>
+                      <span>{ungroupedProperties.length} Properties</span>
                       <span className="text-primary font-semibold flex items-center gap-0.5 text-xs">
                         Browse Ungrouped <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
                       </span>
@@ -658,24 +686,38 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {activeComplexProperties.map(bld => {
                     const bldUnits = units.filter(u => u.buildingId === bld.id);
-                    const is511Storage = bld.id === 'prop-days-511';
+                    const hasSpecialRole = bld.role && bld.role !== 'standard';
+                    const isExternal = bld.responsibility === 'external';
 
                     return (
                       <div
                         key={bld.id}
                         onClick={() => handleNavBuilding(bld.id)}
-                        className="group rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 p-4 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer flex flex-col justify-between"
+                        className={`group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between ${
+                          isExternal
+                            ? 'opacity-65 bg-gray-50/80 dark:bg-card-dark/40 border border-dashed border-gray-300 dark:border-gray-700'
+                            : hasSpecialRole
+                            ? 'border-2 border-amber-400/80 bg-amber-500/5 dark:bg-amber-500/10 hover:border-amber-500 shadow-sm shadow-amber-500/5'
+                            : 'bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:border-primary/40'
+                        }`}
                       >
                         <div>
-                          <div className="flex items-start justify-between gap-2 mb-1">
+                          <div className="flex items-start justify-between gap-2 mb-1 flex-wrap">
                             <h3 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
                               {bld.name}
                             </h3>
-                            {is511Storage && (
-                              <span className="text-[11px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-full whitespace-nowrap">
-                                Storage Node
-                              </span>
-                            )}
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {hasSpecialRole && (
+                                <span className="text-[11px] font-semibold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full capitalize whitespace-nowrap">
+                                  {bld.role === 'storage' ? (bld.id === 'prop-days-511' ? 'Storage Node (Central)' : 'Storage Node') : bld.role === 'mechanical' ? 'Mechanical Hub' : bld.role === 'office' ? 'Office' : bld.role}
+                                </span>
+                              )}
+                              {isExternal && (
+                                <span className="text-[11px] font-semibold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                  External Super (Not Jose)
+                                </span>
+                              )}
+                            </div>
                           </div>
                           <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">
                             {bld.address}
@@ -727,12 +769,45 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   </button>
                 </div>
 
-                {/* Storage Callout if 511 Days */}
-                {activeBuilding.id === 'prop-days-511' && (
-                  <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-200 text-xs flex items-center gap-2.5">
-                    <span className="material-symbols-outlined text-amber-600 text-xl">inventory_2</span>
+                {/* Special Role Callout */}
+                {activeBuilding.role && activeBuilding.role !== 'standard' && (
+                  <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2.5">
+                    <span className="material-symbols-outlined text-amber-600 text-xl">
+                      {activeBuilding.role === 'storage' ? 'inventory_2' : activeBuilding.role === 'mechanical' ? 'settings_suggest' : 'corporate_fare'}
+                    </span>
                     <div>
-                      <strong>Central Storage Building:</strong> 511 Days Rd basement houses primary replacement inventory for BD complex.
+                      {activeBuilding.id === 'prop-days-511' ? (
+                        <><strong>Central Storage Building:</strong> 511 Days Rd basement houses primary replacement inventory for BD complex.</>
+                      ) : activeBuilding.role === 'storage' ? (
+                        <><strong>Storage Node:</strong> Key storage depot for parts, spare equipment, and replacement inventory.</>
+                      ) : activeBuilding.role === 'mechanical' ? (
+                        <><strong>Mechanical Hub:</strong> Houses central mechanical equipment, boilers, and shared plant infrastructure.</>
+                      ) : (
+                        <><strong>Operations Office:</strong> Administrative office and staging area for maintenance operations.</>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* External Responsibility Callout */}
+                {activeBuilding.responsibility === 'external' && (
+                  <div className="p-3.5 rounded-2xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs flex items-center gap-2.5">
+                    <span className="material-symbols-outlined text-gray-500 text-xl">engineering</span>
+                    <div>
+                      <strong>External Superintendent:</strong> Routine maintenance is handled by an external superintendent (not Jose).
+                    </div>
+                  </div>
+                )}
+
+                {/* Address Aliases Callout */}
+                {activeBuilding.addressAliases && activeBuilding.addressAliases.length > 0 && (
+                  <div className="p-3 rounded-2xl bg-blue-500/5 border border-blue-500/15 text-blue-900 dark:text-blue-200 text-xs flex items-center gap-2">
+                    <span className="material-symbols-outlined text-blue-600 text-lg">alternate_email</span>
+                    <div>
+                      <span className="font-semibold">Known Address Aliases: </span>
+                      <span className="text-text-sub-light dark:text-text-sub-dark">
+                        {activeBuilding.addressAliases.join(', ')}
+                      </span>
                     </div>
                   </div>
                 )}
@@ -763,6 +838,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         const overrideCount = Object.keys(unit.applianceOverrides || {}).length;
 
                         const isExternal = unit.ownership === 'external';
+                        const wdState = unit.washerDryerState;
 
                         return (
                           <div
@@ -774,7 +850,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                 : 'bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:border-primary/40'
                             }`}
                           >
-                            <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                               <span className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors flex items-center gap-2">
                                 Unit {unit.unitNumber}
                                 {isExternal && (
@@ -783,15 +859,28 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                   </span>
                                 )}
                               </span>
-                              {overrideCount > 0 ? (
-                                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                                  {overrideCount} Override{overrideCount > 1 ? 's' : ''}
-                                </span>
-                              ) : (
-                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-                                  Default Set
-                                </span>
-                              )}
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                {wdState && (
+                                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                                    wdState === 'building_installed'
+                                      ? 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20'
+                                      : wdState === 'tenant_owned'
+                                      ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20'
+                                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700'
+                                  }`}>
+                                    {wdState === 'building_installed' ? 'W/D: Installed' : wdState === 'tenant_owned' ? 'W/D: Tenant' : 'W/D: None'}
+                                  </span>
+                                )}
+                                {overrideCount > 0 ? (
+                                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                    {overrideCount} Override{overrideCount > 1 ? 's' : ''}
+                                  </span>
+                                ) : (
+                                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                                    Default Set
+                                  </span>
+                                )}
+                              </div>
                             </div>
 
                             <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-3">
@@ -860,6 +949,24 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         : 'Inherited from Complex'}
                     </span>
                   </div>
+                  {activeUnit.washerDryerState && (
+                    <div className="mt-2 text-xs flex items-center justify-between border-t border-gray-100 dark:border-gray-800 pt-2">
+                      <span className="text-text-sub-light dark:text-text-sub-dark font-medium">Washer / Dryer Status:</span>
+                      <span className={`font-semibold px-2 py-0.5 rounded-full text-[11px] border ${
+                        activeUnit.washerDryerState === 'building_installed'
+                          ? 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20'
+                          : activeUnit.washerDryerState === 'tenant_owned'
+                          ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700'
+                      }`}>
+                        {activeUnit.washerDryerState === 'building_installed'
+                          ? 'Building-Installed W/D'
+                          : activeUnit.washerDryerState === 'tenant_owned'
+                          ? 'Tenant-Owned W/D'
+                          : 'No In-Unit W/D'}
+                      </span>
+                    </div>
+                  )}
                   <div className="mt-2 text-xs text-text-sub-light dark:text-text-sub-dark flex items-center justify-between border-t border-gray-100 dark:border-gray-800 pt-2">
                     <span>{Object.keys(activeUnit.applianceOverrides || {}).length} Unit Override(s)</span>
                     <span>{activeUnitAppliances.filter(a => a.isDefault).length} Inherited from Default Set</span>

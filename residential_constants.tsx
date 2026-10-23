@@ -23,7 +23,7 @@ export const COMPLEXES: Complex[] = [
         id: 'bd',
         slug: 'bd',
         code: 'BD',
-        name: 'BD',
+        name: 'BD — Bath & Days',
         description: 'Bath Road & Days Road residential complex in Kingston, ON. 511 Days Rd is the storage building.',
         address: 'Bath Rd & Days Rd, Kingston, ON',
         buildingCount: 12
@@ -47,13 +47,31 @@ export const COMPLEXES: Complex[] = [
         buildingCount: 4
     },
     {
+        id: 'frontenac-alfred',
+        slug: 'frontenac-alfred',
+        code: 'FRONTENAC-ALFRED',
+        name: 'Frontenac–Alfred Quadrant',
+        description: 'Frontenac and Alfred street cluster + 565 Princess St in Kingston, ON.',
+        address: 'Frontenac St & Alfred St, Kingston, ON',
+        buildingCount: 9
+    },
+    {
+        id: 'armstrong-skyfall',
+        slug: 'armstrong-skyfall',
+        code: 'ARMSTRONG-SKYFALL',
+        name: 'Armstrong / Skyfall',
+        description: 'Adjacent group: 539 Armstrong Rd, 300 Skyfall Lane (Le Santé), and 2274 Princess St.',
+        address: 'Armstrong Rd & Skyfall Lane, Kingston, ON',
+        buildingCount: 3
+    },
+    {
         id: 'princess',
         slug: 'princess',
         code: 'PRINCESS',
         name: 'Princess',
         description: 'Princess Street multi-unit properties in Kingston, ON.',
         address: 'Princess St, Kingston, ON',
-        buildingCount: 9
+        buildingCount: 4
     },
     {
         id: 'victoria',
@@ -63,24 +81,6 @@ export const COMPLEXES: Complex[] = [
         description: 'Victoria Street residential properties in Kingston, ON.',
         address: 'Victoria St, Kingston, ON',
         buildingCount: 4
-    },
-    {
-        id: 'alfred',
-        slug: 'alfred',
-        code: 'ALFRED',
-        name: 'Alfred',
-        description: 'Alfred Street residential multi-unit cluster in Kingston, ON.',
-        address: 'Alfred St, Kingston, ON',
-        buildingCount: 6
-    },
-    {
-        id: 'frontenac',
-        slug: 'frontenac',
-        code: 'FRONTENAC',
-        name: 'Frontenac',
-        description: 'Frontenac Street residential properties in Kingston, ON.',
-        address: 'Frontenac St, Kingston, ON',
-        buildingCount: 2
     },
     {
         id: 'elm-colborne',
@@ -312,9 +312,9 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
     },
     {
         id: 'set-skyfall-sante-uniform',
-        complexSlug: 'princess',
-        complexId: 'princess',
-        name: 'Uniform Building / Apartment (Skyfall / Le Santé default)',
+        complexSlug: 'armstrong-skyfall',
+        complexId: 'armstrong-skyfall',
+        name: 'Uniform Building / Apartment (Armstrong / Skyfall default)',
         unitType: 'apartment',
         isDefault: true,
         bedrooms: 2,
@@ -600,7 +600,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     {
         id: 'prop-days-511',
         complexId: 'bd',
-        complexName: 'BD',
+        complexName: 'BD — Bath & Days',
         clusterId: 'cluster-bd-509-511',
         code: 'bd0511',
         name: '511 Days Road',
@@ -608,8 +608,9 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         imageUrl: '/uploads/photo_c61a96df0f03a7620bf1.jpg',
         applianceCount: 0,
         isStorageNode: true,
+        role: 'storage',
         storageInventory: STORAGE_511_DAYS,
-        comments: 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Attached pair with 509 Days Rd, SHARED mechanical room. Complex storage node in 511 basement. Storage building. Laundry: WITH sink.',
+        comments: 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Attached pair with 509 Days Rd, SHARED mechanical room. Central storage building in 511 basement. Storage building. Laundry: WITH sink.',
         definedRooms: ['Basement Storage', 'Mechanical Room', 'Laundry Room'],
         floors: ['Basement', 'Main Floor', 'Second Floor'],
         laundryConfig: { hasSink: true, notes: '511 laundry WITH sink' },
@@ -618,7 +619,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     {
         id: 'prop-bath-1719',
         complexId: 'bd',
-        complexName: 'BD',
+        complexName: 'BD — Bath & Days',
         clusterId: 'cluster-bd-1719-1723',
         code: 'bd1719',
         name: '1719 Bath Road',
@@ -636,13 +637,14 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     {
         id: 'prop-bath-1721',
         complexId: 'bd',
-        complexName: 'BD',
+        complexName: 'BD — Bath & Days',
         clusterId: 'cluster-bd-1719-1723',
         code: 'bd1721',
         name: '1721 Bath Road',
         address: '1721 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
         applianceCount: 7,
+        role: 'mechanical',
         comments: 'Bath apartments share numbering pool (G57–G74 / 157–174 / 257–274; 164 and 264 do not exist). Attached trio hub: shared mechanical room containing 7 water heaters (3 working, 2 valved-off stagnant, 2 disconnected rotting), fiber connections, electrical shutoffs. Laundry: sink NO.',
         definedRooms: ['Shared Mechanical Room', 'Unit 268', 'Unit 266', 'Laundry Room'],
         floors: ['Basement', 'Main Floor', 'Second Floor'],
@@ -799,6 +801,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
                 : '/uploads/photo_7b90897a4994f447765e.jpg',
             applianceCount: isVerifiedUnit137 ? 2 : 0,
             isStorageNode: isStorage,
+            role: isStorage ? ('storage' as const) : ('standard' as const),
             storageInventory: isStorage ? STORAGE_107_AMHERST : undefined,
             comments,
             definedRooms,
@@ -826,14 +829,14 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-princess-565',
-        complexId: 'princess',
-        complexName: 'Princess',
+        complexId: 'frontenac-alfred',
+        complexName: 'Frontenac–Alfred Quadrant',
         code: '565 Princess St',
         name: '565 Princess Street',
         address: '565 Princess St, Kingston, ON',
         imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
         applianceCount: 0,
-        comments: 'Part of the 563/565/567 Princess site — displayed building number is 565. Yardi letter suffixes are rooms inside the unit.',
+        comments: 'Part of the 563/565/567 Princess site — sits right beside Frontenac-Alfred quadrant. Yardi letter suffixes are rooms inside the unit.',
         definedRooms: [],
         floors: ['First Floor'],
         provenance: 'verified' as const
@@ -854,14 +857,14 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-princess-630',
-        complexId: 'princess',
-        complexName: 'Princess',
+        complexId: undefined,
+        complexName: undefined,
         code: '630 Princess St',
         name: '630 Princess St',
         address: '630 Princess St, Kingston, ON',
         imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
         applianceCount: 0,
-        comments: 'Under construction (Oct 2026); roster as listed in Yardi.',
+        comments: 'Under construction (Oct 2026); standalone property far down Princess; roster as listed in Yardi.',
         definedRooms: [],
         floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor'],
         provenance: 'verified' as const
@@ -899,14 +902,14 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-princess-2274',
-        complexId: 'princess',
-        complexName: 'Princess',
+        complexId: 'armstrong-skyfall',
+        complexName: 'Armstrong / Skyfall',
         code: '2274 Princess St',
         name: '2274 Princess St',
         address: '2274 Princess St, Kingston, ON',
         imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
         applianceCount: 0,
-        comments: 'Princess Street multi-unit property (verified Yardi roster, 236 units).',
+        comments: 'Princess Street multi-unit property (verified Yardi roster, 236 units). Adjacent to Skyfall and Armstrong.',
         definedRooms: [],
         floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor'],
         provenance: 'verified' as const
@@ -945,12 +948,12 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     })),
 
     // ----------------------------------------------------
-    // 5) ALFRED — 6 Buildings
+    // 5) FRONTENAC–ALFRED QUADRANT — Alfred & Frontenac Buildings
     // ----------------------------------------------------
     {
         id: 'prop-alfred-353',
-        complexId: 'alfred',
-        complexName: 'Alfred',
+        complexId: 'frontenac-alfred',
+        complexName: 'Frontenac–Alfred Quadrant',
         code: '353 Alfred St',
         name: '353 Alfred Street',
         address: '353 Alfred St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -963,8 +966,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-alfred-359',
-        complexId: 'alfred',
-        complexName: 'Alfred',
+        complexId: 'frontenac-alfred',
+        complexName: 'Frontenac–Alfred Quadrant',
         code: '359 Alfred St',
         name: '359 Alfred Street',
         address: '359 Alfred St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -977,8 +980,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-alfred-361',
-        complexId: 'alfred',
-        complexName: 'Alfred',
+        complexId: 'frontenac-alfred',
+        complexName: 'Frontenac–Alfred Quadrant',
         code: '361 Alfred St',
         name: '361 Alfred Street',
         address: '361 Alfred St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -991,8 +994,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-alfred-376',
-        complexId: 'alfred',
-        complexName: 'Alfred',
+        complexId: 'frontenac-alfred',
+        complexName: 'Frontenac–Alfred Quadrant',
         code: '376 Alfred St',
         name: '376 Alfred Street',
         address: '376 Alfred St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -1005,8 +1008,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-alfred-378',
-        complexId: 'alfred',
-        complexName: 'Alfred',
+        complexId: 'frontenac-alfred',
+        complexName: 'Frontenac–Alfred Quadrant',
         code: '378 Alfred St',
         name: '378 Alfred Street',
         address: '378 Alfred St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -1021,8 +1024,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-alfred-394',
-        complexId: 'alfred',
-        complexName: 'Alfred',
+        complexId: 'frontenac-alfred',
+        complexName: 'Frontenac–Alfred Quadrant',
         code: '394 Alfred St',
         name: '394 Alfred Street',
         address: '394 Alfred St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -1031,35 +1034,33 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
         applianceCount: 0,
         isStorageNode: true,
+        role: 'storage',
         storageInventory: STORAGE_394_ALFRED,
         comments: 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units. Quadrant main storage node. Yardi codes: 394alfr, alfr394.',
         definedRooms: ['Quadrant Main Storage'],
         floors: ['First Floor', 'Second Floor', 'Third Floor'],
         provenance: 'verified' as const
     },
-
-    // ----------------------------------------------------
-    // 6) FRONTENAC — 2 Buildings
-    // ----------------------------------------------------
     {
         id: 'prop-frontenac-501',
-        complexId: 'frontenac',
-        complexName: 'Frontenac',
+        complexId: 'frontenac-alfred',
+        complexName: 'Frontenac–Alfred Quadrant',
         code: '501 Frontenac St',
         name: '501 Frontenac St',
         address: '495 Frontenac Street, Kingston, ON',
-        aliases: ['495 Frontenac Street', 'The Frontenac'],
+        aliases: ['495 Frontenac St', '495 Frontenac Street', '503 Frontenac St', '505 Frontenac St', '507 Frontenac St', '509 Frontenac St', 'The Frontenac'],
+        addressAliases: ['495 Frontenac St', '503 Frontenac St', '505 Frontenac St', '507 Frontenac St', '509 Frontenac St', 'The Frontenac'],
         imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
         applianceCount: 0,
-        comments: 'Frontenac condos — single condo building, MIXED OWNERSHIP: some units belong to other companies, not Patry/Kenlar. Yardi letter suffixes (B/C/D/P) are rooms/spaces inside the apartment, not units.',
+        comments: 'Frontenac condos — single building; 495–509 are alias addresses. Mixed ownership: some units belong to other companies, not Patry/Kenlar. Yardi letter suffixes (B/C/D/P) are rooms/spaces inside the apartment, not units.',
         definedRooms: [],
         floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor'],
         provenance: 'verified' as const
     },
     {
         id: 'prop-frontenac-520',
-        complexId: 'frontenac',
-        complexName: 'Frontenac',
+        complexId: 'frontenac-alfred',
+        complexName: 'Frontenac–Alfred Quadrant',
         code: '520 Frontenac St',
         name: '520 Frontenac Street',
         address: '520 Frontenac St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -1085,6 +1086,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         imageUrl: '/uploads/photo_3fba10b6250dd34fcc10.jpg',
         applianceCount: 0,
         isStorageNode: true,
+        role: 'storage',
         storageInventory: STORAGE_18_ELM,
         comments: 'Sits right behind 203 Colborne St. Small-storage role (water heaters).',
         definedRooms: ['Water Heater Storage'],
@@ -1183,7 +1185,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
 
     // ----------------------------------------------------
-    // 9) SINGLES & STANDALONE — 9 Entries [Ungrouped]
+    // 9) SINGLES & STANDALONE — Entries [Ungrouped]
     // ----------------------------------------------------
     {
         id: 'prop-blackburn-810',
@@ -1194,6 +1196,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         applianceCount: 0,
         aliases: ['Stonecrest', '810 Blackburn Mews'],
         isStorageNode: true,
+        role: 'storage',
         comments: 'Commercial / standalone unit (Stonecrest). Keeps storage role. The five B-suffixed entries (110B, 114B, 116B, 212B, 312B) are rooms/splits, not units.',
         definedRooms: [],
         floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor'],
@@ -1207,6 +1210,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
         applianceCount: 0,
         isStorageNode: true,
+        role: 'storage',
         comments: 'Residential standalone property. Keeps storage role.',
         definedRooms: [],
         floors: ['Main Floor'],
@@ -1254,6 +1258,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         imageUrl: '/uploads/photo_4339fa51f592921622d8.jpg',
         applianceCount: 0,
         isStorageNode: true,
+        role: 'storage',
         comments: 'Residential property. Keeps storage role.',
         definedRooms: [],
         floors: ['Main Floor'],
@@ -1272,7 +1277,22 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         provenance: 'verified'
     },
     {
+        id: 'prop-hillendale-181',
+        code: '181 Hillendale Ave',
+        name: '181 Hillendale Ave',
+        address: '181 Hillendale Ave, Kingston, ON',
+        imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
+        applianceCount: 0,
+        isStorageNode: true,
+        role: 'storage',
+        comments: 'Hillendale storage depot location.',
+        definedRooms: ['Storage Depot'],
+        provenance: 'verified'
+    },
+    {
         id: 'prop-armstrong-539',
+        complexId: 'armstrong-skyfall',
+        complexName: 'Armstrong / Skyfall',
         code: '539 Armstrong Rd',
         name: '539 Armstrong Road',
         address: '539 Armstrong Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
@@ -1280,6 +1300,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         applianceCount: 0,
         aliases: ['Riverstone', '539 Armstrong Road', '539 Armstrong Rd'],
         isStorageNode: true,
+        role: 'storage',
         comments: 'Stockpile location. White stoves rule everywhere: donor coils by SIZE only — never switches into gray Frigidaire stoves. TODO-verify: units 516–522 were obscured by a stitch artifact in the source screenshot; included by count validation (116 entries) and floor pattern.',
         definedRooms: ['Stockpile Storage'],
         floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor'],
@@ -1292,12 +1313,15 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: 'Kingston, ON',
         imageUrl: '/uploads/photo_2aa8d094f66a8ede0a7b.jpg',
         applianceCount: 0,
-        comments: 'Project entry, not an address.',
+        responsibility: 'external',
+        comments: 'Project entry, not an address. External responsibility (has own superintendent; not Jose).',
         definedRooms: [],
         provenance: 'verified'
     },
     {
         id: 'prop-skyfall-300',
+        complexId: 'armstrong-skyfall',
+        complexName: 'Armstrong / Skyfall',
         code: '300 Skyfall Lane',
         name: 'Le Santé',
         address: '300 Skyfall Lane, Kingston, ON',
@@ -1322,6 +1346,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '698 McKay St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_8715a9f0bd2e11cfe611.jpg',
         applianceCount: 0,
+        role: 'office',
         comments: 'Location type "office", not a rental property; route origin.',
         definedRooms: ['Dispatch Office', 'Equipment Bay'],
         provenance: 'verified'

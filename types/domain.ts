@@ -73,10 +73,13 @@ export interface Building {
   address: string;
   code?: string;
   aliases?: string[];
+  addressAliases?: string[];
   externalIds?: string[];
   yardiCodes?: string[];
   imageUrl?: string;
   comments?: string;
+  role?: 'standard' | 'storage' | 'mechanical' | 'office';
+  responsibility?: 'internal' | 'external';
   status?: 'active' | 'inactive' | 'permanently_out_of_order';
   definedRooms?: string[];
   spaces?: Array<{ name: string; type: string; notes?: string }>;

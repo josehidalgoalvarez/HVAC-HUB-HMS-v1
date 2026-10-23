@@ -255,6 +255,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
         {activeTab === 'search' && (
           <PartSearchSection
             parts={parts}
+            stockpiles={stockpiles}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             onLogUse={part => {

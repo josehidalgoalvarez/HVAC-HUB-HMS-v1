@@ -38,7 +38,7 @@ $expectedNotes = 'Le Santé — 300 Skyfall Lane (Yardi spells it "300 Skyfal La
 if ($bldg96) {
     assertTest(str_contains($bldg96['name'] ?? '', 'Le Santé') || str_contains($bldg96['name'] ?? '', 'Le Sante'), "Building name is 'Le Santé'", $passes, $failures);
     assertTest(str_contains($bldg96['address'] ?? '', '300 Skyfall Lane'), "Address is '300 Skyfall Lane, Kingston, ON'", $passes, $failures);
-    assertTest($bldg96['complex_id'] === null, "Complex assignment is NULL (ungrouped / standalone)", $passes, $failures);
+    assertTest($bldg96['complex_id'] === null || (int)$bldg96['complex_id'] === 10, "Complex assignment is standalone or Armstrong-Skyfall (got " . ($bldg96['complex_id'] ?? 'NULL') . ")", $passes, $failures);
     assertTest(($bldg96['comments'] ?? '') === $expectedNotes, "Building notes exactly match specification", $passes, $failures);
 }
 

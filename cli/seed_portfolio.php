@@ -32,6 +32,8 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
 
     // Ensure columns and appliance table exist
     try { $pdo->exec("ALTER TABLE building ADD COLUMN comments TEXT NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE building ADD COLUMN role VARCHAR(30) DEFAULT 'standard'"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE building ADD COLUMN responsibility VARCHAR(30) DEFAULT 'internal'"); } catch (\Throwable) {}
     try { $pdo->exec("ALTER TABLE unit ADD COLUMN comments TEXT NULL"); } catch (\Throwable) {}
     try { $pdo->exec("ALTER TABLE job ADD COLUMN room TEXT NULL"); } catch (\Throwable) {}
 
@@ -110,7 +112,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         [8, '505 Days Road', '505 Days Rd, Kingston, ON', 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Standalone electrical (the exception in BD complex), different layout/floors, nothing stored here.'],
         [9, '507 Days Road', '507 Days Rd, Kingston, ON', 'TOWNHOUSES: 2-digit unit pool (11–32 continuous except 13). TODO-verify: units 1–10 and 13 unconfirmed in Yardi extract. 3 stories (2 floors + basement), 2 washrooms, own water heater per unit (believed // TODO-verify), laundry WITH sink, NO storage.'],
         [14, '509 Days Road', '509 Days Rd, Kingston, ON', 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Attached pair with 511 Days Rd. Shared mechanical room with 511. Laundry: no sink (believed // TODO-verify).'],
-        [15, '511 Days Road', '511 Days Rd, Kingston, ON', 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Attached pair with 509 Days Rd, SHARED mechanical room. Complex storage node in 511 basement. Storage building. Laundry: WITH sink.'],
+        [15, '511 Days Road', '511 Days Rd, Kingston, ON', 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Attached pair with 509 Days Rd, SHARED mechanical room. Central storage building in 511 basement. Storage building. Laundry: WITH sink.'],
         [16, '1727 Bath Road', '1727 Bath Rd, Kingston, ON', '2-digit pool runs 33–56 across 1727/1737/1725 (1727 has townhouses 33–36). 3 stories, 2 washrooms, dedicated water heater per unit. No communal laundry.'],
         [10, '137 Amherst Drive', '137 Amherst Dr, Kingston, ON', 'Residential townhouse building. Verified unit 137 (range, water heater).'],
         [58, '107 Amherst Drive', '107 Amherst Dr, Amherstview, ON', 'Floor 1 skips 105 (utility/laundry space). Storage node for Amherst complex (supplies, tools, 2 white coil stoves).'],
@@ -141,24 +143,37 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         [83, '85 Park Street', '85 Park St, Kingston, ON', 'Residential standalone property (no unit 13).'],
         [12, '265 Ontario Street', '265 Ontario St, Kingston, ON', 'Residential property (14 units continuous 1–14).'],
         [11, '415 Albert Street', '415 Albert St, Kingston, ON', 'Multi-unit residential property. Lettered units are separate apartments at this address (exception to the rooms convention).'],
-        [86, '36 Durham Street', '36 Durham St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units.']
+        [86, '36 Durham Street', '36 Durham St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units.'],
+        [97, '181 Hillendale Ave', '181 Hillendale Ave, Kingston, ON', 'Hillendale storage depot location.']
     ];
+
+    // Ensure complexes exist & are named properly
+    $pdo->exec("UPDATE complexes SET name = 'BD — Bath & Days' WHERE slug = 'bd'");
+    $pdo->exec("UPDATE complex SET name = 'BD — Bath & Days' WHERE id = 'bd'");
+    $pdo->exec("INSERT OR IGNORE INTO complexes (id, name, slug, notes, created_at, updated_at) VALUES (9, 'Frontenac–Alfred Quadrant', 'frontenac-alfred', 'Frontenac and Alfred street cluster + 565 Princess St in Kingston, ON.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+    $pdo->exec("INSERT OR IGNORE INTO complex (id, code, name, description, address, building_count, created_at, updated_at) VALUES ('frontenac-alfred', 'FRONTENAC-ALFRED', 'Frontenac–Alfred Quadrant', 'Frontenac and Alfred street cluster + 565 Princess St in Kingston, ON.', 'Frontenac St & Alfred St, Kingston, ON', 9, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+    $pdo->exec("INSERT OR IGNORE INTO complexes (id, name, slug, notes, created_at, updated_at) VALUES (10, 'Armstrong / Skyfall', 'armstrong-skyfall', 'Adjacent group: 539 Armstrong Rd, 300 Skyfall Lane (Le Santé), and 2274 Princess St.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+    $pdo->exec("INSERT OR IGNORE INTO complex (id, code, name, description, address, building_count, created_at, updated_at) VALUES ('armstrong-skyfall', 'ARMSTRONG-SKYFALL', 'Armstrong / Skyfall', 'Adjacent group: 539 Armstrong Rd, 300 Skyfall Lane (Le Santé), and 2274 Princess St.', 'Armstrong Rd & Skyfall Lane, Kingston, ON', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 
     $bldCount = 0;
     foreach ($buildings as $b) {
+        $cId = in_array($b[0], [60, 70, 71, 72, 73, 74, 75, 76, 77]) ? 9 : (in_array($b[0], [87, 95, 96]) ? 10 : (in_array($b[0], [59, 61, 64, 65, 94]) ? 4 : (in_array($b[0], [78, 79]) ? 2 : (in_array($b[0], [81, 91, 92, 93]) ? 8 : (in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null))))));
         $stmt = $pdo->prepare("SELECT id FROM building WHERE id = ?");
         $stmt->execute([$b[0]]);
         if ($stmt->fetch()) {
-            $update = $pdo->prepare("UPDATE building SET name = ?, address = ?, comments = ? WHERE id = ?");
-            $update->execute([$b[1], $b[2], $b[3], $b[0]]);
+            $update = $pdo->prepare("UPDATE building SET name = ?, address = ?, comments = ?, complex_id = ? WHERE id = ?");
+            $update->execute([$b[1], $b[2], $b[3], $cId, $b[0]]);
         } else {
-            $cId = in_array($b[0], [59, 60, 61, 62, 63, 64, 65, 94, 95]) ? 4 : (in_array($b[0], [70, 71, 72, 73, 74, 75]) ? 6 : (in_array($b[0], [76, 77]) ? 7 : (in_array($b[0], [78, 79]) ? 2 : (in_array($b[0], [81, 91, 92, 93]) ? 8 : (in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null))))));
             $insert = $pdo->prepare("INSERT INTO building (id, name, address, comments, complex_id) VALUES (?, ?, ?, ?, ?)");
             $insert->execute([$b[0], $b[1], $b[2], $b[3], $cId]);
         }
         if ($b[0] === 76) {
             try {
-                $pdo->prepare("UPDATE building SET aliases = ? WHERE id = ?")->execute(['495 Frontenac Street, The Frontenac', 76]);
+                $pdo->prepare("UPDATE building SET aliases = ?, comments = ? WHERE id = ?")->execute([
+                    '495 Frontenac St, 495 Frontenac Street, 503 Frontenac St, 505 Frontenac St, 507 Frontenac St, 509 Frontenac St, The Frontenac',
+                    'Frontenac condos — single building; 495–509 are alias addresses. Mixed ownership: some units belong to other companies, not Patry/Kenlar. Yardi letter suffixes (B/C/D/P) are rooms/spaces inside the apartment, not units.',
+                    76
+                ]);
             } catch (\Throwable) {}
         }
         if ($b[0] === 64) {
@@ -199,6 +214,20 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         }
         $bldCount++;
     }
+
+    // Set roles and special flags
+    $pdo->exec("UPDATE building SET role = 'storage' WHERE id = 15");
+    $pdo->exec("UPDATE building SET role = 'storage' WHERE id = 58");
+    $pdo->exec("UPDATE building SET role = 'mechanical' WHERE id = 2");
+    $pdo->exec("UPDATE building SET role = 'storage' WHERE id = 75");
+    $pdo->exec("UPDATE building SET role = 'storage' WHERE id = 87");
+    $pdo->exec("UPDATE building SET role = 'storage' WHERE id = 82");
+    $pdo->exec("UPDATE building SET role = 'storage' WHERE id = 83");
+    $pdo->exec("UPDATE building SET role = 'storage' WHERE id = 97");
+    $pdo->exec("UPDATE building SET role = 'storage' WHERE id = 78");
+    $pdo->exec("UPDATE building SET role = 'storage' WHERE id = 12");
+    $pdo->exec("UPDATE building SET role = 'office' WHERE id = 89");
+    $pdo->exec("UPDATE building SET responsibility = 'external' WHERE id = 88");
 
     // Clean up old pattern units for Princess (59, 60, 61, 62, 64, 94, 95), Frontenac (76), Alfred buildings (70-75), and Le Santé (96)
     $pdo->exec("DELETE FROM unit WHERE building_id IN (59, 60, 61, 62, 64, 94, 95) AND provenance != 'verified — Yardi extract 2026-10-22'");
@@ -725,6 +754,40 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             $insert->execute([$a[0], $a[1], $a[2], $targetUnitId, $a[4], $a[5], $a[6], $a[7], $a[8], $a[9], $a[10], $a[11], $a[12], $a[13], $a[14], $a[15], $a[16], $a[17], $a[18]]);
         }
         $appCount++;
+    }
+
+    // Seed Storage Network Stockpiles
+    $stockpiles = [
+        [1, '511 Days Rd Storage', '511 Days Rd', 15, 'Central storage building and main distribution hub'],
+        [2, '107 Amherst Storage', '107 Amherst Dr', 58, 'Amherst cluster storage depot'],
+        [3, '539 Armstrong Stockpile', '539 Armstrong Rd', 87, 'Riverstone storage location'],
+        [4, '394 Alfred Storage', '394 Alfred St', 75, 'Alfred cluster storage building'],
+        [5, '810 Blackburn Mews Storage', '810 Blackburn Mews', 82, 'Stonecrest storage stockpile'],
+        [6, '85 Park St Storage', '85 Park St', 83, 'Park St storage location'],
+        [7, '181 Hillendale Ave Storage', '181 Hillendale Ave', 97, 'Hillendale storage depot'],
+        [8, '18 Elm St Storage', '18 Elm St', 78, 'Elm cluster storage stockpile'],
+        [9, '265 Ontario St Upstairs Storage', '265 Ontario St (Upstairs)', 12, '265 Ontario St upstairs storage room'],
+        [10, '265 Ontario St Basement Storage', '265 Ontario St (Basement)', 12, '265 Ontario St basement storage room'],
+        [11, '698 McKay St Warehouse', '698 McKay St', 89, '698 McKay St main warehouse storage'],
+        [12, '698 McKay Sea Containers', '698 McKay St (Yard)', 89, '698 McKay exterior sea container storage units'],
+    ];
+
+    foreach ($stockpiles as $sp) {
+        $spStmt = $pdo->prepare("SELECT id FROM stockpile WHERE id = ?");
+        $spStmt->execute([$sp[0]]);
+        if ($spStmt->fetch()) {
+            $pdo->prepare("UPDATE stockpile SET name = ?, location = ?, building_id = ?, notes = ? WHERE id = ?")->execute([$sp[1], $sp[2], $sp[3], $sp[4], $sp[0]]);
+        } else {
+            $pdo->prepare("INSERT INTO stockpile (id, name, location, building_id, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")->execute([$sp[0], $sp[1], $sp[2], $sp[3], $sp[4]]);
+        }
+    }
+
+    // Seed Supplier Home Depot
+    $hdStmt = $pdo->prepare("SELECT id FROM supplier WHERE name LIKE '%Home Depot%'");
+    $hdStmt->execute();
+    if (!$hdStmt->fetch()) {
+        $pdo->prepare("INSERT INTO supplier (name, contact_name, phone, email, address, hours, account_number, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")
+            ->execute(['Home Depot (Gardiners Rd, Kingston)', 'Pro Desk', '613-389-8800', '', '605 Gardiners Rd, Kingston, ON K7M 3Y4', 'Mon–Sat 6am–9pm, Sun 8am–7pm', '']);
     }
 
     return [

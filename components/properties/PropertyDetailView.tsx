@@ -99,9 +99,19 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
               )}
             </div>
             <p className="text-sm text-text-sub-light dark:text-text-sub-dark">{property.address}</p>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-600 text-[10px] font-bold uppercase">Residential</span>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 text-[10px] font-bold uppercase">Residential</span>
               <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 text-[10px] font-bold uppercase">{property.applianceCount} Units</span>
+              {property.role && property.role !== 'standard' && (
+                <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-[10px] font-bold uppercase">
+                  {property.role === 'storage' ? (property.id === 'prop-days-511' ? 'Storage Node (Central)' : 'Storage Node') : property.role === 'mechanical' ? 'Mechanical Hub' : property.role === 'office' ? 'Office' : property.role}
+                </span>
+              )}
+              {property.responsibility === 'external' && (
+                <span className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-[10px] font-bold uppercase">
+                  External Super (Not Jose)
+                </span>
+              )}
             </div>
           </div>
         </div>
