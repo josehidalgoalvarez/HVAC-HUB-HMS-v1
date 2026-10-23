@@ -53,7 +53,7 @@ export const COMPLEXES: Complex[] = [
         name: 'Princess',
         description: 'Princess Street multi-unit properties in Kingston, ON.',
         address: 'Princess St, Kingston, ON',
-        buildingCount: 7
+        buildingCount: 8
     },
     {
         id: 'victoria',
@@ -768,7 +768,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     }),
 
     // ----------------------------------------------------
-    // 3) PRINCESS — 7 Buildings
+    // 3) PRINCESS — 8 Buildings
     // ----------------------------------------------------
     {
         id: 'prop-princess-563',
@@ -812,7 +812,52 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         floors: ['First Floor'],
         provenance: 'verified' as const
     },
-    ...[630, 655, 800, 837].map(num => ({
+    {
+        id: 'prop-princess-630',
+        complexId: 'princess',
+        complexName: 'Princess',
+        code: '630 Princess St',
+        name: '630 Princess St',
+        address: '630 Princess St, Kingston, ON',
+        imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
+        applianceCount: 0,
+        comments: 'Under construction (Oct 2026); roster as listed in Yardi.',
+        definedRooms: [],
+        floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor'],
+        provenance: 'verified' as const
+    },
+    {
+        id: 'prop-princess-800',
+        complexId: 'princess',
+        complexName: 'Princess',
+        code: '800 Princess St',
+        name: '800 Princess St',
+        address: '800 Princess St, Kingston, ON',
+        aliases: ['The 800'],
+        imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
+        applianceCount: 0,
+        comments: 'Princess Street multi-unit property.',
+        definedRooms: [],
+        floors: ['Second Floor', 'Third Floor', 'Fourth Floor'],
+        provenance: 'verified' as const
+    },
+    {
+        id: 'prop-princess-800-annex',
+        complexId: 'princess',
+        complexName: 'Princess',
+        code: '800 Princess St — annex',
+        name: '800 Princess St — annex',
+        address: '800 Princess St, Kingston, ON',
+        imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
+        applianceCount: 0,
+        comments: 'TODO-verify: second Yardi record at 800 Princess; its 301/302 are distinct from the main building\'s 301/302 until verified.',
+        externalIds: ['800prin'],
+        yardiCodes: ['800prin'],
+        definedRooms: [],
+        floors: ['First Floor', 'Third Floor'],
+        provenance: 'verified' as const
+    },
+    ...[655, 837].map(num => ({
         id: `prop-princess-${num}`,
         complexId: 'princess',
         complexName: 'Princess',
@@ -1454,6 +1499,83 @@ export const PRINCESS_TRIO_YARDI_ROSTERS: Record<string, {
     }
 };
 
+export const PRINCESS_630_800_YARDI_ROSTERS: Record<string, {
+    name: string;
+    units: Array<{ unitNumber: string; floor: string; unitType?: 'house' | 'apartment'; comments?: string }>;
+}> = {
+    'prop-princess-630': {
+        name: '630 Princess St',
+        units: [
+            // Floor 1 (3 units: 102, 104, 106)
+            { unitNumber: '102', floor: 'First Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '104', floor: 'First Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '106', floor: 'First Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            // Floor 2 (6 units: 201, 203, 204, 205, 206, 207; no 202)
+            { unitNumber: '201', floor: 'Second Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '203', floor: 'Second Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '204', floor: 'Second Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '205', floor: 'Second Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '206', floor: 'Second Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '207', floor: 'Second Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            // Floor 3 (6 units: 301, 303, 304, 305, 306, 307; no 302)
+            { unitNumber: '301', floor: 'Third Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '303', floor: 'Third Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '304', floor: 'Third Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '305', floor: 'Third Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '306', floor: 'Third Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '307', floor: 'Third Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            // Floor 4 (6 units: 401, 402, 403, 404, 405, 407; no 406)
+            { unitNumber: '401', floor: 'Fourth Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '402', floor: 'Fourth Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '403', floor: 'Fourth Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '404', floor: 'Fourth Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '405', floor: 'Fourth Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '407', floor: 'Fourth Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            // Floor 5 (5 units: 501, 503, 504, 505, 507; no 502, 506)
+            { unitNumber: '501', floor: 'Fifth Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '503', floor: 'Fifth Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '504', floor: 'Fifth Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '505', floor: 'Fifth Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' },
+            { unitNumber: '507', floor: 'Fifth Floor', unitType: 'apartment', comments: '630 Princess St apartment (base unit, ignores Yardi letter room suffixes)' }
+        ]
+    },
+    'prop-princess-800': {
+        name: '800 Princess St',
+        units: [
+            // Floor 2 (17 units: 201–209, 211–218; no 210)
+            ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18].map(u => ({
+                unitNumber: `2${String(u).padStart(2, '0')}`,
+                floor: 'Second Floor',
+                unitType: 'apartment' as const,
+                comments: '800 Princess St apartment'
+            })),
+            // Floor 3 (17 units: 301–309, 311–318; no 310)
+            ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18].map(u => ({
+                unitNumber: `3${String(u).padStart(2, '0')}`,
+                floor: 'Third Floor',
+                unitType: 'apartment' as const,
+                comments: '800 Princess St apartment'
+            })),
+            // Floor 4 (17 units: 401–409, 411–418; no 410)
+            ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18].map(u => ({
+                unitNumber: `4${String(u).padStart(2, '0')}`,
+                floor: 'Fourth Floor',
+                unitType: 'apartment' as const,
+                comments: '800 Princess St apartment'
+            }))
+        ]
+    },
+    'prop-princess-800-annex': {
+        name: '800 Princess St — annex',
+        units: [
+            { unitNumber: '100', floor: 'First Floor', unitType: 'apartment', comments: '800 Princess annex unit (Yardi property 800prin)' },
+            { unitNumber: '101A', floor: 'First Floor', unitType: 'apartment', comments: '800 Princess annex unit (Yardi property 800prin)' },
+            { unitNumber: '301', floor: 'Third Floor', unitType: 'apartment', comments: '800 Princess annex unit (Yardi property 800prin, distinct from main 301)' },
+            { unitNumber: '302', floor: 'Third Floor', unitType: 'apartment', comments: '800 Princess annex unit (Yardi property 800prin, distinct from main 302)' }
+        ]
+    }
+};
+
 export function generateUnitRoster(building: Building): Unit[] {
     const units: Unit[] = [];
     const bId = building.id;
@@ -1601,6 +1723,26 @@ export function generateUnitRoster(building: Building): Unit[] {
                 moveInDate: null,
                 tenancyDate: null,
                 comments: u.comments || 'Part of 563/565/567 Princess site (base unit, ignores Yardi letter room suffixes)',
+                provenance: 'verified — Yardi extract 2026-10-22'
+            });
+        }
+    } else if (bId in PRINCESS_630_800_YARDI_ROSTERS) {
+        const spec = PRINCESS_630_800_YARDI_ROSTERS[bId as keyof typeof PRINCESS_630_800_YARDI_ROSTERS];
+        for (const u of spec.units) {
+            units.push({
+                id: `unit-${bId}-${u.unitNumber}`,
+                buildingId: bId,
+                unitNumber: u.unitNumber,
+                floor: u.floor,
+                unitType: u.unitType || 'apartment',
+                defaultSetId: 'set-princess-apt',
+                bedrooms: 2,
+                bathrooms: 1,
+                stories: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: u.comments || 'Princess apartment (verified base number)',
                 provenance: 'verified — Yardi extract 2026-10-22'
             });
         }

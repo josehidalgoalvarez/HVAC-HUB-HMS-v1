@@ -70,7 +70,7 @@ interface ActionContextType {
 
 export const ActionContext = createContext<ActionContextType | undefined>(undefined);
 
-const PORTFOLIO_VERSION = '2.10.0';
+const PORTFOLIO_VERSION = '2.11.0';
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Feature flag: default to false (localStorage). When true, reads through API client.
