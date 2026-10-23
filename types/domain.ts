@@ -72,6 +72,8 @@ export interface Building {
   name: string;
   address: string;
   code?: string;
+  externalIds?: string[];
+  yardiCodes?: string[];
   imageUrl?: string;
   comments?: string;
   status?: 'active' | 'inactive' | 'permanently_out_of_order';

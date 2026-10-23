@@ -88,12 +88,13 @@ try {
                     if (empty($stmt)) continue;
                     try {
                         // If SQLite statement contains multiple ADD clauses, split them
-                        if (preg_match('/^ALTER\s+TABLE\s+[`"]?(\w+)[`"]?\s+ADD\s+(.+)$/is', $stmt, $m)) {
+                        if (preg_match('/^ALTER\s+TABLE\s+[`"]?(\w+)[`"]?\s+ADD(?:\s+COLUMN)?\s+(.+)$/is', $stmt, $m)) {
                             $table = $m[1];
-                            $adds = preg_split('/,\s*ADD\s+/i', $m[2]);
+                            $adds = preg_split('/,\s*ADD(?:\s+COLUMN)?\s+/i', $m[2]);
                             foreach ($adds as $add) {
                                 try {
-                                    $pdo->exec("ALTER TABLE `{$table}` ADD COLUMN " . trim($add));
+                                    $colDef = preg_replace('/^COLUMN\s+/i', '', trim($add));
+                                    $pdo->exec("ALTER TABLE `{$table}` ADD COLUMN " . $colDef);
                                 } catch (Throwable) {
                                     // Ignore if column already exists
                                 }

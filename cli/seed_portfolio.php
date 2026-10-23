@@ -121,6 +121,12 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         [93, '77C Manitou Crescent', '77C Manitou Crescent, Kingston, ON', 'Apartment building, 9 units. Shares numbering pool with 77A and 77B (floor 1: 101–110, floor 2: 201–210, floor 3: 301–310, sliced A/B/C).'],
         [78, '18 Elm Street', '18 Elm St, Kingston, ON', 'Sits right behind 203 Colborne St. Small-storage role (water heaters).'],
         [79, '24 Elm Street', '24 Elm St, Kingston, ON', 'Sits right behind 203 Colborne St. TODO-verify: 304/404 absent in Yardi; 303D/403D may be the physical 4th units on floors 3–4.'],
+        [70, '353 Alfred Street', '353 Alfred St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units.'],
+        [71, '359 Alfred Street', '359 Alfred St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units. Single-unit house (Yardi base entry is address itself).'],
+        [72, '361 Alfred Street', '361 Alfred St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units.'],
+        [73, '376 Alfred Street', '376 Alfred St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units.'],
+        [74, '378 Alfred Street', '378 Alfred St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units. Duplicate records in Yardi, one building. Yardi codes: 378alfr, alfr378.'],
+        [75, '394 Alfred Street', '394 Alfred St, Kingston, ON', 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units. Quadrant main storage node. Yardi codes: 394alfr, alfr394.'],
         [11, '415 Albert Street', '415 Albert St, Kingston, ON', 'Multi-unit residential property.'],
         [12, '265 Ontario Street', '265 Ontario St, Kingston, ON', 'Residential property.']
     ];
@@ -133,12 +139,21 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             $update = $pdo->prepare("UPDATE building SET name = ?, address = ?, comments = ? WHERE id = ?");
             $update->execute([$b[1], $b[2], $b[3], $b[0]]);
         } else {
-            $cId = in_array($b[0], [78, 79]) ? 2 : (in_array($b[0], [81, 91, 92, 93]) ? 8 : (in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null)));
+            $cId = in_array($b[0], [70, 71, 72, 73, 74, 75]) ? 6 : (in_array($b[0], [78, 79]) ? 2 : (in_array($b[0], [81, 91, 92, 93]) ? 8 : (in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null))));
             $insert = $pdo->prepare("INSERT INTO building (id, name, address, comments, complex_id) VALUES (?, ?, ?, ?, ?)");
             $insert->execute([$b[0], $b[1], $b[2], $b[3], $cId]);
         }
+        if (in_array($b[0], [74, 75])) {
+            $codes = $b[0] === 74 ? '378alfr,alfr378' : '394alfr,alfr394';
+            try {
+                $pdo->prepare("UPDATE building SET external_ids = ?, yardi_codes = ? WHERE id = ?")->execute([$codes, $codes, $b[0]]);
+            } catch (\Throwable) {}
+        }
         $bldCount++;
     }
+
+    // Clean up old pattern units for Alfred buildings (70-75)
+    $pdo->exec("DELETE FROM unit WHERE building_id IN (70, 71, 72, 73, 74, 75) AND provenance != 'verified — Yardi extract 2026-10-22'");
 
     // Seed Verified Units (130 BD units from Yardi extract 2026-10-22 + external verified units)
     $bdUnitsSpec = [
@@ -344,6 +359,26 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     foreach ($elm24Units as $uNum) {
         $fl = str_starts_with($uNum, '1') ? 'First Floor' : (str_starts_with($uNum, '2') ? 'Second Floor' : (str_starts_with($uNum, '3') ? 'Third Floor' : 'Fourth Floor'));
         $units[] = [79, $uNum, $fl, '24 Elm St residential unit (verified base number, no 24- prefix)', $elmProv];
+    }
+
+    // Add Alfred verified units (14 units across 6 buildings from Yardi extract 2026-10-22)
+    $alfredProv = 'verified — Yardi extract 2026-10-22';
+    // 353 Alfred St (3 units)
+    $units[] = [70, '1', 'First Floor', 'Converted house apartment (base unit, ignores Yardi letter room suffixes)', $alfredProv];
+    $units[] = [70, '2', 'Second Floor', 'Converted house apartment (base unit, ignores Yardi letter room suffixes)', $alfredProv];
+    $units[] = [70, '3', 'Third Floor', 'Converted house apartment (base unit, ignores Yardi letter room suffixes)', $alfredProv];
+    // 359 Alfred St (1 unit)
+    $units[] = [71, '359', 'Main Floor', 'Converted house apartment (base unit, ignores Yardi letter room suffixes)', $alfredProv];
+    // 361 Alfred St (1 unit)
+    $units[] = [72, '1', 'Main Floor', 'Converted house apartment (base unit, ignores Yardi letter room suffixes)', $alfredProv];
+    // 376 Alfred St (1 unit)
+    $units[] = [73, '376', 'Main Floor', 'Converted house apartment (base unit, ignores Yardi letter room suffixes)', $alfredProv];
+    // 378 Alfred St (1 unit)
+    $units[] = [74, '378', 'Main Floor', 'Converted house apartment (base unit, ignores Yardi letter room suffixes)', $alfredProv];
+    // 394 Alfred St (7 units)
+    for ($u = 1; $u <= 7; $u++) {
+        $fl = $u <= 3 ? 'First Floor' : ($u <= 5 ? 'Second Floor' : 'Third Floor');
+        $units[] = [75, (string)$u, $fl, 'Converted house apartment (base unit, ignores Yardi letter room suffixes)', $alfredProv];
     }
 
     // Other non-BD verified units

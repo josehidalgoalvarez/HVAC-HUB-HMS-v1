@@ -252,6 +252,25 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: 'Manitou apartment default specification (77A, 77B, 77C).'
+    },
+    {
+        id: 'set-quadrant-apt',
+        complexSlug: 'alfred',
+        complexId: 'alfred',
+        name: 'Quadrant / Apartment (default)',
+        unitType: 'apartment',
+        isDefault: true,
+        bedrooms: 2,
+        bathrooms: 1,
+        stories: 1,
+        hasUnitWaterHeater: false,
+        appliances: [
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
+        ],
+        notes: 'Quadrant converted house apartment default specification (Princess, Victoria, Alfred, Frontenac).'
     }
 ];
 
@@ -414,6 +433,17 @@ export const STORAGE_18_ELM: StorageItem[] = [
         category: 'appliances',
         quantity: 2,
         notes: 'Small storage stockpile for water heaters',
+        provenance: 'verified'
+    }
+];
+
+export const STORAGE_394_ALFRED: StorageItem[] = [
+    {
+        id: 'st-394-main',
+        name: 'Quadrant Main Storage Stockpile',
+        category: 'supplies',
+        quantity: 1,
+        notes: 'Main storage supplies, tools, and spare components for the student quadrant',
         provenance: 'verified'
     }
 ];
@@ -738,20 +768,96 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     // ----------------------------------------------------
     // 5) ALFRED — 6 Buildings
     // ----------------------------------------------------
-    ...[353, 359, 361, 376, 378, 394].map(num => ({
-        id: `prop-alfred-${num}`,
+    {
+        id: 'prop-alfred-353',
         complexId: 'alfred',
         complexName: 'Alfred',
-        code: `${num} Alfred St`,
-        name: `${num} Alfred Street`,
-        address: `${num} Alfred St, Kingston, ON`, // TODO-verify postal code (UNKNOWN)
+        code: '353 Alfred St',
+        name: '353 Alfred Street',
+        address: '353 Alfred St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
         applianceCount: 0,
-        comments: 'Alfred Street residential multi-unit cluster.',
+        comments: 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units.',
         definedRooms: [],
-        floors: ['Main Floor', 'Second Floor'],
+        floors: ['First Floor', 'Second Floor', 'Third Floor'],
         provenance: 'verified' as const
-    })),
+    },
+    {
+        id: 'prop-alfred-359',
+        complexId: 'alfred',
+        complexName: 'Alfred',
+        code: '359 Alfred St',
+        name: '359 Alfred Street',
+        address: '359 Alfred St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
+        applianceCount: 0,
+        comments: 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units. Single-unit house (Yardi base entry is address itself).',
+        definedRooms: [],
+        floors: ['Main Floor'],
+        provenance: 'verified' as const
+    },
+    {
+        id: 'prop-alfred-361',
+        complexId: 'alfred',
+        complexName: 'Alfred',
+        code: '361 Alfred St',
+        name: '361 Alfred Street',
+        address: '361 Alfred St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
+        applianceCount: 0,
+        comments: 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units.',
+        definedRooms: [],
+        floors: ['Main Floor'],
+        provenance: 'verified' as const
+    },
+    {
+        id: 'prop-alfred-376',
+        complexId: 'alfred',
+        complexName: 'Alfred',
+        code: '376 Alfred St',
+        name: '376 Alfred Street',
+        address: '376 Alfred St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
+        applianceCount: 0,
+        comments: 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units.',
+        definedRooms: [],
+        floors: ['Main Floor'],
+        provenance: 'verified' as const
+    },
+    {
+        id: 'prop-alfred-378',
+        complexId: 'alfred',
+        complexName: 'Alfred',
+        code: '378 Alfred St',
+        name: '378 Alfred Street',
+        address: '378 Alfred St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        externalIds: ['378alfr', 'alfr378'],
+        yardiCodes: ['378alfr', 'alfr378'],
+        imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
+        applianceCount: 0,
+        comments: 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units. Duplicate records in Yardi, one building. Yardi codes: 378alfr, alfr378.',
+        definedRooms: [],
+        floors: ['Main Floor'],
+        provenance: 'verified' as const
+    },
+    {
+        id: 'prop-alfred-394',
+        complexId: 'alfred',
+        complexName: 'Alfred',
+        code: '394 Alfred St',
+        name: '394 Alfred Street',
+        address: '394 Alfred St, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        externalIds: ['394alfr', 'alfr394'],
+        yardiCodes: ['394alfr', 'alfr394'],
+        imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
+        applianceCount: 0,
+        isStorageNode: true,
+        storageInventory: STORAGE_394_ALFRED,
+        comments: 'Converted house. Yardi letter suffixes are rooms inside the apartment, not units. Quadrant main storage node. Yardi codes: 394alfr, alfr394.',
+        definedRooms: ['Quadrant Main Storage'],
+        floors: ['First Floor', 'Second Floor', 'Third Floor'],
+        provenance: 'verified' as const
+    },
 
     // ----------------------------------------------------
     // 6) FRONTENAC — 2 Buildings
@@ -1124,6 +1230,56 @@ export const ELM_YARDI_ROSTERS: Record<string, {
     }
 };
 
+export const ALFRED_YARDI_ROSTERS: Record<string, {
+    name: string;
+    units: Array<{ unitNumber: string; floor: string }>;
+}> = {
+    'prop-alfred-353': {
+        name: '353 Alfred Street',
+        units: [
+            { unitNumber: '1', floor: 'First Floor' },
+            { unitNumber: '2', floor: 'Second Floor' },
+            { unitNumber: '3', floor: 'Third Floor' }
+        ]
+    },
+    'prop-alfred-359': {
+        name: '359 Alfred Street',
+        units: [
+            { unitNumber: '359', floor: 'Main Floor' }
+        ]
+    },
+    'prop-alfred-361': {
+        name: '361 Alfred Street',
+        units: [
+            { unitNumber: '1', floor: 'Main Floor' }
+        ]
+    },
+    'prop-alfred-376': {
+        name: '376 Alfred Street',
+        units: [
+            { unitNumber: '376', floor: 'Main Floor' }
+        ]
+    },
+    'prop-alfred-378': {
+        name: '378 Alfred Street',
+        units: [
+            { unitNumber: '378', floor: 'Main Floor' }
+        ]
+    },
+    'prop-alfred-394': {
+        name: '394 Alfred Street',
+        units: [
+            { unitNumber: '1', floor: 'First Floor' },
+            { unitNumber: '2', floor: 'First Floor' },
+            { unitNumber: '3', floor: 'First Floor' },
+            { unitNumber: '4', floor: 'Second Floor' },
+            { unitNumber: '5', floor: 'Second Floor' },
+            { unitNumber: '6', floor: 'Third Floor' },
+            { unitNumber: '7', floor: 'Third Floor' }
+        ]
+    }
+};
+
 export function generateUnitRoster(building: Building): Unit[] {
     const units: Unit[] = [];
     const bId = building.id;
@@ -1199,6 +1355,26 @@ export function generateUnitRoster(building: Building): Unit[] {
                 comments: bId === 'prop-elm-18'
                     ? (uNum === '101P' ? '18 Elm St unit 101P (verified base exception, no plain 101)' : '18 Elm St residential unit (verified base number)')
                     : '24 Elm St residential unit (verified base number, no 24- prefix)',
+                provenance: 'verified — Yardi extract 2026-10-22'
+            });
+        }
+    } else if (bId in ALFRED_YARDI_ROSTERS) {
+        const spec = ALFRED_YARDI_ROSTERS[bId as keyof typeof ALFRED_YARDI_ROSTERS];
+        for (const u of spec.units) {
+            units.push({
+                id: `unit-${bId}-${u.unitNumber}`,
+                buildingId: bId,
+                unitNumber: u.unitNumber,
+                floor: u.floor,
+                unitType: 'apartment',
+                defaultSetId: 'set-quadrant-apt',
+                bedrooms: 2,
+                bathrooms: 1,
+                stories: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: 'Converted house apartment (base unit, ignores Yardi letter room suffixes)',
                 provenance: 'verified — Yardi extract 2026-10-22'
             });
         }
