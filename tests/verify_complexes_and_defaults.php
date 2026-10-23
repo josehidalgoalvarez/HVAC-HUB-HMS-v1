@@ -53,10 +53,10 @@ foreach ($expectedComplexes as $slug => $info) {
 
 // Check ungrouped count
 $ungroupedCount = (int)$db->query("SELECT COUNT(*) FROM building WHERE complex_id IS NULL")->fetchColumn();
-assertTest($ungroupedCount === 10, "1.4 Exactly 10 buildings remain ungrouped (singles + McKay office) (got {$ungroupedCount})", $passes, $failures);
+assertTest($ungroupedCount === 11, "1.4 Exactly 11 buildings remain ungrouped (singles, Le Santé + McKay office) (got {$ungroupedCount})", $passes, $failures);
 
 $totalBldgCount = (int)$db->query("SELECT COUNT(*) FROM building")->fetchColumn();
-assertTest($totalBldgCount === 94, "1.5 Total building count is 94 (84 in complexes + 10 Ungrouped) (got {$totalBldgCount})", $passes, $failures);
+assertTest($totalBldgCount === 95, "1.5 Total building count is 95 (84 in complexes + 11 Ungrouped) (got {$totalBldgCount})", $passes, $failures);
 
 // Verify Ungrouped names
 $ungroupedNames = $db->query("SELECT name FROM building WHERE complex_id IS NULL ORDER BY name")->fetchAll(\PDO::FETCH_COLUMN);
@@ -70,9 +70,10 @@ $expectedSingles = [
     '698 McKay Street (Office)',
     '810 Blackburn Mews',
     '847 Development',
-    '85 Park Street'
+    '85 Park Street',
+    'Le Santé'
 ];
-assertTest($ungroupedNames === $expectedSingles, "1.6 Ungrouped list matches exactly the 9 singles and McKay office", $passes, $failures);
+assertTest($ungroupedNames === $expectedSingles, "1.6 Ungrouped list matches exactly the singles, Le Santé and McKay office", $passes, $failures);
 
 // -------------------------------------------------------------
 // 2. 505 Days Pool Removal & Safety Check

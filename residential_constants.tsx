@@ -1268,6 +1268,21 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         definedRooms: [],
         provenance: 'verified'
     },
+    {
+        id: 'prop-skyfall-300',
+        code: '300 Skyfall Lane',
+        name: 'Le Santé',
+        address: '300 Skyfall Lane, Kingston, ON',
+        imageUrl: '/uploads/photo_8db7e895c76fcfce8de5.jpg',
+        applianceCount: 0,
+        aliases: ['300 Skyfall Lane', '300 Skyfal Lane', 'Sante', 'Le Sante'],
+        yardiCodes: ['300skyf', 'sante'],
+        externalIds: ['300skyf', 'sante'],
+        comments: 'Le Santé — 300 Skyfall Lane (Yardi spells it "300 Skyfal Lane"). Phased build-out: ~334 units planned; roster grows as phases release — re-extract periodically. Yardi labels 19 units "Sante" instead of the address (126, 133, 134, 235, 255, 416, 418, 421, 424, 426, 456, 516, 518, 521, 523, 524, 526, 621, 656) — TODO-verify whether that is a separate phase.',
+        definedRooms: [],
+        floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor', 'Sixth Floor'],
+        provenance: 'verified' as const
+    },
 
     // ----------------------------------------------------
     // 10) OPERATIONS & OFFICE — 1 Entry [Ungrouped]
@@ -1655,6 +1670,94 @@ export const PRINCESS_2274_YARDI_ROSTER: {
     ]
 };
 
+export const LE_SANTE_YARDI_ROSTER: {
+    name: string;
+    units: Array<{ unitNumber: string; floor: string; unitType: 'apartment'; comments?: string }>;
+} = {
+    name: 'Le Santé',
+    units: [
+        // Floor 1 (28): 101–125, 126, 133, 134
+        ...Array.from({ length: 26 }, (_, i) => ({
+            unitNumber: String(101 + i),
+            floor: 'First Floor',
+            unitType: 'apartment' as const,
+            comments: 'Le Santé apartment (verified base number, uniform appliance set)'
+        })),
+        { unitNumber: '133', floor: 'First Floor', unitType: 'apartment', comments: 'Le Santé apartment (verified base number, uniform appliance set)' },
+        { unitNumber: '134', floor: 'First Floor', unitType: 'apartment', comments: 'Le Santé apartment (verified base number, uniform appliance set)' },
+
+        // Floor 2 (32): 201–227, 235, 255, 256, 257, 258
+        ...Array.from({ length: 27 }, (_, i) => ({
+            unitNumber: String(201 + i),
+            floor: 'Second Floor',
+            unitType: 'apartment' as const,
+            comments: 'Le Santé apartment (verified base number, uniform appliance set)'
+        })),
+        ...['235', '255', '256', '257', '258'].map(num => ({
+            unitNumber: num,
+            floor: 'Second Floor',
+            unitType: 'apartment' as const,
+            comments: 'Le Santé apartment (verified base number, uniform appliance set)'
+        })),
+
+        // Floor 3 (30): 301–327, 356, 357, 358
+        ...Array.from({ length: 27 }, (_, i) => ({
+            unitNumber: String(301 + i),
+            floor: 'Third Floor',
+            unitType: 'apartment' as const,
+            comments: 'Le Santé apartment (verified base number, uniform appliance set)'
+        })),
+        ...['356', '357', '358'].map(num => ({
+            unitNumber: num,
+            floor: 'Third Floor',
+            unitType: 'apartment' as const,
+            comments: 'Le Santé apartment (verified base number, uniform appliance set)'
+        })),
+
+        // Floor 4 (25): 401–419, 421, 424, 426, 439, 441, 456
+        ...Array.from({ length: 19 }, (_, i) => ({
+            unitNumber: String(401 + i),
+            floor: 'Fourth Floor',
+            unitType: 'apartment' as const,
+            comments: 'Le Santé apartment (verified base number, uniform appliance set)'
+        })),
+        ...['421', '424', '426', '439', '441', '456'].map(num => ({
+            unitNumber: num,
+            floor: 'Fourth Floor',
+            unitType: 'apartment' as const,
+            comments: 'Le Santé apartment (verified base number, uniform appliance set)'
+        })),
+
+        // Floor 5 (25): 501–519, 521, 523, 524, 526, 539, 541
+        ...Array.from({ length: 19 }, (_, i) => ({
+            unitNumber: String(501 + i),
+            floor: 'Fifth Floor',
+            unitType: 'apartment' as const,
+            comments: 'Le Santé apartment (verified base number, uniform appliance set)'
+        })),
+        ...['521', '523', '524', '526', '539', '541'].map(num => ({
+            unitNumber: num,
+            floor: 'Fifth Floor',
+            unitType: 'apartment' as const,
+            comments: 'Le Santé apartment (verified base number, uniform appliance set)'
+        })),
+
+        // Floor 6 (21): 601–615, 617, 619, 621, 639, 641, 656
+        ...Array.from({ length: 15 }, (_, i) => ({
+            unitNumber: String(601 + i),
+            floor: 'Sixth Floor',
+            unitType: 'apartment' as const,
+            comments: 'Le Santé apartment (verified base number, uniform appliance set)'
+        })),
+        ...['617', '619', '621', '639', '641', '656'].map(num => ({
+            unitNumber: num,
+            floor: 'Sixth Floor',
+            unitType: 'apartment' as const,
+            comments: 'Le Santé apartment (verified base number, uniform appliance set)'
+        }))
+    ]
+};
+
 export function generateUnitRoster(building: Building): Unit[] {
     const units: Unit[] = [];
     const bId = building.id;
@@ -1842,6 +1945,26 @@ export function generateUnitRoster(building: Building): Unit[] {
                 moveInDate: null,
                 tenancyDate: null,
                 comments: u.comments || 'Princess apartment (verified base number, uniform appliance set)',
+                provenance: 'verified — Yardi extract 2026-10-22'
+            });
+        }
+    } else if (bId === 'prop-skyfall-300') {
+        for (const u of LE_SANTE_YARDI_ROSTER.units) {
+            units.push({
+                id: `unit-${bId}-${u.unitNumber}`,
+                buildingId: bId,
+                unitNumber: u.unitNumber,
+                floor: u.floor,
+                unitType: u.unitType || 'apartment',
+                defaultSetId: 'set-skyfall-sante-uniform',
+                washerDryerState: 'none',
+                bedrooms: 2,
+                bathrooms: 1,
+                stories: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: u.comments || 'Le Santé apartment (verified base number, uniform appliance set)',
                 provenance: 'verified — Yardi extract 2026-10-22'
             });
         }

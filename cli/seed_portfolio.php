@@ -135,6 +135,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         [64, '800 Princess St', '800 Princess St, Kingston, ON', 'Princess Street multi-unit property.'],
         [94, '800 Princess St — annex', '800 Princess St, Kingston, ON', 'TODO-verify: second Yardi record at 800 Princess; its 301/302 are distinct from the main building\'s 301/302 until verified.'],
         [95, '2274 Princess St', '2274 Princess St, Kingston, ON', 'Princess Street multi-unit property (verified Yardi roster, 236 units).'],
+        [96, 'Le Santé', '300 Skyfall Lane, Kingston, ON', 'Le Santé — 300 Skyfall Lane (Yardi spells it "300 Skyfal Lane"). Phased build-out: ~334 units planned; roster grows as phases release — re-extract periodically. Yardi labels 19 units "Sante" instead of the address (126, 133, 134, 235, 255, 416, 418, 421, 424, 426, 456, 516, 518, 521, 523, 524, 526, 621, 656) — TODO-verify whether that is a separate phase.'],
         [11, '415 Albert Street', '415 Albert St, Kingston, ON', 'Multi-unit residential property.'],
         [12, '265 Ontario Street', '265 Ontario St, Kingston, ON', 'Residential property.']
     ];
@@ -172,13 +173,24 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
                 $pdo->prepare("UPDATE building SET external_ids = ?, yardi_codes = ? WHERE id = ?")->execute([$codes, $codes, $b[0]]);
             } catch (\Throwable) {}
         }
+        if ($b[0] === 96) {
+            try {
+                $pdo->prepare("UPDATE building SET aliases = ?, external_ids = ?, yardi_codes = ? WHERE id = ?")->execute([
+                    '300 Skyfall Lane, 300 Skyfal Lane, Sante, Le Sante',
+                    '300skyf,sante',
+                    '300skyf,sante',
+                    96
+                ]);
+            } catch (\Throwable) {}
+        }
         $bldCount++;
     }
 
-    // Clean up old pattern units for Princess (59, 60, 61, 62, 64, 94, 95), Frontenac (76) and Alfred buildings (70-75)
+    // Clean up old pattern units for Princess (59, 60, 61, 62, 64, 94, 95), Frontenac (76), Alfred buildings (70-75), and Le Santé (96)
     $pdo->exec("DELETE FROM unit WHERE building_id IN (59, 60, 61, 62, 64, 94, 95) AND provenance != 'verified — Yardi extract 2026-10-22'");
     $pdo->exec("DELETE FROM unit WHERE building_id = 76 AND provenance != 'verified — Yardi extract 2026-10-22'");
     $pdo->exec("DELETE FROM unit WHERE building_id IN (70, 71, 72, 73, 74, 75) AND provenance != 'verified — Yardi extract 2026-10-22'");
+    $pdo->exec("DELETE FROM unit WHERE building_id = 96 AND provenance != 'verified — Yardi extract 2026-10-22'");
     $pdo->exec("UPDATE complex SET building_count = 9 WHERE id = 'complex-princess'");
 
     // Ensure Uniform Appliance Default Set exists
@@ -517,6 +529,22 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     foreach ($p2274Ranges as [$flLabel, $start, $end]) {
         for ($u = $start; $u <= $end; $u++) {
             $units[] = [95, (string)$u, $flLabel, '2274 Princess St apartment (verified base number, uniform appliance set)', $princessProv, 'patry', 'set-skyfall-sante-uniform', 'none'];
+        }
+    }
+
+    // Le Santé / 300 Skyfall Lane (161 units across 6 floors)
+    $santeProv = 'verified — Yardi extract 2026-10-22';
+    $santeFloors = [
+        ['First Floor', array_merge(range(101, 126), [133, 134])],
+        ['Second Floor', array_merge(range(201, 227), [235, 255, 256, 257, 258])],
+        ['Third Floor', array_merge(range(301, 327), [356, 357, 358])],
+        ['Fourth Floor', [401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 421, 424, 426, 439, 441, 456]],
+        ['Fifth Floor', [501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519, 521, 523, 524, 526, 539, 541]],
+        ['Sixth Floor', [601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 617, 619, 621, 639, 641, 656]],
+    ];
+    foreach ($santeFloors as [$flLabel, $uList]) {
+        foreach ($uList as $uNum) {
+            $units[] = [96, (string)$uNum, $flLabel, 'Le Santé apartment (verified base number, uniform appliance set)', $santeProv, 'patry', 'set-skyfall-sante-uniform', 'none'];
         }
     }
 
