@@ -94,6 +94,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     try {
         $pdo->exec("DELETE FROM building WHERE name IN ('1735 Bath Road', '505 Days Pool')");
         $pdo->exec("DELETE FROM appliance WHERE model_number IN ('RU199iN', '59TP6B080V1716', '24ACC636A003', 'LGB-8', 'FWA-110', 'PTC153G35AXXX')");
+        $pdo->exec("DELETE FROM unit WHERE building_id IN (81, 91, 92, 93) AND provenance != 'verified — Yardi extract 2026-10-22'");
     } catch (\Throwable) {}
 
     // Seed Verified Buildings (15 properties: 12 BD + Amherst 137, Albert 415, Ontario 265)
@@ -113,6 +114,10 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         [10, '137 Amherst Drive', '137 Amherst Dr, Kingston, ON', 'Residential townhouse building. Verified unit 137 (range, water heater).'],
         [58, '107 Amherst Drive', '107 Amherst Dr, Amherstview, ON', 'Floor 1 skips 105 (utility/laundry space). Storage node for Amherst complex (supplies, tools, 2 white coil stoves).'],
         [90, '103 Amherst Drive', '103 Amherst Dr, Amherstview, ON', 'Floor 1 skips 105 (utility/laundry space). Twin building of 107 Amherst. Non-residential space: UTILITY.'],
+        [81, '77 Manitou Crescent', '77 Manitou Crescent, Kingston, ON', '58 townhouses, units labeled 1–58 continuous. Unit type townhouse.'],
+        [91, '77A Manitou Crescent', '77A Manitou Crescent, Kingston, ON', 'Apartment building, 10 units. Shares numbering pool with 77B and 77C (floor 1: 101–110, floor 2: 201–210, floor 3: 301–310, sliced A/B/C).'],
+        [92, '77B Manitou Crescent', '77B Manitou Crescent, Kingston, ON', 'Apartment building, 11 units. Shares numbering pool with 77A and 77C (floor 1: 101–110, floor 2: 201–210, floor 3: 301–310, sliced A/B/C).'],
+        [93, '77C Manitou Crescent', '77C Manitou Crescent, Kingston, ON', 'Apartment building, 9 units. Shares numbering pool with 77A and 77B (floor 1: 101–110, floor 2: 201–210, floor 3: 301–310, sliced A/B/C).'],
         [11, '415 Albert Street', '415 Albert St, Kingston, ON', 'Multi-unit residential property.'],
         [12, '265 Ontario Street', '265 Ontario St, Kingston, ON', 'Residential property.']
     ];
@@ -125,7 +130,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             $update = $pdo->prepare("UPDATE building SET name = ?, address = ?, comments = ? WHERE id = ?");
             $update->execute([$b[1], $b[2], $b[3], $b[0]]);
         } else {
-            $cId = in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null);
+            $cId = in_array($b[0], [81, 91, 92, 93]) ? 8 : (in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null));
             $insert = $pdo->prepare("INSERT INTO building (id, name, address, comments, complex_id) VALUES (?, ?, ?, ?, ?)");
             $insert->execute([$b[0], $b[1], $b[2], $b[3], $cId]);
         }
@@ -286,6 +291,40 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             $comment = 'Amherst Townhouse verified unit';
         }
         $units[] = [$bId, (string)$st, 'Multi-Floor Townhouse', $comment, $amherstProv];
+    }
+
+    // Add Manitou verified units (88 units across 4 buildings from Yardi extract 2026-10-22)
+    $manitouProv = 'verified — Yardi extract 2026-10-22';
+    // 77 Manitou Cres (58 townhouses: 1–58)
+    for ($u = 1; $u <= 58; $u++) {
+        $units[] = [81, (string)$u, 'Multi-Floor Townhouse', $manitouProv, $manitouProv];
+    }
+    // 77A Manitou Cres (10 units: 101–104, 201–203, 301–303)
+    $manitou77a = [
+        ['101', 'First Floor'], ['102', 'First Floor'], ['103', 'First Floor'], ['104', 'First Floor'],
+        ['201', 'Second Floor'], ['202', 'Second Floor'], ['203', 'Second Floor'],
+        ['301', 'Third Floor'], ['302', 'Third Floor'], ['303', 'Third Floor']
+    ];
+    foreach ($manitou77a as [$uNum, $fl]) {
+        $units[] = [91, $uNum, $fl, $manitouProv, $manitouProv];
+    }
+    // 77B Manitou Cres (11 units: 105–107, 204–207, 304–307)
+    $manitou77b = [
+        ['105', 'First Floor'], ['106', 'First Floor'], ['107', 'First Floor'],
+        ['204', 'Second Floor'], ['205', 'Second Floor'], ['206', 'Second Floor'], ['207', 'Second Floor'],
+        ['304', 'Third Floor'], ['305', 'Third Floor'], ['306', 'Third Floor'], ['307', 'Third Floor']
+    ];
+    foreach ($manitou77b as [$uNum, $fl]) {
+        $units[] = [92, $uNum, $fl, $manitouProv, $manitouProv];
+    }
+    // 77C Manitou Cres (9 units: 108–110, 208–210, 308–310)
+    $manitou77c = [
+        ['108', 'First Floor'], ['109', 'First Floor'], ['110', 'First Floor'],
+        ['208', 'Second Floor'], ['209', 'Second Floor'], ['210', 'Second Floor'],
+        ['308', 'Third Floor'], ['309', 'Third Floor'], ['310', 'Third Floor']
+    ];
+    foreach ($manitou77c as [$uNum, $fl]) {
+        $units[] = [93, $uNum, $fl, $manitouProv, $manitouProv];
     }
 
     // Other non-BD verified units

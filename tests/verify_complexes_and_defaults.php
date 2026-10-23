@@ -41,7 +41,7 @@ $expectedComplexes = [
     'victoria' => ['id' => 5, 'name' => 'Victoria', 'expected_buildings' => 4],
     'alfred' => ['id' => 6, 'name' => 'Alfred', 'expected_buildings' => 6],
     'frontenac' => ['id' => 7, 'name' => 'Frontenac', 'expected_buildings' => 2],
-    'manitou' => ['id' => 8, 'name' => 'Manitou', 'expected_buildings' => 1]
+    'manitou' => ['id' => 8, 'name' => 'Manitou', 'expected_buildings' => 4]
 ];
 
 foreach ($expectedComplexes as $slug => $info) {
@@ -56,7 +56,7 @@ $ungroupedCount = (int)$db->query("SELECT COUNT(*) FROM building WHERE complex_i
 assertTest($ungroupedCount === 10, "1.4 Exactly 10 buildings remain ungrouped (singles + McKay office) (got {$ungroupedCount})", $passes, $failures);
 
 $totalBldgCount = (int)$db->query("SELECT COUNT(*) FROM building")->fetchColumn();
-assertTest($totalBldgCount === 89, "1.5 Total building count is 89 (79 in complexes + 10 Ungrouped) (got {$totalBldgCount})", $passes, $failures);
+assertTest($totalBldgCount === 92, "1.5 Total building count is 92 (82 in complexes + 10 Ungrouped) (got {$totalBldgCount})", $passes, $failures);
 
 // Verify Ungrouped names
 $ungroupedNames = $db->query("SELECT name FROM building WHERE complex_id IS NULL ORDER BY name")->fetchAll(\PDO::FETCH_COLUMN);

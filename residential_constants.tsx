@@ -42,9 +42,9 @@ export const COMPLEXES: Complex[] = [
         slug: 'manitou',
         code: 'MANITOU',
         name: 'Manitou',
-        description: 'Manitou Crescent townhouse row (1–58 Manitou Cres, anchored by 77 Manitou Cres).',
+        description: 'Manitou Crescent complex (58 townhouses at 77 Manitou Cres + 30 apartments across 77A, 77B, 77C sharing one 3-floor numbering pool).',
         address: 'Manitou Cres, Kingston, ON',
-        buildingCount: 1
+        buildingCount: 4
     },
     {
         id: 'princess',
@@ -213,6 +213,45 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
             { category: 'Water Heating', label: 'Unit Water Heater (default)', name: 'Unit Water Heater (default)', type: 'Water Heater', isDefault: true, specs: { fuelType: 'Electric', btuInput: '4500W', capacity: '60 Gallons', volts: '240' } }
         ],
         notes: 'Amherst townhouse default specification (dedicated water heater).'
+    },
+    {
+        id: 'set-manitou-townhouse',
+        complexSlug: 'manitou',
+        complexId: 'manitou',
+        name: 'Manitou / Townhouse',
+        unitType: 'townhouse',
+        isDefault: true,
+        bedrooms: 3,
+        bathrooms: 2,
+        stories: 3,
+        hasUnitWaterHeater: true,
+        appliances: [
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } },
+            { category: 'Water Heating', label: 'Unit Water Heater (default)', name: 'Unit Water Heater (default)', type: 'Water Heater', isDefault: true, specs: { fuelType: 'Electric', btuInput: '4500W', capacity: '60 Gallons', volts: '240' } }
+        ],
+        notes: 'Manitou townhouse default specification (3 stories, 2 washrooms, dedicated water heater).'
+    },
+    {
+        id: 'set-manitou-apt',
+        complexSlug: 'manitou',
+        complexId: 'manitou',
+        name: 'Manitou / Apartment',
+        unitType: 'apartment',
+        isDefault: true,
+        bedrooms: 2,
+        bathrooms: 1,
+        stories: 1,
+        hasUnitWaterHeater: false,
+        appliances: [
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
+        ],
+        notes: 'Manitou apartment default specification (77A, 77B, 77C).'
     }
 ];
 
@@ -291,6 +330,21 @@ export const BUILDING_CLUSTERS: BuildingCluster[] = [
                 description: 'The Elm buildings sit directly behind 203 Colborne St.'
             }
         ]
+    },
+    {
+        id: 'cluster-manitou-77abc',
+        name: '77A–77C Manitou Crescent Apartments',
+        complexId: 'manitou',
+        buildingIds: ['prop-manitou-77a', 'prop-manitou-77b', 'prop-manitou-77c'],
+        sharedSystems: [
+            {
+                type: 'numbering_pool',
+                locationBuildingId: 'prop-manitou-77a',
+                locationName: '77A–77C Manitou Crescent',
+                description: 'Shared 3-floor numbering pool (floor 1: 101–110, floor 2: 201–210, floor 3: 301–310 sliced across 77A, 77B, 77C).'
+            }
+        ],
+        notes: 'Tri-building apartment cluster sharing a single 3-floor numbering pool.'
     }
 ];
 
@@ -756,20 +810,62 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
 
     // ----------------------------------------------------
-    // 8) MANITOU — Townhouses 1–58
+    // 8) MANITOU — 4 Buildings (58 Townhouses + 30 Apartments)
     // ----------------------------------------------------
     {
-        id: 'prop-manitou-cres',
+        id: 'prop-manitou-77',
         complexId: 'manitou',
         complexName: 'Manitou',
-        code: 'MANITOU',
-        name: 'Manitou Crescent Townhouses',
-        address: '1–58 Manitou Cres, Kingston, ON', // TODO-verify postal code (UNKNOWN)
+        code: '77 Manitou Cres',
+        name: '77 Manitou Crescent',
+        address: '77 Manitou Crescent, Kingston, ON',
         imageUrl: '/uploads/photo_5a0393354bd60e0ac63f.jpg',
         applianceCount: 0,
-        comments: 'Townhouses, 1-58 Manitou Cres (anchored by 77 Manitou Cres entry).',
+        comments: '58 townhouses, units labeled 1–58 continuous. Unit type townhouse.',
         definedRooms: [],
-        floors: ['Main Floor', 'Second Floor'],
+        floors: ['Multi-Floor Townhouse'],
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-manitou-77a',
+        complexId: 'manitou',
+        complexName: 'Manitou',
+        code: '77A Manitou Cres',
+        name: '77A Manitou Crescent',
+        address: '77A Manitou Crescent, Kingston, ON',
+        imageUrl: '/uploads/photo_5a0393354bd60e0ac63f.jpg',
+        applianceCount: 0,
+        comments: 'Apartment building (10 units). Shares numbering pool with 77B and 77C (floor 1: 101–110, floor 2: 201–210, floor 3: 301–310, sliced A/B/C).',
+        definedRooms: [],
+        floors: ['First Floor', 'Second Floor', 'Third Floor'],
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-manitou-77b',
+        complexId: 'manitou',
+        complexName: 'Manitou',
+        code: '77B Manitou Cres',
+        name: '77B Manitou Crescent',
+        address: '77B Manitou Crescent, Kingston, ON',
+        imageUrl: '/uploads/photo_5a0393354bd60e0ac63f.jpg',
+        applianceCount: 0,
+        comments: 'Apartment building (11 units). Shares numbering pool with 77A and 77C (floor 1: 101–110, floor 2: 201–210, floor 3: 301–310, sliced A/B/C).',
+        definedRooms: [],
+        floors: ['First Floor', 'Second Floor', 'Third Floor'],
+        provenance: 'verified'
+    },
+    {
+        id: 'prop-manitou-77c',
+        complexId: 'manitou',
+        complexName: 'Manitou',
+        code: '77C Manitou Cres',
+        name: '77C Manitou Crescent',
+        address: '77C Manitou Crescent, Kingston, ON',
+        imageUrl: '/uploads/photo_5a0393354bd60e0ac63f.jpg',
+        applianceCount: 0,
+        comments: 'Apartment building (9 units). Shares numbering pool with 77A and 77B (floor 1: 101–110, floor 2: 201–210, floor 3: 301–310, sliced A/B/C).',
+        definedRooms: [],
+        floors: ['First Floor', 'Second Floor', 'Third Floor'],
         provenance: 'verified'
     },
 
@@ -974,6 +1070,33 @@ const BD_YARDI_ROSTERS: Record<string, {
     }
 };
 
+export const MANITOU_YARDI_ROSTERS: Record<string, {
+    name: string;
+    type: 'townhouse' | 'apartment';
+    units: string[];
+}> = {
+    'prop-manitou-77': {
+        name: '77 Manitou Crescent',
+        type: 'townhouse',
+        units: Array.from({ length: 58 }, (_, i) => `${i + 1}`)
+    },
+    'prop-manitou-77a': {
+        name: '77A Manitou Crescent',
+        type: 'apartment',
+        units: ['101', '102', '103', '104', '201', '202', '203', '301', '302', '303']
+    },
+    'prop-manitou-77b': {
+        name: '77B Manitou Crescent',
+        type: 'apartment',
+        units: ['105', '106', '107', '204', '205', '206', '207', '304', '305', '306', '307']
+    },
+    'prop-manitou-77c': {
+        name: '77C Manitou Crescent',
+        type: 'apartment',
+        units: ['108', '109', '110', '208', '209', '210', '308', '309', '310']
+    }
+};
+
 export function generateUnitRoster(building: Building): Unit[] {
     const units: Unit[] = [];
     const bId = building.id;
@@ -1161,22 +1284,37 @@ export function generateUnitRoster(building: Building): Unit[] {
                 provenance: prov
             });
         }
-    } else if (bId === 'prop-manitou-cres') {
-        // Manitou 1–58 townhouses
-        for (let i = 1; i <= 58; i++) {
+    } else if (bId in MANITOU_YARDI_ROSTERS) {
+        const spec = MANITOU_YARDI_ROSTERS[bId as keyof typeof MANITOU_YARDI_ROSTERS];
+        for (const uNum of spec.units) {
+            let floor = 'Multi-Floor Townhouse';
+            if (spec.type === 'apartment') {
+                if (uNum.startsWith('1')) {
+                    floor = 'First Floor';
+                } else if (uNum.startsWith('2')) {
+                    floor = 'Second Floor';
+                } else if (uNum.startsWith('3')) {
+                    floor = 'Third Floor';
+                }
+            }
+
             units.push({
-                id: `unit-${bId}-${i}`,
+                id: `unit-${bId}-${uNum}`,
                 buildingId: bId,
-                unitNumber: `${i}`,
-                floor: 'Townhouse',
-                unitType: 'townhouse',
-                stories: 3,
-                bathrooms: 2,
+                unitNumber: uNum,
+                floor,
+                unitType: spec.type,
+                bedrooms: spec.type === 'townhouse' ? 3 : 2,
+                bathrooms: spec.type === 'townhouse' ? 2 : 1,
+                stories: spec.type === 'townhouse' ? 3 : 1,
+                defaultSetId: spec.type === 'townhouse' ? 'set-manitou-townhouse' : 'set-manitou-apt',
                 renovated: { isRenovated: false, renovatedDate: null },
                 moveInDate: null,
                 tenancyDate: null,
-                comments: 'Manitou Crescent townhouse row (1–58 // TODO-verify)',
-                provenance: 'pattern'
+                comments: spec.type === 'townhouse'
+                    ? 'Townhouse unit (1–58 continuous)'
+                    : 'Apartment unit (shared 3-floor numbering pool 101–110, 201–210, 301–310 sliced across 77A, 77B, 77C)',
+                provenance: 'verified — Yardi extract 2026-10-22'
             });
         }
     } else if (bId === 'prop-albert-415') {

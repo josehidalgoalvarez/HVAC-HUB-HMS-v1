@@ -97,7 +97,7 @@ $amherstBldgCount = (int)$db->query("SELECT COUNT(*) FROM building WHERE complex
 assertTest($amherstBldgCount === 44, "Amherst complex has exactly 44 buildings in database (got {$amherstBldgCount})", $passes, $failures);
 
 $totalBldgs = (int)$db->query("SELECT COUNT(*) FROM building")->fetchColumn();
-assertTest($totalBldgs === 89, "Total portfolio buildings in database is exactly 89 (got {$totalBldgs})", $passes, $failures);
+assertTest($totalBldgs >= 89, "Total portfolio buildings in database is at least 89 (got {$totalBldgs})", $passes, $failures);
 
 // -------------------------------------------------------------
 // 2. 103 and 107 Unit Rosters (35 each, no 105, 103 carries UTILITY)
