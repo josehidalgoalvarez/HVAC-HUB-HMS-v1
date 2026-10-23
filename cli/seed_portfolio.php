@@ -134,6 +134,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         [62, '630 Princess St', '630 Princess St, Kingston, ON', 'Under construction (Oct 2026); roster as listed in Yardi.'],
         [64, '800 Princess St', '800 Princess St, Kingston, ON', 'Princess Street multi-unit property.'],
         [94, '800 Princess St — annex', '800 Princess St, Kingston, ON', 'TODO-verify: second Yardi record at 800 Princess; its 301/302 are distinct from the main building\'s 301/302 until verified.'],
+        [95, '2274 Princess St', '2274 Princess St, Kingston, ON', 'Princess Street multi-unit property (verified Yardi roster, 236 units).'],
         [11, '415 Albert Street', '415 Albert St, Kingston, ON', 'Multi-unit residential property.'],
         [12, '265 Ontario Street', '265 Ontario St, Kingston, ON', 'Residential property.']
     ];
@@ -146,7 +147,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             $update = $pdo->prepare("UPDATE building SET name = ?, address = ?, comments = ? WHERE id = ?");
             $update->execute([$b[1], $b[2], $b[3], $b[0]]);
         } else {
-            $cId = in_array($b[0], [59, 60, 61, 62, 63, 64, 65, 94]) ? 4 : (in_array($b[0], [70, 71, 72, 73, 74, 75]) ? 6 : (in_array($b[0], [76, 77]) ? 7 : (in_array($b[0], [78, 79]) ? 2 : (in_array($b[0], [81, 91, 92, 93]) ? 8 : (in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null))))));
+            $cId = in_array($b[0], [59, 60, 61, 62, 63, 64, 65, 94, 95]) ? 4 : (in_array($b[0], [70, 71, 72, 73, 74, 75]) ? 6 : (in_array($b[0], [76, 77]) ? 7 : (in_array($b[0], [78, 79]) ? 2 : (in_array($b[0], [81, 91, 92, 93]) ? 8 : (in_array($b[0], [10, 58, 90]) ? 3 : (in_array($b[0], [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16]) ? 1 : null))))));
             $insert = $pdo->prepare("INSERT INTO building (id, name, address, comments, complex_id) VALUES (?, ?, ?, ?, ?)");
             $insert->execute([$b[0], $b[1], $b[2], $b[3], $cId]);
         }
@@ -174,10 +175,28 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         $bldCount++;
     }
 
-    // Clean up old pattern units for Princess (59, 60, 61, 62, 64, 94), Frontenac (76) and Alfred buildings (70-75)
-    $pdo->exec("DELETE FROM unit WHERE building_id IN (59, 60, 61, 62, 64, 94) AND provenance != 'verified — Yardi extract 2026-10-22'");
+    // Clean up old pattern units for Princess (59, 60, 61, 62, 64, 94, 95), Frontenac (76) and Alfred buildings (70-75)
+    $pdo->exec("DELETE FROM unit WHERE building_id IN (59, 60, 61, 62, 64, 94, 95) AND provenance != 'verified — Yardi extract 2026-10-22'");
     $pdo->exec("DELETE FROM unit WHERE building_id = 76 AND provenance != 'verified — Yardi extract 2026-10-22'");
     $pdo->exec("DELETE FROM unit WHERE building_id IN (70, 71, 72, 73, 74, 75) AND provenance != 'verified — Yardi extract 2026-10-22'");
+    $pdo->exec("UPDATE complex SET building_count = 9 WHERE id = 'complex-princess'");
+
+    // Ensure Uniform Appliance Default Set exists
+    $dsStmt = $pdo->prepare("SELECT id FROM default_sets WHERE id = 'set-skyfall-sante-uniform'");
+    $dsStmt->execute();
+    if (!$dsStmt->fetch()) {
+        $appJson = json_encode([
+            ["category" => "HVAC", "type" => "Air Conditioner", "name" => "Air Conditioner (default)", "isDefault" => true, "specs" => ["fuelType" => "Electric", "volts" => "240"]],
+            ["category" => "Water Heating", "type" => "Water Heater", "name" => "Unit Water Heater (default)", "isDefault" => true, "specs" => ["fuelType" => "Electric", "btuInput" => "4500W", "capacity" => "60 Gallons", "volts" => "240"]],
+            ["category" => "HVAC", "type" => "Thermostat", "name" => "Thermostat (default)", "isDefault" => true, "specs" => ["volts" => "24"]],
+            ["category" => "Kitchen", "type" => "Dishwasher", "name" => "Dishwasher (default)", "isDefault" => true, "specs" => ["volts" => "120", "capacity" => "14 Place Settings", "fuelType" => "Electric"]],
+            ["category" => "Kitchen", "type" => "Refrigerator", "name" => "Fridge (default)", "isDefault" => true, "specs" => ["capacity" => "18 cu. ft.", "volts" => "120", "fuelType" => "Electric"]],
+            ["category" => "Kitchen", "type" => "Range", "name" => "Stove (electric coil) (default)", "isDefault" => true, "specs" => ["fuelType" => "Electric", "volts" => "240", "capacity" => "5.3 cu. ft."]]
+        ]);
+        $pdo->prepare("INSERT INTO default_sets (id, complex_slug, complex_id, name, unit_type, is_default, bedrooms, bathrooms, stories, has_unit_water_heater, appliances_json, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")->execute([
+            'set-skyfall-sante-uniform', 'princess', 4, 'Uniform Building / Apartment (Skyfall / Le Santé default)', 'apartment', 1, 2, 1, 1, 1, $appJson, 'Uniform building default specification (Skyfall / Le Santé / 2274 Princess): dedicated AC, water heater, thermostat, dishwasher, fridge, stove in every unit.'
+        ]);
+    }
 
     // Seed Verified Units (130 BD units from Yardi extract 2026-10-22 + external verified units)
     $bdUnitsSpec = [
@@ -487,6 +506,20 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     $units[] = [94, '301', 'Third Floor', '800 Princess annex unit (Yardi property 800prin, distinct from main 301)', $princessProv, 'patry'];
     $units[] = [94, '302', 'Third Floor', '800 Princess annex unit (Yardi property 800prin, distinct from main 302)', $princessProv, 'patry'];
 
+    // 2274 Princess St (236 units across 5 floors: F1: 101–150, F2: 201–259, F3: 301–359, F4: 401–451, F5: 501–517)
+    $p2274Ranges = [
+        ['First Floor', 101, 150],
+        ['Second Floor', 201, 259],
+        ['Third Floor', 301, 359],
+        ['Fourth Floor', 401, 451],
+        ['Fifth Floor', 501, 517],
+    ];
+    foreach ($p2274Ranges as [$flLabel, $start, $end]) {
+        for ($u = $start; $u <= $end; $u++) {
+            $units[] = [95, (string)$u, $flLabel, '2274 Princess St apartment (verified base number, uniform appliance set)', $princessProv, 'patry', 'set-skyfall-sante-uniform', 'none'];
+        }
+    }
+
     // Other non-BD verified units
     $units[] = [11, '415B', 'Main Floor', 'Verified residential unit', 'verified'];
     $units[] = [11, '415E', 'Second Floor', 'Verified residential unit', 'verified'];
@@ -498,12 +531,14 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         $stmt->execute([$u[0], $u[1]]);
         $existing = $stmt->fetch();
         $ownership = $u[5] ?? 'patry';
+        $defaultSetId = $u[6] ?? null;
+        $washerDryerState = $u[7] ?? 'none';
         if ($existing) {
-            $update = $pdo->prepare("UPDATE unit SET floor = ?, comments = ?, provenance = ?, ownership = ? WHERE id = ?");
-            $update->execute([$u[2], $u[3], $u[4], $ownership, $existing['id']]);
+            $update = $pdo->prepare("UPDATE unit SET floor = ?, comments = ?, provenance = ?, ownership = ?, default_set_id = ?, washer_dryer_state = ? WHERE id = ?");
+            $update->execute([$u[2], $u[3], $u[4], $ownership, $defaultSetId, $washerDryerState, $existing['id']]);
         } else {
-            $insert = $pdo->prepare("INSERT INTO unit (building_id, unit_number, floor, comments, provenance, ownership) VALUES (?, ?, ?, ?, ?, ?)");
-            $insert->execute([$u[0], $u[1], $u[2], $u[3], $u[4], $ownership]);
+            $insert = $pdo->prepare("INSERT INTO unit (building_id, unit_number, floor, comments, provenance, ownership, default_set_id, washer_dryer_state) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $insert->execute([$u[0], $u[1], $u[2], $u[3], $u[4], $ownership, $defaultSetId, $washerDryerState]);
         }
         $unitCount++;
     }

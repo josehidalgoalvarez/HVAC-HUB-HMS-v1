@@ -106,6 +106,7 @@ export interface Unit {
   bathrooms?: number;
   stories?: number;
   defaultSetId?: string;
+  washerDryerState?: 'building_installed' | 'tenant_owned' | 'none';
   applianceOverrides?: Record<string, Appliance>;
   renovated?: {
     isRenovated: boolean;

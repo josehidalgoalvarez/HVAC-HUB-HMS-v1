@@ -53,7 +53,7 @@ export const COMPLEXES: Complex[] = [
         name: 'Princess',
         description: 'Princess Street multi-unit properties in Kingston, ON.',
         address: 'Princess St, Kingston, ON',
-        buildingCount: 8
+        buildingCount: 9
     },
     {
         id: 'victoria',
@@ -309,6 +309,27 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
         notes: 'Princess Street multi-unit apartment default specification.'
+    },
+    {
+        id: 'set-skyfall-sante-uniform',
+        complexSlug: 'princess',
+        complexId: 'princess',
+        name: 'Uniform Building / Apartment (Skyfall / Le Santé default)',
+        unitType: 'apartment',
+        isDefault: true,
+        bedrooms: 2,
+        bathrooms: 1,
+        stories: 1,
+        hasUnitWaterHeater: true,
+        appliances: [
+            { category: 'HVAC', label: 'Air Conditioner (default)', name: 'Air Conditioner (default)', type: 'Air Conditioner', isDefault: true, specs: { fuelType: 'Electric', volts: '240' } },
+            { category: 'Water Heating', label: 'Unit Water Heater (default)', name: 'Unit Water Heater (default)', type: 'Water Heater', isDefault: true, specs: { fuelType: 'Electric', btuInput: '4500W', capacity: '60 Gallons', volts: '240' } },
+            { category: 'HVAC', label: 'Thermostat (default)', name: 'Thermostat (default)', type: 'Thermostat', isDefault: true, specs: { volts: '24' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } }
+        ],
+        notes: 'Uniform building default specification (Skyfall / Le Santé / 2274 Princess): dedicated AC, water heater, thermostat, dishwasher, fridge, stove in every unit.'
     }
 ];
 
@@ -768,7 +789,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     }),
 
     // ----------------------------------------------------
-    // 3) PRINCESS — 8 Buildings
+    // 3) PRINCESS — 9 Buildings
     // ----------------------------------------------------
     {
         id: 'prop-princess-563',
@@ -855,6 +876,20 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         yardiCodes: ['800prin'],
         definedRooms: [],
         floors: ['First Floor', 'Third Floor'],
+        provenance: 'verified' as const
+    },
+    {
+        id: 'prop-princess-2274',
+        complexId: 'princess',
+        complexName: 'Princess',
+        code: '2274 Princess St',
+        name: '2274 Princess St',
+        address: '2274 Princess St, Kingston, ON',
+        imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
+        applianceCount: 0,
+        comments: 'Princess Street multi-unit property (verified Yardi roster, 236 units).',
+        definedRooms: [],
+        floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor'],
         provenance: 'verified' as const
     },
     ...[655, 837].map(num => ({
@@ -1576,6 +1611,50 @@ export const PRINCESS_630_800_YARDI_ROSTERS: Record<string, {
     }
 };
 
+export const PRINCESS_2274_YARDI_ROSTER: {
+    name: string;
+    units: Array<{ unitNumber: string; floor: string; unitType: 'apartment'; comments?: string }>;
+} = {
+    name: '2274 Princess St',
+    units: [
+        // Floor 1: 101–150 (50 units)
+        ...Array.from({ length: 50 }, (_, i) => ({
+            unitNumber: String(101 + i),
+            floor: 'First Floor',
+            unitType: 'apartment' as const,
+            comments: '2274 Princess St apartment (verified base number, uniform appliance set)'
+        })),
+        // Floor 2: 201–259 (59 units)
+        ...Array.from({ length: 59 }, (_, i) => ({
+            unitNumber: String(201 + i),
+            floor: 'Second Floor',
+            unitType: 'apartment' as const,
+            comments: '2274 Princess St apartment (verified base number, uniform appliance set)'
+        })),
+        // Floor 3: 301–359 (59 units)
+        ...Array.from({ length: 59 }, (_, i) => ({
+            unitNumber: String(301 + i),
+            floor: 'Third Floor',
+            unitType: 'apartment' as const,
+            comments: '2274 Princess St apartment (verified base number, uniform appliance set)'
+        })),
+        // Floor 4: 401–451 (51 units)
+        ...Array.from({ length: 51 }, (_, i) => ({
+            unitNumber: String(401 + i),
+            floor: 'Fourth Floor',
+            unitType: 'apartment' as const,
+            comments: '2274 Princess St apartment (verified base number, uniform appliance set)'
+        })),
+        // Floor 5: 501–517 (17 units)
+        ...Array.from({ length: 17 }, (_, i) => ({
+            unitNumber: String(501 + i),
+            floor: 'Fifth Floor',
+            unitType: 'apartment' as const,
+            comments: '2274 Princess St apartment (verified base number, uniform appliance set)'
+        }))
+    ]
+};
+
 export function generateUnitRoster(building: Building): Unit[] {
     const units: Unit[] = [];
     const bId = building.id;
@@ -1743,6 +1822,26 @@ export function generateUnitRoster(building: Building): Unit[] {
                 moveInDate: null,
                 tenancyDate: null,
                 comments: u.comments || 'Princess apartment (verified base number)',
+                provenance: 'verified — Yardi extract 2026-10-22'
+            });
+        }
+    } else if (bId === 'prop-princess-2274') {
+        for (const u of PRINCESS_2274_YARDI_ROSTER.units) {
+            units.push({
+                id: `unit-${bId}-${u.unitNumber}`,
+                buildingId: bId,
+                unitNumber: u.unitNumber,
+                floor: u.floor,
+                unitType: u.unitType || 'apartment',
+                defaultSetId: 'set-skyfall-sante-uniform',
+                washerDryerState: 'none',
+                bedrooms: 2,
+                bathrooms: 1,
+                stories: 1,
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null,
+                comments: u.comments || 'Princess apartment (verified base number, uniform appliance set)',
                 provenance: 'verified — Yardi extract 2026-10-22'
             });
         }
