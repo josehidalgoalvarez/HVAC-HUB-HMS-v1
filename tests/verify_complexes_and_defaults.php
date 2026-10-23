@@ -95,7 +95,7 @@ assertTest($bath1727InDb !== false, "3.1 1727 Bath Road exists in database in BD
 assertTest($bath1727InDb && (int)$bath1727InDb['complex_id'] === 1, "3.2 1727 Bath Road has complex_id = 1", $passes, $failures);
 
 $bath1727Units = (int)$db->query("SELECT COUNT(*) FROM unit WHERE building_id = (SELECT id FROM building WHERE address LIKE '%1727 Bath%' LIMIT 1)")->fetchColumn();
-assertTest($bath1727Units === 0, "3.3 1727 Bath Road has 0 units seeded yet (got {$bath1727Units})", $passes, $failures);
+assertTest($bath1727Units === 4, "3.3 1727 Bath Road has 4 verified townhouse units (got {$bath1727Units})", $passes, $failures);
 
 $bath1735InDb = (int)$db->query("SELECT COUNT(*) FROM building WHERE address LIKE '%1735 Bath%' OR name LIKE '%1735 Bath%'")->fetchColumn();
 assertTest($bath1735InDb === 0, "3.4 1735 Bath Road does NOT exist in database (got {$bath1735InDb})", $passes, $failures);

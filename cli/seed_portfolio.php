@@ -96,17 +96,20 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         $pdo->exec("DELETE FROM appliance WHERE model_number IN ('RU199iN', '59TP6B080V1716', '24ACC636A003', 'LGB-8', 'FWA-110', 'PTC153G35AXXX')");
     } catch (\Throwable) {}
 
-    // Seed Verified Buildings (12 properties)
+    // Seed Verified Buildings (15 properties: 12 BD + Amherst 137, Albert 415, Ontario 265)
     $buildings = [
-        [1, '1719 Bath Road', '1719 Bath Rd, Kingston, ON', 'Multi-unit residential complex. Stockpile: donor appliances on site at 1719 Bath.'],
-        [2, '1721 Bath Road', '1721 Bath Rd, Kingston, ON', 'Multi-unit residential complex.'],
-        [3, '1723 Bath Road', '1723 Bath Rd, Kingston, ON K7M 4Y9', 'Multi-unit residential complex.'],
-        [4, '1725 Bath Road', '1725 Bath Rd, Kingston, ON', 'Multi-unit residential complex.'],
-        [5, '1731 Bath Road', '1731 Bath Rd, Kingston, ON', 'Multi-unit complex. Note: building drain stack has recurring blockages.'],
-        [6, '1733 Bath Road', '1733 Bath Rd, Kingston, ON', 'Multi-unit residential complex.'],
-        [7, '1737 Bath Road', '1737 Bath Rd, Kingston, ON', 'End-of-block multi-family property.'],
-        [8, '505 Days Road', '505 Days Rd, Kingston, ON', 'Days Road residential complex. Stockpiles nearby: 511 Days Rd storage (holds spare Askoll pump), 509 Days Rd storage rooms.'],
-        [9, '507 Days Road', '507 Days Rd, Kingston, ON', 'Residential apartments. Stockpiles nearby: 509 & 511 Days Rd storage rooms.'],
+        [1, '1719 Bath Road', '1719 Bath Rd, Kingston, ON', 'Bath apartments share numbering pool (G57–G74 / 157–174 / 257–274; 164 and 264 do not exist). Attached trio (1719-1721-1723), SHARED electrical + water heating at 1721. Laundry: sink YES. 1719 basement storage: 3-4 white coil stoves + 2-3 fridges + Danby AC.'],
+        [2, '1721 Bath Road', '1721 Bath Rd, Kingston, ON', 'Bath apartments share numbering pool (G57–G74 / 157–174 / 257–274; 164 and 264 do not exist). Attached trio hub: shared mechanical room containing 7 water heaters (3 working, 2 valved-off stagnant, 2 disconnected rotting), fiber connections, electrical shutoffs. Laundry: sink NO.'],
+        [3, '1723 Bath Road', '1723 Bath Rd, Kingston, ON K7M 4Y9', 'Bath apartments share numbering pool (G57–G74 / 157–174 / 257–274; 164 and 264 do not exist). Attached trio with 1719 & 1721. Shared electrical & water heating from 1721. Laundry: sink YES. Verified postal code: K7M 4Y9.'],
+        [4, '1725 Bath Road', '1725 Bath Rd, Kingston, ON', '2-digit pool runs 33–56 across 1727/1737/1725 (1725 has apartments 45–56 continuous). Apartments with inner hallways. Laundry contains Bell cable setup + 1 water heater. Automated timer lights.'],
+        [5, '1731 Bath Road', '1731 Bath Rd, Kingston, ON', 'Bath apartments share numbering pool (G57–G74 / 157–174 / 257–274; 164 and 264 do not exist). Attached pair with 1733, SHARED electrical. Yardi picker conflict on 163/261/262 assigned to 1731. Shared mechanical room with 1733: 1 electric water heater + 2 donor fridges. Laundry: WITH sink.'],
+        [6, '1733 Bath Road', '1733 Bath Rd, Kingston, ON', 'Bath apartments share numbering pool (G57–G74 / 157–174 / 257–274; 164 and 264 do not exist). Attached pair with 1731, SHARED electrical. Yardi picker conflict on 158/260 assigned to 1733. Laundry in basement: without sink.'],
+        [7, '1737 Bath Road', '1737 Bath Rd, Kingston, ON', '2-digit pool runs 33–56 across 1727/1737/1725 (1737 has townhouses 37–44). 3 stories, 2 washrooms, dedicated water heater per unit. No communal laundry.'],
+        [8, '505 Days Road', '505 Days Rd, Kingston, ON', 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Standalone electrical (the exception in BD complex), different layout/floors, nothing stored here.'],
+        [9, '507 Days Road', '507 Days Rd, Kingston, ON', 'TOWNHOUSES: 2-digit unit pool (11–32 continuous except 13). TODO-verify: units 1–10 and 13 unconfirmed in Yardi extract. 3 stories (2 floors + basement), 2 washrooms, own water heater per unit (believed // TODO-verify), laundry WITH sink, NO storage.'],
+        [14, '509 Days Road', '509 Days Rd, Kingston, ON', 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Attached pair with 511 Days Rd. Shared mechanical room with 511. Laundry: no sink (believed // TODO-verify).'],
+        [15, '511 Days Road', '511 Days Rd, Kingston, ON', 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Attached pair with 509 Days Rd, SHARED mechanical room. Complex storage node in 511 basement. Storage building. Laundry: WITH sink.'],
+        [16, '1727 Bath Road', '1727 Bath Rd, Kingston, ON', '2-digit pool runs 33–56 across 1727/1737/1725 (1727 has townhouses 33–36). 3 stories, 2 washrooms, dedicated water heater per unit. No communal laundry.'],
         [10, '137 Amherst Drive', '137 Amherst Dr, Kingston, ON', 'Residential units. Stockpiles nearby: 107 Amherst and 539 Armstrong.'],
         [11, '415 Albert Street', '415 Albert St, Kingston, ON', 'Multi-unit residential property.'],
         [12, '265 Ontario Street', '265 Ontario St, Kingston, ON', 'Residential property.']
@@ -126,32 +129,106 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         $bldCount++;
     }
 
-    // Seed Verified Units
-    $units = [
-        [1, 1, '273', 'Basement', 'Unit 273 with basement mechanical access'],
-        [2, 2, '268', 'Second Floor', 'Verified residential unit'],
-        [3, 2, '266', 'Second Floor', 'Verified residential unit'],
-        [4, 3, '266', 'Second Floor', 'Verified unit with Frigidaire dishwasher'],
-        [5, 3, '67', 'Main Floor', 'Verified residential unit'],
-        [6, 5, 'G63', 'Ground Floor', 'Verified residential unit'],
-        [7, 5, '161', 'First Floor', 'Verified residential unit'],
-        [8, 8, '103', 'First Floor', 'Verified unit with freezer noise complaint'],
-        [9, 9, '32', 'Main Floor', 'Verified residential unit'],
-        [10, 10, '137', 'Main Floor', 'Verified residential unit with range and water heater'],
-        [11, 11, '415B', 'Main Floor', 'Verified residential unit'],
-        [12, 11, '415E', 'Second Floor', 'Verified residential unit'],
-        [13, 12, '2', 'Main Floor', 'Verified residential unit']
+    // Seed Verified Units (130 BD units from Yardi extract 2026-10-22 + external verified units)
+    $bdUnitsSpec = [
+        8 => [
+            'units' => ['101', '102', '103', '104', '201', '202', '203', '204', 'G1', 'G2', 'G3', 'G4'],
+            'custom_notes' => ['103' => 'Verified unit with noisy freezer complaint (WO 19255)']
+        ],
+        14 => [
+            'units' => ['105', '106', '107', '108', '205', '206', '207', '208', 'G5', 'G6', 'G7', 'G8']
+        ],
+        15 => [
+            'units' => ['109', '110', '111', '209', '210', '211', 'G9', 'G10', 'G11']
+        ],
+        9 => [
+            'units' => ['11', '12', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32'],
+            'is_townhouse' => true,
+            'custom_notes' => ['32' => 'Verified unit 32 — Yardi extract 2026-10-22']
+        ],
+        1 => [
+            'units' => ['172', '173', '174', '272', '273', '274', 'G72', 'G73', 'G74'],
+            'custom_notes' => ['273' => 'Verified unit with basement mechanical access & refrigerator']
+        ],
+        2 => [
+            'units' => ['168', '169', '170', '171', '268', '269', '270', '271', 'G68', 'G69', 'G70', 'G71']
+        ],
+        3 => [
+            'units' => ['165', '166', '167', '265', '266', '267', 'G64', 'G65', 'G66', 'G67'],
+            'custom_notes' => ['266' => 'Verified unit with Frigidaire FFCD2418US3A dishwasher']
+        ],
+        5 => [
+            'units' => ['161', '162', '163', '261', '262', '263', 'G61', 'G62', 'G63'],
+            'custom_notes' => [
+                '163' => 'Yardi label conflict: labeled 1723 Bath Road inside bd1731 picker -- assigned to 1731 (picker wins)',
+                '261' => 'Yardi label conflict: labeled 1723 Bath Road inside bd1731 picker -- assigned to 1731 (picker wins)',
+                '262' => 'Yardi label conflict: labeled 1723 Bath Road inside bd1731 picker -- assigned to 1731 (picker wins)'
+            ]
+        ],
+        6 => [
+            'units' => ['157', '158', '159', '160', '257', '258', '259', '260', 'G57', 'G58', 'G59', 'G60'],
+            'custom_notes' => [
+                '158' => 'Yardi label conflict: labeled 1723 Bath Road inside bd1733 picker -- assigned to 1733 (picker wins)',
+                '260' => 'Yardi label conflict: labeled 1723 Bath Road inside bd1733 picker -- assigned to 1733 (picker wins)'
+            ]
+        ],
+        16 => [
+            'units' => ['33', '34', '35', '36'],
+            'is_townhouse' => true
+        ],
+        7 => [
+            'units' => ['37', '38', '39', '40', '41', '42', '43', '44'],
+            'is_townhouse' => true
+        ],
+        4 => [
+            'units' => ['45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56'],
+            'is_townhouse' => false,
+            'custom_floors' => [
+                '45' => 'Main Floor', '46' => 'Main Floor', '47' => 'Main Floor',
+                '48' => 'Main Floor', '49' => 'Main Floor', '50' => 'Main Floor',
+                '51' => 'Second Floor', '52' => 'Second Floor', '53' => 'Second Floor',
+                '54' => 'Second Floor', '55' => 'Second Floor', '56' => 'Second Floor'
+            ]
+        ]
     ];
+
+    $units = [];
+    foreach ($bdUnitsSpec as $bId => $spec) {
+        $isTownhouse = !empty($spec['is_townhouse']);
+        foreach ($spec['units'] as $uNum) {
+            $floor = 'Main Floor';
+            if (!empty($spec['custom_floors'][$uNum])) {
+                $floor = $spec['custom_floors'][$uNum];
+            } elseif ($isTownhouse) {
+                $floor = 'Multi-Floor Townhouse';
+            } elseif (str_starts_with($uNum, 'G')) {
+                $floor = 'Ground Floor';
+            } elseif (str_starts_with($uNum, '1')) {
+                $floor = 'First Floor';
+            } elseif (str_starts_with($uNum, '2')) {
+                $floor = 'Second Floor';
+            }
+            $note = $spec['custom_notes'][$uNum] ?? 'verified — Yardi extract 2026-10-22';
+            $units[] = [$bId, $uNum, $floor, $note, 'verified — Yardi extract 2026-10-22'];
+        }
+    }
+
+    // Add non-BD verified units
+    $units[] = [10, '137', 'Main Floor', 'Verified residential unit with range and water heater', 'verified'];
+    $units[] = [11, '415B', 'Main Floor', 'Verified residential unit', 'verified'];
+    $units[] = [11, '415E', 'Second Floor', 'Verified residential unit', 'verified'];
+    $units[] = [12, '2', 'Main Floor', 'Verified residential unit', 'verified'];
 
     $unitCount = 0;
     foreach ($units as $u) {
-        $stmt = $pdo->prepare("SELECT id FROM unit WHERE id = ?");
-        $stmt->execute([$u[0]]);
-        if ($stmt->fetch()) {
-            $update = $pdo->prepare("UPDATE unit SET building_id = ?, unit_number = ?, floor = ?, comments = ? WHERE id = ?");
-            $update->execute([$u[1], $u[2], $u[3], $u[4], $u[0]]);
+        $stmt = $pdo->prepare("SELECT id FROM unit WHERE building_id = ? AND unit_number = ?");
+        $stmt->execute([$u[0], $u[1]]);
+        $existing = $stmt->fetch();
+        if ($existing) {
+            $update = $pdo->prepare("UPDATE unit SET floor = ?, comments = ?, provenance = ? WHERE id = ?");
+            $update->execute([$u[2], $u[3], $u[4], $existing['id']]);
         } else {
-            $insert = $pdo->prepare("INSERT INTO unit (id, building_id, unit_number, floor, comments) VALUES (?, ?, ?, ?, ?)");
+            $insert = $pdo->prepare("INSERT INTO unit (building_id, unit_number, floor, comments, provenance) VALUES (?, ?, ?, ?, ?)");
             $insert->execute([$u[0], $u[1], $u[2], $u[3], $u[4]]);
         }
         $unitCount++;
@@ -160,7 +237,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     // Seed 6 Verified Appliances
     $appliances = [
         [
-            1, 'prop-bath-1723', 3, 4, 'Dishwasher', 'Frigidaire', 'Dishwasher', 'Kitchen', 'operational',
+            1, 'prop-bath-1723', 3, null, 'Dishwasher', 'Frigidaire', 'Dishwasher', 'Kitchen', 'operational',
             '2026-10-15', 'FFCD2418US3A', null, 'Kitchen', '266', '1723 Bath Rd · Unit 266 · Kitchen',
             'https://frigidaire.bynder.com/transform/e1966ae3-49aa-4b00-86e2-92f2e0ebf80e/FFCD2418US-HOV_824-psd?preset=three-bears',
             null,
@@ -168,7 +245,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             json_encode(['capacity' => '14 Place Settings', 'volts' => '120V', 'room' => 'Kitchen', 'location' => '1723 Bath Rd · Unit 266 · Kitchen'])
         ],
         [
-            2, 'prop-amherst-137', 10, 10, 'Electric Range', 'Frigidaire', 'Range', 'Kitchen', 'needs_service',
+            2, 'prop-amherst-137', 10, null, 'Electric Range', 'Frigidaire', 'Range', 'Kitchen', 'needs_service',
             null, null, null, 'Kitchen', '137', '137 Amherst Dr · Unit 137 · Kitchen',
             null,
             null,
@@ -176,7 +253,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             json_encode(['room' => 'Kitchen', 'location' => '137 Amherst Dr · Unit 137 · Kitchen'])
         ],
         [
-            3, 'prop-amherst-137', 10, 10, 'Water Heater', 'Rheem', 'Heater', 'Water Heating', 'needs_service',
+            3, 'prop-amherst-137', 10, null, 'Water Heater', 'Rheem', 'Heater', 'Water Heating', 'needs_service',
             null, null, null, null, '137', '137 Amherst Dr · Unit 137',
             null,
             null,
@@ -192,7 +269,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             json_encode(['room' => 'Laundry Room', 'location' => '1731 Bath Rd · Laundry Room'])
         ],
         [
-            5, 'prop-bath-1719', 1, 1, 'Refrigerator', '', 'Refrigerator', 'Kitchen', 'needs_service',
+            5, 'prop-bath-1719', 1, null, 'Refrigerator', '', 'Refrigerator', 'Kitchen', 'needs_service',
             null, null, null, 'Kitchen', '273', '1719 Bath Rd · Unit 273 · Kitchen',
             null,
             null,
@@ -200,7 +277,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             json_encode(['room' => 'Kitchen', 'location' => '1719 Bath Rd · Unit 273 · Kitchen'])
         ],
         [
-            6, 'prop-days-505', 8, 8, 'Freezer', '', 'Freezer', 'Kitchen', 'needs_service',
+            6, 'prop-days-505', 8, null, 'Freezer', '', 'Freezer', 'Kitchen', 'needs_service',
             null, null, null, null, '103', '505 Days Rd · Unit 103',
             null,
             null,
@@ -211,14 +288,24 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
 
     $appCount = 0;
     foreach ($appliances as $a) {
+        $targetUnitId = $a[3];
+        if (!empty($a[13]) && $a[13] !== 'Common') {
+            $uStmt = $pdo->prepare("SELECT id FROM unit WHERE building_id = ? AND unit_number = ? LIMIT 1");
+            $uStmt->execute([$a[2], $a[13]]);
+            $uRow = $uStmt->fetch();
+            if ($uRow) {
+                $targetUnitId = $uRow['id'];
+            }
+        }
+
         $stmt = $pdo->prepare("SELECT id FROM appliance WHERE id = ?");
         $stmt->execute([$a[0]]);
         if ($stmt->fetch()) {
             $update = $pdo->prepare("UPDATE appliance SET property_id = ?, building_id = ?, unit_id = ?, name = ?, brand = ?, type = ?, category = ?, status = ?, last_service = ?, model_number = ?, serial_number = ?, room = ?, unit_number = ?, location = ?, image_url = ?, rating_plate_url = ?, notes = ?, specs = ? WHERE id = ?");
-            $update->execute([$a[1], $a[2], $a[3], $a[4], $a[5], $a[6], $a[7], $a[8], $a[9], $a[10], $a[11], $a[12], $a[13], $a[14], $a[15], $a[16], $a[17], $a[18], $a[0]]);
+            $update->execute([$a[1], $a[2], $targetUnitId, $a[4], $a[5], $a[6], $a[7], $a[8], $a[9], $a[10], $a[11], $a[12], $a[13], $a[14], $a[15], $a[16], $a[17], $a[18], $a[0]]);
         } else {
             $insert = $pdo->prepare("INSERT INTO appliance (id, property_id, building_id, unit_id, name, brand, type, category, status, last_service, model_number, serial_number, room, unit_number, location, image_url, rating_plate_url, notes, specs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $insert->execute([$a[0], $a[1], $a[2], $a[3], $a[4], $a[5], $a[6], $a[7], $a[8], $a[9], $a[10], $a[11], $a[12], $a[13], $a[14], $a[15], $a[16], $a[17], $a[18]]);
+            $insert->execute([$a[0], $a[1], $a[2], $targetUnitId, $a[4], $a[5], $a[6], $a[7], $a[8], $a[9], $a[10], $a[11], $a[12], $a[13], $a[14], $a[15], $a[16], $a[17], $a[18]]);
         }
         $appCount++;
     }

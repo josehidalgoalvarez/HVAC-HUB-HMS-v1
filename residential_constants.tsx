@@ -340,7 +340,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '505 Days Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_c61a96df0f03a7620bf1.jpg',
         applianceCount: 1,
-        comments: 'STANDALONE electrical (the exception in BD complex), different layout/floors, nothing stored here.',
+        comments: 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Standalone electrical (the exception in BD complex), different layout/floors, nothing stored here.',
         definedRooms: ['Unit 103'],
         floors: ['Main Floor', 'Second Floor'],
         provenance: 'verified'
@@ -354,7 +354,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '507 Days Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_b9a7b4d1af836cee96c8.jpg',
         applianceCount: 0,
-        comments: 'TOWNHOUSES: 3 stories (2 floors + basement), 2 washrooms, own water heater per unit (believed // TODO-verify), laundry WITH sink, NO storage. 2-digit unit numbers.',
+        comments: 'TOWNHOUSES: 2-digit unit pool (11–32 continuous except 13). TODO-verify: units 1–10 and 13 unconfirmed in Yardi extract. 3 stories (2 floors + basement), 2 washrooms, own water heater per unit (believed // TODO-verify), laundry WITH sink, NO storage.',
         definedRooms: ['Unit 32'],
         floors: ['Basement', 'Main Floor', 'Second Floor'],
         laundryConfig: { hasSink: true, notes: 'Laundry WITH sink' },
@@ -370,7 +370,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '509 Days Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_b9a7b4d1af836cee96c8.jpg',
         applianceCount: 0,
-        comments: 'Attached pair with 511 Days Rd. Shared mechanical room with 511. Laundry: no sink (believed // TODO-verify).',
+        comments: 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Attached pair with 511 Days Rd. Shared mechanical room with 511. Laundry: no sink (believed // TODO-verify).',
         definedRooms: ['Mechanical Room'],
         floors: ['Main Floor', 'Second Floor'],
         laundryConfig: { hasSink: false, notes: 'No sink (believed // TODO-verify)' },
@@ -388,7 +388,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         applianceCount: 0,
         isStorageNode: true,
         storageInventory: STORAGE_511_DAYS,
-        comments: 'Attached pair with 509 Days Rd, SHARED mechanical room. Complex storage node in 511 basement. Storage building. Laundry: WITH sink.',
+        comments: 'Days apartments share numbering pool (G1–G11 / 101–111 / 201–211). Attached pair with 509 Days Rd, SHARED mechanical room. Complex storage node in 511 basement. Storage building. Laundry: WITH sink.',
         definedRooms: ['Basement Storage', 'Mechanical Room', 'Laundry Room'],
         floors: ['Basement', 'Main Floor', 'Second Floor'],
         laundryConfig: { hasSink: true, notes: '511 laundry WITH sink' },
@@ -406,7 +406,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         applianceCount: 1,
         isStorageNode: true,
         storageInventory: STORAGE_1719_BATH,
-        comments: 'Attached trio (1719-1721-1723), SHARED electrical + water heating at 1721. Laundry: sink YES. 1719 basement storage: 3-4 white coil stoves + 2-3 fridges + Danby AC.',
+        comments: 'Bath apartments share numbering pool (G57–G74 / 157–174 / 257–274; 164 and 264 do not exist). Attached trio (1719-1721-1723), SHARED electrical + water heating at 1721. Laundry: sink YES. 1719 basement storage: 3-4 white coil stoves + 2-3 fridges + Danby AC.',
         definedRooms: ['Basement', 'Mechanical Room', 'Unit 273', 'Laundry Room'],
         floors: ['Basement', 'Main Floor', 'Second Floor'],
         laundryConfig: { hasSink: true, notes: 'Laundry sink YES' },
@@ -422,7 +422,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '1721 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
         applianceCount: 7,
-        comments: 'Attached trio hub: shared mechanical room containing 7 water heaters (3 working, 2 valved-off stagnant, 2 disconnected rotting), fiber connections, electrical shutoffs. Laundry: sink NO.',
+        comments: 'Bath apartments share numbering pool (G57–G74 / 157–174 / 257–274; 164 and 264 do not exist). Attached trio hub: shared mechanical room containing 7 water heaters (3 working, 2 valved-off stagnant, 2 disconnected rotting), fiber connections, electrical shutoffs. Laundry: sink NO.',
         definedRooms: ['Shared Mechanical Room', 'Unit 268', 'Unit 266', 'Laundry Room'],
         floors: ['Basement', 'Main Floor', 'Second Floor'],
         laundryConfig: { hasSink: false, notes: 'Laundry sink NO' },
@@ -438,7 +438,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '1723 Bath Rd, Kingston, ON K7M 4Y9', // Verified postal code
         imageUrl: '/uploads/photo_2aa8d094f66a8ede0a7b.jpg',
         applianceCount: 1,
-        comments: 'Attached trio with 1719 & 1721. Shared electrical & water heating from 1721. Laundry: sink YES. Verified postal code: K7M 4Y9.',
+        comments: 'Bath apartments share numbering pool (G57–G74 / 157–174 / 257–274; 164 and 264 do not exist). Attached trio with 1719 & 1721. Shared electrical & water heating from 1721. Laundry: sink YES. Verified postal code: K7M 4Y9.',
         definedRooms: ['Unit 266', 'Unit 67', 'Kitchen', 'Laundry Room'],
         floors: ['Main Floor', 'Second Floor'],
         laundryConfig: { hasSink: true, notes: 'Laundry sink YES' },
@@ -453,7 +453,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '1725 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_3fba10b6250dd34fcc10.jpg',
         applianceCount: 0,
-        comments: 'Apartments with inner hallways. Laundry contains Bell cable setup + 1 water heater (believed // TODO-verify). Automated timer lights. NO electrical room located (open item: main panel unknown; kept power during past outage while 507 lost it). 2-digit units.',
+        comments: '2-digit pool runs 33–56 across 1727/1737/1725 (1725 has apartments 45–56 continuous). Apartments with inner hallways. Laundry contains Bell cable setup + 1 water heater. Automated timer lights.',
         definedRooms: ['Laundry Room', 'Inner Hallways'],
         floors: ['Main Floor', 'Second Floor'],
         laundryConfig: { hasSink: false, hasTimer: true, notes: 'Bell setup + 1 water heater (believed // TODO-verify). Lights on timer.' },
@@ -468,7 +468,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '1727 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_86e84cf408480a53552b.jpg',
         applianceCount: 0,
-        comments: 'TOWNHOUSES, no hallway, no communal laundry. 2-digit unit numbers. Restored verified property.',
+        comments: '2-digit pool runs 33–56 across 1727/1737/1725 (1727 has townhouses 33–36). 3 stories, 2 washrooms, dedicated water heater per unit. No communal laundry.',
         definedRooms: [],
         floors: ['Main Floor', 'Second Floor'],
         laundryConfig: { hasSink: false, notes: 'No communal laundry' },
@@ -484,7 +484,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '1731 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_6a700f6adc9bd57ba9db.jpg',
         applianceCount: 3,
-        comments: 'Attached pair with 1733, SHARED electrical. Shared mechanical room between them: 1 electric water heater + 2 donor fridges (parts sources). Laundry: WITH sink. Building drain stack recurring blockages.',
+        comments: 'Bath apartments share numbering pool (G57–G74 / 157–174 / 257–274; 164 and 264 do not exist). Attached pair with 1733, SHARED electrical. Yardi picker conflict on 163/261/262 assigned to 1731. Shared mechanical room with 1733: 1 electric water heater + 2 donor fridges. Laundry: WITH sink.',
         definedRooms: ['Unit G63', 'Unit 161', 'Shared Mechanical Room', 'Laundry Room'],
         floors: ['Basement', 'Main Floor', 'Second Floor'],
         laundryConfig: { hasSink: true, notes: 'Laundry in basement WITH sink' },
@@ -500,7 +500,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '1733 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_5a0393354bd60e0ac63f.jpg',
         applianceCount: 0,
-        comments: 'Attached pair with 1731, SHARED electrical. Laundry in basement: without sink.',
+        comments: 'Bath apartments share numbering pool (G57–G74 / 157–174 / 257–274; 164 and 264 do not exist). Attached pair with 1731, SHARED electrical. Yardi picker conflict on 158/260 assigned to 1733. Laundry in basement: without sink.',
         definedRooms: ['Basement Laundry'],
         floors: ['Basement', 'Main Floor', 'Second Floor'],
         laundryConfig: { hasSink: false, notes: 'Laundry in basement without sink' },
@@ -515,7 +515,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '1737 Bath Rd, Kingston, ON', // TODO-verify postal code (UNKNOWN)
         imageUrl: '/uploads/photo_8db7e895c76fcfce8de5.jpg',
         applianceCount: 0,
-        comments: 'TOWNHOUSES (count 4-6 // TODO-verify), no hallway, no communal laundry. 2-digit unit numbers.',
+        comments: '2-digit pool runs 33–56 across 1727/1737/1725 (1737 has townhouses 37–44). 3 stories, 2 washrooms, dedicated water heater per unit. No communal laundry.',
         definedRooms: [],
         floors: ['Main Floor', 'Second Floor'],
         laundryConfig: { hasSink: false, notes: 'No communal laundry' },
@@ -819,233 +819,131 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
 ];
 
 // ==========================================
-// 5. PATTERN-GENERATED UNIT ROSTERS
+// 5. UNIT ROSTERS (VERIFIED YARDI + REMAINING PATTERNS)
 // ==========================================
+
+const BD_YARDI_ROSTERS: Record<string, {
+    units: string[];
+    isTownhouse?: boolean;
+    customFloors?: Record<string, string>;
+    customNotes?: Record<string, string>;
+}> = {
+    'prop-days-505': {
+        units: ['101', '102', '103', '104', '201', '202', '203', '204', 'G1', 'G2', 'G3', 'G4'],
+        customNotes: {
+            '103': 'Verified unit with noisy freezer complaint (WO 19255)'
+        }
+    },
+    'prop-days-509': {
+        units: ['105', '106', '107', '108', '205', '206', '207', '208', 'G5', 'G6', 'G7', 'G8']
+    },
+    'prop-days-511': {
+        units: ['109', '110', '111', '209', '210', '211', 'G9', 'G10', 'G11']
+    },
+    'prop-days-507': {
+        units: ['11', '12', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32'],
+        isTownhouse: true,
+        customNotes: {
+            '32': 'Verified unit 32 — Yardi extract 2026-10-22'
+        }
+    },
+    'prop-bath-1719': {
+        units: ['172', '173', '174', '272', '273', '274', 'G72', 'G73', 'G74'],
+        customNotes: {
+            '273': 'Verified unit with basement mechanical access & refrigerator'
+        }
+    },
+    'prop-bath-1721': {
+        units: ['168', '169', '170', '171', '268', '269', '270', '271', 'G68', 'G69', 'G70', 'G71']
+    },
+    'prop-bath-1723': {
+        units: ['165', '166', '167', '265', '266', '267', 'G64', 'G65', 'G66', 'G67'],
+        customNotes: {
+            '266': 'Verified unit with Frigidaire FFCD2418US3A dishwasher'
+        }
+    },
+    'prop-bath-1731': {
+        units: ['161', '162', '163', '261', '262', '263', 'G61', 'G62', 'G63'],
+        customNotes: {
+            '163': "Yardi label conflict: labeled 1723 Bath Road inside bd1731 picker -- assigned to 1731 (picker wins)",
+            '261': "Yardi label conflict: labeled 1723 Bath Road inside bd1731 picker -- assigned to 1731 (picker wins)",
+            '262': "Yardi label conflict: labeled 1723 Bath Road inside bd1731 picker -- assigned to 1731 (picker wins)"
+        }
+    },
+    'prop-bath-1733': {
+        units: ['157', '158', '159', '160', '257', '258', '259', '260', 'G57', 'G58', 'G59', 'G60'],
+        customNotes: {
+            '158': "Yardi label conflict: labeled 1723 Bath Road inside bd1733 picker -- assigned to 1733 (picker wins)",
+            '260': "Yardi label conflict: labeled 1723 Bath Road inside bd1733 picker -- assigned to 1733 (picker wins)"
+        }
+    },
+    'prop-bath-1727': {
+        units: ['33', '34', '35', '36'],
+        isTownhouse: true
+    },
+    'prop-bath-1737': {
+        units: ['37', '38', '39', '40', '41', '42', '43', '44'],
+        isTownhouse: true
+    },
+    'prop-bath-1725': {
+        units: ['45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56'],
+        isTownhouse: false,
+        customFloors: {
+            '45': 'Main Floor', '46': 'Main Floor', '47': 'Main Floor',
+            '48': 'Main Floor', '49': 'Main Floor', '50': 'Main Floor',
+            '51': 'Second Floor', '52': 'Second Floor', '53': 'Second Floor',
+            '54': 'Second Floor', '55': 'Second Floor', '56': 'Second Floor'
+        }
+    }
+};
 
 export function generateUnitRoster(building: Building): Unit[] {
     const units: Unit[] = [];
     const bId = building.id;
 
-    // BD Complex
-    if (building.complexId === '1' || building.complexId === 'complex-bd') {
-        if (bId === 'prop-bath-1727') {
-            // 1727 Bath Rd: real building with no units yet
+    // BD Complex — 130 Verified Units from Yardi Extract (2026-10-22)
+    if (building.complexId === '1' || building.complexId === 'complex-bd' || building.complexId === 'bd') {
+        const config = BD_YARDI_ROSTERS[bId];
+        if (!config) {
+            // Inactive / virtual pool or buildings without units
             return [];
-        } else if (bId === 'prop-days-507' || bId === 'prop-bath-1737') {
-            // Townhouses: 2-digit unit numbers, 3 stories, 2 washrooms, own water heater
-            const count = bId === 'prop-days-507' ? 12 : 6;
-            for (let i = 1; i <= count; i++) {
-                const uNum = bId === 'prop-days-507' ? (i === 1 ? '32' : `${20 + i}`) : `${10 + i}`;
-                const isVerified = (bId === 'prop-days-507' && uNum === '32');
-                units.push({
-                    id: `unit-${bId}-${uNum}`,
-                    buildingId: bId,
-                    unitNumber: uNum,
-                    floor: 'Multi-Floor Townhouse',
-                    unitType: 'townhouse',
-                    defaultSetId: 'set-bd-townhouse',
-                    stories: 3,
-                    bathrooms: 2,
-                    renovated: { isRenovated: false, renovatedDate: null },
-                    moveInDate: null,
-                    tenancyDate: null,
-                    comments: '3 stories (2 floors + basement), 2 washrooms, own water heater (believed // TODO-verify)',
-                    provenance: isVerified ? 'verified' : 'pattern'
-                });
-            }
-        } else if (bId === 'prop-bath-1725') {
-            // 2-digit units
-            for (let i = 1; i <= 8; i++) {
-                const uNum = `${20 + i}`;
-                units.push({
-                    id: `unit-${bId}-${uNum}`,
-                    buildingId: bId,
-                    unitNumber: uNum,
-                    floor: i <= 4 ? 'Main Floor' : 'Second Floor',
-                    unitType: 'apartment',
-                    defaultSetId: 'set-bd-apt',
-                    bedrooms: 2,
-                    bathrooms: 1,
-                    renovated: { isRenovated: false, renovatedDate: null },
-                    moveInDate: null,
-                    tenancyDate: null,
-                    provenance: 'pattern'
-                });
-            }
-        } else if (bId === 'prop-bath-1719') {
-            // Unit 273 verified
-            units.push({
-                id: `unit-${bId}-273`,
-                buildingId: bId,
-                unitNumber: '273',
-                floor: 'Basement',
-                unitType: 'apartment',
-                defaultSetId: 'set-bd-apt',
-                bedrooms: 2,
-                bathrooms: 1,
-                renovated: { isRenovated: false, renovatedDate: null },
-                moveInDate: null,
-                tenancyDate: null,
-                comments: 'Verified unit with basement mechanical access & refrigerator',
-                provenance: 'verified'
-            });
-            for (let i = 1; i <= 6; i++) {
-                units.push({
-                    id: `unit-${bId}-10${i}`,
-                    buildingId: bId,
-                    unitNumber: `10${i}`,
-                    floor: 'First Floor',
-                    unitType: 'apartment',
-                    defaultSetId: 'set-bd-apt',
-                    bedrooms: 2,
-                    bathrooms: 1,
-                    renovated: { isRenovated: false, renovatedDate: null },
-                    moveInDate: null,
-                    tenancyDate: null,
-                    provenance: 'pattern'
-                });
-            }
-        } else if (bId === 'prop-bath-1721') {
-            units.push({
-                id: `unit-${bId}-266`,
-                buildingId: bId,
-                unitNumber: '266',
-                floor: 'Second Floor',
-                unitType: 'apartment',
-                defaultSetId: 'set-bd-apt',
-                bedrooms: 2,
-                bathrooms: 1,
-                renovated: { isRenovated: false, renovatedDate: null },
-                moveInDate: null,
-                tenancyDate: null,
-                provenance: 'verified'
-            });
-            units.push({
-                id: `unit-${bId}-268`,
-                buildingId: bId,
-                unitNumber: '268',
-                floor: 'Second Floor',
-                unitType: 'apartment',
-                defaultSetId: 'set-bd-apt',
-                bedrooms: 2,
-                bathrooms: 1,
-                renovated: { isRenovated: false, renovatedDate: null },
-                moveInDate: null,
-                tenancyDate: null,
-                provenance: 'verified'
-            });
-        } else if (bId === 'prop-bath-1723') {
-            units.push({
-                id: `unit-${bId}-266`,
-                buildingId: bId,
-                unitNumber: '266',
-                floor: 'Second Floor',
-                unitType: 'apartment',
-                defaultSetId: 'set-bd-apt',
-                bedrooms: 2,
-                bathrooms: 1,
-                renovated: { isRenovated: false, renovatedDate: null },
-                moveInDate: null,
-                tenancyDate: null,
-                comments: 'Verified unit with Frigidaire FFCD2418US3A dishwasher',
-                provenance: 'verified'
-            });
-            units.push({
-                id: `unit-${bId}-67`,
-                buildingId: bId,
-                unitNumber: '67',
-                floor: 'Main Floor',
-                unitType: 'apartment',
-                defaultSetId: 'set-bd-apt',
-                bedrooms: 2,
-                bathrooms: 1,
-                renovated: { isRenovated: false, renovatedDate: null },
-                moveInDate: null,
-                tenancyDate: null,
-                provenance: 'verified'
-            });
-        } else if (bId === 'prop-bath-1731') {
-            units.push({
-                id: `unit-${bId}-G63`,
-                buildingId: bId,
-                unitNumber: 'G63',
-                floor: 'Ground Floor',
-                unitType: 'apartment',
-                defaultSetId: 'set-bd-apt',
-                bedrooms: 2,
-                bathrooms: 1,
-                renovated: { isRenovated: false, renovatedDate: null },
-                moveInDate: null,
-                tenancyDate: null,
-                provenance: 'verified'
-            });
-            units.push({
-                id: `unit-${bId}-161`,
-                buildingId: bId,
-                unitNumber: '161',
-                floor: 'First Floor',
-                unitType: 'apartment',
-                defaultSetId: 'set-bd-apt',
-                bedrooms: 2,
-                bathrooms: 1,
-                renovated: { isRenovated: false, renovatedDate: null },
-                moveInDate: null,
-                tenancyDate: null,
-                provenance: 'verified'
-            });
-        } else if (bId === 'prop-days-505') {
-            units.push({
-                id: `unit-${bId}-103`,
-                buildingId: bId,
-                unitNumber: '103',
-                floor: 'First Floor',
-                unitType: 'apartment',
-                defaultSetId: 'set-bd-apt',
-                bedrooms: 2,
-                bathrooms: 1,
-                renovated: { isRenovated: false, renovatedDate: null },
-                moveInDate: null,
-                tenancyDate: null,
-                comments: 'Verified unit with noisy freezer complaint (WO 19255)',
-                provenance: 'verified'
-            });
-            for (let i = 1; i <= 6; i++) {
-                if (i !== 3) {
-                    units.push({
-                        id: `unit-${bId}-10${i}`,
-                        buildingId: bId,
-                        unitNumber: `10${i}`,
-                        floor: 'First Floor',
-                        unitType: 'apartment',
-                        defaultSetId: 'set-bd-apt',
-                        bedrooms: 2,
-                        bathrooms: 1,
-                        renovated: { isRenovated: false, renovatedDate: null },
-                        moveInDate: null,
-                        tenancyDate: null,
-                        provenance: 'pattern'
-                    });
-                }
-            }
-        } else {
-            // Standard BD apartment default
-            for (let i = 1; i <= 6; i++) {
-                units.push({
-                    id: `unit-${bId}-10${i}`,
-                    buildingId: bId,
-                    unitNumber: `10${i}`,
-                    floor: 'First Floor',
-                    unitType: 'apartment',
-                    defaultSetId: 'set-bd-apt',
-                    bedrooms: 2,
-                    bathrooms: 1,
-                    renovated: { isRenovated: false, renovatedDate: null },
-                    moveInDate: null,
-                    tenancyDate: null,
-                    provenance: 'pattern'
-                });
-            }
         }
+
+        for (const uNum of config.units) {
+            const isTownhouse = !!config.isTownhouse;
+            let floor: string;
+            if (config.customFloors && config.customFloors[uNum]) {
+                floor = config.customFloors[uNum];
+            } else if (isTownhouse) {
+                floor = 'Multi-Floor Townhouse';
+            } else if (uNum.startsWith('G')) {
+                floor = 'Ground Floor';
+            } else if (uNum.startsWith('1')) {
+                floor = 'First Floor';
+            } else if (uNum.startsWith('2')) {
+                floor = 'Second Floor';
+            } else {
+                floor = 'Main Floor';
+            }
+
+            units.push({
+                id: `unit-${bId}-${uNum}`,
+                buildingId: bId,
+                unitNumber: uNum,
+                floor,
+                unitType: isTownhouse ? 'townhouse' : 'apartment',
+                defaultSetId: isTownhouse ? 'set-bd-townhouse' : 'set-bd-apt',
+                stories: isTownhouse ? 3 : undefined,
+                bathrooms: isTownhouse ? 2 : 1,
+                bedrooms: isTownhouse ? undefined : 2,
+                comments: config.customNotes?.[uNum] || (isTownhouse ? '3 stories (2 floors + basement), 2 washrooms, own water heater (believed // TODO-verify)' : undefined),
+                provenance: 'verified — Yardi extract 2026-10-22',
+                renovated: { isRenovated: false, renovatedDate: null },
+                moveInDate: null,
+                tenancyDate: null
+            });
+        }
+        return units;
     } else if (bId === 'prop-elm-18') {
         // 18 Elm St: base numbers only 101–414 across 4 floors (specifically including 411)
         const floors = ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor'];

@@ -649,7 +649,6 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   {activeComplexProperties.map(bld => {
                     const bldUnits = units.filter(u => u.buildingId === bld.id);
                     const is511Storage = bld.id === 'prop-days-511';
-                    const is1727Bath = bld.id === 'prop-bath-1727';
 
                     return (
                       <div
@@ -665,11 +664,6 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             {is511Storage && (
                               <span className="text-[11px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-full whitespace-nowrap">
                                 Storage Node
-                              </span>
-                            )}
-                            {is1727Bath && (
-                              <span className="text-[11px] font-semibold bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 px-2 py-0.5 rounded-full whitespace-nowrap">
-                                0 Units (Empty)
                               </span>
                             )}
                           </div>
@@ -733,15 +727,6 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   </div>
                 )}
 
-                {/* Empty Notice if 1727 Bath */}
-                {activeBuilding.id === 'prop-bath-1727' && (
-                  <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-800 dark:text-blue-200 text-xs flex items-center gap-2.5">
-                    <span className="material-symbols-outlined text-blue-600 text-xl">info</span>
-                    <div>
-                      <strong>1727 Bath Road:</strong> Registered in portfolio with 0 active units.
-                    </div>
-                  </div>
-                )}
 
                 {/* Whole-Box Unit Cards */}
                 <div className="space-y-3">

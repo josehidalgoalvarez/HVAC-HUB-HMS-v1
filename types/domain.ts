@@ -108,7 +108,7 @@ export interface Unit {
   };
   moveInDate?: string | null;
   tenancyDate?: string | null;
-  provenance?: 'verified' | 'pattern';
+  provenance?: 'verified' | 'pattern' | 'verified — Yardi extract 2026-10-22' | string;
   createdAt?: string;
   updatedAt?: string;
 }
