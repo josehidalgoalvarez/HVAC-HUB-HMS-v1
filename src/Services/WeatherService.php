@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Services;
 
 use DateTimeImmutable;
-use DateTimeInterface;
 use Throwable;
 
 /**
  * WeatherService
- * Fetches and caches weather forecast data from Open-Meteo (no API key required)
- * and assesses freezing risks (low <= 0°C) within the next 48 hours.
+ * Fetches and caches weather forecast data from Open-Meteo (no API key required).
+ * Reduced to one question: is rain expected for a given date?
+ * Zero temperature, zero freeze logic, zero week-outlook text.
  */
 class WeatherService
 {
@@ -38,9 +38,9 @@ class WeatherService
     }
 
     /**
-     * Fetch forecast from Open-Meteo or local cache.
+     * Fetch daily forecast from Open-Meteo or local cache.
      */
-    public static function getForecast(
+    public static function getDailyForecast(
         float $lat = self::DEFAULT_LAT,
         float $lon = self::DEFAULT_LON,
         bool $forceFresh = false
@@ -54,7 +54,7 @@ class WeatherService
             @mkdir($cacheDir, 0777, true);
         }
 
-        $cacheKey = sprintf('weather_%s_%s.json', number_format($lat, 4, '', ''), number_format($lon, 4, '', ''));
+        $cacheKey = sprintf('weather_rain_%s_%s.json', number_format($lat, 4, '', ''), number_format($lon, 4, '', ''));
         $cacheFile = $cacheDir . '/' . $cacheKey;
 
         if (!$forceFresh && file_exists($cacheFile)) {
@@ -63,7 +63,7 @@ class WeatherService
                 $content = @file_get_contents($cacheFile);
                 if ($content !== false) {
                     $decoded = json_decode($content, true);
-                    if (is_array($decoded) && !empty($decoded['hourly'])) {
+                    if (is_array($decoded) && !empty($decoded['daily'])) {
                         return $decoded;
                     }
                 }
@@ -71,7 +71,7 @@ class WeatherService
         }
 
         $url = sprintf(
-            'https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f&hourly=temperature_2m&daily=temperature_2m_min,temperature_2m_max&timezone=auto&forecast_days=3',
+            'https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f&daily=precipitation_sum,precipitation_probability_max,weathercode&timezone=auto&forecast_days=7',
             $lat,
             $lon
         );
@@ -79,7 +79,7 @@ class WeatherService
         $context = stream_context_create([
             'http' => [
                 'timeout' => 4,
-                'header' => "User-Agent: HVACHome-Proactive-Engine/2.0\r\n"
+                'header' => "User-Agent: HVACHome-Weather/2.0\r\n"
             ]
         ]);
 
@@ -87,7 +87,7 @@ class WeatherService
             $raw = @file_get_contents($url, false, $context);
             if ($raw !== false) {
                 $data = json_decode($raw, true);
-                if (is_array($data) && !empty($data['hourly'])) {
+                if (is_array($data) && !empty($data['daily'])) {
                     @file_put_contents($cacheFile, $raw);
                     return $data;
                 }
@@ -96,7 +96,6 @@ class WeatherService
             // Network fallback below
         }
 
-        // Fallback: if cache exists even if expired, return it
         if (file_exists($cacheFile)) {
             $fallback = @file_get_contents($cacheFile);
             if ($fallback !== false) {
@@ -107,123 +106,77 @@ class WeatherService
             }
         }
 
-        // Safe fallback mock if network unreachable
-        return self::generateDefaultForecast();
+        return self::generateDefaultDailyForecast();
     }
 
     /**
-     * Check if a freeze condition (forecast low <= 0°C) is predicted within 48 hours.
+     * Check if rain is expected for a specific date (YYYY-MM-DD).
+     * Returns true if daily precipitation_sum >= 1.0mm, precipitation_probability_max >= 50%,
+     * or rain weather codes are present.
      */
-    public static function checkFreezeRisk(
+    public static function isRainExpected(
+        string $date,
         float $lat = self::DEFAULT_LAT,
         float $lon = self::DEFAULT_LON,
-        ?DateTimeInterface $refTime = null,
         ?array $customForecast = null
-    ): array {
-        $forecast = $customForecast ?? self::getForecast($lat, $lon);
-        $ref = $refTime ? DateTimeImmutable::createFromInterface($refTime) : new DateTimeImmutable();
-        $cutoff = $ref->modify('+48 hours');
+    ): bool {
+        $forecast = $customForecast ?? self::getDailyForecast($lat, $lon);
 
-        $coldestTemp = null;
-        $coldestDate = null;
-        $coldestTime = null;
+        if (empty($forecast['daily']['time'])) {
+            return false;
+        }
 
-        // 1. Check hourly temperatures within 48h window
-        if (!empty($forecast['hourly']['time']) && !empty($forecast['hourly']['temperature_2m'])) {
-            $times = $forecast['hourly']['time'];
-            $temps = $forecast['hourly']['temperature_2m'];
-            $count = min(count($times), count($temps));
+        $times = $forecast['daily']['time'];
+        $precip = $forecast['daily']['precipitation_sum'] ?? [];
+        $prob = $forecast['daily']['precipitation_probability_max'] ?? [];
+        $codes = $forecast['daily']['weathercode'] ?? [];
 
-            for ($i = 0; $i < $count; $i++) {
-                $timeStr = $times[$i];
-                $temp = (float) $temps[$i];
+        // Rain weather codes in WMO table:
+        // 51..57: Drizzle
+        // 61..67: Rain
+        // 80..82: Rain showers
+        // 95..99: Thunderstorms
+        $rainCodes = [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99];
 
-                try {
-                    $pointTime = new DateTimeImmutable($timeStr);
-                } catch (Throwable) {
-                    continue;
+        $targetDate = substr(trim($date), 0, 10);
+
+        foreach ($times as $idx => $timeStr) {
+            if ($timeStr === $targetDate) {
+                $pSum = isset($precip[$idx]) ? (float) $precip[$idx] : 0.0;
+                $pProb = isset($prob[$idx]) ? (float) $prob[$idx] : 0.0;
+                $wCode = isset($codes[$idx]) ? (int) $codes[$idx] : 0;
+
+                if ($pSum >= 1.0 || $pProb >= 50.0 || in_array($wCode, $rainCodes, true)) {
+                    return true;
                 }
-
-                // Check within [ref, cutoff]
-                if ($pointTime >= $ref->modify('-1 hour') && $pointTime <= $cutoff) {
-                    if ($coldestTemp === null || $temp < $coldestTemp) {
-                        $coldestTemp = $temp;
-                        $coldestDate = $pointTime->format('Y-m-d');
-                        $coldestTime = $pointTime->format('Y-m-d H:i');
-                    }
-                }
+                return false;
             }
         }
 
-        // 2. Also check daily minimums as backstop
-        if (!empty($forecast['daily']['time']) && !empty($forecast['daily']['temperature_2m_min'])) {
-            $dailyTimes = $forecast['daily']['time'];
-            $dailyMins = $forecast['daily']['temperature_2m_min'];
-            $dCount = min(count($dailyTimes), count($dailyMins));
-
-            for ($j = 0; $j < $dCount; $j++) {
-                $dDate = $dailyTimes[$j];
-                $dMin = (float) $dailyMins[$j];
-
-                try {
-                    $dTime = new DateTimeImmutable($dDate . ' 12:00:00');
-                } catch (Throwable) {
-                    continue;
-                }
-
-                if ($dTime <= $cutoff->modify('+12 hours')) {
-                    if ($coldestTemp === null || $dMin < $coldestTemp) {
-                        $coldestTemp = $dMin;
-                        $coldestDate = $dDate;
-                        $coldestTime = $dDate . ' (low)';
-                    }
-                }
-            }
-        }
-
-        $isFreeze = ($coldestTemp !== null && $coldestTemp <= 0.0);
-
-        return [
-            'is_freeze' => $isFreeze,
-            'min_temp' => $coldestTemp,
-            'coldest_date' => $coldestDate ?? $ref->format('Y-m-d'),
-            'coldest_time' => $coldestTime ?? $ref->format('Y-m-d H:i'),
-            'message' => $isFreeze
-                ? sprintf('Freeze alert: %.1f°C forecast on %s', $coldestTemp, $coldestDate)
-                : sprintf('No freeze predicted. Lowest expected: %.1f°C', $coldestTemp ?? 5.0),
-            'checked_until' => $cutoff->format('Y-m-d H:i:s'),
-        ];
+        return false;
     }
 
-    /**
-     * Generate fallback weather forecast if external service is unavailable.
-     */
-    private static function generateDefaultForecast(): array
+    private static function generateDefaultDailyForecast(): array
     {
-        $hourlyTimes = [];
-        $hourlyTemps = [];
-        $now = new DateTimeImmutable();
+        $times = [];
+        $precip = [];
+        $prob = [];
+        $codes = [];
+        $today = new DateTimeImmutable();
 
-        for ($h = 0; $h < 72; $h++) {
-            $t = $now->modify("+{$h} hours");
-            $hourlyTimes[] = $t->format('Y-m-d\TH:00');
-            // Moderate positive temperature default
-            $hourlyTemps[] = 8.0 + sin($h / 6.0) * 4.0;
+        for ($i = 0; $i < 7; $i++) {
+            $times[] = $today->modify("+{$i} days")->format('Y-m-d');
+            $precip[] = 0.0;
+            $prob[] = 10.0;
+            $codes[] = 1; // Clear / mainly clear
         }
 
         return [
-            'hourly' => [
-                'time' => $hourlyTimes,
-                'temperature_2m' => $hourlyTemps,
-            ],
             'daily' => [
-                'time' => [
-                    $now->format('Y-m-d'),
-                    $now->modify('+1 day')->format('Y-m-d'),
-                    $now->modify('+2 days')->format('Y-m-d'),
-                ],
-                'temperature_2m_min' => [4.0, 5.0, 4.5],
-                'temperature_2m_max' => [12.0, 13.0, 11.5],
+                'time' => $times,
+                'precipitation_sum' => $precip,
+                'precipitation_probability_max' => $prob,
+                'weathercode' => $codes,
             ]
         ];
     }

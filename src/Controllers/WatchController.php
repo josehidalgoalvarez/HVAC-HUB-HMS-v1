@@ -174,9 +174,6 @@ class WatchController
         if (isset($body['quiet_end'])) {
             $options['quiet_end'] = (int) $body['quiet_end'];
         }
-        if (isset($body['weather_forecast']) && is_array($body['weather_forecast'])) {
-            $options['weather_forecast'] = $body['weather_forecast'];
-        }
 
         try {
             $result = WatchEngine::evaluateAll($simulatedTime, $options);

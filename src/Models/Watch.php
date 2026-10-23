@@ -18,10 +18,8 @@ use Throwable;
 class Watch
 {
     public const TYPE_NOTICE_DEADLINE = 'notice_deadline';
-    public const TYPE_NOTICE_HANDOFF = 'notice_handoff';
-    public const TYPE_WEATHER_FREEZE = 'weather_freeze';
-    public const TYPE_WEATHER_MANUAL = 'weather_manual';
     public const TYPE_REPLY_WAITING = 'reply_waiting';
+    public const TYPE_PART_WAIT = 'part_wait';
     public const TYPE_SCHEDULED_TASK = 'scheduled_task';
 
     /**
@@ -398,10 +396,8 @@ class Watch
     {
         return match ($watchType) {
             'notice_deadline' => 'notice',
-            'notice_handoff' => 'notice',
-            'weather_manual' => 'ticket',
             'reply_waiting' => 'notice',
-            'weather_freeze' => 'weather',
+            'part_wait' => 'ticket',
             'scheduled_task' => 'task',
             default => 'system',
         };
@@ -412,10 +408,8 @@ class Watch
         $targetId = $data['target_id'] ?? '';
         return match ($watchType) {
             'notice_deadline' => "Notice #{$targetId} Serve-By Deadline Watch",
-            'notice_handoff' => "Notice #{$targetId} Handoff Alert",
-            'weather_manual' => "Ticket #{$targetId} Weather Outlook Watch",
             'reply_waiting' => "Notice #{$targetId} Reply-Waiting Watch",
-            'weather_freeze' => 'Regional Freeze Weather Watch',
+            'part_wait' => "Ticket #{$targetId} Part Wait Watch",
             'scheduled_task' => 'Scheduled Task Overdue Watch',
             default => 'Proactive System Watch',
         };

@@ -384,62 +384,14 @@ class Notice
                     ? trim((string) $data['handed_off_to'])
                     : (!empty($existing['handed_off_to']) ? $existing['handed_off_to'] : 'Property Management');
 
-                // Raise active watch for handoff
-                try {
-                    Watch::create([
-                        'user_id' => $userId,
-                        'watch_type' => 'notice_handoff',
-                        'title' => "Notice #{$id} handed off to {$handedOffTo} (pending send)",
-                        'description' => "Notice #{$id} was handed off to {$handedOffTo}. Awaiting sent confirmation to start 24h legal clock.",
-                        'target_type' => 'notice',
-                        'target_id' => (int) $id,
-                        'state' => 'triggered',
-                        'config' => [
-                            'notice_id' => (int) $id,
-                            'handed_off_to' => $handedOffTo,
-                            'handed_off_at' => $data['handed_off_at'] ?? $now,
-                        ],
-                        'latest_trigger_reason' => "Handed off to {$handedOffTo} — awaiting sent status",
-                        'latest_trigger_data' => [
-                            'notice_id' => (int) $id,
-                            'handed_off_to' => $handedOffTo,
-                        ],
-                    ]);
-                } catch (\Throwable $e) {}
             } elseif ($newStatus === self::STATUS_SENT) {
                 if (empty($data['sent_at']) && empty($existing['sent_at'])) {
                     $data['sent_at'] = $now;
                 }
-                // Clear and resolve any active notice_handoff watches
-                try {
-                    $handoffWatches = Watch::findAll([
-                        'target_type' => 'notice',
-                        'target_id' => (int) $id,
-                        'watch_type' => 'notice_handoff',
-                    ]);
-                    foreach ($handoffWatches as $hw) {
-                        if (($hw['state'] ?? '') !== 'resolved') {
-                            Watch::resolve((int) $hw['id'], $userId);
-                        }
-                    }
-                } catch (\Throwable $e) {}
             } elseif ($newStatus === self::STATUS_SCHEDULED) {
                 if (empty($data['scheduled_at']) && empty($existing['scheduled_at'])) {
                     $data['scheduled_at'] = $now;
                 }
-                // Clear any lingering handoff watches
-                try {
-                    $handoffWatches = Watch::findAll([
-                        'target_type' => 'notice',
-                        'target_id' => (int) $id,
-                        'watch_type' => 'notice_handoff',
-                    ]);
-                    foreach ($handoffWatches as $hw) {
-                        if (($hw['state'] ?? '') !== 'resolved') {
-                            Watch::resolve((int) $hw['id'], $userId);
-                        }
-                    }
-                } catch (\Throwable $e) {}
             } elseif ($newStatus === self::STATUS_SERVED && empty($data['served_at'])) {
                 $data['served_at'] = $now;
                 if (empty($existing['sent_at']) && empty($data['sent_at'])) {

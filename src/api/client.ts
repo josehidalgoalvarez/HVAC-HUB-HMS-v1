@@ -899,9 +899,21 @@ export class ApiClient {
     simulated_time?: string;
     quiet_start?: number;
     quiet_end?: number;
-    weather_forecast?: any;
   }): Promise<WatchEvaluateResponse> {
     return this.post<WatchEvaluateResponse>('/api/watches/evaluate', options ?? {});
+  }
+
+  /**
+   * Check if rain is expected for a given date (defaults to today)
+   */
+  public async checkRainExpected(date?: string): Promise<boolean> {
+    const d = date || new Date().toISOString().slice(0, 10);
+    try {
+      const res = await this.get<{ date: string; rain_expected: boolean }>(`/api/weather/rain-check?date=${encodeURIComponent(d)}`);
+      return !!res?.rain_expected;
+    } catch {
+      return false;
+    }
   }
 
   /**

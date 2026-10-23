@@ -16,7 +16,7 @@ use Throwable;
 /**
  * WatchEngine
  * Orchestrates proactive watch evaluations on a schedule (cron or on-demand).
- * Evaluates notice deadlines, freezing forecasts, waiting replies, and scheduled tasks,
+ * Evaluates notice deadlines, waiting replies, part waits, and scheduled tasks,
  * respecting quiet hours (22:00–07:00) and active snooze windows.
  */
 class WatchEngine
@@ -124,66 +124,20 @@ class WatchEngine
     public static function evaluateSingleWatch(array $watch, DateTimeImmutable $now, array $options = []): array
     {
         $watchType = $watch['watch_type'] ?? '';
-        $config = $watch['config'] ?? [];
 
         return match ($watchType) {
             'notice_deadline' => self::evaluateNoticeDeadline($watch, $now),
-            'notice_handoff' => self::evaluateNoticeHandoff($watch, $now),
-            'weather_manual' => self::evaluateWeatherManual($watch, $now),
-            'weather_freeze' => self::evaluateWeatherFreeze($watch, $now, $options),
             'reply_waiting' => self::evaluateReplyWaiting($watch, $now),
+            'part_wait' => self::evaluatePartWait($watch, $now),
             'scheduled_task' => self::evaluateScheduledTask($watch, $now),
             default => ['should_trigger' => false, 'reason' => null, 'data' => []],
         };
     }
 
     /**
-     * Handed-off Alert: Active while notice is handed_off, clears once notice is sent.
+     * Part Wait: Fires when ticket status is 'pending_parts' or linked parts are awaiting delivery/pickup.
      */
-    private static function evaluateNoticeHandoff(array $watch, DateTimeImmutable $now): array
-    {
-        $noticeId = !empty($watch['target_id']) ? (int) $watch['target_id'] : (int) ($watch['config']['notice_id'] ?? 0);
-        if ($noticeId <= 0) {
-            return ['should_trigger' => false, 'reason' => 'No target notice specified', 'data' => []];
-        }
-
-        $notice = Notice::findById($noticeId);
-        if ($notice === null) {
-            return ['should_trigger' => false, 'reason' => "Notice #{$noticeId} not found", 'data' => []];
-        }
-
-        // Clears once notice moves to sent, scheduled, served, or verified
-        if (in_array($notice['status'] ?? '', ['sent', 'scheduled', 'served', 'verified'], true)) {
-            Watch::resolve((int)$watch['id'], null);
-            return [
-                'should_trigger' => false,
-                'reason' => "Notice #{$noticeId} advanced to {$notice['status']}. Handoff alert cleared.",
-                'data' => $notice
-            ];
-        }
-
-        if (($notice['status'] ?? '') === 'handed_off') {
-            $handedOffTo = $notice['handed_off_to'] ?? ($watch['config']['handed_off_to'] ?? 'recipient');
-            return [
-                'should_trigger' => true,
-                'reason' => sprintf('Notice #%d handed off to %s: pending send confirmation to start 24h clock', $noticeId, $handedOffTo),
-                'data' => [
-                    'notice_id' => $noticeId,
-                    'status' => 'handed_off',
-                    'handed_off_to' => $handedOffTo,
-                    'handed_off_at' => $notice['handed_off_at'] ?? null,
-                ]
-            ];
-        }
-
-        return ['should_trigger' => false, 'reason' => 'Notice is not in handed_off status', 'data' => []];
-    }
-
-    /**
-     * Manual Weather Watch: Active while exterior_work is true and weather_note is non-empty.
-     * Auto-resolves if exterior_work is turned off or weather_note is cleared.
-     */
-    private static function evaluateWeatherManual(array $watch, DateTimeImmutable $now): array
+    private static function evaluatePartWait(array $watch, DateTimeImmutable $now): array
     {
         $ticketId = !empty($watch['target_id']) ? (int) $watch['target_id'] : (int) ($watch['config']['ticket_id'] ?? 0);
         if ($ticketId <= 0) {
@@ -195,26 +149,28 @@ class WatchEngine
             return ['should_trigger' => false, 'reason' => "Ticket #{$ticketId} not found", 'data' => []];
         }
 
-        if (empty($ticket['exterior_work']) || empty(trim((string) ($ticket['weather_note'] ?? '')))) {
-            Watch::resolve((int) $watch['id'], null);
+        if (in_array($ticket['status'] ?? '', ['resolved', 'closed', 'closed-elsewhere'], true)) {
+            Watch::resolve((int)$watch['id'], null);
+            return ['should_trigger' => false, 'reason' => "Ticket #{$ticketId} is {$ticket['status']}. Part wait resolved.", 'data' => $ticket];
+        }
+
+        $isPendingParts = (($ticket['status'] ?? '') === 'pending_parts');
+        $partName = $watch['config']['part_name'] ?? 'required parts';
+
+        if ($isPendingParts || !empty($watch['config']['part_name'])) {
             return [
-                'should_trigger' => false,
-                'reason' => "Ticket #{$ticketId} exterior work toggled off or note cleared. Watch dismissed.",
-                'data' => $ticket,
+                'should_trigger' => true,
+                'reason' => sprintf('Ticket #%d waiting on parts: %s', $ticketId, $partName),
+                'data' => [
+                    'ticket_id' => $ticketId,
+                    'status' => $ticket['status'],
+                    'part_name' => $partName,
+                    'wo_number' => $ticket['wo_number'] ?? null,
+                ]
             ];
         }
 
-        return [
-            'should_trigger' => true,
-            'reason' => 'Exterior work outlook: ' . trim((string) $ticket['weather_note']),
-            'data' => [
-                'ticket_id' => $ticketId,
-                'wo_number' => $ticket['wo_number'] ?? null,
-                'building_name' => $ticket['building_name'] ?? null,
-                'unit_number' => $ticket['unit_number'] ?? null,
-                'weather_note' => $ticket['weather_note'],
-            ],
-        ];
+        return ['should_trigger' => false, 'reason' => 'Ticket is not waiting on parts', 'data' => []];
     }
 
     /**
@@ -261,37 +217,6 @@ class WatchEngine
         return ['should_trigger' => false, 'reason' => 'Deadline has not passed yet', 'data' => []];
     }
 
-    /**
-     * 2. Weather Freeze: Fires when forecast low <= 0°C within 48 hours.
-     * Naming the coldest date and temperature.
-     */
-    private static function evaluateWeatherFreeze(array $watch, DateTimeImmutable $now, array $options = []): array
-    {
-        $config = $watch['config'] ?? [];
-        $lat = isset($config['latitude']) ? (float) $config['latitude'] : WeatherService::DEFAULT_LAT;
-        $lon = isset($config['longitude']) ? (float) $config['longitude'] : WeatherService::DEFAULT_LON;
-
-        $customForecast = $options['weather_forecast'] ?? $config['forecast'] ?? null;
-
-        $risk = WeatherService::checkFreezeRisk($lat, $lon, $now, $customForecast);
-
-        if ($risk['is_freeze']) {
-            return [
-                'should_trigger' => true,
-                'reason' => sprintf('Freeze alert: %.1f°C forecast on %s', (float) $risk['min_temp'], $risk['coldest_date']),
-                'data' => [
-                    'min_temp' => $risk['min_temp'],
-                    'coldest_date' => $risk['coldest_date'],
-                    'coldest_time' => $risk['coldest_time'],
-                    'latitude' => $lat,
-                    'longitude' => $lon,
-                    'checked_until' => $risk['checked_until'],
-                ]
-            ];
-        }
-
-        return ['should_trigger' => false, 'reason' => $risk['message'], 'data' => $risk];
-    }
 
     /**
      * 3. Reply Waiting: Fires when a sent notice/message exceeds N hours without reply.

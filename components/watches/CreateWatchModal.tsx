@@ -16,6 +16,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [targetId, setTargetId] = useState('');
+  const [partName, setPartName] = useState('');
   const [hoursThreshold, setHoursThreshold] = useState('24');
   const [dueAt, setDueAt] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,9 +30,9 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
     try {
       const config: Record<string, any> = {};
 
-      if (watchType === 'weather_freeze') {
-        config.latitude = 44.2312;
-        config.longitude = -76.4860;
+      if (watchType === 'part_wait') {
+        if (targetId) config.ticket_id = parseInt(targetId, 10);
+        if (partName) config.part_name = partName;
       } else if (watchType === 'reply_waiting') {
         config.hours_threshold = parseInt(hoursThreshold, 10) || 24;
       } else if (watchType === 'scheduled_task') {
@@ -88,14 +89,14 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => setWatchType('weather_freeze')}
-                className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${watchType === 'weather_freeze'
+                onClick={() => setWatchType('part_wait')}
+                className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all ${watchType === 'part_wait'
                     ? 'border-primary bg-primary/20 text-blue-600 dark:text-blue-200 font-bold'
                     : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
-                <span className="material-symbols-outlined text-sm leading-none">ac_unit</span>
-                <span>Weather Freeze</span>
+                <span className="material-symbols-outlined text-sm leading-none">hourglass_top</span>
+                <span>Part Wait</span>
               </button>
               <button
                 type="button"
@@ -152,6 +153,35 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
             </div>
           )}
 
+          {watchType === 'part_wait' && (
+            <>
+              <div>
+                <label className="block text-xs font-semibold text-brand-black dark:text-gray-200 mb-1">
+                  Ticket ID
+                </label>
+                <input
+                  type="number"
+                  value={targetId}
+                  onChange={(e) => setTargetId(e.target.value)}
+                  placeholder="e.g. 42"
+                  className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-300 dark:border-gray-700 text-brand-black dark:text-white text-sm focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-brand-black dark:text-gray-200 mb-1">
+                  Part Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={partName}
+                  onChange={(e) => setPartName(e.target.value)}
+                  placeholder="e.g. 3/4in Zone Valve"
+                  className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-300 dark:border-gray-700 text-brand-black dark:text-white text-sm focus:outline-none focus:border-primary"
+                />
+              </div>
+            </>
+          )}
+
           {watchType === 'reply_waiting' && (
             <div>
               <label className="block text-xs font-semibold text-brand-black dark:text-gray-200 mb-1">
@@ -164,13 +194,6 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                 placeholder="24"
                 className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-300 dark:border-gray-700 text-brand-black dark:text-white text-sm focus:outline-none focus:border-primary"
               />
-            </div>
-          )}
-
-          {watchType === 'weather_freeze' && (
-            <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/80 text-xs text-gray-600 dark:text-gray-300">
-              <span className="font-semibold block mb-0.5 text-brand-black dark:text-white">Open-Meteo Forecast</span>
-              Monitors Kingston 48h freeze risk (≤ 0°C).
             </div>
           )}
 

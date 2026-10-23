@@ -115,6 +115,7 @@ class Db
                 created_by_user_id INTEGER NULL,
                 assigned_tech_id INTEGER NULL,
                 exterior_work INTEGER NOT NULL DEFAULT 0,
+                work_exposure TEXT NOT NULL DEFAULT 'indoor',
                 weather_note TEXT NULL,
                 notice_needed INTEGER NOT NULL DEFAULT 0,
                 notice_sent_at TEXT NULL,
@@ -397,6 +398,10 @@ class Db
 
         try {
             $pdo->exec("ALTER TABLE ticket ADD COLUMN weather_note TEXT NULL");
+        } catch (\Throwable) {}
+
+        try {
+            $pdo->exec("ALTER TABLE ticket ADD COLUMN work_exposure TEXT NOT NULL DEFAULT 'indoor'");
         } catch (\Throwable) {}
 
         try {

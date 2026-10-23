@@ -303,7 +303,35 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                       <span className="text-xs text-gray-400">• {block.estimated_minutes} min est.</span>
                     </div>
 
-                    {getGateBadge(gate)}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {/* Work Exposure Chip */}
+                      {block.work_exposure === 'exterior_ladder' ? (
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800 flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[12px]">stairs</span>
+                          Ladder
+                        </span>
+                      ) : block.work_exposure === 'exterior' ? (
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-sky-100 text-sky-800 dark:bg-sky-950/60 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[12px]">wb_sunny</span>
+                          Exterior
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[12px]">roofing</span>
+                          Indoor
+                        </span>
+                      )}
+
+                      {/* Rain Badge: ONLY when exterior or ladder AND rain expected */}
+                      {(block.work_exposure === 'exterior' || block.work_exposure === 'exterior_ladder') && block.rain_expected && (
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-blue-500 text-white flex items-center gap-1 shadow-sm">
+                          <span>🌧️</span>
+                          Rain Expected
+                        </span>
+                      )}
+
+                      {getGateBadge(gate)}
+                    </div>
                   </div>
 
                   {/* Row 2: Title & Ticket Link */}

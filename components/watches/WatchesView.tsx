@@ -157,7 +157,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
               </h1>
             </div>
             <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
-              Weather, freeze, and ticket alerts
+              Proactive risk alerts & operational watches
             </p>
           </div>
         </div>
@@ -239,17 +239,23 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
             {/* Filter Pills */}
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-text-sub-light dark:text-text-sub-dark mr-1">Filter type:</span>
-              {['all', 'notice_deadline', 'notice_handoff', 'weather_freeze', 'weather_manual', 'reply_waiting', 'scheduled_task'].map((t) => (
+              {[
+                { id: 'all', label: 'All' },
+                { id: 'reply_waiting', label: 'Reply Waiting' },
+                { id: 'part_wait', label: 'Part Wait' },
+                { id: 'scheduled_task', label: 'Scheduled Tasks' },
+                { id: 'notice_deadline', label: 'Notice Not Sent' },
+              ].map(({ id, label }) => (
                 <button
-                  key={t}
-                  onClick={() => setFilterType(t)}
+                  key={id}
+                  onClick={() => setFilterType(id)}
                   className={`min-h-[36px] px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                    filterType === t
+                    filterType === id
                       ? 'bg-white dark:bg-card-dark text-brand-black dark:text-white border border-gray-200 dark:border-gray-700 font-bold shadow-xs'
                       : 'text-gray-600 dark:text-gray-300 hover:text-brand-black dark:hover:text-white hover:bg-gray-200/60 dark:hover:bg-card-dark'
                   }`}
                 >
-                  {t === 'all' ? 'All' : t.replace('_', ' ')}
+                  {label}
                 </button>
               ))}
             </div>

@@ -269,8 +269,9 @@ export interface Ticket {
   notice_status?: NoticeStatus | null;
   notice_gate_status?: NoticeGateStatus | null;
   createdByUserId?: string | null;
+  work_exposure?: 'indoor' | 'exterior' | 'exterior_ladder';
   exterior_work?: boolean;
-  weather_note?: string | null;
+  rain_expected?: boolean;
   notice_needed?: boolean;
   notice_sent_at?: string | null;
   notice_confirmed_by?: string | null;
@@ -313,6 +314,8 @@ export interface RunSheetBlock {
   notice_gate_status?: NoticeGateStatus;
   notice_is_cleared?: boolean;
   notice_gate_reason?: string | null;
+  work_exposure?: 'indoor' | 'exterior' | 'exterior_ladder';
+  rain_expected?: boolean;
   travel_buffer_before_minutes?: number;
   is_site_transition?: boolean;
   created_at?: string;
@@ -677,7 +680,7 @@ export interface OutboxItem {
 }
 
 // --- Proactive Watch Engine (Phase 6) ---
-export type WatchType = 'notice_deadline' | 'notice_handoff' | 'reply_waiting' | 'weather_freeze' | 'scheduled_task' | 'weather_manual';
+export type WatchType = 'reply_waiting' | 'part_wait' | 'scheduled_task' | 'notice_deadline';
 export type WatchState = 'active' | 'triggered' | 'acknowledged' | 'snoozed' | 'resolved';
 
 export interface WatchRecord {

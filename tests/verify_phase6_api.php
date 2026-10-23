@@ -7,6 +7,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use App\Db;
 use App\Models\Correction;
 use App\Models\Notice;
+use App\Models\Ticket;
 use App\Models\Watch;
 use App\Services\WatchEngine;
 use App\Services\WeatherService;
@@ -110,64 +111,56 @@ WatchEngine::evaluateAll($simTimeAfter);
 $freshVerifiedWatch = Watch::findById($watchVerified['id']);
 assertTest($freshVerifiedWatch['state'] === 'active', "2.8 Verified notice does NOT trigger deadline watch", $passes, $failures);
 
-// 3. Acceptance Criterion 2: Freeze Watch (`weather_freeze`)
-echo "\n--- 3. Acceptance Criterion 2: Freeze Watch (`weather_freeze`) ---\n";
-$watchFreeze = Watch::create([
-    'watch_type' => 'weather_freeze',
-    'title' => 'Kingston Regional Freeze Watch',
+// 3. Acceptance Criterion 2: Part Wait Watch (`part_wait`)
+echo "\n--- 3. Acceptance Criterion 2: Part Wait Watch (`part_wait`) ---\n";
+$ticketForPart = Ticket::create([
+    'title' => 'Furnace Zone Valve Sticking',
+    'status' => 'pending_parts',
+    'priority' => 'high',
+]);
+
+$watchPart = Watch::create([
+    'watch_type' => 'part_wait',
+    'title' => 'Waiting on 3/4in Zone Valve',
+    'target_type' => 'ticket',
+    'target_id' => $ticketForPart['id'],
     'config' => [
-        'latitude' => 44.2312,
-        'longitude' => -76.4860,
+        'ticket_id' => $ticketForPart['id'],
+        'part_name' => '3/4in Zone Valve',
     ]
 ]);
-assertTest($watchFreeze['id'] > 0, "3.1 Freeze watch created", $passes, $failures);
+assertTest($watchPart['id'] > 0, "3.1 Part wait watch created", $passes, $failures);
 
-// Mock forecast WITH freeze: -3.5°C on 2026-10-20
-$freezeForecast = [
-    'hourly' => [
-        'time' => ['2026-10-19T12:00', '2026-10-20T05:00', '2026-10-20T12:00'],
-        'temperature_2m' => [5.0, -3.5, 2.0],
-    ],
-    'daily' => [
-        'time' => ['2026-10-19', '2026-10-20', '2026-10-21'],
-        'temperature_2m_min' => [3.0, -3.5, 1.0],
-        'temperature_2m_max' => [10.0, 4.0, 8.0],
-    ]
-];
+$simTimePart = new DateTimeImmutable('2026-10-19 10:00:00');
+WatchEngine::evaluateAll($simTimePart);
+$freshPartWatch = Watch::findById($watchPart['id']);
 
-$simTimeWeather = new DateTimeImmutable('2026-10-19 10:00:00');
-WatchEngine::evaluateAll($simTimeWeather, ['weather_forecast' => $freezeForecast]);
-$freshFreezeWatch = Watch::findById($watchFreeze['id']);
+assertTest($freshPartWatch['state'] === 'triggered', "3.2 Part wait watch flipped to 'triggered' for pending_parts ticket", $passes, $failures);
+assertTest(str_contains($freshPartWatch['latest_trigger_reason'], '3/4in Zone Valve'), "3.3 Reason includes part name", $passes, $failures);
+assertTest((int)$freshPartWatch['latest_trigger_data']['ticket_id'] === (int)$ticketForPart['id'], "3.4 Data payload contains ticket_id", $passes, $failures);
 
-assertTest($freshFreezeWatch['state'] === 'triggered', "3.2 Freeze watch flipped to 'triggered' with <= 0°C forecast inside 48h", $passes, $failures);
-assertTest(str_contains($freshFreezeWatch['latest_trigger_reason'], '-3.5°C'), "3.3 Reason includes coldest temperature (-3.5°C)", $passes, $failures);
-assertTest(str_contains($freshFreezeWatch['latest_trigger_reason'], '2026-10-20'), "3.4 Reason names the coldest date (2026-10-20)", $passes, $failures);
-assertTest($freshFreezeWatch['latest_trigger_data']['coldest_date'] === '2026-10-20', "3.5 Data payload contains coldest_date '2026-10-20'", $passes, $failures);
-
-// Non-freeze forecast: all temperatures > 0°C
-$warmForecast = [
-    'hourly' => [
-        'time' => ['2026-10-19T12:00', '2026-10-20T05:00', '2026-10-20T12:00'],
-        'temperature_2m' => [8.0, 4.5, 9.0],
-    ],
-    'daily' => [
-        'time' => ['2026-10-19', '2026-10-20', '2026-10-21'],
-        'temperature_2m_min' => [5.0, 4.5, 6.0],
-        'temperature_2m_max' => [14.0, 15.0, 13.0],
-    ]
-];
-$watchWarm = Watch::create([
-    'watch_type' => 'weather_freeze',
-    'title' => 'Warm Location Watch',
+// Non-pending-parts ticket does not trigger
+$ticketNormal = Ticket::create([
+    'title' => 'Standard Filter Change',
+    'status' => 'new',
 ]);
-WatchEngine::evaluateAll($simTimeWeather, ['weather_forecast' => $warmForecast]);
-$freshWarmWatch = Watch::findById($watchWarm['id']);
-assertTest($freshWarmWatch['state'] === 'active', "3.6 Warm forecast (>0°C) does NOT trigger freeze watch", $passes, $failures);
+$watchNormal = Watch::create([
+    'watch_type' => 'part_wait',
+    'title' => 'Filter Wait Check',
+    'target_type' => 'ticket',
+    'target_id' => $ticketNormal['id'],
+    'config' => [
+        'ticket_id' => $ticketNormal['id'],
+    ]
+]);
+WatchEngine::evaluateAll($simTimePart);
+$freshNormalWatch = Watch::findById($watchNormal['id']);
+assertTest($freshNormalWatch['state'] === 'active', "3.5 Normal ticket does NOT trigger part wait watch", $passes, $failures);
 
 // 4. Acceptance Criterion 3: Digest Deduplication & Snooze Silence
 echo "\n--- 4. Acceptance Criterion 3: Digest Deduplication & Snooze Silence ---\n";
 // Daily digest
-$digest1 = Watch::getDigest($simTimeWeather);
+$digest1 = Watch::getDigest($simTimePart);
 assertTest(count($digest1['items']) >= 2, "4.1 Digest contains triggered watches", $passes, $failures);
 
 // Deduplication check: each watch appears exactly once
@@ -176,31 +169,31 @@ $uniqueWatchIds = array_unique($watchIdsInDigest);
 assertTest(count($watchIdsInDigest) === count($uniqueWatchIds), "4.2 Triggered watches appear in digest exactly once (deduped)", $passes, $failures);
 
 // Snooze watch for 1 hour
-$snoozedWatch = Watch::snooze($watchFreeze['id'], '1h', 1, $simTimeWeather);
+$snoozedWatch = Watch::snooze($watchPart['id'], '1h', 1, $simTimePart);
 assertTest($snoozedWatch['state'] === 'snoozed', "4.3 Watch state updated to 'snoozed'", $passes, $failures);
 assertTest(!empty($snoozedWatch['snoozed_until']), "4.4 snoozed_until timestamp populated", $passes, $failures);
 
 // Verify digest excludes snoozed watch
-$digestDuringSnooze = Watch::getDigest($simTimeWeather->modify('+15 minutes'));
-$snoozedIdFound = in_array($watchFreeze['id'], array_column($digestDuringSnooze['items'], 'id'), true);
+$digestDuringSnooze = Watch::getDigest($simTimePart->modify('+15 minutes'));
+$snoozedIdFound = in_array($watchPart['id'], array_column($digestDuringSnooze['items'], 'id'), true);
 assertTest(!$snoozedIdFound, "4.5 Snoozed watch is silenced and does NOT appear in active digest", $passes, $failures);
 
 // Re-evaluating while snooze is active must NOT re-trigger it
-WatchEngine::evaluateAll($simTimeWeather->modify('+20 minutes'), ['weather_forecast' => $freezeForecast]);
-$freshStillSnoozed = Watch::findById($watchFreeze['id']);
+WatchEngine::evaluateAll($simTimePart->modify('+20 minutes'));
+$freshStillSnoozed = Watch::findById($watchPart['id']);
 assertTest($freshStillSnoozed['state'] === 'snoozed', "4.6 Evaluation while snoozed preserves snooze state without re-triggering", $passes, $failures);
 
 // Advance time past snooze expiry (e.g. +70 minutes)
-$simTimePostSnooze = $simTimeWeather->modify('+70 minutes');
-WatchEngine::evaluateAll($simTimePostSnooze, ['weather_forecast' => $freezeForecast]);
-$freshWokenWatch = Watch::findById($watchFreeze['id']);
+$simTimePostSnooze = $simTimePart->modify('+70 minutes');
+WatchEngine::evaluateAll($simTimePostSnooze);
+$freshWokenWatch = Watch::findById($watchPart['id']);
 assertTest($freshWokenWatch['state'] === 'triggered', "4.7 Watch wakes up and triggers once snooze expires", $passes, $failures);
 
 // Test Acknowledge action
-$ackedWatch = Watch::acknowledge($watchFreeze['id'], 1);
+$ackedWatch = Watch::acknowledge($watchPart['id'], 1);
 assertTest($ackedWatch['state'] === 'acknowledged', "4.8 Watch state changed to 'acknowledged'", $passes, $failures);
 $digestAfterAck = Watch::getDigest($simTimePostSnooze);
-$ackedIdFound = in_array($watchFreeze['id'], array_column($digestAfterAck['items'], 'id'), true);
+$ackedIdFound = in_array($watchPart['id'], array_column($digestAfterAck['items'], 'id'), true);
 assertTest(!$ackedIdFound, "4.9 Acknowledged watch is removed from active digest", $passes, $failures);
 
 // 5. Acceptance Criterion 4: Quiet Hours Batching (22:00–07:00)

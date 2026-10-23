@@ -87,7 +87,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
         </span>
       </div>
 
-      {/* Row 2: Location, Status Badge, Yardi Sighting Warning */}
+      {/* Row 2: Location, Exposure Chip, Rain Badge, Status Badge, Yardi Sighting Warning */}
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div className="flex items-center gap-1.5 text-text-sub-light dark:text-text-sub-dark">
           <span className="material-symbols-outlined text-[16px] text-gray-400">location_on</span>
@@ -96,7 +96,33 @@ export const TicketCard: React.FC<TicketCardProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {/* Work Exposure Chip */}
+          {ticket.work_exposure === 'exterior_ladder' ? (
+            <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800 flex items-center gap-1">
+              <span className="material-symbols-outlined text-[12px]">stairs</span>
+              Ladder
+            </span>
+          ) : ticket.work_exposure === 'exterior' ? (
+            <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-sky-100 text-sky-800 dark:bg-sky-950/60 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
+              <span className="material-symbols-outlined text-[12px]">wb_sunny</span>
+              Exterior
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1">
+              <span className="material-symbols-outlined text-[12px]">roofing</span>
+              Indoor
+            </span>
+          )}
+
+          {/* Rain Badge: ONLY when exterior or ladder AND rain expected */}
+          {(ticket.work_exposure === 'exterior' || ticket.work_exposure === 'exterior_ladder') && ticket.rain_expected && (
+            <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-blue-500 text-white flex items-center gap-1 shadow-sm">
+              <span>🌧️</span>
+              Rain Expected
+            </span>
+          )}
+
           {/* Yardi Staleness Amber Pill (only when >= 7 days unseen) */}
           {ticket.is_stale_yardi && (
             <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-500 text-white rounded-md flex items-center gap-1 shadow-sm">

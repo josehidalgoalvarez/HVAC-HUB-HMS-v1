@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Db;
 use App\Services\BatchSuggester;
 use App\Services\VehiclePlanner;
+use App\Services\WeatherService;
 use RuntimeException;
 use Throwable;
 
@@ -275,12 +276,26 @@ class RunSheetBlock
             $row['notice_gate_status'] = $gate['gate_status'];
             $row['notice_is_cleared'] = $gate['is_cleared'];
             $row['notice_gate_reason'] = $gate['reason'];
+
+            $t = Ticket::findById($ticketId);
+            $exposure = $t['work_exposure'] ?? 'indoor';
+            $row['work_exposure'] = $exposure;
+
+            if ($exposure === 'exterior' || $exposure === 'exterior_ladder') {
+                $rs = !empty($row['run_sheet_id']) ? Db::fetchOne('SELECT run_date FROM run_sheet WHERE id = ?', [(int)$row['run_sheet_id']]) : null;
+                $schedDate = $rs['run_date'] ?? date('Y-m-d');
+                $row['rain_expected'] = WeatherService::isRainExpected($schedDate);
+            } else {
+                $row['rain_expected'] = false;
+            }
         } else {
             $row['notice_id'] = null;
             $row['notice_status'] = null;
             $row['notice_gate_status'] = 'green';
             $row['notice_is_cleared'] = true;
             $row['notice_gate_reason'] = 'Non-ticket site block (no notice required)';
+            $row['work_exposure'] = 'indoor';
+            $row['rain_expected'] = false;
         }
 
         // 2. E-bike carry check

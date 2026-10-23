@@ -23,35 +23,23 @@ export const WatchCard: React.FC<WatchCardProps> = ({
 
   const getTypeBadge = (type: WatchType) => {
     switch (type) {
-      case 'weather_freeze':
-        return {
-          label: 'Freeze Alert',
-          icon: 'ac_unit',
-          bg: 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800',
-        };
-      case 'weather_manual':
-        return {
-          label: 'Weather Outlook',
-          icon: 'partly_cloudy_day',
-          bg: 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800',
-        };
       case 'notice_deadline':
         return {
-          label: 'Notice Deadline',
+          label: 'Notice Not Sent',
           icon: 'event_busy',
-          bg: 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
-        };
-      case 'notice_handoff':
-        return {
-          label: 'Handoff Alert',
-          icon: 'outgoing_mail',
           bg: 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
         };
       case 'reply_waiting':
         return {
           label: 'Reply Waiting',
           icon: 'hourglass_empty',
-          bg: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700',
+          bg: 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+        };
+      case 'part_wait':
+        return {
+          label: 'Part Wait',
+          icon: 'hourglass_top',
+          bg: 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800',
         };
       case 'scheduled_task':
         return {
@@ -152,41 +140,6 @@ export const WatchCard: React.FC<WatchCardProps> = ({
         </div>
       )}
 
-      {/* Manual Weather Outlook Card Box */}
-      {watch.watch_type === 'weather_manual' && (
-        <div className="mt-2 mb-3 p-3 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 text-sky-900 dark:text-sky-200">
-          <div className="flex items-start gap-2.5">
-            <span className="material-symbols-outlined text-sky-600 dark:text-sky-400 text-base leading-none shrink-0 mt-0.5">partly_cloudy_day</span>
-            <div className="flex-1 text-xs space-y-1">
-              <div className="flex items-center justify-between gap-1">
-                <span className="font-bold text-sky-950 dark:text-white text-[13px] truncate">
-                  {watch.config?.building_name || watch.latest_trigger_data?.building_name ? (
-                    <>
-                      {watch.config?.building_name || watch.latest_trigger_data?.building_name}
-                      {(watch.config?.unit_number || watch.latest_trigger_data?.unit_number) && (
-                        <span className="text-sky-700 dark:text-sky-300 font-normal ml-1">
-                          • Unit {watch.config?.unit_number || watch.latest_trigger_data?.unit_number}
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    <span>Ticket #{watch.target_id} Exterior Work</span>
-                  )}
-                </span>
-                {(watch.config?.wo_number || watch.latest_trigger_data?.wo_number) && (
-                  <span className="font-mono text-[10px] bg-sky-100 dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800/60 px-1.5 py-0.5 rounded text-sky-700 dark:text-sky-300 shrink-0">
-                    WO: {watch.config?.wo_number || watch.latest_trigger_data?.wo_number}
-                  </span>
-                )}
-              </div>
-              <p className="text-sky-800 dark:text-sky-100 text-xs italic font-medium leading-relaxed">
-                "{watch.description || watch.config?.weather_note || watch.latest_trigger_data?.weather_note || 'Exterior weather planning note'}"
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Trigger Alert Box (if triggered) */}
       {isTriggered && watch.latest_trigger_reason && (
         <div className="mt-2 mb-3 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-rose-900 dark:text-rose-200">
@@ -194,12 +147,6 @@ export const WatchCard: React.FC<WatchCardProps> = ({
             <span className="material-symbols-outlined text-rose-600 dark:text-rose-400 text-sm leading-none shrink-0 mt-0.5">warning</span>
             <div className="flex-1 text-xs">
               <p className="font-medium">{watch.latest_trigger_reason}</p>
-              {watch.latest_trigger_data?.coldest_date && (
-                <div className="mt-1 flex items-center gap-3 text-rose-700 dark:text-rose-300 text-[11px]">
-                  <span>Coldest: <strong>{watch.latest_trigger_data.min_temp}°C</strong></span>
-                  <span>Date: <strong>{watch.latest_trigger_data.coldest_date}</strong></span>
-                </div>
-              )}
             </div>
           </div>
         </div>

@@ -104,40 +104,32 @@ async function runE2E() {
     assertTest(watchAfter.state === 'triggered', "1.7 POST /api/watches/evaluate flips unverified notice watch to 'triggered'");
     assertTest(watchAfter.latest_trigger_reason?.includes('passed unverified'), "1.8 Trigger reason notes serve-by deadline passed unverified");
 
-    // 2. Acceptance Criterion 2: Freeze Watch (<=0°C within 48h naming coldest date)
-    console.log("\n--- 2. Acceptance Criterion 2: Freeze Watch (<=0°C within 48h) ---");
-    const freezeWatch = await client.createWatch({
-      watch_type: 'weather_freeze',
-      title: 'Kingston 48h Freeze Sentinel',
+    // 2. Acceptance Criterion 2: Part Wait Watch (`part_wait`)
+    console.log("\n--- 2. Acceptance Criterion 2: Part Wait Watch (`part_wait`) ---");
+    const partTicket = await client.createTicket({
+      title: 'Condenser fan motor replacement',
+      status: 'pending_parts',
+      priority: 'high',
+    });
+    const partWatch = await client.createWatch({
+      watch_type: 'part_wait',
+      title: 'Waiting on Fan Motor',
+      target_type: 'ticket',
+      target_id: partTicket.id,
       config: {
-        latitude: 44.2312,
-        longitude: -76.4860,
+        ticket_id: partTicket.id,
+        part_name: 'Condenser Fan Motor 1/3 HP',
       }
     });
-    assertTest(freezeWatch?.id > 0, "2.1 weather_freeze watch created via POST /api/watches");
+    assertTest(partWatch?.id > 0, "2.1 part_wait watch created via POST /api/watches");
 
-    // Test forecast with freeze: -4.5°C on 2026-10-21
-    const freezeForecast = {
-      hourly: {
-        time: ['2026-10-20T12:00', '2026-10-21T04:00', '2026-10-21T12:00'],
-        temperature_2m: [6.0, -4.5, 1.0],
-      },
-      daily: {
-        time: ['2026-10-20', '2026-10-21', '2026-10-22'],
-        temperature_2m_min: [4.0, -4.5, 0.5],
-        temperature_2m_max: [11.0, 3.0, 7.0],
-      }
-    };
-
-    const evalFreeze = await client.evaluateWatches({
+    await client.evaluateWatches({
       simulated_time: '2026-10-20 10:00:00',
-      weather_forecast: freezeForecast,
     });
-    const freshFreeze = await client.getWatch(freezeWatch.id);
-    assertTest(freshFreeze.state === 'triggered', "2.2 Freeze watch flips to 'triggered' with <= 0°C forecast inside 48h");
-    assertTest(freshFreeze.latest_trigger_reason?.includes('-4.5°C'), "2.3 Trigger reason names low temperature (-4.5°C)");
-    assertTest(freshFreeze.latest_trigger_reason?.includes('2026-10-21'), "2.4 Trigger reason names coldest date (2026-10-21)");
-    assertTest(freshFreeze.latest_trigger_data?.coldest_date === '2026-10-21', "2.5 Trigger data contains coldest_date 2026-10-21");
+    const freshPart = await client.getWatch(partWatch.id);
+    assertTest(freshPart.state === 'triggered', "2.2 Part wait watch flips to 'triggered' for pending_parts ticket");
+    assertTest(freshPart.latest_trigger_reason?.includes('Fan Motor'), "2.3 Trigger reason names part");
+    assertTest(Number(freshPart.latest_trigger_data?.ticket_id) === Number(partTicket.id), "2.4 Trigger data contains ticket_id");
 
     // 3. Acceptance Criterion 3: Digest Deduplication & Snooze Silence
     console.log("\n--- 3. Acceptance Criterion 3: Digest Deduplication & Snooze Silence ---");
@@ -151,8 +143,8 @@ async function runE2E() {
     const uniqueIds = Array.from(new Set(itemIds));
     assertTest(itemIds.length === uniqueIds.length, "3.2 Triggered watches appear in digest exactly once (deduped)");
 
-    // Snooze the freeze watch for 1h
-    const snoozed = await client.snoozeWatch(freezeWatch.id, '1h', '2026-10-20T10:00:00');
+    // Snooze the part wait watch for 1h
+    const snoozed = await client.snoozeWatch(partWatch.id, '1h', '2026-10-20T10:00:00');
     assertTest(snoozed.state === 'snoozed', "3.3 Watch snoozed successfully via PATCH /api/watches/:id");
     assertTest(Boolean(snoozed.snoozed_until), "3.4 snoozed_until timestamp recorded");
 
@@ -160,32 +152,30 @@ async function runE2E() {
     const digestWhileSnoozed = await client.getWatchDigest({
       simulated_time: '2026-10-20 10:20:00',
     });
-    const foundSnoozed = digestWhileSnoozed.items.some(w => w.id === freezeWatch.id);
+    const foundSnoozed = digestWhileSnoozed.items.some(w => w.id === partWatch.id);
     assertTest(!foundSnoozed, "3.5 Snoozed watch is silenced and omitted from active digest");
 
     // Evaluate while snooze is active -> remains snoozed, does NOT re-trigger
     await client.evaluateWatches({
       simulated_time: '2026-10-20 10:30:00',
-      weather_forecast: freezeForecast,
     });
-    const stillSnoozed = await client.getWatch(freezeWatch.id);
+    const stillSnoozed = await client.getWatch(partWatch.id);
     assertTest(stillSnoozed.state === 'snoozed', "3.6 Evaluation while snoozed keeps watch snoozed (silenced)");
 
     // Advance time past snooze (+75 minutes)
     await client.evaluateWatches({
       simulated_time: '2026-10-20 11:15:00',
-      weather_forecast: freezeForecast,
     });
-    const reTriggered = await client.getWatch(freezeWatch.id);
+    const reTriggered = await client.getWatch(partWatch.id);
     assertTest(reTriggered.state === 'triggered', "3.7 Watch re-triggers once snooze expires");
 
     // Acknowledge watch
-    const acked = await client.acknowledgeWatch(freezeWatch.id);
+    const acked = await client.acknowledgeWatch(partWatch.id);
     assertTest(acked.state === 'acknowledged', "3.8 Watch state changed to 'acknowledged'");
     const digestPostAck = await client.getWatchDigest({
       simulated_time: '2026-10-20 11:20:00',
     });
-    assertTest(!digestPostAck.items.some(w => w.id === freezeWatch.id), "3.9 Acknowledged watch removed from active digest");
+    assertTest(!digestPostAck.items.some(w => w.id === partWatch.id), "3.9 Acknowledged watch removed from active digest");
 
     // 4. Acceptance Criterion 4: Quiet Hours Batching (22:00–07:00)
     console.log("\n--- 4. Acceptance Criterion 4: Quiet Hours Batching (22:00–07:00) ---");

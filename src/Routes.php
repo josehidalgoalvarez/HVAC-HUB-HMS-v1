@@ -12,6 +12,7 @@ use App\Controllers\PhotoController;
 use App\Controllers\RunSheetController;
 use App\Controllers\TicketController;
 use App\Controllers\WatchController;
+use App\Controllers\WeatherController;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
@@ -208,6 +209,9 @@ class Routes
             $group->get('/watches/{id}', [WatchController::class, 'show']);
             $group->patch('/watches/{id}', [WatchController::class, 'update']);
             $group->delete('/watches/{id}', [WatchController::class, 'delete']);
+
+            // --- Rain-Only Weather Signal ---
+            $group->get('/weather/rain-check', [WeatherController::class, 'rainCheck']);
 
             // --- Complexes Domain (Task 1) ---
             $group->get('/complexes', function (Request $request, Response $response): Response {

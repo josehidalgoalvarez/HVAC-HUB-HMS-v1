@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Db;
+use App\Services\WeatherService;
 use RuntimeException;
 use Throwable;
 
@@ -229,6 +230,12 @@ class Ticket
         $createdByUserId = $userId ?? (!empty($data['created_by_user_id']) ? (int) $data['created_by_user_id'] : null);
         $lastSeenInYardi = !empty($data['last_seen_in_yardi']) ? (string) $data['last_seen_in_yardi'] : null;
         $exteriorWork = !empty($data['exterior_work']) ? 1 : 0;
+        $workExposure = in_array($data['work_exposure'] ?? '', ['indoor', 'exterior', 'exterior_ladder'], true)
+            ? (string) $data['work_exposure']
+            : ($exteriorWork ? 'exterior' : 'indoor');
+        if ($workExposure !== 'indoor') {
+            $exteriorWork = 1;
+        }
         $weatherNote = isset($data['weather_note']) ? (string) $data['weather_note'] : null;
         $noticeNeeded = !empty($data['notice_needed']) ? 1 : 0;
         $noticeSentAt = !empty($data['notice_sent_at']) ? (string) $data['notice_sent_at'] : null;
@@ -238,9 +245,9 @@ class Ticket
                     wo_number, parent_ticket_id, building_id, unit_id, 
                     title, description, verbatim_text, verified_scope, photo_url,
                     status, priority, blocker_reason, last_seen_in_yardi,
-                    created_by_user_id, assigned_tech_id, exterior_work, weather_note,
+                    created_by_user_id, assigned_tech_id, exterior_work, work_exposure, weather_note,
                     notice_needed, notice_sent_at, notice_confirmed_by, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
 
         Db::execute($sql, [
             $woNumber,
@@ -259,6 +266,7 @@ class Ticket
             $createdByUserId,
             $assignedTechId,
             $exteriorWork,
+            $workExposure,
             $weatherNote,
             $noticeNeeded,
             $noticeSentAt,
@@ -340,11 +348,13 @@ class Ticket
             'blocker_reason',
             'last_seen_in_yardi',
             'assigned_tech_id',
+            'work_exposure',
             'exterior_work',
             'weather_note',
             'notice_needed',
             'notice_sent_at',
             'notice_confirmed_by',
+            'scheduled_at',
         ];
 
         $fieldsToUpdate = [];
@@ -364,6 +374,14 @@ class Ticket
             }
             if ($field === 'weather_note' && $newVal === '') {
                 $newVal = null;
+            }
+            if ($field === 'work_exposure') {
+                if (!in_array($newVal, ['indoor', 'exterior', 'exterior_ladder'], true)) {
+                    $newVal = 'indoor';
+                }
+                if (!array_key_exists('exterior_work', $data)) {
+                    $data['exterior_work'] = ($newVal !== 'indoor') ? 1 : 0;
+                }
             }
             if ($field === 'exterior_work') {
                 $newVal = !empty($newVal) ? 1 : 0;
@@ -493,6 +511,43 @@ class Ticket
         $row['is_stale_yardi'] = $isStale;
         $row['yardi_warning'] = $warning;
         $row['exterior_work'] = (bool) ($row['exterior_work'] ?? 0);
+        $exposure = $row['work_exposure'] ?? null;
+        if (!in_array($exposure, ['indoor', 'exterior', 'exterior_ladder'], true)) {
+            $exposure = !empty($row['exterior_work']) ? 'exterior' : 'indoor';
+        }
+        $row['work_exposure'] = $exposure;
+        $rainExpected = false;
+        if ($exposure === 'exterior' || $exposure === 'exterior_ladder') {
+            $schedDate = !empty($row['scheduled_at']) ? substr((string) $row['scheduled_at'], 0, 10) : null;
+            if (!$schedDate && !empty($row['id'])) {
+                try {
+                    $linkedBlock = Db::fetchOne(
+                        "SELECT r.run_date FROM run_sheet_block b JOIN run_sheet r ON b.run_sheet_id = r.id WHERE b.ticket_id = ? AND r.status != 'archived' ORDER BY r.run_date DESC LIMIT 1",
+                        [(int) $row['id']]
+                    );
+                    if (!empty($linkedBlock['run_date'])) {
+                        $schedDate = substr((string) $linkedBlock['run_date'], 0, 10);
+                    } else {
+                        $linkedNotice = Db::fetchOne(
+                            'SELECT entry_date, entry_start FROM notice WHERE ticket_id = ? ORDER BY id DESC LIMIT 1',
+                            [(int) $row['id']]
+                        );
+                        if (!empty($linkedNotice['entry_date'])) {
+                            $schedDate = substr((string) $linkedNotice['entry_date'], 0, 10);
+                        } elseif (!empty($linkedNotice['entry_start'])) {
+                            $schedDate = substr((string) $linkedNotice['entry_start'], 0, 10);
+                        }
+                    }
+                } catch (Throwable) {
+                    // Ignore DB lookup fallback
+                }
+            }
+            if (!$schedDate) {
+                $schedDate = date('Y-m-d');
+            }
+            $rainExpected = WeatherService::isRainExpected($schedDate);
+        }
+        $row['rain_expected'] = $rainExpected;
         $row['weather_note'] = $row['weather_note'] ?? null;
         $row['notice_needed'] = (bool) ($row['notice_needed'] ?? 0);
         $row['notice_sent_at'] = $row['notice_sent_at'] ?? null;
