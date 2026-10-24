@@ -19,12 +19,14 @@ interface TicketDetailViewProps {
   ticketId: string;
   onBack: () => void;
   onOpenTicket?: (id: string) => void;
+  onRunSop?: (sopId?: string) => void;
 }
 
 export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   ticketId,
   onBack,
   onOpenTicket,
+  onRunSop,
 }) => {
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [corrections, setCorrections] = useState<Correction[]>([]);
@@ -994,6 +996,16 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           <span className="material-symbols-outlined text-base">photo_camera</span>
           Identify Appliance
         </button>
+        {onRunSop && (
+          <button
+            type="button"
+            onClick={() => onRunSop('sop-gas-furnace-service')}
+            className="flex-1 min-w-[120px] min-h-[44px] px-3 py-2 text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all"
+          >
+            <span className="material-symbols-outlined text-base">fact_check</span>
+            Run SOP
+          </button>
+        )}
       </div>
 
       {/* Primary Details Card */}
@@ -1210,6 +1222,8 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                       return { icon: 'autorenew', bg: 'bg-purple-500', label: 'Return Visit' };
                     case 'completed':
                       return { icon: 'check_circle', bg: 'bg-emerald-600', label: 'Job Completed' };
+                    case 'sop_run_completed':
+                      return { icon: 'fact_check', bg: 'bg-teal-600', label: 'SOP Run Completed' };
                     default:
                       return { icon: 'event_note', bg: 'bg-gray-500', label: 'Note / Event' };
                   }
@@ -1247,6 +1261,21 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                       {/* Event Metadata Chips / Indicators */}
                       {meta && Object.keys(meta).length > 0 && (
                         <div className="pt-1 flex items-center gap-1.5 flex-wrap text-[11px]">
+                          {meta.sop_title && (
+                            <span className="px-2 py-0.5 rounded bg-teal-500/10 text-teal-700 dark:text-teal-400 font-semibold border border-teal-500/20">
+                              {meta.sop_title}
+                            </span>
+                          )}
+                          {meta.duration_minutes !== undefined && (
+                            <span className="px-2 py-0.5 rounded bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-300 font-mono">
+                              {meta.duration_minutes} min{meta.duration_minutes === 1 ? '' : 's'}
+                            </span>
+                          )}
+                          {meta.deviations_count > 0 && (
+                            <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold border border-amber-500/20">
+                              {meta.deviations_count} deviation{meta.deviations_count === 1 ? '' : 's'}
+                            </span>
+                          )}
                           {meta.is_our_miss && (
                             <span className="px-2 py-0.5 rounded-md font-bold uppercase tracking-wider bg-rose-100 text-rose-900 border border-rose-300 dark:bg-rose-950 dark:text-rose-200 dark:border-rose-800">
                               [OUR MISS] Notice Not Sent Prior

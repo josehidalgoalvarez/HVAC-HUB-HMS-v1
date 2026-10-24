@@ -14,5 +14,7 @@ export enum ViewType {
   QUICK_LOG = 'quick_log',
   PARTS = 'parts',
   NOTICES = 'notices',
-  WATCHES = 'watches'
+  WATCHES = 'watches',
+  SOPS = 'sops',
+  SOP_RUN = 'sop_run'
 }

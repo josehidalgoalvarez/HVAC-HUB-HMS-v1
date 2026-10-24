@@ -30,6 +30,8 @@ import type {
   TicketPart,
   HarvestCandidate,
   StockTransfer,
+  SOP,
+  SOPRun,
 } from '../../types/domain';
 import { appCache } from '../offline/cache.ts';
 
@@ -1026,6 +1028,33 @@ export class ApiClient {
       if (qs) path += `?${qs}`;
     }
     return this.get<WatchDigestResponse>(path);
+  }
+
+  /**
+   * SOP Library & Runs
+   */
+  public async getSops(): Promise<SOP[]> {
+    return this.get<SOP[]>('/api/sops');
+  }
+
+  public async getSop(id: string): Promise<SOP> {
+    return this.get<SOP>(`/api/sops/${encodeURIComponent(id)}`);
+  }
+
+  public async getSopRuns(params?: { ticket_id?: number | string; sop_id?: string }): Promise<SOPRun[]> {
+    let path = '/api/sops/runs';
+    if (params) {
+      const q = new URLSearchParams();
+      if (params.ticket_id) q.append('ticket_id', String(params.ticket_id));
+      if (params.sop_id) q.append('sop_id', params.sop_id);
+      const qs = q.toString();
+      if (qs) path += `?${qs}`;
+    }
+    return this.get<SOPRun[]>(path);
+  }
+
+  public async recordSopRun(payload: Partial<SOPRun>): Promise<SOPRun> {
+    return this.post<SOPRun>('/api/sops/runs', payload);
   }
 
   /**

@@ -17,6 +17,7 @@ interface ProfileViewProps {
   onOpenParts?: () => void;
   onOpenWatches?: () => void;
   onOpenDefaults?: () => void;
+  onOpenSops?: () => void;
 }
 
 const ProfileView: React.FC<ProfileViewProps> = ({
@@ -26,7 +27,8 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   onToggleEditMode,
   onOpenParts,
   onOpenWatches,
-  onOpenDefaults
+  onOpenDefaults,
+  onOpenSops
 }) => {
   const { properties, appliances, logs: changeLogs, isTutorialActive } = useData();
   const { importData, duplicateProperty, deleteProperty, startTutorial, endTutorial } = useActions();
@@ -143,6 +145,12 @@ const ProfileView: React.FC<ProfileViewProps> = ({
       icon: 'tune',
       label: 'Appliance Defaults Library',
       action: onOpenDefaults,
+      color: 'text-primary'
+    }] : []),
+    ...(onOpenSops ? [{
+      icon: 'menu_book',
+      label: 'SOP Library & Timed Runs',
+      action: onOpenSops,
       color: 'text-primary'
     }] : []),
     {

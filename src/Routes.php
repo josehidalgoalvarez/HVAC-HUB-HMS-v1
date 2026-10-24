@@ -255,6 +255,36 @@ class Routes
             $group->post('/jobs/{id}/close', [JobController::class, 'close']);
             $group->post('/sync', [JobController::class, 'batchSync']);
 
+            // --- Standard Operating Procedures (SOPs & Timed Runs) ---
+            $group->get('/sops', function (Request $request, Response $response): Response {
+                $sops = \App\Models\SOP::findAll();
+                return Auth::jsonSuccess($sops);
+            });
+            $group->get('/sops/runs', function (Request $request, Response $response): Response {
+                $params = $request->getQueryParams();
+                $ticketId = !empty($params['ticket_id']) ? (int) $params['ticket_id'] : null;
+                $sopId = !empty($params['sop_id']) ? (string) $params['sop_id'] : null;
+                $runs = \App\Models\SOP::getRuns($ticketId, $sopId);
+                return Auth::jsonSuccess($runs);
+            });
+            $group->get('/sops/{id}', function (Request $request, Response $response, array $args): Response {
+                $id = (string) ($args['id'] ?? '');
+                $sop = \App\Models\SOP::findById($id);
+                if (!$sop) {
+                    return Auth::jsonError('not_found', 'SOP not found', 404);
+                }
+                return Auth::jsonSuccess($sop);
+            });
+            $group->post('/sops/runs', function (Request $request, Response $response): Response {
+                $body = (array) ($request->getParsedBody() ?? []);
+                try {
+                    $run = \App\Models\SOP::createRun($body);
+                    return Auth::jsonSuccess($run, 201);
+                } catch (\Throwable $e) {
+                    return Auth::jsonError('run_creation_failed', $e->getMessage(), 400);
+                }
+            });
+
             // --- Parts, Stockpiles, Shopping Lists, and Suppliers (Phase 4) ---
             $group->get('/parts', [PartController::class, 'index']);
             $group->post('/parts', [PartController::class, 'create']);

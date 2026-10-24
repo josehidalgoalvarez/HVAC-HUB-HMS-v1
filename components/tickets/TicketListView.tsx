@@ -12,12 +12,14 @@ interface TicketListViewProps {
   onBack?: () => void;
   initialSelectedTicketId?: string | null;
   onOpenWatches?: () => void;
+  onRunSop?: (ticketId: string, sopId?: string) => void;
 }
 
 export const TicketListView: React.FC<TicketListViewProps> = ({
   onBack,
   initialSelectedTicketId = null,
   onOpenWatches,
+  onRunSop,
 }) => {
   const fetchTickets = useCallback(() => apiClient.getTickets(), []);
   const {
@@ -113,6 +115,11 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
         ticketId={selectedTicketId}
         onBack={() => setSelectedTicketId(null)}
         onOpenTicket={(id) => setSelectedTicketId(id)}
+        onRunSop={(sopId) => {
+          if (onRunSop) {
+            onRunSop(selectedTicketId, sopId);
+          }
+        }}
       />
     );
   }

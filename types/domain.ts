@@ -787,6 +787,7 @@ export type TicketTimelineEventType =
   | 'part_arrived'
   | 'return_visit'
   | 'completed'
+  | 'sop_run_completed'
   | 'note'
   | 'status_change';
 
@@ -907,5 +908,71 @@ export interface StockTransfer {
   notes?: string | null;
   ticket_id?: number | string | null;
   created_at?: string;
+}
+
+// ==========================================
+// SOP Library & Timed Checklist Runs
+// ==========================================
+
+export interface SOPComplianceGate {
+  id: string;
+  label: string;
+  reference: string;
+  requirement: string;
+}
+
+export interface SOPStep {
+  id?: number;
+  sop_id: string;
+  position: number;
+  instruction: string;
+  est_minutes?: number | null;
+  todo_verify: number | boolean;
+}
+
+export interface SOP {
+  id: string;
+  title: string;
+  category: string;
+  version: number;
+  required_tools: string[];
+  required_parts: string[];
+  access_requirements: string[];
+  compliance_gates: SOPComplianceGate[];
+  weather_exposure?: 'indoor' | 'exterior' | 'exterior_ladder' | null;
+  two_person?: boolean | null;
+  todo_verify: number | boolean;
+  source_note?: string | null;
+  created_at?: string;
+  steps?: SOPStep[];
+}
+
+export interface SOPRunStep {
+  id?: number;
+  run_id?: number;
+  position: number;
+  instruction: string;
+  started_at: string;
+  completed_at: string;
+  duration_seconds: number;
+  note?: string | null;
+  deviation: boolean;
+}
+
+export interface SOPRun {
+  id?: number;
+  sop_id: string;
+  sop_version: number;
+  sop_title: string;
+  ticket_id?: number | null;
+  technician: string;
+  started_at: string;
+  finished_at: string;
+  total_seconds: number;
+  notes?: string | null;
+  acknowledged_gates: string[];
+  weather_warnings: string[];
+  created_at?: string;
+  steps?: SOPRunStep[];
 }
 

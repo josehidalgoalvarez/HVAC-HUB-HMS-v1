@@ -368,6 +368,57 @@ class Db
                 notes TEXT NULL,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS sop (
+                id TEXT PRIMARY KEY,
+                title TEXT NOT NULL,
+                category TEXT NOT NULL,
+                version INTEGER NOT NULL DEFAULT 1,
+                required_tools TEXT NOT NULL DEFAULT '[]',
+                required_parts TEXT NOT NULL DEFAULT '[]',
+                access_requirements TEXT NOT NULL DEFAULT '[]',
+                compliance_gates TEXT NOT NULL DEFAULT '[]',
+                weather_exposure TEXT NULL,
+                two_person INTEGER NULL,
+                todo_verify INTEGER NOT NULL DEFAULT 0,
+                source_note TEXT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS sop_step (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                sop_id TEXT NOT NULL,
+                position INTEGER NOT NULL,
+                instruction TEXT NOT NULL,
+                est_minutes INTEGER NULL,
+                todo_verify INTEGER NOT NULL DEFAULT 0,
+                UNIQUE (sop_id, position)
+            );
+            CREATE TABLE IF NOT EXISTS sop_run (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                sop_id TEXT NOT NULL,
+                sop_version INTEGER NOT NULL DEFAULT 1,
+                sop_title TEXT NOT NULL,
+                ticket_id INTEGER NULL,
+                technician TEXT NOT NULL,
+                started_at TEXT NOT NULL,
+                finished_at TEXT NOT NULL,
+                total_seconds INTEGER NOT NULL,
+                notes TEXT NULL,
+                acknowledged_gates TEXT NOT NULL DEFAULT '[]',
+                weather_warnings TEXT NOT NULL DEFAULT '[]',
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS sop_run_step (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                run_id INTEGER NOT NULL,
+                position INTEGER NOT NULL,
+                instruction TEXT NOT NULL,
+                started_at TEXT NOT NULL,
+                completed_at TEXT NOT NULL,
+                duration_seconds INTEGER NOT NULL,
+                note TEXT NULL,
+                deviation INTEGER NOT NULL DEFAULT 0,
+                UNIQUE (run_id, position)
+            );
             CREATE TABLE IF NOT EXISTS watch (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NULL,
@@ -559,7 +610,7 @@ class Db
      */
     public static function assertAppendOnlySafe(string $sql): void
     {
-        if (preg_match('/\b(update\s+[`"]?(correction|ticket_timeline)[`"]?|delete(\s+from)?\s+[`"]?(correction|ticket_timeline)[`"]?)\b/i', $sql)) {
+        if (preg_match('/\b(update\s+[`"]?(correction|ticket_timeline|sop_run|sop_run_step)[`"]?|delete(\s+from)?\s+[`"]?(correction|ticket_timeline|sop_run|sop_run_step)[`"]?)\b/i', $sql)) {
             throw new RuntimeException("Table is append-only. UPDATE and DELETE operations are forbidden.");
         }
     }

@@ -22,6 +22,7 @@ class TicketTimeline
     public const EVENT_PART_ARRIVED = 'part_arrived';
     public const EVENT_RETURN_VISIT = 'return_visit';
     public const EVENT_COMPLETED = 'completed';
+    public const EVENT_SOP_RUN_COMPLETED = 'sop_run_completed';
     public const EVENT_NOTE = 'note';
 
     /**

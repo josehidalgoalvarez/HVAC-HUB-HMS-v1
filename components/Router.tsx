@@ -28,6 +28,8 @@ const DayPlanView = React.lazy(() => import('./runsheets/DayPlanView').then(m =>
 const QuickLogWidget = React.lazy(() => import('./jobs/QuickLogWidget'));
 const PartsView = React.lazy(() => import('./parts/PartsView'));
 const WatchesView = React.lazy(() => import('./watches/WatchesView'));
+const SOPListView = React.lazy(() => import('./sops/SOPListView').then(m => ({ default: m.SOPListView })));
+const SOPRunView = React.lazy(() => import('./sops/SOPRunView').then(m => ({ default: m.SOPRunView })));
 
 // Note: Ensure PropertyDetailView is the correct new component. 
 // Since we have a duplicate file issue, we are importing from './properties/PropertyDetailView' explicitly.
@@ -67,6 +69,7 @@ const Router: React.FC<RouterProps> = ({
   isDarkMode
 }) => {
   const [selectedTicketId, setSelectedTicketId] = React.useState<string | null>(null);
+  const [selectedSopId, setSelectedSopId] = React.useState<string>('sop-gas-furnace-service');
   const [selectedBlockForQuickLog, setSelectedBlockForQuickLog] = React.useState<RunSheetBlock | null>(null);
   const [propertyNavLevel, setPropertyNavLevel] = React.useState<'root' | 'complex' | 'building' | 'unit' | 'defaults'>('root');
 
@@ -194,6 +197,7 @@ const Router: React.FC<RouterProps> = ({
           onToggleEditMode={setIsEditMode}
           onOpenParts={() => setActiveView(ViewType.PARTS)}
           onOpenWatches={() => setActiveView(ViewType.WATCHES)}
+          onOpenSops={() => setActiveView(ViewType.SOPS)}
           onOpenDefaults={() => {
             setPropertyNavLevel('defaults');
             setActiveView(ViewType.PROPERTIES);
@@ -207,6 +211,12 @@ const Router: React.FC<RouterProps> = ({
           onBack={() => setActiveView(ViewType.PROPERTIES)}
           initialSelectedTicketId={selectedTicketId}
           onOpenWatches={() => setActiveView(ViewType.WATCHES)}
+          onRunSop={(ticketId, sopId) => {
+            setSelectedTicketId(ticketId);
+            if (sopId) setSelectedSopId(sopId);
+            setPreviousView(ViewType.TICKETS);
+            setActiveView(ViewType.SOP_RUN);
+          }}
         />
       );
 
@@ -264,6 +274,47 @@ const Router: React.FC<RouterProps> = ({
       return (
         <WatchesView
           onBack={() => setActiveView(ViewType.PROPERTIES)}
+        />
+      );
+
+    case ViewType.SOPS:
+      return (
+        <SOPListView
+          onBack={() => {
+            if (previousView) {
+              setActiveView(previousView);
+            } else {
+              setActiveView(ViewType.PROFILE);
+            }
+          }}
+          onStartRun={(sopId) => {
+            setSelectedSopId(sopId);
+            setPreviousView(ViewType.SOPS);
+            setActiveView(ViewType.SOP_RUN);
+          }}
+        />
+      );
+
+    case ViewType.SOP_RUN:
+      return (
+        <SOPRunView
+          sopId={selectedSopId}
+          ticketId={selectedTicketId}
+          onBack={() => {
+            if (previousView) {
+              setActiveView(previousView);
+            } else {
+              setActiveView(ViewType.SOPS);
+            }
+          }}
+          onRunFinished={(run) => {
+            if (run.ticket_id) {
+              setSelectedTicketId(String(run.ticket_id));
+              setActiveView(ViewType.TICKETS);
+            } else {
+              setActiveView(ViewType.SOPS);
+            }
+          }}
         />
       );
 
