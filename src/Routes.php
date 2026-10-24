@@ -28,7 +28,13 @@ class Routes
     {
         // Public API health check
         $app->get('/api/health', function (Request $request, Response $response): Response {
-            return Auth::jsonSuccess(['status' => 'ok'], 200);
+            try {
+                Db::fetchOne('SELECT 1 AS ok');
+                return Auth::jsonSuccess(['status' => 'ok', 'db' => 'ok'], 200);
+            } catch (\Throwable) {
+                // No error text or config is exposed.
+                return Auth::jsonSuccess(['status' => 'degraded', 'db' => 'error'], 503);
+            }
         });
 
         // Public API login
