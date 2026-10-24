@@ -97,6 +97,8 @@ export interface Building {
   };
   sharedSystemsNotes?: string;
   provenance?: 'verified' | 'pattern';
+  failedVisitsCount?: number;
+  failed_visits_count?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -130,6 +132,19 @@ export interface Unit {
   vacantSince?: string | null;
   tenancyDate?: string | null;
   provenance?: 'verified' | 'pattern' | 'verified — Yardi extract 2026-10-22' | string;
+  failedVisitsCount?: number;
+  failed_visits_count?: number;
+  last90DaysFailedVisits?: number;
+  repeatAccessProblem?: boolean;
+  repeat_access_problem?: boolean;
+  has_repeat_access_problem?: boolean;
+  lastFailure?: {
+    visited_at: string;
+    failure_reason: string;
+    is_our_miss: boolean;
+    notes?: string | null;
+  } | null;
+  visits?: TicketVisit[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -146,6 +161,7 @@ export interface Property extends Building {
 }
 
 export interface ApplianceSpecs {
+  brand?: string;
   btuInput?: string;
   btuOutput?: string;
   kw?: string;
@@ -296,7 +312,15 @@ export interface Ticket {
   unit_move_in_date?: string | null;
   unit_occupancy_status?: OccupancyStatus;
   unit_vacant_since?: string | null;
-  createdAt: string;
+  has_repeat_access_problem?: boolean;
+  repeat_access_problem?: boolean;
+  unit_failed_visits_count?: number;
+  timeline?: TicketTimelineEvent[];
+  visits?: TicketVisit[];
+  parts?: TicketPart[];
+  scheduled_date?: string | null;
+  scheduled_at?: string | null;
+  createdAt?: string;
   updatedAt?: string;
 }
 
@@ -748,5 +772,140 @@ export interface WatchEvaluateResponse {
   quiet_hours_delayed_count: number;
   triggered_watches: WatchRecord[];
   message: string;
+}
+
+// ==========================================
+// Field Workflow Layer Types (Timeline, Visits, Parts, Harvest)
+// ==========================================
+
+export type TicketTimelineEventType =
+  | 'submitted'
+  | 'visit_logged'
+  | 'appliance_identified'
+  | 'part_needed'
+  | 'part_ordered'
+  | 'part_arrived'
+  | 'return_visit'
+  | 'completed'
+  | 'note'
+  | 'status_change';
+
+export interface TicketTimelineEvent {
+  id: number | string;
+  ticket_id: number | string;
+  event_type: TicketTimelineEventType;
+  actor: string;
+  note?: string | null;
+  metadata?: Record<string, any> | null;
+  created_at: string;
+}
+
+export type TicketVisitOutcome = 'completed' | 'partial' | 'failed_access';
+
+export type TicketVisitReason =
+  | 'tenant_absent'
+  | 'no_answer'
+  | 'refused_entry'
+  | 'key_or_lock_issue'
+  | 'access_blocked'
+  | 'unsafe'
+  | 'other';
+
+export interface TicketVisit {
+  id: number | string;
+  ticket_id: number | string;
+  building_id: number | string;
+  unit_id?: number | string | null;
+  tech_id?: number | string | null;
+  tech_name: string;
+  visited_at: string;
+  outcome: TicketVisitOutcome;
+  failure_reason?: TicketVisitReason | null;
+  notes?: string | null;
+  notice_needed_snapshot: boolean;
+  notice_sent_at_snapshot?: string | null;
+  notice_confirmed_by_snapshot?: string | null;
+  is_our_miss: boolean;
+  created_at: string;
+  ticket_wo_number?: string | null;
+  ticket_title?: string | null;
+}
+
+export interface UnitFailedVisitsSummary {
+  unit_id: number | string;
+  total_failed_visits: number;
+  last_90_days_failed_visits: number;
+  repeat_access_problem: boolean;
+  last_failure?: {
+    visited_at: string;
+    failure_reason: TicketVisitReason | string;
+    is_our_miss: boolean;
+    notes?: string | null;
+  } | null;
+  visits?: TicketVisit[];
+}
+
+export interface TicketPart {
+  id: number | string;
+  ticket_id: number | string;
+  building_id?: number | string | null;
+  unit_id?: number | string | null;
+  appliance_id?: number | string | null;
+  appliance_type?: string | null;
+  part_number?: string | null;
+  part_name: string;
+  quantity: number;
+  supplier: 'Dependable' | 'Home Depot Gardiners Rd' | 'other' | string;
+  order_ref?: string | null;
+  status: 'needed' | 'ordered' | 'arrived' | 'installed' | string;
+  watch_id?: number | string | null;
+  ordered_at?: string | null;
+  arrived_at?: string | null;
+  unit_cost?: number | null;
+  notes?: string | null;
+  created_at: string;
+}
+
+export interface HarvestCandidate {
+  id: number | string;
+  appliance_id: number | string;
+  name: string;
+  brand: string;
+  type: string;
+  category?: string;
+  model_number?: string;
+  serial_number?: string;
+  building_id: number | string;
+  building_name: string;
+  unit_id: number | string;
+  unit_number: string;
+  occupancy_status: 'vacant' | string;
+  occupancy_label: 'Vacant unit' | string;
+  source: 'harvest';
+  source_type: 'vacant_unit';
+  status?: string;
+  image_url?: string;
+  rating_plate_url?: string;
+  manual_url?: string;
+  harvest_first_rank: number;
+}
+
+export interface StockTransfer {
+  id?: number | string;
+  transfer_id?: number | string;
+  source_type: 'vacant_unit' | 'stockpile' | string;
+  source_unit_id?: number | string | null;
+  source_building_id?: number | string | null;
+  destination_type: 'unit' | 'stockpile';
+  destination_unit_id?: number | string | null;
+  destination_building_id?: number | string | null;
+  destination_stockpile_id?: number | string | null;
+  appliance_id: number | string;
+  item_name?: string;
+  quantity?: number;
+  transferred_by?: string;
+  notes?: string | null;
+  ticket_id?: number | string | null;
+  created_at?: string;
 }
 

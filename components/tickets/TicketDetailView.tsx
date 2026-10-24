@@ -2,7 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { apiClient } from '../../src/api/client';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
-import type { Ticket, TicketState, TicketPriority, Correction } from '../../types/domain';
+import type {
+  Ticket,
+  TicketState,
+  TicketPriority,
+  Correction,
+  TicketTimelineEvent,
+  TicketVisit,
+  TicketVisitOutcome,
+  TicketVisitReason,
+  TicketPart,
+} from '../../types/domain';
 import { getUnitContextChips } from '../../utils/unitContextUtils';
 
 interface TicketDetailViewProps {
@@ -20,6 +30,41 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   const [corrections, setCorrections] = useState<Correction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Field Workflow State (Timeline, Visits, Parts)
+  const [timeline, setTimeline] = useState<TicketTimelineEvent[]>([]);
+  const [visits, setVisits] = useState<TicketVisit[]>([]);
+  const [parts, setParts] = useState<TicketPart[]>([]);
+
+  // Log Visit Modal State
+  const [isLogVisitOpen, setIsLogVisitOpen] = useState(false);
+  const [visitOutcome, setVisitOutcome] = useState<TicketVisitOutcome>('completed');
+  const [visitReason, setVisitReason] = useState<TicketVisitReason>('tenant_absent');
+  const [visitNotes, setVisitNotes] = useState('');
+  const [visitedAt, setVisitedAt] = useState('');
+  const [visitTechName, setVisitTechName] = useState('Jose (Tech)');
+  const [visitSaving, setVisitSaving] = useState(false);
+
+  // Order Part Modal State
+  const [isOrderPartOpen, setIsOrderPartOpen] = useState(false);
+  const [partName, setPartName] = useState('');
+  const [partNumber, setPartNumber] = useState('');
+  const [partSupplier, setPartSupplier] = useState<'Dependable' | 'Home Depot Gardiners Rd' | 'other'>('Dependable');
+  const [customSupplier, setCustomSupplier] = useState('');
+  const [partOrderRef, setPartOrderRef] = useState('');
+  const [partApplianceType, setPartApplianceType] = useState('Refrigerator');
+  const [partQuantity, setPartQuantity] = useState(1);
+  const [partUnitCost, setPartUnitCost] = useState('');
+  const [partNotes, setPartNotes] = useState('');
+  const [partSaving, setPartSaving] = useState(false);
+
+  // Appliance Identification Modal State
+  const [isIdentifyOpen, setIsIdentifyOpen] = useState(false);
+  const [appliancePhotoUrl, setAppliancePhotoUrl] = useState('');
+  const [ratingPlateUrl, setRatingPlateUrl] = useState('');
+  const [manualUrl, setManualUrl] = useState('');
+  const [identifyNotes, setIdentifyNotes] = useState('');
+  const [identifySaving, setIdentifySaving] = useState(false);
 
   // Work Exposure & Rain Signal State
   const [workExposure, setWorkExposure] = useState<'indoor' | 'exterior' | 'exterior_ladder'>('indoor');
@@ -151,12 +196,18 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     try {
       setLoading(true);
       setError(null);
-      const [tData, cData] = await Promise.all([
+      const [tData, cData, tlData, vData, pData] = await Promise.all([
         apiClient.getTicket(ticketId),
         apiClient.getTicketCorrections(ticketId),
+        apiClient.getTicketTimeline(ticketId).catch(() => []),
+        apiClient.getTicketVisits(ticketId).catch(() => []),
+        apiClient.getTicketParts(ticketId).catch(() => []),
       ]);
       setTicket(tData);
       setCorrections(cData || []);
+      setTimeline(tlData || []);
+      setVisits(vData || []);
+      setParts(pData || []);
       const exposure = (tData?.work_exposure || (tData?.exterior_work ? 'exterior' : 'indoor')) as 'indoor' | 'exterior' | 'exterior_ladder';
       setWorkExposure(exposure);
       if (exposure === 'exterior' || exposure === 'exterior_ladder') {
@@ -170,6 +221,105 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       setError(msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTicketData();
+  }, [ticketId]);
+
+  const handleLogVisit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ticket) return;
+    try {
+      setVisitSaving(true);
+      await apiClient.logTicketVisit(ticket.id, {
+        outcome: visitOutcome,
+        failure_reason: visitOutcome === 'failed_access' ? visitReason : undefined,
+        notes: visitNotes.trim() || undefined,
+        visited_at: visitedAt ? new Date(visitedAt).toISOString().slice(0, 19).replace('T', ' ') : undefined,
+        tech_name: visitTechName.trim() || 'Jose (Tech)',
+      });
+      setIsLogVisitOpen(false);
+      setVisitNotes('');
+      setVisitedAt('');
+      await loadTicketData();
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to log visit');
+    } finally {
+      setVisitSaving(false);
+    }
+  };
+
+  const handleOrderPart = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ticket) return;
+    if (!partName.trim()) {
+      alert('Part name is required');
+      return;
+    }
+    const supplier = partSupplier === 'other' ? (customSupplier.trim() || 'Other Supplier') : partSupplier;
+    try {
+      setPartSaving(true);
+      await apiClient.orderTicketPart(ticket.id, {
+        part_name: partName.trim(),
+        part_number: partNumber.trim() || undefined,
+        supplier,
+        order_ref: partOrderRef.trim() || undefined,
+        appliance_type: partApplianceType,
+        quantity: partQuantity || 1,
+        unit_cost: partUnitCost ? parseFloat(partUnitCost) : undefined,
+        notes: partNotes.trim() || undefined,
+      });
+      setIsOrderPartOpen(false);
+      setPartName('');
+      setPartNumber('');
+      setPartOrderRef('');
+      setCustomSupplier('');
+      setPartNotes('');
+      await loadTicketData();
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to order part');
+    } finally {
+      setPartSaving(false);
+    }
+  };
+
+  const handleMarkPartArrived = async (partId: number | string) => {
+    if (!ticket) return;
+    try {
+      await apiClient.markTicketPartArrived(partId);
+      await loadTicketData();
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to mark part arrived');
+    }
+  };
+
+  const handleIdentifyAppliance = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ticket) return;
+    try {
+      setIdentifySaving(true);
+      await apiClient.appendTicketTimeline(ticket.id, {
+        event_type: 'appliance_identified',
+        actor: 'Jose (Tech)',
+        note: identifyNotes.trim() || 'Appliance identified and documented with field data',
+        metadata: {
+          photo_url: appliancePhotoUrl.trim() || undefined,
+          rating_plate_url: ratingPlateUrl.trim() || undefined,
+          manual_url: manualUrl.trim() || undefined,
+        },
+      });
+      setIsIdentifyOpen(false);
+      setAppliancePhotoUrl('');
+      setRatingPlateUrl('');
+      setManualUrl('');
+      setIdentifyNotes('');
+      await loadTicketData();
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to identify appliance');
+    } finally {
+      setIdentifySaving(false);
     }
   };
 
@@ -336,6 +486,14 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   const unitNum = ticket.unitNumber || ticket.unit_number;
   const locationText = unitNum ? `${building} · Unit ${unitNum}` : building;
   const unitContextChips = getUnitContextChips(ticket.unit || ticket);
+  const hasRepeatAccessProblem = Boolean(
+    ticket.has_repeat_access_problem ||
+    ticket.repeat_access_problem ||
+    ticket.unit?.has_repeat_access_problem ||
+    ticket.unit?.repeat_access_problem ||
+    ((ticket.unit_failed_visits_count ?? 0) >= 2) ||
+    ((ticket.unit?.failed_visits_count ?? 0) >= 2)
+  );
 
   return (
     <div className="pb-safe max-w-xl mx-auto px-4 py-4 space-y-5 animate-fadeIn">
@@ -365,6 +523,15 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 · {locationText}
               </span>
             )}
+            {hasRepeatAccessProblem && (
+              <span
+                data-testid="detail-repeat-access-chip"
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700"
+              >
+                <span className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+                Repeat access problem
+              </span>
+            )}
             {unitContextChips.map(chip => (
               <span
                 key={chip.key}
@@ -388,6 +555,31 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           Edit
         </button>
       </div>
+
+      {/* Repeat Access Problem Warning Banner (Derived >= 2 failed visits) */}
+      {hasRepeatAccessProblem && (
+        <div
+          data-testid="repeat-access-problem-banner"
+          className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 rounded-2xl flex items-start gap-3 shadow-xs animate-fadeIn"
+        >
+          <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-xl shrink-0 mt-0.5">warning</span>
+          <div className="space-y-0.5 flex-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-extrabold uppercase tracking-wide text-amber-900 dark:text-amber-200">
+                Repeat Access Problem Flag (2+ Failed Attempts)
+              </span>
+              {ticket.unit_failed_visits_count !== undefined && (
+                <span className="px-2 py-0.5 text-[10px] font-mono font-bold rounded-md bg-amber-200/80 text-amber-900 dark:bg-amber-900 dark:text-amber-100">
+                  {ticket.unit_failed_visits_count} failed visits
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-amber-800 dark:text-amber-300">
+              This unit has recorded repeated failed entry attempts. Confirm 24-hour advance written notice and tenant response before dispatching technician for next visit.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Yardi Sighting Status Bar */}
       <div className="rounded-2xl p-4 border bg-gray-50/80 dark:bg-card-dark border-gray-200 dark:border-gray-800 space-y-2">
@@ -776,6 +968,34 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         )}
       </div>
 
+      {/* Quick Field Workflow Actions Bar */}
+      <div className="bg-white dark:bg-card-dark rounded-2xl p-3 border border-gray-100 dark:border-gray-800 flex items-center gap-2 flex-wrap shadow-xs">
+        <button
+          type="button"
+          onClick={() => setIsLogVisitOpen(true)}
+          className="flex-1 min-w-[120px] min-h-[44px] px-3 py-2 text-xs font-bold bg-primary text-white hover:bg-primary/90 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all"
+        >
+          <span className="material-symbols-outlined text-base">assignment_turned_in</span>
+          Log Visit
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsOrderPartOpen(true)}
+          className="flex-1 min-w-[120px] min-h-[44px] px-3 py-2 text-xs font-bold bg-amber-500 text-white hover:bg-amber-600 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all"
+        >
+          <span className="material-symbols-outlined text-base">build</span>
+          Order Part
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsIdentifyOpen(true)}
+          className="flex-1 min-w-[120px] min-h-[44px] px-3 py-2 text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all"
+        >
+          <span className="material-symbols-outlined text-base">photo_camera</span>
+          Identify Appliance
+        </button>
+      </div>
+
       {/* Primary Details Card */}
       <div className="bg-white dark:bg-card-dark rounded-2xl p-4 border border-gray-100 dark:border-gray-800 space-y-3 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
@@ -854,6 +1074,244 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
               alt="Intake Screenshot"
               className="max-h-48 rounded-xl object-contain border border-gray-200 dark:border-gray-700 shadow-sm"
             />
+          </div>
+        )}
+      </div>
+
+      {/* Parts Needed & Ordered (Auto-Created Watches) */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-amber-500 text-xl">shopping_cart</span>
+            <h2 className="text-sm font-bold text-brand-black dark:text-white uppercase tracking-wider">
+              Parts Needed & Ordered
+            </h2>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold">
+              {parts.length}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsOrderPartOpen(true)}
+            className="px-2.5 py-1 text-xs font-bold bg-amber-500 text-white rounded-xl shadow-xs hover:bg-amber-600 flex items-center gap-1"
+          >
+            <span className="material-symbols-outlined text-[16px]">add</span>
+            Order Part
+          </button>
+        </div>
+
+        {parts.length === 0 ? (
+          <div className="p-4 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-xs text-gray-400">
+            No parts ordered for this ticket. Tap "Order Part" to order for any appliance type.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {parts.map(p => (
+              <div
+                key={p.id}
+                className="bg-white dark:bg-card-dark rounded-xl p-3 border border-gray-100 dark:border-gray-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
+              >
+                <div className="space-y-1 min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-bold text-brand-black dark:text-white">
+                      {p.part_name}
+                    </span>
+                    {p.part_number && (
+                      <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                        #{p.part_number}
+                      </span>
+                    )}
+                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
+                      {p.appliance_type || 'Appliance'}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider ${
+                        p.status === 'arrived'
+                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                          : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
+                      }`}
+                    >
+                      {p.status}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-[11px] text-gray-500 flex-wrap">
+                    <span>Supplier: <strong className="text-brand-black dark:text-white">{p.supplier}</strong></span>
+                    {p.order_ref && <span>Ref: <strong className="font-mono text-brand-black dark:text-white">{p.order_ref}</strong></span>}
+                    <span>Qty: <strong>{p.quantity}</strong></span>
+                    {p.ordered_at && <span>Ordered: {new Date(p.ordered_at).toLocaleDateString()}</span>}
+                    {p.watch_id && (
+                      <span className="text-primary font-semibold flex items-center gap-0.5">
+                        <span className="material-symbols-outlined text-[13px]">visibility</span>
+                        Watch #{p.watch_id} {p.status === 'arrived' ? '(Resolved)' : '(Active)'}
+                      </span>
+                    )}
+                  </div>
+
+                  {p.notes && <p className="text-[11px] text-gray-400 italic">Note: {p.notes}</p>}
+                </div>
+
+                {p.status === 'ordered' && (
+                  <button
+                    type="button"
+                    onClick={() => handleMarkPartArrived(p.id)}
+                    className="min-h-[36px] px-3 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs flex items-center justify-center gap-1 shrink-0 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">inventory_2</span>
+                    Mark Arrived
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Ticket Timeline (Append-Only Events) */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-xl">timeline</span>
+            <h2 className="text-sm font-bold text-brand-black dark:text-white uppercase tracking-wider">
+              Ticket Timeline
+            </h2>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
+              {timeline.length}
+            </span>
+          </div>
+          <span className="text-[11px] font-mono text-gray-400">Append-Only Provenance</span>
+        </div>
+
+        {timeline.length === 0 ? (
+          <div className="p-4 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-xs text-gray-400">
+            No events recorded yet.
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-card-dark rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-xs relative">
+            <div className="absolute top-6 bottom-6 left-[27px] w-0.5 bg-gray-200 dark:bg-gray-800" />
+            <div className="space-y-5">
+              {timeline.map((ev, idx) => {
+                const getEventConfig = (type: string) => {
+                  switch (type) {
+                    case 'submitted':
+                      return { icon: 'inbox', bg: 'bg-blue-500', label: 'Ticket Submitted' };
+                    case 'visit_logged':
+                      return { icon: 'door_front', bg: 'bg-amber-500', label: 'Visit Logged' };
+                    case 'appliance_identified':
+                      return { icon: 'photo_camera', bg: 'bg-indigo-600', label: 'Appliance Identified' };
+                    case 'part_needed':
+                      return { icon: 'build', bg: 'bg-orange-500', label: 'Part Needed' };
+                    case 'part_ordered':
+                      return { icon: 'shopping_cart', bg: 'bg-sky-500', label: 'Part Ordered' };
+                    case 'part_arrived':
+                      return { icon: 'inventory_2', bg: 'bg-emerald-500', label: 'Part Arrived' };
+                    case 'return_visit':
+                      return { icon: 'autorenew', bg: 'bg-purple-500', label: 'Return Visit' };
+                    case 'completed':
+                      return { icon: 'check_circle', bg: 'bg-emerald-600', label: 'Job Completed' };
+                    default:
+                      return { icon: 'event_note', bg: 'bg-gray-500', label: 'Note / Event' };
+                  }
+                };
+                const cfg = getEventConfig(ev.event_type);
+                const meta = ev.metadata || {};
+
+                return (
+                  <div key={ev.id || idx} className="relative flex items-start gap-3.5 pl-1">
+                    <div
+                      className={`w-7 h-7 rounded-full ${cfg.bg} text-white flex items-center justify-center shrink-0 shadow-xs ring-4 ring-white dark:ring-card-dark z-10`}
+                    >
+                      <span className="material-symbols-outlined text-[15px]">{cfg.icon}</span>
+                    </div>
+
+                    <div className="flex-1 min-w-0 bg-gray-50/70 dark:bg-neutral-800/50 p-3 rounded-xl border border-gray-100 dark:border-gray-800/80 space-y-1.5">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs font-bold text-brand-black dark:text-white">
+                            {cfg.label}
+                          </span>
+                          <span className="text-[11px] text-gray-500">by {ev.actor}</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-gray-400">
+                          {new Date(ev.created_at).toLocaleString()}
+                        </span>
+                      </div>
+
+                      {ev.note && (
+                        <p className="text-xs text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                          {ev.note}
+                        </p>
+                      )}
+
+                      {/* Event Metadata Chips / Indicators */}
+                      {meta && Object.keys(meta).length > 0 && (
+                        <div className="pt-1 flex items-center gap-1.5 flex-wrap text-[11px]">
+                          {meta.is_our_miss && (
+                            <span className="px-2 py-0.5 rounded-md font-bold uppercase tracking-wider bg-rose-100 text-rose-900 border border-rose-300 dark:bg-rose-950 dark:text-rose-200 dark:border-rose-800">
+                              [OUR MISS] Notice Not Sent Prior
+                            </span>
+                          )}
+                          {meta.outcome && (
+                            <span className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-mono text-[10px]">
+                              outcome: {meta.outcome}
+                            </span>
+                          )}
+                          {meta.failure_reason && (
+                            <span className="px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-200 font-mono text-[10px]">
+                              reason: {meta.failure_reason}
+                            </span>
+                          )}
+                          {meta.supplier && (
+                            <span className="px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/80 text-sky-800 dark:text-sky-200 text-[10px]">
+                              Supplier: {meta.supplier}
+                            </span>
+                          )}
+                          {meta.order_ref && (
+                            <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-[10px]">
+                              Ref: {meta.order_ref}
+                            </span>
+                          )}
+                          {meta.photo_url && (
+                            <a
+                              href={meta.photo_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-[10px] font-bold hover:underline flex items-center gap-0.5"
+                            >
+                              <span className="material-symbols-outlined text-[12px]">image</span>
+                              Photo
+                            </a>
+                          )}
+                          {meta.rating_plate_url && (
+                            <a
+                              href={meta.rating_plate_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-[10px] font-bold hover:underline flex items-center gap-0.5"
+                            >
+                              <span className="material-symbols-outlined text-[12px]">badge</span>
+                              Rating Plate
+                            </a>
+                          )}
+                          {meta.manual_url && (
+                            <a
+                              href={meta.manual_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-[10px] font-bold hover:underline flex items-center gap-0.5"
+                            >
+                              <span className="material-symbols-outlined text-[12px]">menu_book</span>
+                              Manual Link
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
@@ -1298,6 +1756,412 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         </Modal>
       )}
 
+      {/* Log Field Visit Modal */}
+      {isLogVisitOpen && (
+        <Modal onClose={() => setIsLogVisitOpen(false)} className="max-w-md">
+          <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-xl">assignment_turned_in</span>
+              <h2 className="text-base font-bold text-brand-black dark:text-white">Log Field Visit</h2>
+            </div>
+            <button
+              onClick={() => setIsLogVisitOpen(false)}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <form onSubmit={handleLogVisit} className="mt-4 space-y-3.5">
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-600 dark:text-gray-300 mb-1">
+                Visit Outcome <span className="text-brand-red">*</span>
+              </label>
+              <select
+                value={visitOutcome}
+                onChange={(e) => setVisitOutcome(e.target.value as TicketVisitOutcome)}
+                className="w-full min-h-[44px] px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-semibold"
+              >
+                <option value="completed">Completed (Work finished, ready to close)</option>
+                <option value="partial">Partial (In progress, requires return visit)</option>
+                <option value="failed_access">Failed Access (Could not enter unit)</option>
+              </select>
+            </div>
+
+            {/* If Failed Access: Select Reason and Snapshot Notice State */}
+            {visitOutcome === 'failed_access' && (
+              <div className="space-y-3 p-3 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 animate-fadeIn">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-amber-900 dark:text-amber-200 mb-1">
+                    Failed Access Reason <span className="text-brand-red">*</span>
+                  </label>
+                  <select
+                    value={visitReason}
+                    onChange={(e) => setVisitReason(e.target.value as TicketVisitReason)}
+                    className="w-full min-h-[44px] px-3 py-2 text-sm rounded-xl border border-amber-300 dark:border-amber-800 bg-white dark:bg-card-dark font-semibold"
+                  >
+                    <option value="tenant_absent">Tenant absent</option>
+                    <option value="no_answer">No answer at door</option>
+                    <option value="refused_entry">Tenant refused entry</option>
+                    <option value="key_or_lock_issue">Key or lock issue</option>
+                    <option value="access_blocked">Access physically blocked</option>
+                    <option value="unsafe">Unsafe conditions</option>
+                    <option value="other">Other issue</option>
+                  </select>
+                </div>
+
+                {/* Notice State Snapshot and Provenance Check */}
+                {ticket.notice_needed && !ticket.notice_sent_at ? (
+                  <div className="p-3 rounded-xl bg-rose-100 text-rose-900 dark:bg-rose-950/80 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-xs flex items-start gap-2">
+                    <span className="material-symbols-outlined text-rose-600 dark:text-rose-400 text-base shrink-0 mt-0.5">error</span>
+                    <div>
+                      <strong className="block uppercase tracking-wider font-extrabold text-[11px]">[OUR MISS — MANAGEMENT/DISPATCH]</strong>
+                      <p className="mt-0.5 text-[11px] leading-relaxed">
+                        Notice was required on this unit but was never sent. This will display as <strong>OUR miss</strong>, not the tenant's refusal.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-lg bg-white dark:bg-neutral-800 border border-amber-200 dark:border-amber-800/60 text-xs text-gray-600 dark:text-gray-300">
+                    <span className="font-semibold text-brand-black dark:text-white">Notice Snapshot: </span>
+                    {ticket.notice_needed
+                      ? `Notice sent at ${ticket.notice_sent_at ? new Date(ticket.notice_sent_at).toLocaleString() : 'N/A'}`
+                      : 'Notice not required (or vacant unit)'}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                  Visited Date/Time
+                </label>
+                <input
+                  type="datetime-local"
+                  value={visitedAt}
+                  onChange={(e) => setVisitedAt(e.target.value)}
+                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                  Technician
+                </label>
+                <input
+                  type="text"
+                  value={visitTechName}
+                  onChange={(e) => setVisitTechName(e.target.value)}
+                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-medium"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                Visit Notes
+              </label>
+              <textarea
+                rows={3}
+                value={visitNotes}
+                onChange={(e) => setVisitNotes(e.target.value)}
+                placeholder="Findings, diagnostics, or follow-up details..."
+                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setIsLogVisitOpen(false)}
+                className="flex-1 min-h-[44px] py-2 text-xs font-bold"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                className="flex-1 min-h-[44px] py-2 text-xs font-bold shadow-sm"
+                disabled={visitSaving}
+              >
+                {visitSaving ? 'Recording...' : 'Log Visit'}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Order Part Modal (Auto-Creates Part-Wait Watch) */}
+      {isOrderPartOpen && (
+        <Modal onClose={() => setIsOrderPartOpen(false)} className="max-w-md">
+          <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-amber-500 text-xl">shopping_cart</span>
+              <h2 className="text-base font-bold text-brand-black dark:text-white">Order Part</h2>
+            </div>
+            <button
+              onClick={() => setIsOrderPartOpen(false)}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <form onSubmit={handleOrderPart} className="mt-4 space-y-3">
+            <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-xs text-amber-900 dark:text-amber-200">
+              💡 Ordering a part automatically logs a timeline event and creates a <strong>part-wait watch</strong>.
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                  Appliance Type <span className="text-brand-red">*</span>
+                </label>
+                <select
+                  value={partApplianceType}
+                  onChange={(e) => setPartApplianceType(e.target.value)}
+                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-medium"
+                >
+                  <option value="Refrigerator">Refrigerator</option>
+                  <option value="Range / Stove">Range / Stove</option>
+                  <option value="Dishwasher">Dishwasher</option>
+                  <option value="HVAC / Heat Pump">HVAC / Heat Pump</option>
+                  <option value="Water Heater">Water Heater</option>
+                  <option value="Washer / Dryer">Washer / Dryer</option>
+                  <option value="General Appliance">General Appliance</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                  Supplier <span className="text-brand-red">*</span>
+                </label>
+                <select
+                  value={partSupplier}
+                  onChange={(e) => setPartSupplier(e.target.value as any)}
+                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-medium"
+                >
+                  <option value="Dependable">Dependable</option>
+                  <option value="Home Depot Gardiners Rd">Home Depot Gardiners Rd</option>
+                  <option value="other">Other Supplier...</option>
+                </select>
+              </div>
+            </div>
+
+            {partSupplier === 'other' && (
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                  Custom Supplier Name
+                </label>
+                <input
+                  type="text"
+                  value={customSupplier}
+                  onChange={(e) => setCustomSupplier(e.target.value)}
+                  placeholder="e.g. Reliable Parts, WW Grainger"
+                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
+                  required
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                Part Name / Description <span className="text-brand-red">*</span>
+              </label>
+              <input
+                type="text"
+                value={partName}
+                onChange={(e) => setPartName(e.target.value)}
+                placeholder="e.g. Defrost timer, igniter coil, blower capacitor"
+                className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                  Part # (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={partNumber}
+                  onChange={(e) => setPartNumber(e.target.value)}
+                  placeholder="e.g. WPW10366605"
+                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                  Order Ref (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={partOrderRef}
+                  onChange={(e) => setPartOrderRef(e.target.value)}
+                  placeholder="Auto-generated if blank"
+                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                  Quantity
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={partQuantity}
+                  onChange={(e) => setPartQuantity(parseInt(e.target.value, 10) || 1)}
+                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                  Est. Cost ($)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={partUnitCost}
+                  onChange={(e) => setPartUnitCost(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                Notes
+              </label>
+              <textarea
+                rows={2}
+                value={partNotes}
+                onChange={(e) => setPartNotes(e.target.value)}
+                placeholder="Shipping details, tracking #, or special instructions..."
+                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setIsOrderPartOpen(false)}
+                className="flex-1 min-h-[44px] py-2 text-xs font-bold"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                className="flex-1 min-h-[44px] py-2 text-xs font-bold shadow-sm"
+                disabled={partSaving}
+              >
+                {partSaving ? 'Ordering...' : 'Place Order & Watch'}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Identify Appliance Modal */}
+      {isIdentifyOpen && (
+        <Modal onClose={() => setIsIdentifyOpen(false)} className="max-w-md">
+          <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-indigo-600 text-xl">photo_camera</span>
+              <h2 className="text-base font-bold text-brand-black dark:text-white">Appliance Identified</h2>
+            </div>
+            <button
+              onClick={() => setIsIdentifyOpen(false)}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <form onSubmit={handleIdentifyAppliance} className="mt-4 space-y-3">
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                Appliance Photo URL
+              </label>
+              <input
+                type="text"
+                value={appliancePhotoUrl}
+                onChange={(e) => setAppliancePhotoUrl(e.target.value)}
+                placeholder="https://... or /uploads/photo.jpg"
+                className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                Rating-Plate Photo URL
+              </label>
+              <input
+                type="text"
+                value={ratingPlateUrl}
+                onChange={(e) => setRatingPlateUrl(e.target.value)}
+                placeholder="https://... or /uploads/rating-plate.jpg"
+                className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                Manufacturer Manual Link
+              </label>
+              <input
+                type="text"
+                value={manualUrl}
+                onChange={(e) => setManualUrl(e.target.value)}
+                placeholder="https://manuals.brand.com/model123.pdf"
+                className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                Field Identification Notes
+              </label>
+              <textarea
+                rows={2}
+                value={identifyNotes}
+                onChange={(e) => setIdentifyNotes(e.target.value)}
+                placeholder="Model # confirmed, serial plate verified on left cabinet interior..."
+                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setIsIdentifyOpen(false)}
+                className="flex-1 min-h-[44px] py-2 text-xs font-bold"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                className="flex-1 min-h-[44px] py-2 text-xs font-bold shadow-sm"
+                disabled={identifySaving}
+              >
+                {identifySaving ? 'Saving...' : 'Record to Timeline'}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
 
     </div>
   );

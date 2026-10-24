@@ -7,8 +7,9 @@ import { ShoppingListSection } from './ShoppingListSection';
 import { SupplierDirectorySection } from './SupplierDirectorySection';
 import { LogPartUseModal, type LogPartUseResult } from './LogPartUseModal';
 import { AddPartModal } from './AddPartModal';
+import { HarvestTransferModal } from './HarvestTransferModal';
 import { SEED_PARTS, SEED_STOCKPILES, SEED_SUPPLIERS } from './partsSeedData';
-import type { PartRecord, Stockpile, SupplierRecord } from '../../types/domain';
+import type { PartRecord, Stockpile, SupplierRecord, HarvestCandidate } from '../../types/domain';
 
 interface PartsViewProps {
   onBack?: () => void;
@@ -21,21 +22,24 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
   const [parts, setParts] = useState<PartRecord[]>(SEED_PARTS);
   const [stockpiles, setStockpiles] = useState<Stockpile[]>(SEED_STOCKPILES);
   const [suppliers, setSuppliers] = useState<SupplierRecord[]>(SEED_SUPPLIERS);
+  const [harvestCandidates, setHarvestCandidates] = useState<HarvestCandidate[]>([]);
   const [loading, setLoading] = useState(false);
   const [flashMsg, setFlashMsg] = useState<{ text: string; type: 'success' | 'warning' } | null>(null);
 
   // Modal state
   const [activePartForUsage, setActivePartForUsage] = useState<PartRecord | null>(null);
   const [initialPartUsageMode, setInitialPartUsageMode] = useState<'use' | 'restock'>('use');
+  const [activeCandidateForTransfer, setActiveCandidateForTransfer] = useState<HarvestCandidate | null>(null);
   const [isAddPartOpen, setIsAddPartOpen] = useState(false);
 
   const loadPartsData = async () => {
     try {
       setLoading(true);
-      const [partsRes, spRes, suppRes] = await Promise.allSettled([
+      const [partsRes, spRes, suppRes, harvestRes] = await Promise.allSettled([
         apiClient.getParts(),
         apiClient.getStockpiles(),
         apiClient.getSuppliers(),
+        apiClient.getHarvestCandidates(),
       ]);
 
       if (partsRes.status === 'fulfilled' && partsRes.value && partsRes.value.length > 0) {
@@ -51,6 +55,11 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
       if (suppRes.status === 'fulfilled' && suppRes.value && suppRes.value.length > 0) {
         setSuppliers(suppRes.value);
         appCache.set('suppliers', suppRes.value);
+      }
+
+      if (harvestRes.status === 'fulfilled' && harvestRes.value) {
+        setHarvestCandidates(harvestRes.value);
+        appCache.set('harvestCandidates', harvestRes.value);
       }
     } catch (err) {
       console.warn('Using cached/seeded parts data due to offline/API error:', err);
@@ -256,6 +265,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
           <PartSearchSection
             parts={parts}
             stockpiles={stockpiles}
+            harvestCandidates={harvestCandidates}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             onLogUse={part => {
@@ -267,6 +277,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
               setInitialPartUsageMode('restock');
             }}
             onAddPart={() => setIsAddPartOpen(true)}
+            onHarvestTransfer={candidate => setActiveCandidateForTransfer(candidate)}
           />
         )}
 
@@ -297,6 +308,24 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
         onClose={() => setIsAddPartOpen(false)}
         onSuccess={handleAddPartSuccess}
       />
+
+      {/* Harvest from Vacant Unit Modal */}
+      {activeCandidateForTransfer && (
+        <HarvestTransferModal
+          candidate={activeCandidateForTransfer}
+          stockpiles={stockpiles}
+          isOpen={true}
+          onClose={() => setActiveCandidateForTransfer(null)}
+          onSuccess={(result) => {
+            loadPartsData();
+            setFlashMsg({
+              text: `Transferred ${result.item_name || 'appliance'} from vacant unit! Stock transfer and append-only correction logged.`,
+              type: 'success',
+            });
+            setTimeout(() => setFlashMsg(null), 5000);
+          }}
+        />
+      )}
     </div>
   );
 };

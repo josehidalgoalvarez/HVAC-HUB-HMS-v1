@@ -310,7 +310,63 @@ class Db
                 part_number TEXT NULL,
                 part_name TEXT NOT NULL,
                 quantity INTEGER NOT NULL DEFAULT 1,
+                building_id INTEGER NULL,
+                unit_id INTEGER NULL,
+                appliance_id INTEGER NULL,
+                appliance_type TEXT NULL,
+                supplier TEXT NULL,
+                order_ref TEXT NULL,
+                status TEXT NOT NULL DEFAULT 'needed',
+                watch_id INTEGER NULL,
+                ordered_at TEXT NULL,
+                arrived_at TEXT NULL,
+                unit_cost REAL NULL,
+                notes TEXT NULL,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS ticket_timeline (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ticket_id INTEGER NOT NULL,
+                event_type TEXT NOT NULL,
+                actor TEXT NOT NULL DEFAULT 'Tech',
+                note TEXT NULL,
+                metadata TEXT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS ticket_visit (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ticket_id INTEGER NOT NULL,
+                building_id INTEGER NOT NULL,
+                unit_id INTEGER NULL,
+                tech_id INTEGER NULL,
+                tech_name TEXT NULL DEFAULT 'Jose',
+                visited_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                outcome TEXT NOT NULL,
+                failure_reason TEXT NULL,
+                notes TEXT NULL,
+                notice_needed_snapshot INTEGER NOT NULL DEFAULT 0,
+                notice_sent_at_snapshot TEXT NULL,
+                notice_confirmed_by_snapshot TEXT NULL,
+                is_our_miss INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS stock_transfer (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                source_type TEXT NOT NULL,
+                source_unit_id INTEGER NULL,
+                source_building_id INTEGER NULL,
+                source_stockpile_id INTEGER NULL,
+                destination_type TEXT NOT NULL,
+                destination_unit_id INTEGER NULL,
+                destination_building_id INTEGER NULL,
+                destination_stockpile_id INTEGER NULL,
+                appliance_id INTEGER NULL,
+                part_id INTEGER NULL,
+                item_name TEXT NOT NULL,
+                quantity INTEGER NOT NULL DEFAULT 1,
+                transferred_by TEXT NOT NULL DEFAULT 'Tech',
+                notes TEXT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
             CREATE TABLE IF NOT EXISTS watch (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -476,6 +532,18 @@ class Db
         try { $pdo->exec("ALTER TABLE unit ADD COLUMN move_in_date TEXT NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE unit ADD COLUMN occupancy_status TEXT NOT NULL DEFAULT 'unknown'"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE unit ADD COLUMN vacant_since TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN building_id INTEGER NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN unit_id INTEGER NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN appliance_id INTEGER NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN appliance_type TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN supplier TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN order_ref TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN status TEXT NOT NULL DEFAULT 'needed'"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN watch_id INTEGER NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN ordered_at TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN arrived_at TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN unit_cost REAL NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN notes TEXT NULL"); } catch (\Throwable) {}
     }
 
     /**
@@ -491,8 +559,8 @@ class Db
      */
     public static function assertAppendOnlySafe(string $sql): void
     {
-        if (preg_match('/\b(update\s+[`"]?correction[`"]?|delete(\s+from)?\s+[`"]?correction[`"]?)\b/i', $sql)) {
-            throw new RuntimeException("Table 'correction' is append-only. UPDATE and DELETE operations are forbidden.");
+        if (preg_match('/\b(update\s+[`"]?(correction|ticket_timeline)[`"]?|delete(\s+from)?\s+[`"]?(correction|ticket_timeline)[`"]?)\b/i', $sql)) {
+            throw new RuntimeException("Table is append-only. UPDATE and DELETE operations are forbidden.");
         }
     }
 

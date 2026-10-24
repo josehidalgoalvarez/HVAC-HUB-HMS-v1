@@ -152,12 +152,20 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
   // Notice status
   const isVacant = ticket.unit_occupancy_status === 'vacant' || ticket.unit?.occupancy_status === 'vacant';
-  const isGateOpen = ticket.notice_gate_status === 'gate_open' || ticket.notice_gate_status === 'open';
-  const isNoticeSent = Boolean(ticket.notice_sent_at || ticket.notice_status === 'sent');
-  const isNoticeNeeded = !isVacant && Boolean(ticket.notice_needed || ticket.notice_status === 'needed');
+  const isGateOpen = (ticket.notice_gate_status as string) === 'gate_open' || (ticket.notice_gate_status as string) === 'open';
+  const isNoticeSent = Boolean(ticket.notice_sent_at || (ticket.notice_status as string) === 'sent');
+  const isNoticeNeeded = !isVacant && Boolean(ticket.notice_needed || (ticket.notice_status as string) === 'needed');
 
   // Unit context chips (Vacant, Recent move-in, Renovated)
   const unitContextChips = getUnitContextChips(ticket.unit || ticket);
+  const hasRepeatAccessProblem = Boolean(
+    ticket.has_repeat_access_problem ||
+    ticket.repeat_access_problem ||
+    ticket.unit?.has_repeat_access_problem ||
+    ticket.unit?.repeat_access_problem ||
+    ((ticket.unit_failed_visits_count ?? 0) >= 2) ||
+    ((ticket.unit?.failed_visits_count ?? 0) >= 2)
+  );
 
   return (
     <article
@@ -183,6 +191,15 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
           {getPriorityBadge(ticket.priority)}
           {getStatusBadge(ticket.status || ticket.state)}
+          {hasRepeatAccessProblem && (
+            <span
+              data-testid="repeat-access-problem-flag"
+              className="shrink-0 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700 flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-[12px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+              Repeat access problem
+            </span>
+          )}
         </div>
 
         {ageStr && (
@@ -199,19 +216,25 @@ export const TicketCard: React.FC<TicketCardProps> = ({
           <h2 className="text-base font-bold text-brand-black dark:text-white uppercase tracking-tight leading-snug group-hover:text-primary transition-colors">
             {locationText}
           </h2>
-          {unitContextChips.length > 0 && (
-            <div className="flex items-center gap-1 flex-wrap">
-              {unitContextChips.map(chip => (
-                <span
-                  key={chip.key}
-                  className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md ${chip.className}`}
-                >
-                  <span className="material-symbols-outlined text-[11px] leading-none">{chip.icon}</span>
-                  {chip.label}
-                </span>
-              ))}
-            </div>
-          )}
+          <div className="flex items-center gap-1 flex-wrap">
+            {hasRepeatAccessProblem && (
+              <span
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700"
+              >
+                <span className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+                Repeat access problem
+              </span>
+            )}
+            {unitContextChips.length > 0 && unitContextChips.map(chip => (
+              <span
+                key={chip.key}
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md ${chip.className}`}
+              >
+                <span className="material-symbols-outlined text-[11px] leading-none">{chip.icon}</span>
+                {chip.label}
+              </span>
+            ))}
+          </div>
         </div>
         {ticket.title && (
           <p className="text-xs font-medium text-text-sub-light dark:text-text-sub-dark line-clamp-1">

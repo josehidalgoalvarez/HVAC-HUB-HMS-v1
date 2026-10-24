@@ -24,6 +24,12 @@ import type {
   WatchRecord,
   WatchDigestResponse,
   WatchEvaluateResponse,
+  TicketTimelineEvent,
+  TicketVisit,
+  UnitFailedVisitsSummary,
+  TicketPart,
+  HarvestCandidate,
+  StockTransfer,
 } from '../../types/domain';
 import { appCache } from '../offline/cache.ts';
 
@@ -372,6 +378,83 @@ export class ApiClient {
       `/api/tickets/${id}/sighting`,
       data
     );
+  }
+
+  // --- Field Workflow Methods (Timeline, Visits, Parts, Harvest) ---
+
+  public async getTicketTimeline(ticketId: string | number): Promise<TicketTimelineEvent[]> {
+    return this.get<TicketTimelineEvent[]>(`/api/tickets/${ticketId}/timeline`);
+  }
+
+  public async appendTicketTimeline(
+    ticketId: string | number,
+    data: { event_type: string; actor?: string; note?: string; metadata?: Record<string, any> }
+  ): Promise<TicketTimelineEvent> {
+    return this.post<TicketTimelineEvent>(`/api/tickets/${ticketId}/timeline`, data);
+  }
+
+  public async getTicketVisits(ticketId: string | number): Promise<TicketVisit[]> {
+    return this.get<TicketVisit[]>(`/api/tickets/${ticketId}/visits`);
+  }
+
+  public async logTicketVisit(
+    ticketId: string | number,
+    data: {
+      outcome: 'completed' | 'partial' | 'failed_access';
+      failure_reason?: string;
+      notes?: string;
+      visited_at?: string;
+      tech_name?: string;
+    }
+  ): Promise<TicketVisit> {
+    return this.post<TicketVisit>(`/api/tickets/${ticketId}/visits`, data);
+  }
+
+  public async getTicketParts(ticketId: string | number): Promise<TicketPart[]> {
+    return this.get<TicketPart[]>(`/api/tickets/${ticketId}/parts`);
+  }
+
+  public async orderTicketPart(
+    ticketId: string | number,
+    data: {
+      part_name: string;
+      part_number?: string;
+      supplier: string;
+      order_ref?: string;
+      quantity?: number;
+      appliance_id?: number | string;
+      appliance_type?: string;
+      building_id?: number | string;
+      unit_id?: number | string;
+      unit_cost?: number;
+      notes?: string;
+    }
+  ): Promise<TicketPart> {
+    return this.post<TicketPart>(`/api/tickets/${ticketId}/parts`, data);
+  }
+
+  public async markTicketPartArrived(
+    partId: string | number,
+    actor: string = 'Jose (Tech)'
+  ): Promise<TicketPart> {
+    return this.post<TicketPart>(`/api/ticket-parts/${partId}/arrive`, { actor });
+  }
+
+  public async getUnitVisits(unitId: string | number): Promise<UnitFailedVisitsSummary> {
+    return this.get<UnitFailedVisitsSummary>(`/api/units/${unitId}/visits`);
+  }
+
+  public async getBuildingFailedVisits(): Promise<Record<number, number>> {
+    return this.get<Record<number, number>>('/api/buildings/failed-visits');
+  }
+
+  public async getHarvestCandidates(query?: string): Promise<HarvestCandidate[]> {
+    const q = query ? `?q=${encodeURIComponent(query)}` : '';
+    return this.get<HarvestCandidate[]>(`/api/parts/harvest-candidates${q}`);
+  }
+
+  public async recordStockTransfer(data: StockTransfer): Promise<any> {
+    return this.post<any>('/api/stock-transfers', data);
   }
 
   /**

@@ -75,6 +75,7 @@ class Ticket
                        u.move_in_date AS unit_move_in_date,
                        u.occupancy_status AS unit_occupancy_status,
                        u.vacant_since AS unit_vacant_since,
+                       (SELECT COUNT(*) FROM ticket_visit tv WHERE tv.unit_id = t.unit_id AND tv.outcome = 'failed_access') AS unit_failed_visits_count,
                        tech.name AS assigned_tech_name,
                        (SELECT COUNT(*) FROM ticket c WHERE c.parent_ticket_id = t.id) AS children_count
                 FROM ticket t
@@ -124,6 +125,7 @@ class Ticket
                        u.move_in_date AS unit_move_in_date,
                        u.occupancy_status AS unit_occupancy_status,
                        u.vacant_since AS unit_vacant_since,
+                       (SELECT COUNT(*) FROM ticket_visit tv WHERE tv.unit_id = t.unit_id AND tv.outcome = 'failed_access') AS unit_failed_visits_count,
                        tech.name AS assigned_tech_name
                 FROM ticket t
                 LEFT JOIN building b ON t.building_id = b.id
@@ -213,6 +215,14 @@ class Ticket
             }
         } catch (Throwable) {
             // Notice query fallback
+        }
+
+        try {
+            $parent['timeline'] = TicketTimeline::getForTicket((int) $id);
+            $parent['visits'] = TicketVisit::getForTicket((int) $id);
+            $parent['parts'] = PartWorkflow::getPartsForTicket((int) $id);
+        } catch (Throwable) {
+            // Fallback
         }
 
         return $parent;
@@ -567,6 +577,16 @@ class Ticket
             $unitRenovated = isset($row['unit_renovated']) && $row['unit_renovated'] !== null ? (bool) $row['unit_renovated'] : null;
             $row['unit_renovated'] = $unitRenovated;
             $row['unit_occupancy_status'] = $row['unit_occupancy_status'] ?? 'unknown';
+
+            $failedVisits = isset($row['unit_failed_visits_count'])
+                ? (int) $row['unit_failed_visits_count']
+                : (int) (Db::fetchOne("SELECT COUNT(*) as c FROM ticket_visit WHERE unit_id = ? AND outcome = 'failed_access'", [(int) $row['unit_id']])['c'] ?? 0);
+            $hasRepeatProblem = ($failedVisits >= 2);
+
+            $row['unit_failed_visits_count'] = $failedVisits;
+            $row['has_repeat_access_problem'] = $hasRepeatProblem;
+            $row['repeat_access_problem'] = $hasRepeatProblem;
+
             $row['unit'] = [
                 'id' => (string) $row['unit_id'],
                 'unitNumber' => $row['unit_number'] ?? '',
@@ -580,6 +600,9 @@ class Ticket
                 'occupancy_status' => $row['unit_occupancy_status'] ?? 'unknown',
                 'vacantSince' => $row['unit_vacant_since'] ?? null,
                 'vacant_since' => $row['unit_vacant_since'] ?? null,
+                'failed_visits_count' => $failedVisits,
+                'has_repeat_access_problem' => $hasRepeatProblem,
+                'repeat_access_problem' => $hasRepeatProblem,
             ];
         }
 

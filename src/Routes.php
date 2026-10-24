@@ -162,6 +162,72 @@ class Routes
             // POST /api/tickets/{id}/sighting (stamps yardi_sightings, updates last_seen_in_yardi)
             $group->post('/tickets/{id}/sighting', [TicketController::class, 'sighting']);
 
+            // --- Ticket Timeline Endpoints (Append-Only) ---
+            $group->get('/tickets/{id}/timeline', function (Request $request, Response $response, array $args): Response {
+                $id = (int) ($args['id'] ?? 0);
+                $timeline = \App\Models\TicketTimeline::getForTicket($id);
+                return Auth::jsonSuccess($timeline);
+            });
+            $group->post('/tickets/{id}/timeline', function (Request $request, Response $response, array $args): Response {
+                $id = (int) ($args['id'] ?? 0);
+                $body = (array) ($request->getParsedBody() ?? []);
+                $eventType = trim((string) ($body['event_type'] ?? 'note'));
+                $actor = trim((string) ($body['actor'] ?? 'Jose (Tech)'));
+                $note = isset($body['note']) ? (string) $body['note'] : null;
+                $metadata = isset($body['metadata']) && is_array($body['metadata']) ? $body['metadata'] : null;
+                $event = \App\Models\TicketTimeline::append($id, $eventType, $actor, $note, $metadata);
+                return Auth::jsonSuccess($event, 201);
+            });
+
+            // --- Ticket Visits Logging & Outcomes ---
+            $group->get('/tickets/{id}/visits', function (Request $request, Response $response, array $args): Response {
+                $id = (int) ($args['id'] ?? 0);
+                $visits = \App\Models\TicketVisit::getForTicket($id);
+                return Auth::jsonSuccess($visits);
+            });
+            $group->post('/tickets/{id}/visits', function (Request $request, Response $response, array $args): Response {
+                $id = (int) ($args['id'] ?? 0);
+                $body = (array) ($request->getParsedBody() ?? []);
+                $user = $request->getAttribute('user');
+                $userId = isset($user['id']) ? (int) $user['id'] : null;
+                try {
+                    $visit = \App\Models\TicketVisit::logVisit($id, $body, $userId);
+                    return Auth::jsonSuccess($visit, 201);
+                } catch (\Throwable $e) {
+                    return Auth::jsonError('visit_failed', $e->getMessage(), 400);
+                }
+            });
+
+            // --- Ticket Parts Rework (Auto-Watch on Order) ---
+            $group->get('/tickets/{id}/parts', function (Request $request, Response $response, array $args): Response {
+                $id = (int) ($args['id'] ?? 0);
+                $parts = \App\Models\PartWorkflow::getPartsForTicket($id);
+                return Auth::jsonSuccess($parts);
+            });
+            $group->post('/tickets/{id}/parts', function (Request $request, Response $response, array $args): Response {
+                $id = (int) ($args['id'] ?? 0);
+                $body = (array) ($request->getParsedBody() ?? []);
+                $user = $request->getAttribute('user');
+                $userId = isset($user['id']) ? (int) $user['id'] : null;
+                try {
+                    $part = \App\Models\PartWorkflow::orderPart($id, $body, $userId);
+                    return Auth::jsonSuccess($part, 201);
+                } catch (\Throwable $e) {
+                    return Auth::jsonError('part_order_failed', $e->getMessage(), 400);
+                }
+            });
+            $group->post('/ticket-parts/{id}/arrive', function (Request $request, Response $response, array $args): Response {
+                $id = (int) ($args['id'] ?? 0);
+                $body = (array) ($request->getParsedBody() ?? []);
+                $actor = trim((string) ($body['actor'] ?? 'Jose (Tech)'));
+                try {
+                    $part = \App\Models\PartWorkflow::markPartArrived($id, $actor);
+                    return Auth::jsonSuccess($part);
+                } catch (\Throwable $e) {
+                    return Auth::jsonError('part_arrival_failed', $e->getMessage(), 400);
+                }
+            });
+
             // --- Notice Domain Endpoints ---
             $group->get('/notices', [NoticeController::class, 'index']);
             $group->post('/notices', [NoticeController::class, 'create']);
@@ -192,6 +258,12 @@ class Routes
             // --- Parts, Stockpiles, Shopping Lists, and Suppliers (Phase 4) ---
             $group->get('/parts', [PartController::class, 'index']);
             $group->post('/parts', [PartController::class, 'create']);
+            $group->get('/parts/harvest-candidates', function (Request $request, Response $response): Response {
+                $params = $request->getQueryParams();
+                $query = isset($params['q']) ? (string) $params['q'] : null;
+                $candidates = \App\Models\PartWorkflow::searchHarvestCandidates($query);
+                return Auth::jsonSuccess($candidates);
+            });
             $group->get('/parts/{id}', [PartController::class, 'show']);
             $group->patch('/parts/{id}', [PartController::class, 'update']);
             $group->post('/parts/{id}/use', [PartController::class, 'usePart']);
@@ -282,9 +354,10 @@ class Routes
 
             // --- Unit Domain Endpoints ---
             $group->get('/units', function (Request $request, Response $response): Response {
-                $rows = Db::fetchAll('SELECT * FROM unit ORDER BY building_id ASC, unit_number ASC');
+                $rows = Db::fetchAll('SELECT u.*, (SELECT COUNT(*) FROM ticket_visit tv WHERE tv.unit_id = u.id AND tv.outcome = "failed_access") as failed_visits_count FROM unit u ORDER BY u.building_id ASC, u.unit_number ASC');
                 $units = [];
                 foreach ($rows as $u) {
+                    $failedCount = (int) ($u['failed_visits_count'] ?? 0);
                     $units[] = [
                         'id' => (string) $u['id'],
                         'buildingId' => (string) $u['building_id'],
@@ -310,6 +383,10 @@ class Routes
                         'vacantSince' => $u['vacant_since'] ?? null,
                         'comments' => $u['comments'] ?? null,
                         'provenance' => $u['provenance'] ?? 'verified',
+                        'failedVisitsCount' => $failedCount,
+                        'failed_visits_count' => $failedCount,
+                        'repeatAccessProblem' => ($failedCount >= 2),
+                        'has_repeat_access_problem' => ($failedCount >= 2),
                     ];
                 }
                 return Auth::jsonSuccess($units);
@@ -324,6 +401,7 @@ class Routes
                 if (!$u) {
                     return Auth::jsonError('not_found', 'Unit not found', 404);
                 }
+                $unitMetrics = \App\Models\TicketVisit::getMetricsForUnit((int) $u['id']);
                 return Auth::jsonSuccess([
                     'id' => (string) $u['id'],
                     'buildingId' => (string) $u['building_id'],
@@ -349,6 +427,13 @@ class Routes
                     'vacantSince' => $u['vacant_since'] ?? null,
                     'comments' => $u['comments'] ?? null,
                     'provenance' => $u['provenance'] ?? 'verified',
+                    'failedVisitsCount' => $unitMetrics['total_failed_visits'],
+                    'failed_visits_count' => $unitMetrics['total_failed_visits'],
+                    'last90DaysFailedVisits' => $unitMetrics['last_90_days_failed_visits'],
+                    'repeatAccessProblem' => $unitMetrics['repeat_access_problem'],
+                    'has_repeat_access_problem' => $unitMetrics['repeat_access_problem'],
+                    'lastFailure' => $unitMetrics['last_failure'],
+                    'visits' => $unitMetrics['visits'],
                 ]);
             });
 
@@ -460,6 +545,39 @@ class Routes
                 ]);
             });
 
+            // --- Unit Visits & Repeat Access Endpoints ---
+            $group->get('/units/{id}/visits', function (Request $request, Response $response, array $args): Response {
+                $id = (string) ($args['id'] ?? '');
+                $u = Db::fetchOne('SELECT id FROM unit WHERE id = ?', [$id]);
+                if (!$u && preg_match('/^unit-(\d+)-(.+)$/', $id, $matches)) {
+                    $u = Db::fetchOne('SELECT id FROM unit WHERE building_id = ? AND unit_number = ?', [$matches[1], $matches[2]]);
+                }
+                if (!$u) {
+                    return Auth::jsonError('not_found', 'Unit not found', 404);
+                }
+                $unitId = (int) $u['id'];
+                $metrics = \App\Models\TicketVisit::getMetricsForUnit($unitId);
+                return Auth::jsonSuccess($metrics);
+            });
+
+            $group->get('/buildings/failed-visits', function (Request $request, Response $response): Response {
+                $counts = \App\Models\TicketVisit::getBuildingFailedVisitCounts();
+                return Auth::jsonSuccess($counts);
+            });
+
+            // --- Vacancy Parts Sourcing & Stock Transfers ---
+            $group->post('/stock-transfers', function (Request $request, Response $response): Response {
+                $body = (array) ($request->getParsedBody() ?? []);
+                $user = $request->getAttribute('user');
+                $userId = isset($user['id']) ? (int) $user['id'] : null;
+                try {
+                    $transfer = \App\Models\PartWorkflow::transferVacantAppliance($body, $userId);
+                    return Auth::jsonSuccess($transfer, 201);
+                } catch (\Throwable $e) {
+                    return Auth::jsonError('stock_transfer_failed', $e->getMessage(), 400);
+                }
+            });
+
             // --- Inventory & Portfolio synchronization ---
             $group->get('/inventory', function (Request $request, Response $response): Response {
                 try {
@@ -511,12 +629,20 @@ class Routes
                     ];
                 }
 
+                $buildingFailedCounts = \App\Models\TicketVisit::getBuildingFailedVisitCounts();
+                $unitFailedCountsRows = Db::fetchAll('SELECT unit_id, COUNT(*) as failed_count FROM ticket_visit WHERE outcome = "failed_access" AND unit_id IS NOT NULL GROUP BY unit_id');
+                $unitFailedMap = [];
+                foreach ($unitFailedCountsRows as $uf) {
+                    $unitFailedMap[(int) $uf['unit_id']] = (int) $uf['failed_count'];
+                }
+
                 $buildings = Db::fetchAll('SELECT * FROM building ORDER BY id ASC');
                 $properties = [];
                 $allUnits = [];
                 foreach ($buildings as $b) {
                     $units = Db::fetchAll('SELECT * FROM unit WHERE building_id = ? ORDER BY unit_number ASC', [$b['id']]);
                     foreach ($units as $u) {
+                        $failedCount = $unitFailedMap[(int) $u['id']] ?? 0;
                         $allUnits[] = [
                             'id' => (string) $u['id'],
                             'buildingId' => (string) $u['building_id'],
@@ -528,7 +654,7 @@ class Routes
                             'washrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
                             'bathrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
                             'storeys' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
-                            'stories' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
+                            'stories' => $u['storeys'] !== null ? (int) $u['stories'] : null,
                             'washerDryerState' => $u['washer_dryer_state'] ?? null,
                             'washer_dryer_state' => $u['washer_dryer_state'] ?? null,
                             'renovated' => $u['renovated'] !== null ? (bool) $u['renovated'] : null,
@@ -542,6 +668,10 @@ class Routes
                             'vacantSince' => $u['vacant_since'] ?? null,
                             'comments' => $u['comments'] ?? null,
                             'provenance' => $u['provenance'] ?? 'verified',
+                            'failedVisitsCount' => $failedCount,
+                            'failed_visits_count' => $failedCount,
+                            'repeatAccessProblem' => ($failedCount >= 2),
+                            'has_repeat_access_problem' => ($failedCount >= 2),
                         ];
                     }
                     $unitNumbers = array_column($units, 'unit_number');
@@ -549,6 +679,7 @@ class Routes
                     $cId = $b['complex_id'] !== null ? (int) $b['complex_id'] : null;
                     $cName = $cId !== null ? ($complexMap[$cId] ?? null) : null;
                     $cSlug = $cId !== null ? ($complexSlugMap[$cId] ?? null) : null;
+                    $bFailedCount = $buildingFailedCounts[(int) $b['id']] ?? 0;
                     $properties[] = [
                         'id' => (string) $b['id'],
                         'complex_id' => $cId,
@@ -568,6 +699,8 @@ class Routes
                         'comments' => $b['comments'] ?? '',
                         'role' => $b['role'] ?? 'standard',
                         'responsibility' => $b['responsibility'] ?? 'internal',
+                        'failedVisitsCount' => $bFailedCount,
+                        'failed_visits_count' => $bFailedCount,
                         'createdAt' => $b['created_at'],
                     ];
                 }

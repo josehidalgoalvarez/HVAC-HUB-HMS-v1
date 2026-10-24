@@ -41,6 +41,18 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     try { $pdo->exec("ALTER TABLE unit ADD COLUMN occupancy_status TEXT NOT NULL DEFAULT 'unknown'"); } catch (\Throwable) {}
     try { $pdo->exec("ALTER TABLE unit ADD COLUMN vacant_since TEXT NULL"); } catch (\Throwable) {}
     try { $pdo->exec("ALTER TABLE job ADD COLUMN room TEXT NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN building_id INTEGER NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN unit_id INTEGER NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN appliance_id INTEGER NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN appliance_type TEXT NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN supplier TEXT NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN order_ref TEXT NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN status TEXT NOT NULL DEFAULT 'needed'"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN watch_id INTEGER NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN ordered_at TEXT NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN arrived_at TEXT NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN unit_cost REAL NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN notes TEXT NULL"); } catch (\Throwable) {}
 
     if ($isSqlite) {
         $pdo->exec("

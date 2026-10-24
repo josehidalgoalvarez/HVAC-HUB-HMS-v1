@@ -1,30 +1,52 @@
 import React, { useState } from 'react';
-import type { PartRecord, Stockpile } from '../../types/domain';
+import type { PartRecord, Stockpile, HarvestCandidate } from '../../types/domain';
 
 interface PartSearchSectionProps {
   parts: PartRecord[];
   stockpiles?: Stockpile[];
+  harvestCandidates?: HarvestCandidate[];
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onLogUse: (part: PartRecord) => void;
   onRestock?: (part: PartRecord) => void;
   onAddPart?: () => void;
+  onHarvestTransfer?: (candidate: HarvestCandidate) => void;
 }
 
 export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
   parts,
   stockpiles = [],
+  harvestCandidates = [],
   searchQuery,
   onSearchChange,
   onLogUse,
   onRestock,
   onAddPart,
+  onHarvestTransfer,
 }) => {
-  const [filter, setFilter] = useState<'all' | 'reorder' | 'available'>('all');
+  const [filter, setFilter] = useState<'all' | 'reorder' | 'available' | 'harvest'>('all');
   const [selectedStockpileId, setSelectedStockpileId] = useState<string>('all');
   const [expandedPriceHistoryId, setExpandedPriceHistoryId] = useState<number | null>(null);
 
-  const filteredParts = parts.filter(p => {
+  const filteredHarvestCandidates = harvestCandidates.filter(c => {
+    if (filter === 'reorder') return false;
+    if (selectedStockpileId !== 'all') return false; // Stockpile depot filter applies to warehouse parts
+    if (!searchQuery.trim()) return true;
+
+    const query = searchQuery.toLowerCase();
+    const matchName = c.name?.toLowerCase().includes(query) ?? false;
+    const matchBrand = c.brand?.toLowerCase().includes(query) ?? false;
+    const matchType = c.type?.toLowerCase().includes(query) ?? false;
+    const matchCat = c.category?.toLowerCase().includes(query) ?? false;
+    const matchModel = c.model_number?.toLowerCase().includes(query) ?? false;
+    const matchSerial = c.serial_number?.toLowerCase().includes(query) ?? false;
+    const matchBuilding = c.building_name?.toLowerCase().includes(query) ?? false;
+    const matchUnit = String(c.unit_number).toLowerCase().includes(query);
+
+    return matchName || matchBrand || matchType || matchCat || matchModel || matchSerial || matchBuilding || matchUnit;
+  });
+
+  const filteredParts = filter === 'harvest' ? [] : parts.filter(p => {
     if (filter === 'reorder' && !p.is_reorder && (p.quantity_on_hand > p.reorder_point)) {
       return false;
     }
@@ -50,6 +72,8 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
 
     return matchNumber || matchName || matchDesc || matchCategory || matchModels;
   });
+
+  const totalHits = filteredParts.length + (filter === 'reorder' ? 0 : filteredHarvestCandidates.length);
 
   return (
     <div className="space-y-4">
@@ -86,7 +110,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
               : 'bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300'
           }`}
         >
-          All ({parts.length})
+          All ({parts.length + harvestCandidates.length})
         </button>
 
         <button
@@ -111,6 +135,18 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
         >
           <span className={`material-symbols-outlined text-[16px] ${filter === 'available' ? 'text-white' : 'text-emerald-500'}`}>check_circle</span>
           In Stock ({parts.filter(p => p.quantity_on_hand > 0).length})
+        </button>
+
+        <button
+          onClick={() => setFilter('harvest')}
+          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all ${
+            filter === 'harvest'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 border border-emerald-200 dark:border-emerald-800'
+          }`}
+        >
+          <span className={`material-symbols-outlined text-[16px] ${filter === 'harvest' ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`}>swap_horiz</span>
+          Vacant Unit Harvest ({harvestCandidates.length})
         </button>
       </div>
 
@@ -150,26 +186,82 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
         </div>
       )}
 
-      {/* Parts List */}
-      {filteredParts.length === 0 ? (
+      {/* Parts & Harvest Candidates List */}
+      {totalHits === 0 ? (
         <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3 bg-white/50 dark:bg-card-dark/50">
           <span className="material-symbols-outlined text-4xl text-gray-300">inventory_2</span>
-          <p className="text-base font-bold text-gray-700 dark:text-gray-300">No matching parts found</p>
+          <p className="text-base font-bold text-gray-700 dark:text-gray-300">No matching parts or harvest units found</p>
           <p className="text-xs text-gray-400 max-w-xs mx-auto">
-            Try searching by part number (e.g. WB24T10025, M376) or appliance model, or add this part to the stash.
+            Try searching by part number, appliance type, building or unit, or buy a new replacement part.
           </p>
           {onAddPart && (
             <button
               onClick={onAddPart}
               className="min-h-[44px] px-4 py-2 mt-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
             >
-              <span className="material-symbols-outlined text-[16px]">add</span>
-              <span>Add Part</span>
+              <span className="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+              <span>Buy New / Add Part</span>
             </button>
           )}
         </div>
       ) : (
         <div className="grid gap-4 pb-8">
+          {/* Harvest Candidates Ranked First (Stockpile/Vacant - Zero Cost) */}
+          {filteredHarvestCandidates.map(candidate => (
+            <div
+              key={`harvest-${candidate.id}`}
+              data-testid={`harvest-candidate-${candidate.id}`}
+              className="p-4 rounded-2xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50/20 dark:bg-emerald-950/20 shadow-xs space-y-3 transition-all"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="px-2.5 py-0.5 text-xs font-black rounded-lg bg-emerald-600 text-white tracking-wider flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[13px]">home_work</span>
+                      {candidate.occupancy_label || 'Vacant unit'}
+                    </span>
+                    <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                      {candidate.building_name} • Unit {candidate.unit_number}
+                    </span>
+                    {candidate.category && (
+                      <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                        {candidate.category}
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-extrabold text-brand-black dark:text-white mt-1.5 leading-snug">
+                    {candidate.name}
+                  </h3>
+                  <p className="text-xs text-gray-500 font-mono mt-0.5">
+                    {candidate.brand} • Model: {candidate.model_number || 'N/A'} {candidate.serial_number ? `• SN: ${candidate.serial_number}` : ''}
+                  </p>
+                </div>
+
+                <div className="shrink-0">
+                  <span className="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 flex items-center gap-1 border border-emerald-200 dark:border-emerald-700">
+                    <span className="material-symbols-outlined text-[15px]">eco</span>
+                    <span>Harvest First (Zero Cost)</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-300 pt-1 flex-wrap gap-2">
+                <span className="flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[16px] text-emerald-600">door_front</span>
+                  Location: {candidate.building_name} (Unit {candidate.unit_number}) • Status: {candidate.status || 'operational'}
+                </span>
+                {onHarvestTransfer && (
+                  <button
+                    onClick={() => onHarvestTransfer(candidate)}
+                    className="min-h-[40px] px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
+                    <span>Harvest / Transfer</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
           {filteredParts.map(part => {
             const isReorder = part.is_reorder || part.quantity_on_hand <= part.reorder_point;
             const isHistoryExpanded = expandedPriceHistoryId === part.id;

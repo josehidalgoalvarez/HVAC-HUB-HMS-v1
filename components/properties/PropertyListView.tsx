@@ -10,6 +10,8 @@ import {
   getUnitContextChips,
   getUnitContextDetail
 } from '../../utils/unitContextUtils';
+import { apiClient } from '../../src/api/client';
+import type { UnitFailedVisitsSummary } from '../../types/domain';
 
 interface PropertyListViewProps {
   onPropertyClick: (id: string) => void;
@@ -59,6 +61,19 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
   // Global Search
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Unit Access History & Failed Visits
+  const [unitVisitsSummary, setUnitVisitsSummary] = useState<UnitFailedVisitsSummary | null>(null);
+
+  React.useEffect(() => {
+    if (selectedUnitId) {
+      apiClient.getUnitVisits(selectedUnitId)
+        .then(res => setUnitVisitsSummary(res))
+        .catch(() => setUnitVisitsSummary(null));
+    } else {
+      setUnitVisitsSummary(null);
+    }
+  }, [selectedUnitId]);
 
   // Modals
   const [overrideModalAppliance, setOverrideModalAppliance] = useState<Appliance | null>(null);
@@ -1138,6 +1153,24 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   </button>
                 </div>
 
+                {/* Building Failed Visits Callout */}
+                {activeBuilding.failedVisitsCount !== undefined && activeBuilding.failedVisitsCount > 0 && (
+                  <div
+                    data-testid="building-failed-visits-banner"
+                    className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-xs text-amber-900 dark:text-amber-200 flex items-center justify-between shadow-2xs"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-amber-600 text-lg">door_front</span>
+                      <span>
+                        <strong>Building Access History:</strong> Failed entry attempts recorded on units in this building.
+                      </span>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-xl bg-amber-200 text-amber-900 dark:bg-amber-900 dark:text-amber-100 font-extrabold font-mono text-xs">
+                      {activeBuilding.failedVisitsCount} Failed Visit{activeBuilding.failedVisitsCount > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                )}
+
                 {/* Special Role Callout */}
                 {activeBuilding.role && activeBuilding.role !== 'standard' && (
                   <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2.5">
@@ -1229,6 +1262,12 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                 )}
                               </span>
                               <div className="flex items-center gap-1.5 flex-wrap">
+                                {Boolean(unit.has_repeat_access_problem || unit.repeat_access_problem || ((unit.failedVisitsCount ?? 0) >= 2) || ((unit.failed_visits_count ?? 0) >= 2)) && (
+                                  <span data-testid="unit-repeat-access-problem-flag" className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700">
+                                    <span className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+                                    Repeat access problem
+                                  </span>
+                                )}
                                 {wdState && (
                                   <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
                                     wdState === 'building_installed'
@@ -1398,6 +1437,119 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     </div>
                   );
                 })()}
+
+                {/* Unit Access History & Failed Visits Block */}
+                <div className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-amber-600 text-[18px]">door_front</span>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
+                        Access History & Failed Visits
+                      </h3>
+                    </div>
+                    {Boolean(
+                      activeUnit.has_repeat_access_problem ||
+                      activeUnit.repeat_access_problem ||
+                      unitVisitsSummary?.repeat_access_problem ||
+                      ((activeUnit.failedVisitsCount ?? 0) >= 2) ||
+                      ((activeUnit.failed_visits_count ?? 0) >= 2)
+                    ) ? (
+                      <span
+                        data-testid="repeat-access-problem-flag"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-xl bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700"
+                      >
+                        <span className="material-symbols-outlined text-[13px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+                        Repeat access problem
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                        Normal Access
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-3 rounded-xl bg-gray-50/70 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800/80">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-0.5">Total Failed Visits</span>
+                      <span className="text-lg font-extrabold text-brand-black dark:text-white font-mono">
+                        {unitVisitsSummary ? unitVisitsSummary.total_failed_visits : (activeUnit.failedVisitsCount ?? 0)}
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-gray-50/70 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800/80">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-0.5">Last 90 Days</span>
+                      <span className="text-lg font-extrabold text-brand-black dark:text-white font-mono">
+                        {unitVisitsSummary ? unitVisitsSummary.last_90_days_failed_visits : (activeUnit.last90DaysFailedVisits ?? 0)}
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-gray-50/70 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800/80">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-0.5">Last Failure</span>
+                      {unitVisitsSummary?.last_failure || activeUnit.lastFailure ? (
+                        <div className="text-xs">
+                          <span className="font-semibold text-brand-black dark:text-white block">
+                            {new Date((unitVisitsSummary?.last_failure || activeUnit.lastFailure)!.visited_at).toLocaleDateString()}
+                          </span>
+                          <span className="text-[11px] text-gray-500 block">
+                            {(unitVisitsSummary?.last_failure || activeUnit.lastFailure)!.failure_reason}
+                            {(unitVisitsSummary?.last_failure || activeUnit.lastFailure)!.is_our_miss && (
+                              <strong className="text-rose-600 dark:text-rose-400 ml-1">[OUR MISS]</strong>
+                            )}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400 italic">None on record</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Attempt History List */}
+                  {unitVisitsSummary && unitVisitsSummary.visits && unitVisitsSummary.visits.length > 0 && (
+                    <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-2">
+                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                        Visit Attempt History ({unitVisitsSummary.visits.length})
+                      </h4>
+                      <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                        {unitVisitsSummary.visits.map(v => (
+                          <div
+                            key={v.id}
+                            className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-100 dark:border-gray-800 text-xs flex items-center justify-between gap-2"
+                          >
+                            <div className="space-y-0.5">
+                              <div className="flex items-center gap-2">
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                  v.outcome === 'failed_access'
+                                    ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                                    : v.outcome === 'partial'
+                                    ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                                    : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                                }`}>
+                                  {v.outcome}
+                                </span>
+                                {v.failure_reason && (
+                                  <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300">
+                                    {v.failure_reason}
+                                  </span>
+                                )}
+                                {v.is_our_miss && (
+                                  <span className="px-1.5 py-0.2 text-[9px] font-bold bg-rose-600 text-white rounded">
+                                    OUR MISS
+                                  </span>
+                                )}
+                              </div>
+                              {v.notes && <p className="text-[11px] text-gray-400 italic">{v.notes}</p>}
+                            </div>
+                            <div className="text-right shrink-0 text-[10px] text-gray-400 font-mono">
+                              <div>{new Date(v.visited_at).toLocaleDateString()}</div>
+                              <div>{v.tech_name}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* Unit Attributes & Context Edit Card */}
                 <div className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-4">
