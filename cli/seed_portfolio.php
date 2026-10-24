@@ -167,10 +167,17 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     // Ensure complexes exist & are named properly
     $pdo->exec("UPDATE complexes SET name = 'BD — Bath & Days' WHERE slug = 'bd'");
     $pdo->exec("UPDATE complex SET name = 'BD — Bath & Days' WHERE id = 'bd'");
-    $pdo->exec("INSERT OR IGNORE INTO complexes (id, name, slug, notes, created_at, updated_at) VALUES (9, 'Frontenac–Alfred Quadrant', 'frontenac-alfred', 'Frontenac and Alfred street cluster + 565 Princess St in Kingston, ON.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-    $pdo->exec("INSERT OR IGNORE INTO complex (id, code, name, description, address, building_count, created_at, updated_at) VALUES ('frontenac-alfred', 'FRONTENAC-ALFRED', 'Frontenac–Alfred Quadrant', 'Frontenac and Alfred street cluster + 565 Princess St in Kingston, ON.', 'Frontenac St & Alfred St, Kingston, ON', 9, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-    $pdo->exec("INSERT OR IGNORE INTO complexes (id, name, slug, notes, created_at, updated_at) VALUES (10, 'Armstrong / Skyfall', 'armstrong-skyfall', 'Adjacent group: 539 Armstrong Rd, 300 Skyfall Lane (Le Santé), and 2274 Princess St.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-    $pdo->exec("INSERT OR IGNORE INTO complex (id, code, name, description, address, building_count, created_at, updated_at) VALUES ('armstrong-skyfall', 'ARMSTRONG-SKYFALL', 'Armstrong / Skyfall', 'Adjacent group: 539 Armstrong Rd, 300 Skyfall Lane (Le Santé), and 2274 Princess St.', 'Armstrong Rd & Skyfall Lane, Kingston, ON', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+    if ($isSqlite) {
+        $pdo->exec("INSERT OR IGNORE INTO complexes (id, name, slug, notes, created_at, updated_at) VALUES (9, 'Frontenac–Alfred Quadrant', 'frontenac-alfred', 'Frontenac and Alfred street cluster + 565 Princess St in Kingston, ON.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        $pdo->exec("INSERT OR IGNORE INTO complex (id, code, name, description, address, building_count, created_at, updated_at) VALUES ('frontenac-alfred', 'FRONTENAC-ALFRED', 'Frontenac–Alfred Quadrant', 'Frontenac and Alfred street cluster + 565 Princess St in Kingston, ON.', 'Frontenac St & Alfred St, Kingston, ON', 9, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        $pdo->exec("INSERT OR IGNORE INTO complexes (id, name, slug, notes, created_at, updated_at) VALUES (10, 'Armstrong / Skyfall', 'armstrong-skyfall', 'Adjacent group: 539 Armstrong Rd, 300 Skyfall Lane (Le Santé), and 2274 Princess St.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        $pdo->exec("INSERT OR IGNORE INTO complex (id, code, name, description, address, building_count, created_at, updated_at) VALUES ('armstrong-skyfall', 'ARMSTRONG-SKYFALL', 'Armstrong / Skyfall', 'Adjacent group: 539 Armstrong Rd, 300 Skyfall Lane (Le Santé), and 2274 Princess St.', 'Armstrong Rd & Skyfall Lane, Kingston, ON', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+    } else {
+        $pdo->exec("INSERT IGNORE INTO complexes (id, name, slug, notes, created_at, updated_at) VALUES (9, 'Frontenac–Alfred Quadrant', 'frontenac-alfred', 'Frontenac and Alfred street cluster + 565 Princess St in Kingston, ON.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        $pdo->exec("INSERT IGNORE INTO complex (id, code, name, description, address, building_count, created_at, updated_at) VALUES ('frontenac-alfred', 'FRONTENAC-ALFRED', 'Frontenac–Alfred Quadrant', 'Frontenac and Alfred street cluster + 565 Princess St in Kingston, ON.', 'Frontenac St & Alfred St, Kingston, ON', 9, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        $pdo->exec("INSERT IGNORE INTO complexes (id, name, slug, notes, created_at, updated_at) VALUES (10, 'Armstrong / Skyfall', 'armstrong-skyfall', 'Adjacent group: 539 Armstrong Rd, 300 Skyfall Lane (Le Santé), and 2274 Princess St.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        $pdo->exec("INSERT IGNORE INTO complex (id, code, name, description, address, building_count, created_at, updated_at) VALUES ('armstrong-skyfall', 'ARMSTRONG-SKYFALL', 'Armstrong / Skyfall', 'Adjacent group: 539 Armstrong Rd, 300 Skyfall Lane (Le Santé), and 2274 Princess St.', 'Armstrong Rd & Skyfall Lane, Kingston, ON', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+    }
 
     $bldCount = 0;
     foreach ($buildings as $b) {
