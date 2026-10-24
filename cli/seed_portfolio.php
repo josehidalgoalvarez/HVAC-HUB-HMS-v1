@@ -35,6 +35,11 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     try { $pdo->exec("ALTER TABLE building ADD COLUMN role VARCHAR(30) DEFAULT 'standard'"); } catch (\Throwable) {}
     try { $pdo->exec("ALTER TABLE building ADD COLUMN responsibility VARCHAR(30) DEFAULT 'internal'"); } catch (\Throwable) {}
     try { $pdo->exec("ALTER TABLE unit ADD COLUMN comments TEXT NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE unit ADD COLUMN renovated INTEGER NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE unit ADD COLUMN renovated_date TEXT NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE unit ADD COLUMN move_in_date TEXT NULL"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE unit ADD COLUMN occupancy_status TEXT NOT NULL DEFAULT 'unknown'"); } catch (\Throwable) {}
+    try { $pdo->exec("ALTER TABLE unit ADD COLUMN vacant_since TEXT NULL"); } catch (\Throwable) {}
     try { $pdo->exec("ALTER TABLE job ADD COLUMN room TEXT NULL"); } catch (\Throwable) {}
 
     if ($isSqlite) {

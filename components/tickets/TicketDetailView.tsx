@@ -3,6 +3,7 @@ import { apiClient } from '../../src/api/client';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import type { Ticket, TicketState, TicketPriority, Correction } from '../../types/domain';
+import { getUnitContextChips } from '../../utils/unitContextUtils';
 
 interface TicketDetailViewProps {
   ticketId: string;
@@ -331,6 +332,10 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
   const rollup = ticket.childrenRollup || (ticket as any).rollup;
   const children = ticket.children || [];
+  const building = ticket.buildingName || ticket.building_name || ticket.propertyName || '';
+  const unitNum = ticket.unitNumber || ticket.unit_number;
+  const locationText = unitNum ? `${building} · Unit ${unitNum}` : building;
+  const unitContextChips = getUnitContextChips(ticket.unit || ticket);
 
   return (
     <div className="pb-safe max-w-xl mx-auto px-4 py-4 space-y-5 animate-fadeIn">
@@ -344,7 +349,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         </button>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
             {ticket.wo_number ? (
               <span className="px-2 py-0.5 text-xs font-mono font-bold bg-primary/10 text-primary rounded-lg border border-primary/20">
                 {ticket.wo_number}
@@ -355,6 +360,20 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
               </span>
             )}
             <span className="text-xs text-gray-400">ID #{ticket.id}</span>
+            {locationText && (
+              <span className="text-xs font-bold text-brand-black dark:text-white uppercase tracking-tight">
+                · {locationText}
+              </span>
+            )}
+            {unitContextChips.map(chip => (
+              <span
+                key={chip.key}
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md ${chip.className}`}
+              >
+                <span className="material-symbols-outlined text-[11px] leading-none">{chip.icon}</span>
+                {chip.label}
+              </span>
+            ))}
           </div>
           <h1 className="text-base font-bold text-brand-black dark:text-white truncate">
             {ticket.title}
@@ -416,7 +435,8 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
       {/* Notice of Entry Card (24-Hour Legal Gate Tracker) */}
       {(() => {
-        const isNoticeNeeded = !!ticket.notice_needed;
+        const isVacant = ticket.unit_occupancy_status === 'vacant' || ticket.unit?.occupancy_status === 'vacant';
+        const isNoticeNeeded = !isVacant && !!ticket.notice_needed;
         const noticeSentAt = ticket.notice_sent_at || null;
         const noticeConfirmedBy = ticket.notice_confirmed_by || null;
 
@@ -427,7 +447,14 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           cleared: true,
         };
 
-        if (isNoticeNeeded) {
+        if (isVacant) {
+          gateBadge = {
+            label: 'NOT APPLICABLE (VACANT)',
+            className: 'bg-emerald-500 text-white',
+            description: 'Unit is vacant — no tenant to notify. Entry legally cleared without 24h notice.',
+            cleared: true,
+          };
+        } else if (isNoticeNeeded) {
           if (!noticeSentAt) {
             gateBadge = {
               label: 'ENTRY BLOCKED',
@@ -483,7 +510,9 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     24h Notice of Entry
                   </span>
                   <span className="text-[11px] text-gray-500">
-                    {isNoticeNeeded ? 'Tenant-occupied — 24h advance notice required' : 'Notice of entry not required'}
+                    {isVacant
+                      ? 'Vacant unit — no tenant to notify (entry permitted)'
+                      : (isNoticeNeeded ? 'Tenant-occupied — 24h advance notice required' : 'Notice of entry not required')}
                   </span>
                 </div>
               </div>
@@ -500,7 +529,9 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   Notice needed
                 </label>
                 <p className="text-[11px] text-gray-500">
-                  {isNoticeNeeded
+                  {isVacant
+                    ? 'Unit is vacant — 24h notice not applicable'
+                    : isNoticeNeeded
                     ? 'Entry gated until 24h after management sends notice'
                     : 'Turn ON if unit requires 24h written notice'}
                 </p>
@@ -511,9 +542,9 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 type="button"
                 role="switch"
                 aria-checked={isNoticeNeeded}
-                onClick={() => handleToggleNoticeNeeded(!isNoticeNeeded)}
-                disabled={noticeSaving}
-                className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                onClick={() => !isVacant && handleToggleNoticeNeeded(!isNoticeNeeded)}
+                disabled={noticeSaving || isVacant}
+                className={`relative inline-flex h-7 w-12 shrink-0 ${isVacant ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                   isNoticeNeeded ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-700'
                 }`}
               >

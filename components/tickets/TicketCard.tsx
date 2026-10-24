@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Ticket, TicketState } from '../../types/domain';
+import { getUnitContextChips } from '../../utils/unitContextUtils';
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -150,9 +151,13 @@ export const TicketCard: React.FC<TicketCardProps> = ({
   const showRain = (isLadder || isExterior) && Boolean(ticket.rain_expected);
 
   // Notice status
+  const isVacant = ticket.unit_occupancy_status === 'vacant' || ticket.unit?.occupancy_status === 'vacant';
   const isGateOpen = ticket.notice_gate_status === 'gate_open' || ticket.notice_gate_status === 'open';
   const isNoticeSent = Boolean(ticket.notice_sent_at || ticket.notice_status === 'sent');
-  const isNoticeNeeded = Boolean(ticket.notice_needed || ticket.notice_status === 'needed');
+  const isNoticeNeeded = !isVacant && Boolean(ticket.notice_needed || ticket.notice_status === 'needed');
+
+  // Unit context chips (Vacant, Recent move-in, Renovated)
+  const unitContextChips = getUnitContextChips(ticket.unit || ticket);
 
   return (
     <article
@@ -190,9 +195,24 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
       {/* 2. BUILDING + UNIT (THE LOCATION - BIGGEST TEXT AFTER TITLE) */}
       <div className="space-y-0.5">
-        <h2 className="text-base font-bold text-brand-black dark:text-white uppercase tracking-tight leading-snug group-hover:text-primary transition-colors">
-          {locationText}
-        </h2>
+        <div className="flex items-center justify-between gap-1.5 flex-wrap">
+          <h2 className="text-base font-bold text-brand-black dark:text-white uppercase tracking-tight leading-snug group-hover:text-primary transition-colors">
+            {locationText}
+          </h2>
+          {unitContextChips.length > 0 && (
+            <div className="flex items-center gap-1 flex-wrap">
+              {unitContextChips.map(chip => (
+                <span
+                  key={chip.key}
+                  className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md ${chip.className}`}
+                >
+                  <span className="material-symbols-outlined text-[11px] leading-none">{chip.icon}</span>
+                  {chip.label}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
         {ticket.title && (
           <p className="text-xs font-medium text-text-sub-light dark:text-text-sub-dark line-clamp-1">
             {ticket.title}

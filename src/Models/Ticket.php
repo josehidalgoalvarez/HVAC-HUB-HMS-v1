@@ -70,6 +70,11 @@ class Ticket
         $sql = "SELECT t.*, 
                        b.name AS building_name, 
                        u.unit_number,
+                       u.renovated AS unit_renovated,
+                       u.renovated_date AS unit_renovated_date,
+                       u.move_in_date AS unit_move_in_date,
+                       u.occupancy_status AS unit_occupancy_status,
+                       u.vacant_since AS unit_vacant_since,
                        tech.name AS assigned_tech_name,
                        (SELECT COUNT(*) FROM ticket c WHERE c.parent_ticket_id = t.id) AS children_count
                 FROM ticket t
@@ -114,6 +119,11 @@ class Ticket
         $sql = "SELECT t.*, 
                        b.name AS building_name, 
                        u.unit_number,
+                       u.renovated AS unit_renovated,
+                       u.renovated_date AS unit_renovated_date,
+                       u.move_in_date AS unit_move_in_date,
+                       u.occupancy_status AS unit_occupancy_status,
+                       u.vacant_since AS unit_vacant_since,
                        tech.name AS assigned_tech_name
                 FROM ticket t
                 LEFT JOIN building b ON t.building_id = b.id
@@ -552,6 +562,26 @@ class Ticket
         $row['notice_needed'] = (bool) ($row['notice_needed'] ?? 0);
         $row['notice_sent_at'] = $row['notice_sent_at'] ?? null;
         $row['notice_confirmed_by'] = $row['notice_confirmed_by'] ?? null;
+
+        if (!empty($row['unit_id'])) {
+            $unitRenovated = isset($row['unit_renovated']) && $row['unit_renovated'] !== null ? (bool) $row['unit_renovated'] : null;
+            $row['unit_renovated'] = $unitRenovated;
+            $row['unit_occupancy_status'] = $row['unit_occupancy_status'] ?? 'unknown';
+            $row['unit'] = [
+                'id' => (string) $row['unit_id'],
+                'unitNumber' => $row['unit_number'] ?? '',
+                'unit_number' => $row['unit_number'] ?? '',
+                'renovated' => $unitRenovated,
+                'renovatedDate' => $row['unit_renovated_date'] ?? null,
+                'renovated_date' => $row['unit_renovated_date'] ?? null,
+                'moveInDate' => $row['unit_move_in_date'] ?? null,
+                'move_in_date' => $row['unit_move_in_date'] ?? null,
+                'occupancyStatus' => $row['unit_occupancy_status'] ?? 'unknown',
+                'occupancy_status' => $row['unit_occupancy_status'] ?? 'unknown',
+                'vacantSince' => $row['unit_vacant_since'] ?? null,
+                'vacant_since' => $row['unit_vacant_since'] ?? null,
+            ];
+        }
 
         return $row;
     }

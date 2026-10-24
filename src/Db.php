@@ -97,6 +97,11 @@ class Db
                 bedrooms INTEGER NULL,
                 washrooms INTEGER NULL,
                 storeys INTEGER NULL,
+                renovated INTEGER NULL,
+                renovated_date TEXT NULL,
+                move_in_date TEXT NULL,
+                occupancy_status TEXT NOT NULL DEFAULT 'unknown',
+                vacant_since TEXT NULL,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             );
@@ -466,6 +471,11 @@ class Db
         try { $pdo->exec("ALTER TABLE unit ADD COLUMN bedrooms INTEGER NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE unit ADD COLUMN washrooms INTEGER NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE unit ADD COLUMN storeys INTEGER NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE unit ADD COLUMN renovated INTEGER NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE unit ADD COLUMN renovated_date TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE unit ADD COLUMN move_in_date TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE unit ADD COLUMN occupancy_status TEXT NOT NULL DEFAULT 'unknown'"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE unit ADD COLUMN vacant_since TEXT NULL"); } catch (\Throwable) {}
     }
 
     /**

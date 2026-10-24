@@ -101,6 +101,8 @@ export interface Building {
   updatedAt?: string;
 }
 
+export type OccupancyStatus = 'occupied' | 'vacant' | 'unknown';
+
 export interface Unit {
   id: string;
   buildingId: string;
@@ -117,11 +119,15 @@ export interface Unit {
   defaultSetId?: string;
   washerDryerState?: 'building_installed' | 'tenant_owned' | 'none';
   applianceOverrides?: Record<string, Appliance>;
-  renovated?: {
-    isRenovated: boolean;
-    renovatedDate?: string | null;
-  };
+  renovated?: boolean | null;
+  renovated_date?: string | null;
+  renovatedDate?: string | null;
+  move_in_date?: string | null;
   moveInDate?: string | null;
+  occupancy_status?: OccupancyStatus;
+  occupancyStatus?: OccupancyStatus;
+  vacant_since?: string | null;
+  vacantSince?: string | null;
   tenancyDate?: string | null;
   provenance?: 'verified' | 'pattern' | 'verified — Yardi extract 2026-10-22' | string;
   createdAt?: string;
@@ -284,6 +290,12 @@ export interface Ticket {
   notice_needed?: boolean;
   notice_sent_at?: string | null;
   notice_confirmed_by?: string | null;
+  unit?: Unit;
+  unit_renovated?: boolean | null;
+  unit_renovated_date?: string | null;
+  unit_move_in_date?: string | null;
+  unit_occupancy_status?: OccupancyStatus;
+  unit_vacant_since?: string | null;
   createdAt: string;
   updatedAt?: string;
 }

@@ -209,6 +209,21 @@ class BatchSuggester
     public static function resolveTicketNoticeGate(int $ticketId): array
     {
         try {
+            $ticketInfo = Db::fetchOne(
+                'SELECT t.id, t.unit_id, u.occupancy_status FROM ticket t LEFT JOIN unit u ON t.unit_id = u.id WHERE t.id = ?',
+                [$ticketId]
+            );
+
+            if ($ticketInfo !== null && ($ticketInfo['occupancy_status'] ?? '') === 'vacant') {
+                return [
+                    'notice_id' => null,
+                    'notice_status' => 'not_applicable',
+                    'gate_status' => 'green',
+                    'is_cleared' => true,
+                    'reason' => 'Notice not applicable (vacant unit — no tenant to notify)',
+                ];
+            }
+
             $notice = Db::fetchOne(
                 'SELECT id, status, serve_by_deadline, verified_at FROM notice WHERE ticket_id = ? ORDER BY id DESC LIMIT 1',
                 [$ticketId]

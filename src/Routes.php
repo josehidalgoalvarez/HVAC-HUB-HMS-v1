@@ -299,6 +299,15 @@ class Routes
                         'stories' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
                         'washerDryerState' => $u['washer_dryer_state'] ?? null,
                         'washer_dryer_state' => $u['washer_dryer_state'] ?? null,
+                        'renovated' => $u['renovated'] !== null ? (bool) $u['renovated'] : null,
+                        'renovated_date' => $u['renovated_date'] ?? null,
+                        'renovatedDate' => $u['renovated_date'] ?? null,
+                        'move_in_date' => $u['move_in_date'] ?? null,
+                        'moveInDate' => $u['move_in_date'] ?? null,
+                        'occupancy_status' => $u['occupancy_status'] ?? 'unknown',
+                        'occupancyStatus' => $u['occupancy_status'] ?? 'unknown',
+                        'vacant_since' => $u['vacant_since'] ?? null,
+                        'vacantSince' => $u['vacant_since'] ?? null,
                         'comments' => $u['comments'] ?? null,
                         'provenance' => $u['provenance'] ?? 'verified',
                     ];
@@ -329,6 +338,15 @@ class Routes
                     'stories' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
                     'washerDryerState' => $u['washer_dryer_state'] ?? null,
                     'washer_dryer_state' => $u['washer_dryer_state'] ?? null,
+                    'renovated' => $u['renovated'] !== null ? (bool) $u['renovated'] : null,
+                    'renovated_date' => $u['renovated_date'] ?? null,
+                    'renovatedDate' => $u['renovated_date'] ?? null,
+                    'move_in_date' => $u['move_in_date'] ?? null,
+                    'moveInDate' => $u['move_in_date'] ?? null,
+                    'occupancy_status' => $u['occupancy_status'] ?? 'unknown',
+                    'occupancyStatus' => $u['occupancy_status'] ?? 'unknown',
+                    'vacant_since' => $u['vacant_since'] ?? null,
+                    'vacantSince' => $u['vacant_since'] ?? null,
                     'comments' => $u['comments'] ?? null,
                     'provenance' => $u['provenance'] ?? 'verified',
                 ]);
@@ -349,6 +367,10 @@ class Routes
                     'defaultSetId' => 'default_set_id',
                     'unitType' => 'unit_type',
                     'washerDryerState' => 'washer_dryer_state',
+                    'renovatedDate' => 'renovated_date',
+                    'moveInDate' => 'move_in_date',
+                    'occupancyStatus' => 'occupancy_status',
+                    'vacantSince' => 'vacant_since',
                 ];
                 foreach ($fieldMap as $camel => $snake) {
                     if (isset($body[$camel]) && !isset($body[$snake])) {
@@ -362,7 +384,31 @@ class Routes
                     $body['storeys'] = $body['stories'];
                 }
 
-                $allowedFields = ['bedrooms', 'washrooms', 'storeys', 'washer_dryer_state', 'comments', 'default_set_id', 'unit_type', 'floor'];
+                // Normalizations for unit context signals
+                if (array_key_exists('renovated', $body)) {
+                    if ($body['renovated'] === '' || $body['renovated'] === null) {
+                        $body['renovated'] = null;
+                    } else {
+                        $body['renovated'] = ($body['renovated'] === true || $body['renovated'] === 1 || $body['renovated'] === '1' || $body['renovated'] === 'true') ? 1 : 0;
+                    }
+                }
+                if (array_key_exists('renovated_date', $body) && ($body['renovated_date'] === '' || $body['renovated_date'] === null)) {
+                    $body['renovated_date'] = null;
+                }
+                if (array_key_exists('move_in_date', $body) && ($body['move_in_date'] === '' || $body['move_in_date'] === null)) {
+                    $body['move_in_date'] = null;
+                }
+                if (array_key_exists('vacant_since', $body) && ($body['vacant_since'] === '' || $body['vacant_since'] === null)) {
+                    $body['vacant_since'] = null;
+                }
+                if (array_key_exists('occupancy_status', $body)) {
+                    $body['occupancy_status'] = in_array($body['occupancy_status'], ['occupied', 'vacant', 'unknown'], true) ? $body['occupancy_status'] : 'unknown';
+                }
+
+                $allowedFields = [
+                    'bedrooms', 'washrooms', 'storeys', 'washer_dryer_state', 'comments', 'default_set_id', 'unit_type', 'floor',
+                    'renovated', 'renovated_date', 'move_in_date', 'occupancy_status', 'vacant_since'
+                ];
                 $updates = [];
                 $params = [];
                 $user = $request->getAttribute('user');
@@ -400,6 +446,15 @@ class Routes
                     'stories' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
                     'washerDryerState' => $u['washer_dryer_state'] ?? null,
                     'washer_dryer_state' => $u['washer_dryer_state'] ?? null,
+                    'renovated' => $u['renovated'] !== null ? (bool) $u['renovated'] : null,
+                    'renovated_date' => $u['renovated_date'] ?? null,
+                    'renovatedDate' => $u['renovated_date'] ?? null,
+                    'move_in_date' => $u['move_in_date'] ?? null,
+                    'moveInDate' => $u['move_in_date'] ?? null,
+                    'occupancy_status' => $u['occupancy_status'] ?? 'unknown',
+                    'occupancyStatus' => $u['occupancy_status'] ?? 'unknown',
+                    'vacant_since' => $u['vacant_since'] ?? null,
+                    'vacantSince' => $u['vacant_since'] ?? null,
                     'comments' => $u['comments'] ?? null,
                     'provenance' => $u['provenance'] ?? 'verified',
                 ]);
@@ -476,6 +531,15 @@ class Routes
                             'stories' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
                             'washerDryerState' => $u['washer_dryer_state'] ?? null,
                             'washer_dryer_state' => $u['washer_dryer_state'] ?? null,
+                            'renovated' => $u['renovated'] !== null ? (bool) $u['renovated'] : null,
+                            'renovated_date' => $u['renovated_date'] ?? null,
+                            'renovatedDate' => $u['renovated_date'] ?? null,
+                            'move_in_date' => $u['move_in_date'] ?? null,
+                            'moveInDate' => $u['move_in_date'] ?? null,
+                            'occupancy_status' => $u['occupancy_status'] ?? 'unknown',
+                            'occupancyStatus' => $u['occupancy_status'] ?? 'unknown',
+                            'vacant_since' => $u['vacant_since'] ?? null,
+                            'vacantSince' => $u['vacant_since'] ?? null,
                             'comments' => $u['comments'] ?? null,
                             'provenance' => $u['provenance'] ?? 'verified',
                         ];

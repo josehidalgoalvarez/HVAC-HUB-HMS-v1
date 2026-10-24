@@ -6,6 +6,10 @@ import {
   getVisibleSpecFields,
   getEditFormFieldsForType
 } from '../../utils/applianceDefaultsUtils';
+import {
+  getUnitContextChips,
+  getUnitContextDetail
+} from '../../utils/unitContextUtils';
 
 interface PropertyListViewProps {
   onPropertyClick: (id: string) => void;
@@ -602,6 +606,22 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
       updatedUnit.stories = value;
     } else if (field === 'stories') {
       updatedUnit.storeys = value;
+    } else if (field === 'renovated_date') {
+      updatedUnit.renovatedDate = value;
+    } else if (field === 'renovatedDate') {
+      updatedUnit.renovated_date = value;
+    } else if (field === 'move_in_date') {
+      updatedUnit.moveInDate = value;
+    } else if (field === 'moveInDate') {
+      updatedUnit.move_in_date = value;
+    } else if (field === 'occupancy_status') {
+      updatedUnit.occupancyStatus = value;
+    } else if (field === 'occupancyStatus') {
+      updatedUnit.occupancy_status = value;
+    } else if (field === 'vacant_since') {
+      updatedUnit.vacantSince = value;
+    } else if (field === 'vacantSince') {
+      updatedUnit.vacant_since = value;
     }
     updateUnit(updatedUnit);
   };
@@ -770,6 +790,20 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           <p className="text-xs text-gray-400">
                             {bedCount} Bed · {bathCount} Bath{storeyCount ? ` · ${storeyCount} Storey${storeyCount > 1 ? 's' : ''}` : ''}
                           </p>
+                          {(() => {
+                            const ctxChips = getUnitContextChips(unit);
+                            if (ctxChips.length === 0) return null;
+                            return (
+                              <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                                {ctxChips.map(c => (
+                                  <span key={c.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md ${c.className}`}>
+                                    <span className="material-symbols-outlined text-[12px] leading-none">{c.icon}</span>
+                                    {c.label}
+                                  </span>
+                                ))}
+                              </div>
+                            );
+                          })()}
                         </div>
                         <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl shrink-0">
                           chevron_right
@@ -1224,9 +1258,25 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               const bathCount = unit.washrooms ?? unit.bathrooms ?? unitDs?.bathrooms ?? 1;
                               const storeyCount = unit.storeys ?? unit.stories ?? unitDs?.stories;
                               return (
-                                <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-3">
-                                  {unit.unitType?.toUpperCase() || 'APARTMENT'} · {bedCount} Bed · {bathCount} Bath{storeyCount ? ` · ${storeyCount} Storey${storeyCount > 1 ? 's' : ''}` : ''}
-                                </p>
+                                <>
+                                  <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">
+                                    {unit.unitType?.toUpperCase() || 'APARTMENT'} · {bedCount} Bed · {bathCount} Bath{storeyCount ? ` · ${storeyCount} Storey${storeyCount > 1 ? 's' : ''}` : ''}
+                                  </p>
+                                  {(() => {
+                                    const ctxChips = getUnitContextChips(unit);
+                                    if (ctxChips.length === 0) return null;
+                                    return (
+                                      <div className="flex items-center gap-1.5 flex-wrap mb-2.5">
+                                        {ctxChips.map(c => (
+                                          <span key={c.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md ${c.className}`}>
+                                            <span className="material-symbols-outlined text-[12px] leading-none">{c.icon}</span>
+                                            {c.label}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    );
+                                  })()}
+                                </>
                               );
                             })()}
 
@@ -1282,95 +1332,257 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   )}
                 </div>
 
-                {/* Unit Layout & Attributes Card (Dropdowns) */}
-                <div className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
+                {/* Unit Context Block (Renovated, Move-In, Occupancy Signals) */}
+                {(() => {
+                  const contextDetail = getUnitContextDetail(activeUnit);
+                  const contextChips = getUnitContextChips(activeUnit);
+                  return (
+                    <div className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
+                      <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-primary text-[18px]">verified_user</span>
+                          <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
+                            Unit Context
+                          </h3>
+                        </div>
+                        {contextChips.length > 0 ? (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {contextChips.map(chip => (
+                              <span key={chip.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md ${chip.className}`}>
+                                <span className="material-symbols-outlined text-[12px] leading-none">{chip.icon}</span>
+                                {chip.label}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-[11px] font-semibold text-gray-400">
+                            Management Signals
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {/* Renovated Signal */}
+                        <div className="p-3 rounded-xl bg-gray-50/70 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800/80">
+                          <div className="flex items-center gap-1.5 mb-1 text-text-sub-light dark:text-text-sub-dark">
+                            <span className="material-symbols-outlined text-[15px] text-amber-500">construction</span>
+                            <span className="text-[11px] font-bold uppercase tracking-wider">Renovated</span>
+                          </div>
+                          <p className="text-xs font-semibold text-brand-black dark:text-white">
+                            {contextDetail.renovatedDisplay}
+                          </p>
+                        </div>
+
+                        {/* Move-In Signal */}
+                        <div className="p-3 rounded-xl bg-gray-50/70 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800/80">
+                          <div className="flex items-center gap-1.5 mb-1 text-text-sub-light dark:text-text-sub-dark">
+                            <span className="material-symbols-outlined text-[15px] text-emerald-500">person_add</span>
+                            <span className="text-[11px] font-bold uppercase tracking-wider">Move-In</span>
+                          </div>
+                          <p className="text-xs font-semibold text-brand-black dark:text-white">
+                            {contextDetail.moveInDisplay}
+                          </p>
+                        </div>
+
+                        {/* Occupancy Signal */}
+                        <div className="p-3 rounded-xl bg-gray-50/70 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800/80">
+                          <div className="flex items-center gap-1.5 mb-1 text-text-sub-light dark:text-text-sub-dark">
+                            <span className="material-symbols-outlined text-[15px] text-purple-500">door_open</span>
+                            <span className="text-[11px] font-bold uppercase tracking-wider">Occupancy</span>
+                          </div>
+                          <p className="text-xs font-semibold text-brand-black dark:text-white">
+                            {contextDetail.occupancyDisplay}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Unit Attributes & Context Edit Card */}
+                <div className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-4">
                   <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-primary text-[18px]">tune</span>
                       <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
-                        Unit Layout Attributes
+                        Unit Attributes & Context
                       </h3>
                     </div>
                     <span className="text-[11px] font-semibold text-gray-400">
-                      Overrides Set Default
+                      Editable · Append-Only Audit
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {/* Bedrooms Dropdown */}
-                    <div>
-                      <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
-                        Bedrooms
-                      </label>
-                      <select
-                        aria-label="Bedrooms"
-                        value={activeUnit.bedrooms !== undefined && activeUnit.bedrooms !== null ? String(activeUnit.bedrooms) : ''}
-                        onChange={e => handleUpdateUnitAttribute('bedrooms', e.target.value === '' ? null : Number(e.target.value))}
-                        className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
-                      >
-                        <option value="">Default ({activeDefaultSet?.bedrooms ?? 2})</option>
-                        <option value="1">1 Bedroom</option>
-                        <option value="2">2 Bedrooms</option>
-                        <option value="3">3 Bedrooms</option>
-                        <option value="4">4 Bedrooms</option>
-                        <option value="5">5 Bedrooms</option>
-                      </select>
+                  {/* Context Signals Edit Row */}
+                  <div className="space-y-3">
+                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                      Management Context Signals
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                      {/* Renovated Status */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                          Renovated
+                        </label>
+                        <select
+                          aria-label="Renovated"
+                          value={activeUnit.renovated === true ? 'yes' : activeUnit.renovated === false ? 'no' : ''}
+                          onChange={e => handleUpdateUnitAttribute('renovated', e.target.value === 'yes' ? true : e.target.value === 'no' ? false : null)}
+                          className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
+                        >
+                          <option value="">Unknown</option>
+                          <option value="yes">Renovated (Yes)</option>
+                          <option value="no">Not Renovated (No)</option>
+                        </select>
+                      </div>
+
+                      {/* Renovated Date */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                          Renovated Date (Approx.)
+                        </label>
+                        <input
+                          type="text"
+                          aria-label="Renovated Date"
+                          placeholder="e.g. 2024 or 2024-05"
+                          value={activeUnit.renovated_date || activeUnit.renovatedDate || ''}
+                          onChange={e => handleUpdateUnitAttribute('renovated_date', e.target.value.trim() || null)}
+                          className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
+                        />
+                      </div>
+
+                      {/* Occupancy Status */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                          Occupancy Status
+                        </label>
+                        <select
+                          aria-label="Occupancy Status"
+                          value={activeUnit.occupancy_status || activeUnit.occupancyStatus || 'unknown'}
+                          onChange={e => handleUpdateUnitAttribute('occupancy_status', e.target.value)}
+                          className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
+                        >
+                          <option value="unknown">Unknown</option>
+                          <option value="occupied">Occupied</option>
+                          <option value="vacant">Vacant</option>
+                        </select>
+                      </div>
+
+                      {/* Vacant Since Date */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                          Vacant Since (Approx.)
+                        </label>
+                        <input
+                          type="text"
+                          aria-label="Vacant Since Date"
+                          placeholder="e.g. 2026-05-01"
+                          value={activeUnit.vacant_since || activeUnit.vacantSince || ''}
+                          onChange={e => handleUpdateUnitAttribute('vacant_since', e.target.value.trim() || null)}
+                          className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
+                        />
+                      </div>
                     </div>
 
-                    {/* Washrooms Dropdown */}
-                    <div>
-                      <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
-                        Washrooms
-                      </label>
-                      <select
-                        aria-label="Washrooms"
-                        value={activeUnit.washrooms !== undefined && activeUnit.washrooms !== null ? String(activeUnit.washrooms) : (activeUnit.bathrooms !== undefined && activeUnit.bathrooms !== null ? String(activeUnit.bathrooms) : '')}
-                        onChange={e => handleUpdateUnitAttribute('washrooms', e.target.value === '' ? null : Number(e.target.value))}
-                        className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
-                      >
-                        <option value="">Default ({activeDefaultSet?.bathrooms ?? 1})</option>
-                        <option value="1">1 Washroom</option>
-                        <option value="1.5">1.5 Washrooms</option>
-                        <option value="2">2 Washrooms</option>
-                        <option value="2.5">2.5 Washrooms</option>
-                        <option value="3">3 Washrooms</option>
-                      </select>
+                    {/* Move-in Date Row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-1">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                          Move-in Date (Approx.)
+                        </label>
+                        <input
+                          type="text"
+                          aria-label="Move-in Date"
+                          placeholder="e.g. 2024-05-01"
+                          value={activeUnit.move_in_date || activeUnit.moveInDate || ''}
+                          onChange={e => handleUpdateUnitAttribute('move_in_date', e.target.value.trim() || null)}
+                          className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
+                        />
+                      </div>
                     </div>
+                  </div>
 
-                    {/* Storeys Dropdown */}
-                    <div>
-                      <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
-                        Storeys
-                      </label>
-                      <select
-                        aria-label="Storeys"
-                        value={activeUnit.storeys !== undefined && activeUnit.storeys !== null ? String(activeUnit.storeys) : (activeUnit.stories !== undefined && activeUnit.stories !== null ? String(activeUnit.stories) : '')}
-                        onChange={e => handleUpdateUnitAttribute('storeys', e.target.value === '' ? null : Number(e.target.value))}
-                        className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
-                      >
-                        <option value="">Default ({activeDefaultSet?.stories ?? 1})</option>
-                        <option value="1">1 Storey</option>
-                        <option value="2">2 Storeys</option>
-                        <option value="3">3 Storeys</option>
-                      </select>
-                    </div>
+                  {/* Layout Attributes Row */}
+                  <div className="space-y-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                      Physical Layout
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {/* Bedrooms Dropdown */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                          Bedrooms
+                        </label>
+                        <select
+                          aria-label="Bedrooms"
+                          value={activeUnit.bedrooms !== undefined && activeUnit.bedrooms !== null ? String(activeUnit.bedrooms) : ''}
+                          onChange={e => handleUpdateUnitAttribute('bedrooms', e.target.value === '' ? null : Number(e.target.value))}
+                          className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
+                        >
+                          <option value="">Default ({activeDefaultSet?.bedrooms ?? 2})</option>
+                          <option value="1">1 Bedroom</option>
+                          <option value="2">2 Bedrooms</option>
+                          <option value="3">3 Bedrooms</option>
+                          <option value="4">4 Bedrooms</option>
+                          <option value="5">5 Bedrooms</option>
+                        </select>
+                      </div>
 
-                    {/* Washer / Dryer Dropdown */}
-                    <div>
-                      <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
-                        Washer / Dryer
-                      </label>
-                      <select
-                        aria-label="Washer / Dryer"
-                        value={activeUnit.washerDryerState || ''}
-                        onChange={e => handleUpdateUnitAttribute('washerDryerState', e.target.value === '' ? null : e.target.value)}
-                        className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
-                      >
-                        <option value="">Unknown / None</option>
-                        <option value="building_installed">Building-Installed</option>
-                        <option value="tenant_owned">Tenant-Owned</option>
-                        <option value="none">Shared Laundry / None</option>
-                      </select>
+                      {/* Washrooms Dropdown */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                          Washrooms
+                        </label>
+                        <select
+                          aria-label="Washrooms"
+                          value={activeUnit.washrooms !== undefined && activeUnit.washrooms !== null ? String(activeUnit.washrooms) : (activeUnit.bathrooms !== undefined && activeUnit.bathrooms !== null ? String(activeUnit.bathrooms) : '')}
+                          onChange={e => handleUpdateUnitAttribute('washrooms', e.target.value === '' ? null : Number(e.target.value))}
+                          className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
+                        >
+                          <option value="">Default ({activeDefaultSet?.bathrooms ?? 1})</option>
+                          <option value="1">1 Washroom</option>
+                          <option value="1.5">1.5 Washrooms</option>
+                          <option value="2">2 Washrooms</option>
+                          <option value="2.5">2.5 Washrooms</option>
+                          <option value="3">3 Washrooms</option>
+                        </select>
+                      </div>
+
+                      {/* Storeys Dropdown */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                          Storeys
+                        </label>
+                        <select
+                          aria-label="Storeys"
+                          value={activeUnit.storeys !== undefined && activeUnit.storeys !== null ? String(activeUnit.storeys) : (activeUnit.stories !== undefined && activeUnit.stories !== null ? String(activeUnit.stories) : '')}
+                          onChange={e => handleUpdateUnitAttribute('storeys', e.target.value === '' ? null : Number(e.target.value))}
+                          className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
+                        >
+                          <option value="">Default ({activeDefaultSet?.stories ?? 1})</option>
+                          <option value="1">1 Storey</option>
+                          <option value="2">2 Storeys</option>
+                          <option value="3">3 Storeys</option>
+                        </select>
+                      </div>
+
+                      {/* Washer / Dryer Dropdown */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                          Washer / Dryer
+                        </label>
+                        <select
+                          aria-label="Washer / Dryer"
+                          value={activeUnit.washerDryerState || ''}
+                          onChange={e => handleUpdateUnitAttribute('washerDryerState', e.target.value === '' ? null : e.target.value)}
+                          className="w-full p-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 text-brand-black dark:text-white font-medium outline-none focus:border-primary"
+                        >
+                          <option value="">Unknown / None</option>
+                          <option value="building_installed">Building-Installed</option>
+                          <option value="tenant_owned">Tenant-Owned</option>
+                          <option value="none">Shared Laundry / None</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
 
@@ -1382,7 +1594,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       </span>
                     </div>
                     <span className="text-[11px] text-gray-400">
-                      Bed/bath line updates immediately while default set reference remains constant.
+                      Changes persist immediately with append-only audit trail.
                     </span>
                   </div>
                 </div>

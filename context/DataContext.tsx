@@ -496,6 +496,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         washrooms: unit.washrooms ?? unit.bathrooms,
         storeys: unit.storeys ?? unit.stories,
         washer_dryer_state: unit.washerDryerState,
+        renovated: unit.renovated,
+        renovated_date: unit.renovated_date ?? unit.renovatedDate,
+        move_in_date: unit.move_in_date ?? unit.moveInDate,
+        occupancy_status: unit.occupancy_status ?? unit.occupancyStatus,
+        vacant_since: unit.vacant_since ?? unit.vacantSince,
         comments: unit.comments,
         default_set_id: unit.defaultSetId,
       }).catch(err => {
