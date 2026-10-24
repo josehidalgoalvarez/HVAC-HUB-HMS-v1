@@ -65,7 +65,7 @@ async function runE2E() {
       wo_number: 'WO-FIELD-900',
       title: 'Water Heater Element Burnout',
       building_id: 1,
-      unit_id: 1,
+      unit_id: 326,
       priority: 'urgent',
       status: 'verified',
       verified_scope: 'Lower 4500W element shorted to ground, trip breaker',
@@ -79,7 +79,7 @@ async function runE2E() {
     const block = await client.addRunSheetBlock(runSheet.id, {
       ticket_id: ticket.id,
       building_id: 1,
-      unit_id: 1,
+      unit_id: 326,
       title: ticket.title,
       estimated_minutes: 45,
     });

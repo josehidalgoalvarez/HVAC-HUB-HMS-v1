@@ -46,7 +46,7 @@ async function runE2E() {
       photo_url: '/uploads/screenshot_20261018.jpg',
       priority: 'high',
       building_id: 1,
-      unit_id: 101
+      unit_id: 326
     });
 
     assertTest(intakeRes && intakeRes.id, "1.1 Intaked ticket returned with generated ID");
@@ -61,7 +61,8 @@ async function runE2E() {
       title: 'Full HVAC Overhaul - 4-Unit Quadplex',
       priority: 'urgent',
       status: 'in-progress',
-      building_id: 1
+      building_id: 10,
+      unit_id: 584
     });
 
     assertTest(parent.wo_number === 'WO-19970', "2.1 Parent ticket WO-19970 created");
@@ -131,7 +132,8 @@ async function runE2E() {
       title: 'Roof Heat Pump Noise Complaint',
       status: 'new',
       priority: 'medium',
-      building_id: 1
+      building_id: 1,
+      unit_id: 326
     });
 
     assertTest(unnumbered.wo_number === null, "4.1 Unnumbered ticket saves with wo_number NULL");
@@ -152,7 +154,8 @@ async function runE2E() {
     const freshTicket = await client.createTicket({
       wo_number: 'WO-YARDI-1',
       title: 'Filter Replacement',
-      building_id: 1
+      building_id: 1,
+      unit_id: 326
     });
 
     assertTest(freshTicket.is_stale_yardi === false, "5.1 Fresh ticket (null last_seen_in_yardi) is neutral / not stale");
@@ -160,7 +163,7 @@ async function runE2E() {
 
     const sightingRes = await client.recordYardiSighting(freshTicket.id, {
       wo_number: 'WO-YARDI-1',
-      unit_raw: '101',
+      unit_raw: '273',
       description: 'Filter replacement scheduled',
       status: 'Open'
     });

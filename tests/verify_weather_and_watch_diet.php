@@ -221,6 +221,22 @@ foreach ($srcFiles as $file) {
 }
 assertTest($foundRetiredMatches === 0, "7.1 Zero occurrences of 'weather_freeze' or 'weather_manual' in src/, components/, or types/", $passes, $failures);
 
+// Clean up ephemeral test tickets
+$createdTicketIds = [
+    $tDefault['id'] ?? null,
+    $tExterior['id'] ?? null,
+    $tLadder['id'] ?? null,
+    $tRainyTicket['id'] ?? null,
+    $tDryTicket['id'] ?? null,
+    $tIndoorTicket['id'] ?? null,
+    $ticketPart['id'] ?? null,
+    $tNotice['id'] ?? null,
+];
+foreach (array_filter($createdTicketIds) as $tId) {
+    Db::execute("DELETE FROM watch WHERE target_type = 'ticket' AND target_id = ?", [(int) $tId]);
+    Db::execute("DELETE FROM ticket WHERE id = ?", [(int) $tId]);
+}
+
 // Summary
 echo "\n========================================\n";
 echo "Weather Simplification & Watch Diet Summary:\n";

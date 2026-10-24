@@ -124,6 +124,7 @@ async function runE2E() {
       description: 'Need Robertshaw switch WB24T10025',
       verified_scope: 'Replace switch WB24T10025',
       building_id: 1,
+      unit_id: 326,
       priority: 'medium',
     });
     const t2 = await client.createTicket({
@@ -132,6 +133,7 @@ async function runE2E() {
       description: 'Switch contacts frozen WB24T10025',
       verified_scope: 'Install replacement WB24T10025',
       building_id: 2,
+      unit_id: 335,
       priority: 'high',
     });
     const t3 = await client.createTicket({
@@ -140,6 +142,7 @@ async function runE2E() {
       description: 'Burner control switch WB24T10025',
       verified_scope: 'Swap switch WB24T10025',
       building_id: 1,
+      unit_id: 322,
       priority: 'medium',
     });
 

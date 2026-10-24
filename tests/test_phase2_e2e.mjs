@@ -47,7 +47,7 @@ async function runE2E() {
       wo_number: 'WO-E2E-101',
       title: 'Site 1: Air handler filter replacement',
       building_id: 1,
-      unit_id: 1,
+      unit_id: 326,
       priority: 'urgent',
       verified_scope: 'Filter clogged, indoor unit starving for airflow',
     });
@@ -56,7 +56,7 @@ async function runE2E() {
       wo_number: 'WO-E2E-301',
       title: 'Site 3: Condenser fan motor vibrating',
       building_id: 3,
-      unit_id: 5,
+      unit_id: 352,
       priority: 'low',
       verified_scope: 'Check mounting bracket on roof condenser',
     });
@@ -65,7 +65,7 @@ async function runE2E() {
       wo_number: 'WO-E2E-201',
       title: 'Site 2: Water leak under evaporator coil',
       building_id: 2,
-      unit_id: 3,
+      unit_id: 335,
       priority: 'urgent',
       verified_scope: 'Drain pan cracked, leaking into hallway closet',
     });
@@ -74,7 +74,7 @@ async function runE2E() {
       wo_number: 'WO-E2E-102',
       title: 'Site 1: Thermostat schedule reset',
       building_id: 1,
-      unit_id: 2,
+      unit_id: 322,
       priority: 'medium',
       verified_scope: 'Reprogram smart thermostat schedule',
     });
@@ -83,7 +83,7 @@ async function runE2E() {
       wo_number: 'WO-E2E-302',
       title: 'Site 3: Rooftop attic condensate clog & contactor swap',
       building_id: 3,
-      unit_id: 6,
+      unit_id: 347,
       priority: 'medium',
       verified_scope: 'Requires ladder for high attic access, drain auger for stubborn main trap clog, and new contactor part',
     });
@@ -111,7 +111,7 @@ async function runE2E() {
     const nVerified = await client.createNotice({
       ticket_id: t1.id,
       building_id: 1,
-      unit_id: 1,
+      unit_id: 326,
       title: 'Notice for t1',
       entry_start: '2026-10-25 10:00:00',
       entry_end: '2026-10-25 12:00:00',
@@ -122,7 +122,7 @@ async function runE2E() {
     const nUnverified = await client.createNotice({
       ticket_id: t3.id,
       building_id: 2,
-      unit_id: 3,
+      unit_id: 335,
       title: 'Notice for t3',
       entry_start: '2026-10-26 14:00:00',
       entry_end: '2026-10-26 16:00:00',

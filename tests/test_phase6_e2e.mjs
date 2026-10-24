@@ -64,13 +64,14 @@ async function runE2E() {
       wo_number: 'WO-W-101',
       title: 'Boiler safety valve relief',
       building_id: 1,
+      unit_id: 326,
       priority: 'high',
     });
     assertTest(ticket?.id > 0, "1.1 Parent ticket created");
 
     const notice = await client.createNotice({
       ticket_id: ticket.id,
-      unit_number: '202',
+      unit_number: '273',
       tenant_name: 'Bob Miller',
       entry_start: '2026-10-23 10:00:00',
       entry_end: '2026-10-23 12:00:00',

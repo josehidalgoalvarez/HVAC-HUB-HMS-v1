@@ -349,7 +349,8 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
                 $floor = 'Second Floor';
             }
             $note = $spec['custom_notes'][$uNum] ?? 'verified — Yardi extract 2026-10-22';
-            $units[] = [$bId, $uNum, $floor, $note, 'verified — Yardi extract 2026-10-22'];
+            $defaultSet = $isTownhouse ? 'set-bd-townhouse' : 'set-bd-apt';
+            $units[] = [$bId, $uNum, $floor, $note, 'verified — Yardi extract 2026-10-22', 'patry', $defaultSet, 'none'];
         }
     }
 
@@ -671,7 +672,7 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
         $defaultSetId = $u[6] ?? null;
         $washerDryerState = $u[7] ?? 'none';
         if ($existing) {
-            $update = $pdo->prepare("UPDATE unit SET floor = ?, comments = ?, provenance = ?, ownership = ?, default_set_id = ?, washer_dryer_state = ? WHERE id = ?");
+            $update = $pdo->prepare("UPDATE unit SET floor = ?, comments = ?, provenance = ?, ownership = ?, default_set_id = COALESCE(?, default_set_id), washer_dryer_state = ? WHERE id = ?");
             $update->execute([$u[2], $u[3], $u[4], $ownership, $defaultSetId, $washerDryerState, $existing['id']]);
         } else {
             $insert = $pdo->prepare("INSERT INTO unit (building_id, unit_number, floor, comments, provenance, ownership, default_set_id, washer_dryer_state) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
@@ -790,10 +791,56 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
             ->execute(['Home Depot (Gardiners Rd, Kingston)', 'Pro Desk', '613-389-8800', '', '605 Gardiners Rd, Kingston, ON K7M 3Y4', 'Mon–Sat 6am–9pm, Sun 8am–7pm', '']);
     }
 
+    // Reconcile and purge non-canonical tickets so seedRealPortfolio always maintains canonical portfolio state
+    $pdo->exec("DELETE FROM job WHERE ticket_id IS NOT NULL AND ticket_id NOT IN (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21)");
+    $pdo->exec("DELETE FROM notice WHERE ticket_id IS NOT NULL AND ticket_id NOT IN (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21)");
+    $pdo->exec("DELETE FROM run_sheet_block WHERE ticket_id IS NOT NULL AND ticket_id NOT IN (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21)");
+    $pdo->exec("DELETE FROM ticket WHERE id NOT IN (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21)");
+
+    // Seed Reconciled Portfolio Tickets (21 Canonical Tickets on Verified Units)
+    $tickets = [
+        [1, 'WO-19970', null, 10, 584, 'Full HVAC Overhaul - 4-Unit Quadplex', '137 Amherst Dr multi-floor townhouse quadplex overhaul. All system work on hold pending owner authorization.', null, 'Quadplex HVAC overhaul on hold pending owner authorization', null, 'on-hold', 'urgent', 'Awaiting property management authorization', 'indoor', 0, 0],
+        [2, null, 1, 10, 584, 'Unit 1 Heat Pump Emergency Overhaul', 'Heat pump emergency overhaul in Unit 1 zone.', null, 'Diagnose compressor lockout, test suction pressure, check reversing valve', null, 'in-progress', 'urgent', null, 'indoor', 0, 0],
+        [3, null, 1, 10, 584, 'Unit 2 Blower Replacement', 'Blower assembly replacement in Unit 2 zone.', null, 'Replace 1/2 HP blower motor and run capacitor', null, 'in-progress', 'high', null, 'indoor', 0, 0],
+        [4, null, 1, 10, 584, 'Unit 3 Coil Replacement', 'Evaporator coil replacement in Unit 3 zone.', null, 'Awaiting delivery of OEM 3-ton cased evaporator coil', null, 'blocked', 'high', 'Awaiting 3-ton evaporator coil delivery from Carrier', 'indoor', 0, 0],
+        [5, null, 1, 10, 584, 'Unit 4 Line Set Flush', 'Line set flush and evacuation in Unit 4 zone.', null, 'Rx11-flush line set, triple evacuation to 350 microns, nitrogen holding charge verified', null, 'done', 'low', null, 'indoor', 0, 0],
+        [6, null, null, 3, 347, '1723-266 Dishwasher Drain Pump Replacement', 'Frigidaire FFCD2418US3A dishwasher in unit 266 kitchen. Askoll M376 pump (part A16944601) replaced; load test pending.', null, 'Verify drain cycle and inspect pump gasket under load', null, 'verified', 'medium', null, 'indoor', 0, 0],
+        [7, 'WO-20061', null, 1, 326, '1719-273 Refrigerator Crisper Drawer & Shelf', '1719 Bath unit 273 kitchen (WOs 20061/20062). Crisper drawer 240337103 BOUGHT 2026-10-19; door shelf 240338101 ORDERED, pickup pending.', null, 'Install replacement door shelf 240338101 and inspect door seals on Frigidaire FFHT1826LS9', null, 'pending_parts', 'medium', 'Door shelf 240338101 ordered, pickup pending', 'indoor', 0, 0],
+        [8, 'WO-19255', null, 8, 270, '505-103 Recurring Freezer Noise Complaint', 'Recurring noise complaint (WO 19255). Tenant called first before visits.', null, 'Inspect evaporator fan motor and compressor mounting grommets', null, 'verified', 'medium', null, 'indoor', 0, 0],
+        [9, 'WO-20316', null, 2, 339, '1721 Bath Rd Shared Water Heater Bank Maintenance', 'John Wood ProLine water heater: weeping at tee joint, ECO trips every few days, scaled lower element (WO 20316). Parts spec: 4500W/240V screw-in element + gasket, upper + lower thermostats.', null, 'Replace 4500W/240V element and gasket, upper/lower thermostats, tighten weeping tee joint', null, 'verified', 'high', null, 'indoor', 0, 0],
+        [10, null, null, 76, 759, 'Clear condensate drain line', 'AC leaking water at 509 Frontenac St unit 204', 'AC leaking water at 509 Frontenac St unit 204', 'Clear condensate drain line', null, 'verified', 'medium', null, 'indoor', 0, 0],
+        [11, 'WO-INTAKE-202', null, 1, 326, 'Blower motor bearings seized. Replace 1/2 HP blower motor and run capacitor', 'Tenant states blower motor vibrating and making high-pitch squeal', 'Tenant states blower motor vibrating and making high-pitch squeal', 'Blower motor bearings seized. Replace 1/2 HP blower motor and run capacitor.', '/uploads/screenshot_20261018.jpg', 'verified', 'high', null, 'indoor', 0, 0],
+        [12, 'WO-NOTICE-2026', null, 1, 326, 'Water Heater Replacement in Utility Closet', 'Drain and swap 50gal electric water heater. Need 24h notice for unit entry.', null, 'Drain and swap 50gal electric water heater. Need 24h notice for unit entry.', null, 'new', 'high', null, 'indoor', 0, 1],
+        [13, 'WO-E2E-101', null, 1, 326, 'Site 1: Air handler filter replacement', 'Filter clogged, indoor unit starving for airflow', null, 'Filter clogged, indoor unit starving for airflow', null, 'new', 'urgent', null, 'indoor', 0, 0],
+        [14, 'WO-E2E-102', null, 1, 322, 'Site 1: Thermostat schedule reset', 'Reprogram smart thermostat schedule', null, 'Reprogram smart thermostat schedule', null, 'new', 'medium', null, 'indoor', 0, 0],
+        [15, 'WO-E2E-201', null, 2, 335, 'Site 2: Water leak under evaporator coil', 'Drain pan cracked, leaking into hallway closet', null, 'Drain pan cracked, leaking into hallway closet', null, 'new', 'urgent', null, 'indoor', 0, 0],
+        [16, 'WO-E2E-301', null, 3, 352, 'Site 3: Condenser fan motor vibrating', 'Check mounting bracket on roof condenser', null, 'Check mounting bracket on roof condenser', null, 'new', 'low', null, 'exterior', 1, 0],
+        [17, 'WO-E2E-302', null, 3, 347, 'Site 3: Rooftop attic condensate clog & contactor swap', 'Requires ladder for high attic access, drain auger for stubborn main trap clog, and new contactor part', null, 'Requires ladder for high attic access, drain auger for stubborn main trap clog, and new contactor part', null, 'new', 'medium', null, 'exterior_ladder', 1, 0],
+        [18, 'WO-FIELD-900', null, 1, 326, 'Water Heater Element Burnout', 'Lower 4500W element shorted to ground, trip breaker', null, 'Lower 4500W element shorted to ground, trip breaker', null, 'done', 'urgent', null, 'indoor', 0, 0],
+        [19, 'WO-E2E-SW1', null, 1, 326, 'Stove burner infinite switch clicking', 'Need Robertshaw switch WB24T10025', null, 'Replace switch WB24T10025', null, 'in-progress', 'medium', null, 'indoor', 0, 0],
+        [20, 'WO-E2E-SW2', null, 2, 335, 'Burner stays on max heat', 'Switch contacts frozen WB24T10025', null, 'Install replacement WB24T10025', null, 'new', 'high', null, 'indoor', 0, 0],
+        [21, 'WO-E2E-SW3', null, 1, 322, 'Front element open circuit', 'Burner control switch WB24T10025', null, 'Swap switch WB24T10025', null, 'new', 'medium', null, 'indoor', 0, 0],
+    ];
+
+    $ticketCount = 0;
+    foreach ($tickets as $t) {
+        $tStmt = $pdo->prepare("SELECT id FROM ticket WHERE id = ?");
+        $tStmt->execute([$t[0]]);
+        if ($tStmt->fetch()) {
+            $upd = $pdo->prepare("UPDATE ticket SET wo_number=?, parent_ticket_id=?, building_id=?, unit_id=?, title=?, description=?, verbatim_text=?, verified_scope=?, photo_url=?, status=?, priority=?, blocker_reason=?, work_exposure=?, exterior_work=?, notice_needed=? WHERE id=?");
+            $upd->execute([$t[1], $t[2], $t[3], $t[4], $t[5], $t[6], $t[7], $t[8], $t[9], $t[10], $t[11], $t[12], $t[13], $t[14], $t[15], $t[0]]);
+        } else {
+            $ins = $pdo->prepare("INSERT INTO ticket (id, wo_number, parent_ticket_id, building_id, unit_id, title, description, verbatim_text, verified_scope, photo_url, status, priority, blocker_reason, work_exposure, exterior_work, notice_needed, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+            $ins->execute([$t[0], $t[1], $t[2], $t[3], $t[4], $t[5], $t[6], $t[7], $t[8], $t[9], $t[10], $t[11], $t[12], $t[13], $t[14], $t[15]]);
+        }
+        $ticketCount++;
+    }
+
     return [
         'buildings' => $bldCount,
         'units' => $unitCount,
         'appliances' => $appCount,
+        'tickets' => $ticketCount,
         'photos' => count($photoUrls)
     ];
 }

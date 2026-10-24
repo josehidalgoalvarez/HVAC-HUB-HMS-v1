@@ -111,6 +111,12 @@ $intakeData = json_decode((string) $res->getBody(), true);
 $resolvedBuildingId = $intakeData['data']['building_id'] ?? ($intakeData['data']['ticket']['building_id'] ?? null);
 assertTest($resolvedBuildingId === 76, "Ticket intake resolves '509 Frontenac' to Building 76 (got " . var_export($resolvedBuildingId, true) . ")", $passes, $failures);
 
+// Clean up ephemeral test ticket
+$testIntakeTicketId = $intakeData['data']['id'] ?? ($intakeData['data']['ticket']['id'] ?? null);
+if ($testIntakeTicketId) {
+    Db::execute("DELETE FROM ticket WHERE id = ?", [(int) $testIntakeTicketId]);
+}
+
 // -------------------------------------------------------------
 // 4. Special-Role Flag
 // -------------------------------------------------------------

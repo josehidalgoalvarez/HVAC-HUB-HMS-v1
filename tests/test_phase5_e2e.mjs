@@ -44,7 +44,7 @@ async function runE2E() {
       title: 'Water Heater Replacement in Utility Closet',
       priority: 'high',
       building_id: 1,
-      unit_id: 1,
+      unit_id: 326,
       verified_scope: 'Drain and swap 50gal electric water heater. Need 24h notice for unit entry.',
     });
     assertTest(ticket && ticket.id, "1.1 Ticket created with ID " + ticket.id);
@@ -58,7 +58,7 @@ async function runE2E() {
     const notice = await client.createNotice({
       ticket_id: ticket.id,
       building_id: 1,
-      unit_id: 1,
+      unit_id: 326,
       title: 'Notice of Entry: Water Heater Replacement',
       content: 'Scheduled replacement between 11:00 and 13:00 on Friday.',
       entry_start: entryStartFriday,

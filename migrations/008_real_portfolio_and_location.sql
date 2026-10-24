@@ -107,27 +107,28 @@ INSERT INTO `ticket` (
   `status`, `priority`
 ) VALUES
   (
-    1, 'WO-2026-001', 1, 1, 'No Heat - Unit 273 Furnace Lockout',
-    'Tenant reports ignition failure code on Carrier 59TP6 furnace in basement.',
+    1, 'WO-2026-001', 1, 326, 'No Heat - Unit 273 Mechanical Closet Lockout',
+    'Tenant reports ignition failure code on domestic boiler heat zone in mechanical closet.',
     'Test igniter resistance and flame sensor microamps. Clear condensate trap.',
     'open', 'urgent'
   ),
   (
-    2, 'WO-2026-002', 1, 1, 'Tankless Water Heater Maintenance Code 11',
-    'Rinnai unit displaying code 11 (ignition failure) on domestic hot water demand.',
-    'Inspect flame rod, clean gas orifices, check inlet gas pressure.',
+    2, 'WO-20061', 1, 326, '1719-273 Refrigerator Crisper Drawer & Shelf',
+    '1719 Bath unit 273 kitchen (WOs 20061/20062). Crisper drawer 240337103 BOUGHT 2026-10-19; door shelf 240338101 ORDERED, pickup pending.',
+    'Install replacement door shelf 240338101 and inspect door seals on Frigidaire FFHT1826LS9.',
+    'pending_parts', 'medium'
+  ),
+  (
+    3, 'WO-20316', 2, 339, '1721 Bath Rd Shared Water Heater Bank Maintenance',
+    'John Wood ProLine water heater: weeping at tee joint, ECO trips every few days, scaled lower element (WO 20316). Parts spec: 4500W/240V screw-in element + gasket, upper + lower thermostats.',
+    'Replace 4500W/240V element and gasket, upper/lower thermostats, tighten weeping tee joint.',
+    'verified', 'high'
+  ),
+  (
+    4, 'WO-19255', 8, 270, '505-103 Recurring Freezer Noise Complaint',
+    'Recurring noise complaint (WO 19255). Tenant called first before visits.',
+    'Inspect evaporator fan motor and compressor mounting grommets.',
     'verified', 'medium'
-  ),
-  (
-    3, 'WO-2026-003', 2, 4, 'Make-Up Air Belt Tension & Bearing Service',
-    'Engineered Air rooftop MAU annual scheduled vibration and belt inspection.',
-    'Inspect blower belt deflection, lubricate pillow block bearings, replace air filters.',
-    'open', 'medium'
-  ),
-  (
-    4, 'WO-2026-004', 7, 5, 'PTAC Unit 1 Cooling Fan Noise',
-    'Amana PTAC rattling during compressor cycle in Unit 1 living room.',
-    'Inspect blower wheel for debris, check motor mount bushings.',
-    'in_progress', 'low'
   )
 ON DUPLICATE KEY UPDATE `title`=VALUES(`title`), `status`=VALUES(`status`);
+
