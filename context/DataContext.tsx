@@ -347,6 +347,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           isDefault: true,
           isOverride: false,
           notes: item.notes || `Default ${item.type} (Set: ${set.name})`,
+          manualUrl: item.manualUrl || item.specs?.manualUrl || '',
           specs: item.specs || (itemModel ? { model: itemModel } : {}),
           maintenanceHistory: [],
           lastService: ''

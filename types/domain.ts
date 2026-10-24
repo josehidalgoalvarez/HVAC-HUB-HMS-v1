@@ -18,6 +18,7 @@ export interface ApplianceDefaultItem {
   isDefault?: boolean;
   notes?: string;
   model?: string;
+  manualUrl?: string;
   specs?: ApplianceSpecs;
 }
 
@@ -160,6 +161,7 @@ export interface ApplianceSpecs {
   refrigerantType?: string;
   efficiency?: string;
   model?: string;
+  manualUrl?: string;
   notes?: string;
   // Dashboard Specific Specs
   returnTemp?: string;

@@ -1,6 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { useData } from '../../hooks/useData';
-import { Property, Unit, ApplianceDefaultSet, Appliance } from '../../types';
+import { Property, Unit, ApplianceDefaultSet, Appliance, ApplianceDefaultItem } from '../../types';
+import {
+  TRADE_APPLIANCE_TYPES,
+  getVisibleSpecFields,
+  getEditFormFieldsForType
+} from '../../utils/applianceDefaultsUtils';
 
 interface PropertyListViewProps {
   onPropertyClick: (id: string) => void;
@@ -63,20 +68,34 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
   const [editSetModalSet, setEditSetModalSet] = useState<ApplianceDefaultSet | null>(null);
   const [editSetForm, setEditSetForm] = useState({ name: '', bedrooms: 2, bathrooms: 1, stories: 1, notes: '' });
 
+  // Accordion expansion states (default: all collapsed)
+  const [expandedSetIds, setExpandedSetIds] = useState<Set<string>>(new Set());
+  const [expandedApplianceKeys, setExpandedApplianceKeys] = useState<Set<string>>(new Set());
+
+  // Add Appliance to Set Modal State
+  const [addApplianceModalSet, setAddApplianceModalSet] = useState<ApplianceDefaultSet | null>(null);
+  const [selectedAddTradeType, setSelectedAddTradeType] = useState<string>('Gas Furnace');
+  const [customAddApplianceLabel, setCustomAddApplianceLabel] = useState<string>('');
+
   const [editSpecModalData, setEditSpecModalData] = useState<{
     set: ApplianceDefaultSet;
     applianceIndex: number;
   } | null>(null);
   const [editSpecForm, setEditSpecForm] = useState({
     type: '',
+    label: '',
     model: '',
+    manualUrl: '',
     fuelType: '',
     volts: '',
     capacity: '',
     btuInput: '',
     btuOutput: '',
     filterSize: '',
-    notes: ''
+    refrigerantType: '',
+    efficiency: '',
+    notes: '',
+    showAllFields: false
   });
 
   const [defaultsSectionFilter, setDefaultsSectionFilter] = useState<string>('all');
@@ -409,20 +428,122 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     setEditSetModalSet(null);
   };
 
+  // Accordion Toggle Handlers
+  const toggleSetExpanded = (setId: string) => {
+    setExpandedSetIds(prev => {
+      const next = new Set(prev);
+      if (next.has(setId)) {
+        next.delete(setId);
+      } else {
+        next.add(setId);
+      }
+      return next;
+    });
+  };
+
+  const toggleApplianceExpanded = (key: string) => {
+    setExpandedApplianceKeys(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  };
+
+  const handleExpandAllSets = () => {
+    setExpandedSetIds(new Set(defaultSets.map(s => s.id)));
+  };
+
+  const handleCollapseAllSets = () => {
+    setExpandedSetIds(new Set());
+    setExpandedApplianceKeys(new Set());
+  };
+
+  // Add Appliance to Set Handlers
+  const handleStartAddAppliance = (set: ApplianceDefaultSet) => {
+    setAddApplianceModalSet(set);
+    setSelectedAddTradeType('Gas Furnace');
+    setCustomAddApplianceLabel('');
+  };
+
+  const handleConfirmAddAppliance = () => {
+    if (!addApplianceModalSet) return;
+    const tradeOption = TRADE_APPLIANCE_TYPES.find(t => t.type === selectedAddTradeType) || TRADE_APPLIANCE_TYPES[0];
+    const label = customAddApplianceLabel.trim() || tradeOption.label;
+    const newApp: ApplianceDefaultItem = {
+      category: tradeOption.category,
+      type: tradeOption.type,
+      name: `${label} (default)`,
+      label: label,
+      isDefault: true,
+      model: '',
+      manualUrl: '',
+      notes: 'Specification pending (TODO)',
+      specs: {
+        fuelType: tradeOption.defaultFuelType || '',
+        volts: tradeOption.defaultVolts || '',
+        capacity: '',
+        btuInput: '',
+        btuOutput: '',
+        filterSize: '',
+        refrigerantType: '',
+        efficiency: '',
+        notes: ''
+      }
+    };
+
+    const updatedAppliances = [...addApplianceModalSet.appliances, newApp];
+    const newIndex = updatedAppliances.length - 1;
+    const updatedSet: ApplianceDefaultSet = {
+      ...addApplianceModalSet,
+      appliances: updatedAppliances
+    };
+
+    updateDefaultSet(updatedSet);
+    // Expand the set so the user sees the newly added appliance
+    setExpandedSetIds(prev => new Set(prev).add(addApplianceModalSet.id));
+    // Expand the appliance specs
+    setExpandedApplianceKeys(prev => new Set(prev).add(`${addApplianceModalSet.id}_${newIndex}`));
+    // Close add modal
+    setAddApplianceModalSet(null);
+    setCustomAddApplianceLabel('');
+    // Open the edit spec modal right away so Jose can fill in model/specs
+    handleStartEditApplianceSpec(updatedSet, newIndex);
+  };
+
+  const handleRemoveApplianceFromSet = (set: ApplianceDefaultSet, applianceIndex: number) => {
+    const appItem = set.appliances[applianceIndex];
+    const label = appItem?.label || appItem?.name || 'appliance';
+    if (!window.confirm(`Remove ${label} from default set "${set.name}"?`)) return;
+    const updatedAppliances = set.appliances.filter((_, idx) => idx !== applianceIndex);
+    updateDefaultSet({
+      ...set,
+      appliances: updatedAppliances
+    });
+  };
+
   const handleStartEditApplianceSpec = (set: ApplianceDefaultSet, applianceIndex: number) => {
     const appItem = set.appliances[applianceIndex];
     if (!appItem) return;
     setEditSpecModalData({ set, applianceIndex });
     setEditSpecForm({
       type: appItem.type || '',
+      label: appItem.label || appItem.name || '',
       model: appItem.model || appItem.specs?.model || '',
+      manualUrl: appItem.manualUrl || appItem.specs?.manualUrl || '',
       fuelType: appItem.specs?.fuelType || '',
       volts: appItem.specs?.volts || '',
       capacity: appItem.specs?.capacity || '',
       btuInput: appItem.specs?.btuInput || '',
       btuOutput: appItem.specs?.btuOutput || '',
       filterSize: appItem.specs?.filterSize || '',
-      notes: appItem.notes || appItem.specs?.notes || ''
+      refrigerantType: appItem.specs?.refrigerantType || '',
+      efficiency: appItem.specs?.efficiency || '',
+      notes: appItem.notes || appItem.specs?.notes || '',
+      showAllFields: false
     });
   };
 
@@ -432,21 +553,30 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     const updatedAppliances = set.appliances.map((app, idx) => {
       if (idx !== applianceIndex) return app;
       const modelVal = editSpecForm.model.trim();
+      const manualUrlVal = editSpecForm.manualUrl.trim();
       const notesVal = editSpecForm.notes.trim();
+      const labelVal = editSpecForm.label.trim();
+      const typeVal = editSpecForm.type.trim() || app.type;
       return {
         ...app,
-        type: editSpecForm.type.trim() || app.type,
+        type: typeVal,
+        label: labelVal || app.label || app.name,
+        name: labelVal ? `${labelVal} (default)` : app.name,
         model: modelVal || undefined,
+        manualUrl: manualUrlVal || undefined,
         notes: notesVal || undefined,
         specs: {
           ...app.specs,
           model: modelVal || undefined,
+          manualUrl: manualUrlVal || undefined,
           fuelType: editSpecForm.fuelType.trim() || undefined,
           volts: editSpecForm.volts.trim() || undefined,
           capacity: editSpecForm.capacity.trim() || undefined,
           btuInput: editSpecForm.btuInput.trim() || undefined,
           btuOutput: editSpecForm.btuOutput.trim() || undefined,
           filterSize: editSpecForm.filterSize.trim() || undefined,
+          refrigerantType: editSpecForm.refrigerantType.trim() || undefined,
+          efficiency: editSpecForm.efficiency.trim() || undefined,
           notes: notesVal || undefined,
         }
       };
@@ -1351,6 +1481,20 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           <div>
                             <span className="text-gray-400">Model:</span> {app.modelNumber || 'Standard Spec'}
                           </div>
+                          {app.manualUrl && (
+                            <div className="col-span-2 flex items-center gap-1.5 pt-1 border-t border-gray-100 dark:border-gray-800">
+                              <a
+                                href={app.manualUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 font-semibold text-primary hover:underline text-[11px]"
+                              >
+                                <span className="material-symbols-outlined text-[13px]">menu_book</span>
+                                <span>Manufacturer Manual</span>
+                                <span className="material-symbols-outlined text-[10px]">open_in_new</span>
+                              </a>
+                            </div>
+                          )}
                           {app.notes && (
                             <div className="col-span-2 text-xs italic text-gray-500">
                               {app.notes}
@@ -1387,7 +1531,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
             {navLevel === 'defaults' && (
               <div className="space-y-6">
                 <div className="flex flex-col gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => (selectedComplexId ? handleNavComplex(selectedComplexId) : handleNavRoot())}
@@ -1407,6 +1551,26 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           Standard specifications inherited by reference across all units. Edits propagate automatically.
                         </p>
                       </div>
+                    </div>
+
+                    {/* Accordion Expand / Collapse All Controls */}
+                    <div className="flex items-center gap-2 self-start sm:self-auto">
+                      <button
+                        onClick={handleExpandAllSets}
+                        className="px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 text-text-sub-light dark:text-text-sub-dark hover:text-primary transition-colors flex items-center gap-1.5"
+                        title="Expand all specification sets and appliances"
+                      >
+                        <span className="material-symbols-outlined text-[15px]">unfold_more</span>
+                        <span>Expand All</span>
+                      </button>
+                      <button
+                        onClick={handleCollapseAllSets}
+                        className="px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 text-text-sub-light dark:text-text-sub-dark hover:text-primary transition-colors flex items-center gap-1.5"
+                        title="Collapse all specification sets"
+                      >
+                        <span className="material-symbols-outlined text-[15px]">unfold_less</span>
+                        <span>Collapse All</span>
+                      </button>
                     </div>
                   </div>
 
@@ -1465,189 +1629,345 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           </span>
                         </div>
 
-                        <div className="space-y-5">
-                          {group.sets.map(set => (
-                            <div
-                              key={set.id}
-                              className="rounded-2xl bg-white dark:bg-card-dark border border-gray-200/80 dark:border-gray-800 p-5 shadow-xs space-y-4"
-                            >
-                              {/* Set Header */}
-                              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                                <div>
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <h4 className="text-base font-bold text-brand-black dark:text-white">
-                                      {set.name}
-                                    </h4>
-                                    {set.isDefault && (
-                                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                                        Primary Default
-                                      </span>
-                                    )}
-                                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 capitalize">
-                                      {set.unitType}
-                                    </span>
-                                  </div>
-                                  <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-1">
-                                    Default layout: {set.bedrooms ?? 2} Bed · {set.washrooms ?? set.bathrooms ?? 1} Washroom · {set.storeys ?? set.stories ?? 1} Storey{((set.storeys ?? set.stories ?? 1) > 1) ? 's' : ''} · {set.hasUnitWaterHeater ? 'Dedicated Unit Tank' : 'Building / Shared Mechanical Room'}
-                                  </p>
-                                </div>
-
-                                <div className="flex items-center gap-2 self-start">
-                                  <button
-                                    onClick={() => handleStartEditSet(set)}
-                                    className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 hover:border-primary transition-colors flex items-center gap-1.5"
-                                  >
-                                    <span className="material-symbols-outlined text-[15px]">edit</span>
-                                    <span>Edit Set</span>
-                                  </button>
-                                  <button
-                                    onClick={() => handleStartApplyDefaultSet(set)}
-                                    className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs flex items-center gap-1.5"
-                                  >
-                                    <span className="material-symbols-outlined text-[15px]">input</span>
-                                    <span>Apply to Unit</span>
-                                  </button>
-                                </div>
-                              </div>
-
-                              {/* Layout Summary Grid */}
-                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs p-3 rounded-xl bg-gray-50/70 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800">
-                                <div>
-                                  <span className="text-gray-400 block text-[10px] uppercase font-semibold">Bedrooms</span>
-                                  <span className="font-semibold">{set.bedrooms ?? 2} <span className="text-[10px] text-gray-400 font-normal">(overridable per unit)</span></span>
-                                </div>
-                                <div>
-                                  <span className="text-gray-400 block text-[10px] uppercase font-semibold">Washrooms</span>
-                                  <span className="font-semibold">{set.washrooms ?? set.bathrooms ?? 1}</span>
-                                </div>
-                                <div>
-                                  <span className="text-gray-400 block text-[10px] uppercase font-semibold">Storeys (Floors)</span>
-                                  <span className="font-semibold">{set.storeys ?? set.stories ?? 1}</span>
-                                </div>
-                                <div>
-                                  <span className="text-gray-400 block text-[10px] uppercase font-semibold">Water Heater Node</span>
-                                  <span className="font-semibold">{set.hasUnitWaterHeater ? 'In-Unit Tank' : 'Shared / Central'}</span>
-                                </div>
-                              </div>
-
-                              {/* Appliances & Specifications Section */}
-                              <div className="space-y-3 pt-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs font-bold text-brand-black dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-                                    <span className="material-symbols-outlined text-primary text-[16px]">tune</span>
-                                    <span>Standard Appliances & Full Specifications ({set.appliances.length})</span>
-                                  </span>
-                                  <span className="text-[11px] text-text-sub-light dark:text-text-sub-dark italic">
-                                    Inherited by reference
-                                  </span>
-                                </div>
-
-                                <div className="grid grid-cols-1 gap-3">
-                                  {set.appliances.map((appItem, idx) => {
-                                    const appModel = appItem.model || appItem.specs?.model;
-                                    const iconName = getApplianceIcon(appItem.type || appItem.name);
-                                    return (
-                                      <div
-                                        key={idx}
-                                        className="p-3.5 rounded-xl border border-gray-200/70 dark:border-gray-800 bg-white dark:bg-gray-900/40 hover:border-primary/40 transition-all space-y-3"
+                        <div className="space-y-4">
+                          {group.sets.map(set => {
+                            const isSetExpanded = expandedSetIds.has(set.id);
+                            return (
+                              <div
+                                key={set.id}
+                                className={`rounded-2xl bg-white dark:bg-card-dark border transition-all ${
+                                  isSetExpanded
+                                    ? 'border-primary/50 dark:border-primary/40 shadow-sm'
+                                    : 'border-gray-200/80 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'
+                                }`}
+                              >
+                                {/* Set Header - Accordion Toggle */}
+                                <div
+                                  onClick={() => toggleSetExpanded(set.id)}
+                                  className="p-4 sm:p-5 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 select-none"
+                                >
+                                  <div className="flex items-start gap-3 min-w-0">
+                                    <button
+                                      type="button"
+                                      className="mt-0.5 w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-primary/10 hover:text-primary text-gray-500 flex items-center justify-center shrink-0 transition-transform duration-200"
+                                      aria-label={isSetExpanded ? 'Collapse set' : 'Expand set'}
+                                    >
+                                      <span
+                                        className={`material-symbols-outlined text-[20px] transition-transform duration-200 ${
+                                          isSetExpanded ? 'rotate-180' : ''
+                                        }`}
                                       >
-                                        {/* Appliance Header */}
-                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                          <div className="flex items-center gap-2.5">
-                                            <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 text-primary flex items-center justify-center shrink-0">
-                                              <span className="material-symbols-outlined text-[18px]">
-                                                {iconName}
-                                              </span>
-                                            </div>
-                                            <div>
-                                              <div className="flex items-center gap-2">
-                                                <h5 className="font-bold text-sm text-brand-black dark:text-white">
-                                                  {appItem.label || appItem.name}
-                                                </h5>
-                                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 uppercase">
-                                                  {appItem.category}
-                                                </span>
-                                              </div>
-                                              <p className="text-[11px] text-text-sub-light dark:text-text-sub-dark">
-                                                Type: <strong className="text-brand-black dark:text-white font-medium">{appItem.type || 'Standard'}</strong>
-                                              </p>
-                                            </div>
-                                          </div>
+                                        expand_more
+                                      </span>
+                                    </button>
+                                    <div className="min-w-0">
+                                      <div className="flex flex-wrap items-center gap-2">
+                                        <h4 className="text-base font-bold text-brand-black dark:text-white truncate">
+                                          {set.name}
+                                        </h4>
+                                        {set.isDefault && (
+                                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">
+                                            Primary Default
+                                          </span>
+                                        )}
+                                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 capitalize shrink-0">
+                                          {set.unitType}
+                                        </span>
+                                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-300 shrink-0">
+                                          {set.appliances.length} {set.appliances.length === 1 ? 'Appliance' : 'Appliances'}
+                                        </span>
+                                      </div>
 
-                                          <div className="flex items-center gap-2 self-start sm:self-auto">
-                                            {appModel ? (
-                                              <span className="px-2.5 py-1 text-xs font-mono font-bold rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1">
-                                                <span className="material-symbols-outlined text-[13px]">verified</span>
-                                                <span>Model: {appModel}</span>
-                                              </span>
-                                            ) : (
-                                              <span className="text-[11px] text-gray-400 dark:text-gray-500 italic px-2 py-0.5">
-                                                Model: Not specified
-                                              </span>
-                                            )}
-                                            <button
-                                              onClick={() => handleStartEditApplianceSpec(set, idx)}
-                                              className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-gray-50 hover:bg-primary/10 hover:text-primary dark:bg-gray-800 dark:hover:bg-primary/20 border border-gray-200 dark:border-gray-700 transition-colors flex items-center gap-1"
-                                              title="Edit specification for this default set"
+                                      {/* Scannable layout summary row */}
+                                      <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-1 flex flex-wrap items-center gap-1.5">
+                                        <span>{set.bedrooms ?? 2} Bed</span>
+                                        <span>·</span>
+                                        <span>{set.washrooms ?? set.bathrooms ?? 1} Washroom</span>
+                                        <span>·</span>
+                                        <span>{set.storeys ?? set.stories ?? 1} Storey{((set.storeys ?? set.stories ?? 1) > 1) ? 's' : ''}</span>
+                                        <span>·</span>
+                                        <span className="font-medium text-brand-black dark:text-white">
+                                          {set.hasUnitWaterHeater ? 'Dedicated Tank' : 'Building Mechanical Room'}
+                                        </span>
+                                      </p>
+
+                                      {/* Quick preview badges when collapsed so user can scan appliances without scrolling */}
+                                      {!isSetExpanded && (
+                                        <div className="flex flex-wrap items-center gap-1.5 mt-2.5 pt-2 border-t border-gray-100 dark:border-gray-800/60">
+                                          {set.appliances.map((app, aIdx) => (
+                                            <span
+                                              key={aIdx}
+                                              className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-gray-50 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700/60"
                                             >
-                                              <span className="material-symbols-outlined text-[14px]">edit</span>
-                                              <span>Edit Spec</span>
-                                            </button>
-                                          </div>
+                                              <span className="material-symbols-outlined text-[13px] text-primary">
+                                                {getApplianceIcon(app.type || app.name)}
+                                              </span>
+                                              <span>{app.label || app.name.replace(' (default)', '')}</span>
+                                              {(app.model || app.specs?.model) && (
+                                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">
+                                                  ({app.model || app.specs?.model})
+                                                </span>
+                                              )}
+                                            </span>
+                                          ))}
                                         </div>
+                                      )}
+                                    </div>
+                                  </div>
 
-                                        {/* FULL SPECIFICATION FIELDS */}
-                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-800/80 text-xs">
-                                          <div>
-                                            <span className="text-gray-400 block text-[10px] uppercase font-semibold">Fuel Type</span>
-                                            <span className="font-medium text-brand-black dark:text-white">
-                                              {appItem.specs?.fuelType || '—'}
-                                            </span>
-                                          </div>
-                                          <div>
-                                            <span className="text-gray-400 block text-[10px] uppercase font-semibold">Voltage</span>
-                                            <span className="font-medium text-brand-black dark:text-white">
-                                              {appItem.specs?.volts ? `${appItem.specs.volts}V` : '—'}
-                                            </span>
-                                          </div>
-                                          <div>
-                                            <span className="text-gray-400 block text-[10px] uppercase font-semibold">Capacity</span>
-                                            <span className="font-medium text-brand-black dark:text-white">
-                                              {appItem.specs?.capacity || '—'}
-                                            </span>
-                                          </div>
-                                          <div>
-                                            <span className="text-gray-400 block text-[10px] uppercase font-semibold">BTU / Power</span>
-                                            <span className="font-medium text-brand-black dark:text-white">
-                                              {[appItem.specs?.btuInput, appItem.specs?.btuOutput].filter(Boolean).join(' / ') || '—'}
-                                            </span>
-                                          </div>
-                                          <div>
-                                            <span className="text-gray-400 block text-[10px] uppercase font-semibold">Filter Size</span>
-                                            <span className="font-medium text-brand-black dark:text-white">
-                                              {appItem.specs?.filterSize || '—'}
-                                            </span>
-                                          </div>
-                                          <div className="col-span-2 sm:col-span-3">
-                                            <span className="text-gray-400 block text-[10px] uppercase font-semibold">Notes</span>
-                                            <span className="font-medium text-brand-black dark:text-white">
-                                              {appItem.notes || appItem.specs?.notes || '—'}
-                                            </span>
-                                          </div>
+                                  {/* Action Buttons in Set Header */}
+                                  <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                                    <button
+                                      type="button"
+                                      onClick={e => {
+                                        e.stopPropagation();
+                                        handleStartAddAppliance(set);
+                                      }}
+                                      className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors flex items-center gap-1"
+                                      title="Add an appliance to this default set"
+                                    >
+                                      <span className="material-symbols-outlined text-[15px]">add</span>
+                                      <span>Add Appliance</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={e => {
+                                        e.stopPropagation();
+                                        handleStartEditSet(set);
+                                      }}
+                                      className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 hover:border-primary transition-colors flex items-center gap-1.5"
+                                      title="Edit set layout metadata"
+                                    >
+                                      <span className="material-symbols-outlined text-[15px]">edit</span>
+                                      <span className="hidden md:inline">Edit Set</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={e => {
+                                        e.stopPropagation();
+                                        handleStartApplyDefaultSet(set);
+                                      }}
+                                      className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs flex items-center gap-1.5"
+                                      title="Apply this default template to a unit"
+                                    >
+                                      <span className="material-symbols-outlined text-[15px]">input</span>
+                                      <span className="hidden md:inline">Apply to Unit</span>
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Expanded Set Content */}
+                                {isSetExpanded && (
+                                  <div className="px-4 pb-5 sm:px-5 sm:pb-5 pt-0 space-y-4 border-t border-gray-100 dark:border-gray-800">
+                                    {/* Layout Summary Grid */}
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs p-3 rounded-xl bg-gray-50/70 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 mt-4">
+                                      <div>
+                                        <span className="text-gray-400 block text-[10px] uppercase font-semibold">Bedrooms</span>
+                                        <span className="font-semibold">{set.bedrooms ?? 2} <span className="text-[10px] text-gray-400 font-normal">(overridable per unit)</span></span>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-400 block text-[10px] uppercase font-semibold">Washrooms</span>
+                                        <span className="font-semibold">{set.washrooms ?? set.bathrooms ?? 1}</span>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-400 block text-[10px] uppercase font-semibold">Storeys (Floors)</span>
+                                        <span className="font-semibold">{set.storeys ?? set.stories ?? 1}</span>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-400 block text-[10px] uppercase font-semibold">Water Heater Node</span>
+                                        <span className="font-semibold">{set.hasUnitWaterHeater ? 'In-Unit Tank' : 'Shared / Central'}</span>
+                                      </div>
+                                    </div>
+
+                                    {set.notes && (
+                                      <p className="text-xs italic text-gray-500 bg-gray-50/50 dark:bg-gray-900/30 p-2.5 rounded-lg border border-gray-100 dark:border-gray-800">
+                                        Set Notes: {set.notes}
+                                      </p>
+                                    )}
+
+                                    {/* Appliances Accordion Section */}
+                                    <div className="space-y-3 pt-2">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs font-bold text-brand-black dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                                          <span className="material-symbols-outlined text-primary text-[16px]">tune</span>
+                                          <span>Standard Appliances &amp; Specifications ({set.appliances.length})</span>
+                                        </span>
+                                        <div className="flex items-center gap-2">
+                                          <button
+                                            type="button"
+                                            onClick={() => handleStartAddAppliance(set)}
+                                            className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors flex items-center gap-1"
+                                          >
+                                            <span className="material-symbols-outlined text-[14px]">add</span>
+                                            <span>Add Appliance</span>
+                                          </button>
                                         </div>
                                       </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
 
-                              {set.notes && (
-                                <p className="text-xs italic text-gray-500 border-t border-gray-100 dark:border-gray-800 pt-2">
-                                  Set Notes: {set.notes}
-                                </p>
-                              )}
-                            </div>
-                          ))}
+                                      <div className="grid grid-cols-1 gap-2.5">
+                                        {set.appliances.map((appItem, idx) => {
+                                          const appKey = `${set.id}_${idx}`;
+                                          const isAppExpanded = expandedApplianceKeys.has(appKey);
+                                          const appModel = appItem.model || appItem.specs?.model;
+                                          const manualUrl = appItem.manualUrl || appItem.specs?.manualUrl;
+                                          const iconName = getApplianceIcon(appItem.type || appItem.name);
+                                          const visibleSpecs = getVisibleSpecFields(appItem);
+
+                                          return (
+                                            <div
+                                              key={idx}
+                                              className={`rounded-xl border transition-all ${
+                                                isAppExpanded
+                                                  ? 'border-primary/40 dark:border-primary/40 bg-white dark:bg-gray-900/60 shadow-xs'
+                                                  : 'border-gray-200/70 dark:border-gray-800 bg-white dark:bg-gray-900/30 hover:border-gray-300 dark:hover:border-gray-700'
+                                              }`}
+                                            >
+                                              {/* Appliance Accordion Row / Header */}
+                                              <div
+                                                onClick={() => toggleApplianceExpanded(appKey)}
+                                                className="p-3 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2 select-none"
+                                              >
+                                                <div className="flex items-center gap-2.5 min-w-0">
+                                                  <button
+                                                    type="button"
+                                                    className="w-6 h-6 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-500 flex items-center justify-center shrink-0"
+                                                    aria-label={isAppExpanded ? 'Collapse specs' : 'Expand specs'}
+                                                  >
+                                                    <span
+                                                      className={`material-symbols-outlined text-[16px] transition-transform duration-200 ${
+                                                        isAppExpanded ? 'rotate-180' : ''
+                                                      }`}
+                                                    >
+                                                      expand_more
+                                                    </span>
+                                                  </button>
+                                                  <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 text-primary flex items-center justify-center shrink-0">
+                                                    <span className="material-symbols-outlined text-[16px]">
+                                                      {iconName}
+                                                    </span>
+                                                  </div>
+                                                  <div className="min-w-0">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                      <h5 className="font-bold text-xs sm:text-sm text-brand-black dark:text-white truncate">
+                                                        {appItem.label || appItem.name}
+                                                      </h5>
+                                                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 uppercase shrink-0">
+                                                        {appItem.category}
+                                                      </span>
+                                                      <span className="text-[10px] text-text-sub-light dark:text-text-sub-dark shrink-0">
+                                                        ({appItem.type || 'Standard'})
+                                                      </span>
+                                                    </div>
+                                                  </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                                                  {/* Model Badge */}
+                                                  {appModel ? (
+                                                    <span className="px-2 py-0.5 text-[11px] font-mono font-bold rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1">
+                                                      <span className="material-symbols-outlined text-[12px]">verified</span>
+                                                      <span>{appModel}</span>
+                                                    </span>
+                                                  ) : (
+                                                    <span className="text-[10px] text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800/60 font-medium">
+                                                      Specs Pending
+                                                    </span>
+                                                  )}
+
+                                                  {/* Manual Link in View Mode */}
+                                                  {manualUrl && (
+                                                    <a
+                                                      href={manualUrl}
+                                                      target="_blank"
+                                                      rel="noopener noreferrer"
+                                                      onClick={e => e.stopPropagation()}
+                                                      className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 hover:underline"
+                                                      title="Open manufacturer manual"
+                                                    >
+                                                      <span className="material-symbols-outlined text-[12px]">menu_book</span>
+                                                      <span>Manual</span>
+                                                      <span className="material-symbols-outlined text-[10px]">open_in_new</span>
+                                                    </a>
+                                                  )}
+
+                                                  {/* Edit Spec Button */}
+                                                  <button
+                                                    type="button"
+                                                    onClick={e => {
+                                                      e.stopPropagation();
+                                                      handleStartEditApplianceSpec(set, idx);
+                                                    }}
+                                                    className="px-2 py-1 text-xs font-semibold rounded-lg bg-gray-50 hover:bg-primary/10 hover:text-primary dark:bg-gray-800 dark:hover:bg-primary/20 border border-gray-200 dark:border-gray-700 transition-colors flex items-center gap-1"
+                                                    title="Edit specification for this default set"
+                                                  >
+                                                    <span className="material-symbols-outlined text-[13px]">edit</span>
+                                                    <span>Edit</span>
+                                                  </button>
+
+                                                  {/* Remove from set button */}
+                                                  <button
+                                                    type="button"
+                                                    onClick={e => {
+                                                      e.stopPropagation();
+                                                      handleRemoveApplianceFromSet(set, idx);
+                                                    }}
+                                                    className="p-1 rounded-lg hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 text-gray-400 transition-colors"
+                                                    title="Remove appliance from set"
+                                                  >
+                                                    <span className="material-symbols-outlined text-[15px]">delete</span>
+                                                  </button>
+                                                </div>
+                                              </div>
+
+                                              {/* EXPANDED SPECIFICATION VIEW */}
+                                              {isAppExpanded && (
+                                                <div className="px-3 pb-3 pt-2 border-t border-gray-100 dark:border-gray-800/80">
+                                                  {visibleSpecs.length === 0 ? (
+                                                    <div className="py-2 text-center text-xs text-gray-400 italic">
+                                                      No specifications entered yet (TODO). Click &quot;Edit&quot; to define model and specs.
+                                                    </div>
+                                                  ) : (
+                                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                                                      {visibleSpecs.map(field => (
+                                                        <div
+                                                          key={field.key}
+                                                          className={field.key === 'notes' ? 'col-span-2 sm:col-span-4' : ''}
+                                                        >
+                                                          <span className="text-gray-400 block text-[10px] uppercase font-semibold">
+                                                            {field.label}
+                                                          </span>
+                                                          {field.isUrl ? (
+                                                            <a
+                                                              href={field.value}
+                                                              target="_blank"
+                                                              rel="noopener noreferrer"
+                                                              className="inline-flex items-center gap-1 font-semibold text-primary hover:underline mt-0.5"
+                                                            >
+                                                              <span className="material-symbols-outlined text-[13px]">menu_book</span>
+                                                              <span>Manual Reference</span>
+                                                              <span className="material-symbols-outlined text-[11px]">open_in_new</span>
+                                                            </a>
+                                                          ) : (
+                                                            <span className="font-medium text-brand-black dark:text-white block mt-0.5">
+                                                              {field.value}
+                                                            </span>
+                                                          )}
+                                                        </div>
+                                                      ))}
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              )}
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     ))}
@@ -1926,148 +2246,361 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
       )}
 
       {/* MODAL 5: EDIT APPLIANCE SPECIFICATION */}
-      {editSpecModalData && (
+      {editSpecModalData && (() => {
+        const typeFields = getEditFormFieldsForType(editSpecForm.type, editSpecForm.fuelType);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-200 dark:border-gray-800 p-6 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-800">
+                <div>
+                  <h3 className="text-sm font-bold text-brand-black dark:text-white">
+                    Edit Appliance Specification
+                  </h3>
+                  <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
+                    Set: {editSpecModalData.set.name} · {editSpecModalData.set.appliances[editSpecModalData.applianceIndex]?.label || editSpecModalData.set.appliances[editSpecModalData.applianceIndex]?.name}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setEditSpecModalData(null)}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-white p-1"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 p-2.5 rounded-xl mb-4">
+                <strong>Single Editable Source:</strong> Edits to this specification immediately update this default set and propagate by reference to every unit referencing this set.
+              </p>
+
+              <div className="space-y-3 text-xs">
+                {/* Appliance Label / Description */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                      Appliance Label
+                    </label>
+                    <input
+                      type="text"
+                      value={editSpecForm.label}
+                      onChange={e => setEditSpecForm(prev => ({ ...prev, label: e.target.value }))}
+                      placeholder="e.g. Fridge, Gas Furnace, Dishwasher"
+                      className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                      Trade Type
+                    </label>
+                    <select
+                      value={editSpecForm.type}
+                      onChange={e => setEditSpecForm(prev => ({ ...prev, type: e.target.value }))}
+                      className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary text-xs"
+                    >
+                      {TRADE_APPLIANCE_TYPES.map(t => (
+                        <option key={t.type} value={t.type}>
+                          {t.label} ({t.category})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Model Number */}
+                <div>
+                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                    Model Number (Verified models only — serial numbers NEVER in defaults)
+                  </label>
+                  <input
+                    type="text"
+                    value={editSpecForm.model}
+                    onChange={e => setEditSpecForm(prev => ({ ...prev, model: e.target.value }))}
+                    placeholder="e.g. Frigidaire FFCD2418US3A or Carrier 59TP6B"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary font-mono text-xs"
+                  />
+                </div>
+
+                {/* Manual Link Input */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-semibold text-text-sub-light dark:text-text-sub-dark">
+                      Manual Reference URL (Manufacturer / Spec Sheet)
+                    </label>
+                    {editSpecForm.manualUrl && (
+                      <a
+                        href={editSpecForm.manualUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                      >
+                        <span className="material-symbols-outlined text-[13px]">open_in_new</span>
+                        <span>Test Link</span>
+                      </a>
+                    )}
+                  </div>
+                  <input
+                    type="url"
+                    value={editSpecForm.manualUrl}
+                    onChange={e => setEditSpecForm(prev => ({ ...prev, manualUrl: e.target.value }))}
+                    placeholder="e.g. https://www.carrier.com/residential/en/us/manuals/59TP6B.pdf"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary font-mono text-xs"
+                  />
+                  <p className="text-[10px] text-text-sub-light dark:text-text-sub-dark mt-1">
+                    Renders as a direct clickable &quot;Manual&quot; link in view mode for quick field trade reference.
+                  </p>
+                </div>
+
+                {/* Type-Specific Fields */}
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  {(typeFields.showFuelType || editSpecForm.showAllFields) && (
+                    <div>
+                      <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Fuel Type</label>
+                      <input
+                        type="text"
+                        value={editSpecForm.fuelType}
+                        onChange={e => setEditSpecForm(prev => ({ ...prev, fuelType: e.target.value }))}
+                        placeholder="e.g. Electric, Natural Gas"
+                        className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                      />
+                    </div>
+                  )}
+
+                  {(typeFields.showVolts || editSpecForm.showAllFields) && (
+                    <div>
+                      <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Voltage (Volts)</label>
+                      <input
+                        type="text"
+                        value={editSpecForm.volts}
+                        onChange={e => setEditSpecForm(prev => ({ ...prev, volts: e.target.value }))}
+                        placeholder="e.g. 120, 240, 208, 24"
+                        className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                      />
+                    </div>
+                  )}
+
+                  {(typeFields.showCapacity || editSpecForm.showAllFields) && (
+                    <div>
+                      <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                        {typeFields.capacityLabel}
+                      </label>
+                      <input
+                        type="text"
+                        value={editSpecForm.capacity}
+                        onChange={e => setEditSpecForm(prev => ({ ...prev, capacity: e.target.value }))}
+                        placeholder="e.g. 18 cu. ft., 60 Gallons, 2.5 Ton"
+                        className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                      />
+                    </div>
+                  )}
+
+                  {(typeFields.showBtuInput || editSpecForm.showAllFields) && (
+                    <div>
+                      <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
+                        {typeFields.btuInputLabel}
+                      </label>
+                      <input
+                        type="text"
+                        value={editSpecForm.btuInput}
+                        onChange={e => setEditSpecForm(prev => ({ ...prev, btuInput: e.target.value }))}
+                        placeholder="e.g. 60,000 BTU, 4500W"
+                        className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                      />
+                    </div>
+                  )}
+
+                  {(typeFields.showBtuOutput || editSpecForm.showAllFields) && (
+                    <div>
+                      <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">BTU Output</label>
+                      <input
+                        type="text"
+                        value={editSpecForm.btuOutput}
+                        onChange={e => setEditSpecForm(prev => ({ ...prev, btuOutput: e.target.value }))}
+                        placeholder="e.g. 48,000 BTU"
+                        className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                      />
+                    </div>
+                  )}
+
+                  {(typeFields.showFilterSize || editSpecForm.showAllFields) && (
+                    <div>
+                      <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Filter Size</label>
+                      <input
+                        type="text"
+                        value={editSpecForm.filterSize}
+                        onChange={e => setEditSpecForm(prev => ({ ...prev, filterSize: e.target.value }))}
+                        placeholder="e.g. 16x25x1"
+                        className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                      />
+                    </div>
+                  )}
+
+                  {(typeFields.showRefrigerantType || editSpecForm.showAllFields) && (
+                    <div>
+                      <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Refrigerant</label>
+                      <input
+                        type="text"
+                        value={editSpecForm.refrigerantType}
+                        onChange={e => setEditSpecForm(prev => ({ ...prev, refrigerantType: e.target.value }))}
+                        placeholder="e.g. R-410A, R-32"
+                        className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                      />
+                    </div>
+                  )}
+
+                  {(typeFields.showEfficiency || editSpecForm.showAllFields) && (
+                    <div>
+                      <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Efficiency Rating</label>
+                      <input
+                        type="text"
+                        value={editSpecForm.efficiency}
+                        onChange={e => setEditSpecForm(prev => ({ ...prev, efficiency: e.target.value }))}
+                        placeholder="e.g. 96% AFUE, 15 SEER2, UEF 0.93"
+                        className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Toggle All Fields */}
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setEditSpecForm(prev => ({ ...prev, showAllFields: !prev.showAllFields }))}
+                    className="text-[11px] text-primary hover:underline flex items-center gap-1 font-semibold"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">
+                      {editSpecForm.showAllFields ? 'visibility_off' : 'tune'}
+                    </span>
+                    <span>
+                      {editSpecForm.showAllFields ? 'Show standard fields for this type only' : 'Show all trade fields'}
+                    </span>
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Specification Notes</label>
+                  <textarea
+                    value={editSpecForm.notes}
+                    onChange={e => setEditSpecForm(prev => ({ ...prev, notes: e.target.value }))}
+                    placeholder="e.g. Standard field replacement or installation notes"
+                    rows={2}
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 pt-3 border-t border-gray-100 dark:border-gray-800 flex gap-2">
+                <button
+                  onClick={() => setEditSpecModalData(null)}
+                  className="flex-1 py-2.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-800 text-text-main-light dark:text-white hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveApplianceSpec}
+                  className="flex-1 py-2.5 text-xs font-bold rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs"
+                >
+                  Save Spec Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* MODAL 6: ADD APPLIANCE TO DEFAULT SET */}
+      {addApplianceModalSet && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-200 dark:border-gray-800 p-6 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-200 dark:border-gray-800 p-6 max-w-xl w-full shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-800">
               <div>
                 <h3 className="text-sm font-bold text-brand-black dark:text-white">
-                  Edit Appliance Specification
+                  Add Appliance to Default Set
                 </h3>
                 <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
-                  Set: {editSpecModalData.set.name} · {editSpecModalData.set.appliances[editSpecModalData.applianceIndex]?.label}
+                  Target Set: <strong className="text-brand-black dark:text-white">{addApplianceModalSet.name}</strong>
                 </p>
               </div>
               <button
-                onClick={() => setEditSpecModalData(null)}
+                onClick={() => setAddApplianceModalSet(null)}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-white p-1"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
-            <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 p-2.5 rounded-xl mb-4">
-              <strong>Single Editable Source:</strong> Edits to this specification immediately update this default set and propagate by reference to every unit referencing this set.
+            <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-4">
+              Choose an appliance template from the full trade range. The newly added appliance starts with blank specifications (TODO) and can be immediately configured.
             </p>
 
-            <div className="space-y-3 text-xs">
+            {/* 10 Trade Types Picker Grid */}
+            <div className="mb-4">
+              <label className="block text-xs font-bold text-brand-black dark:text-white uppercase tracking-wider mb-2">
+                Select Trade Type (10 Categories)
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
+                {TRADE_APPLIANCE_TYPES.map(trade => {
+                  const isSelected = selectedAddTradeType === trade.type;
+                  return (
+                    <button
+                      key={trade.type}
+                      type="button"
+                      onClick={() => setSelectedAddTradeType(trade.type)}
+                      className={`p-3 rounded-xl border text-left transition-all flex items-start gap-2.5 ${
+                        isSelected
+                          ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 shadow-xs'
+                          : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40 hover:border-gray-300 dark:hover:border-gray-700'
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        isSelected ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-800 text-primary'
+                      }`}>
+                        <span className="material-symbols-outlined text-[18px]">{trade.icon}</span>
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-xs text-brand-black dark:text-white truncate">
+                            {trade.label}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-gray-500 dark:text-gray-400 block line-clamp-1">
+                          {trade.description}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Custom Label / Name Input */}
+            <div className="space-y-3 text-xs mb-6">
               <div>
                 <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">
-                  Model Number (Verified models only — serial numbers NEVER in defaults)
+                  Custom Label / Name (Optional, defaults to trade name)
                 </label>
                 <input
                   type="text"
-                  value={editSpecForm.model}
-                  onChange={e => setEditSpecForm(prev => ({ ...prev, model: e.target.value }))}
-                  placeholder="e.g. Frigidaire FFCD2418US3A"
-                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary font-mono text-xs"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Appliance Type</label>
-                  <input
-                    type="text"
-                    value={editSpecForm.type}
-                    onChange={e => setEditSpecForm(prev => ({ ...prev, type: e.target.value }))}
-                    placeholder="e.g. Dishwasher, Range, Refrigerator"
-                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Fuel Type</label>
-                  <input
-                    type="text"
-                    value={editSpecForm.fuelType}
-                    onChange={e => setEditSpecForm(prev => ({ ...prev, fuelType: e.target.value }))}
-                    placeholder="e.g. Electric, Natural Gas"
-                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Voltage (Volts)</label>
-                  <input
-                    type="text"
-                    value={editSpecForm.volts}
-                    onChange={e => setEditSpecForm(prev => ({ ...prev, volts: e.target.value }))}
-                    placeholder="e.g. 120, 240, 208, 24"
-                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Capacity</label>
-                  <input
-                    type="text"
-                    value={editSpecForm.capacity}
-                    onChange={e => setEditSpecForm(prev => ({ ...prev, capacity: e.target.value }))}
-                    placeholder="e.g. 18 cu. ft., 14 Place Settings, 60 Gallons"
-                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">BTU Input / Power</label>
-                  <input
-                    type="text"
-                    value={editSpecForm.btuInput}
-                    onChange={e => setEditSpecForm(prev => ({ ...prev, btuInput: e.target.value }))}
-                    placeholder="e.g. 4500W, 60,000 BTU"
-                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">BTU Output</label>
-                  <input
-                    type="text"
-                    value={editSpecForm.btuOutput}
-                    onChange={e => setEditSpecForm(prev => ({ ...prev, btuOutput: e.target.value }))}
-                    placeholder="e.g. 48,000 BTU"
-                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Filter Size</label>
-                <input
-                  type="text"
-                  value={editSpecForm.filterSize}
-                  onChange={e => setEditSpecForm(prev => ({ ...prev, filterSize: e.target.value }))}
-                  placeholder="e.g. 16x25x1"
-                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">Specification Notes</label>
-                <textarea
-                  value={editSpecForm.notes}
-                  onChange={e => setEditSpecForm(prev => ({ ...prev, notes: e.target.value }))}
-                  placeholder="e.g. Standard field replacement or installation notes"
-                  rows={2}
+                  value={customAddApplianceLabel}
+                  onChange={e => setCustomAddApplianceLabel(e.target.value)}
+                  placeholder={`e.g. ${TRADE_APPLIANCE_TYPES.find(t => t.type === selectedAddTradeType)?.label || 'Appliance'}`}
                   className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary"
                 />
               </div>
             </div>
 
-            <div className="mt-6 pt-3 border-t border-gray-100 dark:border-gray-800 flex gap-2">
+            <div className="pt-3 border-t border-gray-100 dark:border-gray-800 flex gap-2">
               <button
-                onClick={() => setEditSpecModalData(null)}
+                onClick={() => setAddApplianceModalSet(null)}
                 className="flex-1 py-2.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-800 text-text-main-light dark:text-white hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
               >
                 Cancel
               </button>
               <button
-                onClick={handleSaveApplianceSpec}
-                className="flex-1 py-2.5 text-xs font-bold rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs"
+                onClick={handleConfirmAddAppliance}
+                className="flex-1 py-2.5 text-xs font-bold rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs flex items-center justify-center gap-1.5"
               >
-                Save Spec Changes
+                <span className="material-symbols-outlined text-[15px]">add</span>
+                <span>Add &amp; Configure Specs</span>
               </button>
             </div>
           </div>
