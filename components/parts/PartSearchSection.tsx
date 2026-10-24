@@ -348,17 +348,29 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
 
                   <div className="text-xs text-gray-600 dark:text-gray-300 space-y-1.5 pl-6">
                     {part.stockpiles && part.stockpiles.length > 0 ? (
-                      part.stockpiles.map((sp, i) => (
-                        <div key={i} className="flex justify-between items-center py-0.5">
-                          <span>
-                            • {sp.stockpile_name} ({sp.stockpile_location})
-                            {sp.location_notes ? ` - ${sp.location_notes}` : ''}
-                          </span>
-                          <span className={`font-mono font-bold text-xs ${sp.status === 'available' ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}`}>
-                            {sp.quantity} {sp.status}
-                          </span>
-                        </div>
-                      ))
+                      part.stockpiles.map((sp, i) => {
+                        const isLowStock = typeof sp.minimum === 'number' && sp.quantity < sp.minimum;
+                        return (
+                          <div key={i} className="flex justify-between items-center py-0.5">
+                            <span className="flex items-center gap-1.5 flex-wrap">
+                              <span>• {sp.stockpile_name} ({sp.stockpile_location})</span>
+                              {sp.location_notes ? <span className="text-gray-400">({sp.location_notes})</span> : null}
+                              {typeof sp.minimum === 'number' && (
+                                <span className="text-[10px] text-gray-500 font-mono">min: {sp.minimum}</span>
+                              )}
+                              {isLowStock && (
+                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                                  <span className="material-symbols-outlined text-[12px]">warning</span>
+                                  Low Stock
+                                </span>
+                              )}
+                            </span>
+                            <span className={`font-mono font-bold text-xs ${sp.status === 'available' ? (isLowStock ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400') : 'text-gray-400'}`}>
+                              {sp.quantity} {sp.status}
+                            </span>
+                          </div>
+                        );
+                      })
                     ) : (
                       <p>{part.stock_summary || `${part.quantity_on_hand} units available`}</p>
                     )}

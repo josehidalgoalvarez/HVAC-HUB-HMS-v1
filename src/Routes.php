@@ -601,7 +601,7 @@ class Routes
                 $user = $request->getAttribute('user');
                 $userId = isset($user['id']) ? (int) $user['id'] : null;
                 try {
-                    $transfer = \App\Models\PartWorkflow::transferVacantAppliance($body, $userId);
+                    $transfer = \App\Models\PartWorkflow::transferStock($body, $userId);
                     return Auth::jsonSuccess($transfer, 201);
                 } catch (\Throwable $e) {
                     return Auth::jsonError('stock_transfer_failed', $e->getMessage(), 400);

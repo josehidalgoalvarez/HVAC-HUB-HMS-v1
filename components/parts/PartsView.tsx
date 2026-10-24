@@ -8,6 +8,7 @@ import { SupplierDirectorySection } from './SupplierDirectorySection';
 import { LogPartUseModal, type LogPartUseResult } from './LogPartUseModal';
 import { AddPartModal } from './AddPartModal';
 import { HarvestTransferModal } from './HarvestTransferModal';
+import { StockTransferModal } from './StockTransferModal';
 import { SEED_PARTS, SEED_STOCKPILES, SEED_SUPPLIERS } from './partsSeedData';
 import type { PartRecord, Stockpile, SupplierRecord, HarvestCandidate } from '../../types/domain';
 
@@ -31,6 +32,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
   const [initialPartUsageMode, setInitialPartUsageMode] = useState<'use' | 'restock'>('use');
   const [activeCandidateForTransfer, setActiveCandidateForTransfer] = useState<HarvestCandidate | null>(null);
   const [isAddPartOpen, setIsAddPartOpen] = useState(false);
+  const [isTransferStockOpen, setIsTransferStockOpen] = useState(false);
 
   const loadPartsData = async () => {
     try {
@@ -181,6 +183,16 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
 
         <div className="flex items-center gap-2">
           <button
+            id="transfer-stock-btn"
+            onClick={() => setIsTransferStockOpen(true)}
+            className="min-h-[44px] px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-brand-black dark:text-white font-bold text-xs flex items-center gap-1.5 border border-gray-200 dark:border-gray-700 active:scale-95 transition-all"
+            title="Transfer Stock Between Stockpiles"
+          >
+            <span className="material-symbols-outlined text-[18px] text-primary">move_down</span>
+            <span>Transfer</span>
+          </button>
+
+          <button
             id="add-part-btn"
             onClick={() => setIsAddPartOpen(true)}
             className="min-h-[44px] px-3.5 py-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
@@ -307,6 +319,22 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
         stockpiles={stockpiles}
         onClose={() => setIsAddPartOpen(false)}
         onSuccess={handleAddPartSuccess}
+      />
+
+      {/* Stockpile Transfer Modal */}
+      <StockTransferModal
+        isOpen={isTransferStockOpen}
+        parts={parts}
+        stockpiles={stockpiles}
+        onClose={() => setIsTransferStockOpen(false)}
+        onSuccess={(result) => {
+          loadPartsData();
+          setFlashMsg({
+            text: `Transferred ${result.quantity || 1}x ${result.item_name || 'part'} between stockpiles! Provenance audit logged.`,
+            type: 'success',
+          });
+          setTimeout(() => setFlashMsg(null), 5000);
+        }}
       />
 
       {/* Harvest from Vacant Unit Modal */}

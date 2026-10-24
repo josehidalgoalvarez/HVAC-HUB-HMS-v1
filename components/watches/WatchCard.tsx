@@ -47,6 +47,12 @@ export const WatchCard: React.FC<WatchCardProps> = ({
           icon: 'assignment_late',
           bg: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700',
         };
+      case 'low_stock':
+        return {
+          label: 'Low Stock',
+          icon: 'inventory_2',
+          bg: 'bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-700',
+        };
       default:
         return {
           label: type,

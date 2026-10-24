@@ -37,6 +37,8 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
         config.hours_threshold = parseInt(hoursThreshold, 10) || 24;
       } else if (watchType === 'scheduled_task') {
         config.due_at = dueAt || new Date(Date.now() + 86400000).toISOString().slice(0, 19).replace('T', ' ');
+      } else if (watchType === 'low_stock') {
+        if (targetId) config.part_id = parseInt(targetId, 10);
       }
 
       await onCreateWatch({
@@ -119,6 +121,17 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
               >
                 <span className="material-symbols-outlined text-sm leading-none">assignment_late</span>
                 <span>Scheduled Task</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setWatchType('low_stock')}
+                className={`min-h-[44px] p-2.5 rounded-xl text-xs font-medium border text-left flex items-center gap-2 transition-all col-span-2 sm:col-span-1 ${watchType === 'low_stock'
+                    ? 'border-primary bg-primary/20 text-blue-600 dark:text-blue-200 font-bold'
+                    : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+              >
+                <span className="material-symbols-outlined text-sm leading-none text-amber-500">inventory_2</span>
+                <span>Low Stock Watch</span>
               </button>
             </div>
           </div>

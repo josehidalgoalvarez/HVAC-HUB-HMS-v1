@@ -21,6 +21,7 @@ class Watch
     public const TYPE_REPLY_WAITING = 'reply_waiting';
     public const TYPE_PART_WAIT = 'part_wait';
     public const TYPE_SCHEDULED_TASK = 'scheduled_task';
+    public const TYPE_LOW_STOCK = 'low_stock';
 
     /**
      * Find all watches with optional filters.
@@ -399,6 +400,7 @@ class Watch
             'reply_waiting' => 'notice',
             'part_wait' => 'ticket',
             'scheduled_task' => 'task',
+            'low_stock' => 'part',
             default => 'system',
         };
     }
@@ -411,6 +413,7 @@ class Watch
             'reply_waiting' => "Notice #{$targetId} Reply-Waiting Watch",
             'part_wait' => "Ticket #{$targetId} Part Wait Watch",
             'scheduled_task' => 'Scheduled Task Overdue Watch',
+            'low_stock' => $targetId ? "Part #{$targetId} Low Stock Watch" : "Stockpile Low Stock Watch",
             default => 'Proactive System Watch',
         };
     }

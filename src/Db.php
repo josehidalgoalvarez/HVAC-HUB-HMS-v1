@@ -593,8 +593,11 @@ class Db
         try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN watch_id INTEGER NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN ordered_at TEXT NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN arrived_at TEXT NULL"); } catch (\Throwable) {}
-        try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN unit_cost REAL NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE ticket_part ADD COLUMN notes TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE building ADD COLUMN external_id TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE unit ADD COLUMN external_id TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE appliance ADD COLUMN external_id TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE part_stockpile ADD COLUMN minimum INTEGER NOT NULL DEFAULT 1"); } catch (\Throwable) {}
     }
 
     /**

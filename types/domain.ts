@@ -68,6 +68,8 @@ export interface StorageItem {
 
 export interface Building {
   id: string;
+  external_id?: string | null;
+  externalId?: string | null;
   complexId?: string | null;
   complexName?: string | null;
   complex_id?: string | number | null;
@@ -107,6 +109,8 @@ export type OccupancyStatus = 'occupied' | 'vacant' | 'unknown';
 
 export interface Unit {
   id: string;
+  external_id?: string | null;
+  externalId?: string | null;
   buildingId: string;
   unitNumber: string;
   floor?: string;
@@ -198,6 +202,8 @@ export interface ApplianceSpecs {
 
 export interface Appliance {
   id: string;
+  external_id?: string | null;
+  externalId?: string | null;
   name: string;
   brand: string;
   propertyId: string;
@@ -512,6 +518,7 @@ export interface StockpileAllocation {
   stockpile_name: string;
   stockpile_location: string;
   quantity: number;
+  minimum?: number;
   status: 'available' | 'on_hold' | 'in_use';
   location_notes?: string | null;
 }
@@ -725,7 +732,7 @@ export interface OutboxItem {
 }
 
 // --- Proactive Watch Engine (Phase 6) ---
-export type WatchType = 'reply_waiting' | 'part_wait' | 'scheduled_task' | 'notice_deadline';
+export type WatchType = 'reply_waiting' | 'part_wait' | 'scheduled_task' | 'notice_deadline' | 'low_stock';
 export type WatchState = 'active' | 'triggered' | 'acknowledged' | 'snoozed' | 'resolved';
 
 export interface WatchRecord {
@@ -897,11 +904,13 @@ export interface StockTransfer {
   source_type: 'vacant_unit' | 'stockpile' | string;
   source_unit_id?: number | string | null;
   source_building_id?: number | string | null;
-  destination_type: 'unit' | 'stockpile';
+  source_stockpile_id?: number | string | null;
+  destination_type: 'unit' | 'stockpile' | string;
   destination_unit_id?: number | string | null;
   destination_building_id?: number | string | null;
   destination_stockpile_id?: number | string | null;
-  appliance_id: number | string;
+  appliance_id?: number | string | null;
+  part_id?: number | string | null;
   item_name?: string;
   quantity?: number;
   transferred_by?: string;

@@ -149,6 +149,7 @@ export const SEED_PARTS: PartRecord[] = [
         stockpile_name: '511 Days Rd Storage',
         stockpile_location: '511 Days Rd',
         quantity: 2,
+        minimum: 3,
         status: 'available',
         location_notes: 'Central Storage Shelf A'
       },
@@ -159,6 +160,7 @@ export const SEED_PARTS: PartRecord[] = [
         stockpile_name: '511 Days Rd Storage',
         stockpile_location: '137 Amherst',
         quantity: 2,
+        minimum: 1,
         status: 'on_hold',
         location_notes: '137 Amherst on hold'
       },
@@ -169,6 +171,7 @@ export const SEED_PARTS: PartRecord[] = [
         stockpile_name: '1719 Bath Donors',
         stockpile_location: '1719 Bath Rd',
         quantity: 2,
+        minimum: 1,
         status: 'in_use',
         location_notes: '1719 unit 174'
       }
@@ -208,6 +211,7 @@ export const SEED_PARTS: PartRecord[] = [
         stockpile_name: '511 Days Rd Storage',
         stockpile_location: '511 Days Rd',
         quantity: 1,
+        minimum: 1,
         status: 'available',
         location_notes: 'Spare inventory'
       },
@@ -218,6 +222,7 @@ export const SEED_PARTS: PartRecord[] = [
         stockpile_name: '1719 Bath Donors',
         stockpile_location: '1719 Bath Rd',
         quantity: 1,
+        minimum: 1,
         status: 'in_use',
         location_notes: 'installed'
       }

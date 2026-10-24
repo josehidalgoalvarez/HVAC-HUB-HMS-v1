@@ -130,6 +130,7 @@ class WatchEngine
             'reply_waiting' => self::evaluateReplyWaiting($watch, $now),
             'part_wait' => self::evaluatePartWait($watch, $now),
             'scheduled_task' => self::evaluateScheduledTask($watch, $now),
+            'low_stock' => self::evaluateLowStock($watch, $now),
             default => ['should_trigger' => false, 'reason' => null, 'data' => []],
         };
     }
@@ -295,5 +296,110 @@ class WatchEngine
         }
 
         return ['should_trigger' => false, 'reason' => 'Task not yet due', 'data' => []];
+    }
+
+    /**
+     * 5. Low Stock: Fires when a stockpile location's quantity drops below its minimum (or part quantity < min).
+     * DELIBERATE exception to the 4-type watch diet.
+     */
+    private static function evaluateLowStock(array $watch, DateTimeImmutable $now): array
+    {
+        $targetId = !empty($watch['target_id']) ? (int) $watch['target_id'] : 0;
+        $config = $watch['config'] ?? [];
+        $stockpileId = !empty($config['stockpile_id']) ? (int) $config['stockpile_id'] : 0;
+        $partId = $targetId > 0 ? $targetId : (!empty($config['part_id']) ? (int) $config['part_id'] : 0);
+
+        if ($partId > 0 && $stockpileId > 0) {
+            $row = Db::fetchOne(
+                'SELECT ps.*, COALESCE(p.name, "Part #" || ps.part_id) AS part_name, COALESCE(s.name, "Stockpile #" || ps.stockpile_id) AS stockpile_name 
+                 FROM part_stockpile ps
+                 LEFT JOIN part p ON p.id = ps.part_id
+                 LEFT JOIN stockpile s ON s.id = ps.stockpile_id
+                 WHERE ps.part_id = ? AND ps.stockpile_id = ?',
+                [$partId, $stockpileId]
+            );
+            if ($row) {
+                $qty = (int) $row['quantity'];
+                $min = (int) ($row['minimum'] ?? 1);
+                if ($qty < $min) {
+                    return [
+                        'should_trigger' => true,
+                        'reason' => sprintf(
+                            'Low Stock: %s at %s has %d on hand (below minimum of %d)',
+                            $row['part_name'],
+                            $row['stockpile_name'],
+                            $qty,
+                            $min
+                        ),
+                        'data' => [
+                            'part_id' => $partId,
+                            'part_name' => $row['part_name'],
+                            'stockpile_id' => $stockpileId,
+                            'stockpile_name' => $row['stockpile_name'],
+                            'quantity' => $qty,
+                            'minimum' => $min,
+                        ]
+                    ];
+                }
+            }
+        } elseif ($partId > 0) {
+            // Check all stockpiles for this part or total quantity
+            $rows = Db::fetchAll(
+                'SELECT ps.*, COALESCE(p.name, "Part #" || ps.part_id) AS part_name, COALESCE(s.name, "Stockpile #" || ps.stockpile_id) AS stockpile_name 
+                 FROM part_stockpile ps
+                 LEFT JOIN part p ON p.id = ps.part_id
+                 LEFT JOIN stockpile s ON s.id = ps.stockpile_id
+                 WHERE ps.part_id = ? AND ps.quantity < ps.minimum',
+                [$partId]
+            );
+            if (!empty($rows)) {
+                $first = $rows[0];
+                return [
+                    'should_trigger' => true,
+                    'reason' => sprintf(
+                        'Low Stock: %s at %s has %d on hand (below minimum of %d)',
+                        $first['part_name'],
+                        $first['stockpile_name'],
+                        (int) $first['quantity'],
+                        (int) $first['minimum']
+                    ),
+                    'data' => [
+                        'part_id' => $partId,
+                        'part_name' => $first['part_name'],
+                        'low_stockpiles_count' => count($rows),
+                        'details' => $rows
+                    ]
+                ];
+            }
+        } else {
+            // General low stock check across all stockpiles
+            $rows = Db::fetchAll(
+                'SELECT ps.*, COALESCE(p.name, "Part #" || ps.part_id) AS part_name, COALESCE(s.name, "Stockpile #" || ps.stockpile_id) AS stockpile_name 
+                 FROM part_stockpile ps
+                 LEFT JOIN part p ON p.id = ps.part_id
+                 LEFT JOIN stockpile s ON s.id = ps.stockpile_id
+                 WHERE ps.quantity < ps.minimum'
+            );
+            if (!empty($rows)) {
+                $first = $rows[0];
+                return [
+                    'should_trigger' => true,
+                    'reason' => sprintf(
+                        'Low Stock Alert: %d item(s) below location minimums (e.g. %s at %s: %d < %d)',
+                        count($rows),
+                        $first['part_name'],
+                        $first['stockpile_name'],
+                        (int) $first['quantity'],
+                        (int) $first['minimum']
+                    ),
+                    'data' => [
+                        'total_low_stock_rows' => count($rows),
+                        'sample' => $first
+                    ]
+                ];
+            }
+        }
+
+        return ['should_trigger' => false, 'reason' => 'Stock levels meet minimum requirements', 'data' => []];
     }
 }

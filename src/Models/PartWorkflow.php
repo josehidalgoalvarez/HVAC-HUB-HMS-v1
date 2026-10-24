@@ -262,6 +262,153 @@ class PartWorkflow
     }
 
     /**
+     * Generalized Stock Transfer:
+     * Moves items between ANY two stockpiles, or from a vacant unit into a stockpile/unit.
+     * Records stock transfer and append-only correction for provenance.
+     */
+    public static function transferStock(array $data, ?int $userId = null): array
+    {
+        $sourceType = strtolower(trim((string) ($data['source_type'] ?? '')));
+        // If appliance_id is provided without source_type, default to vacant_unit for backward compat
+        if ($sourceType === '' && !empty($data['appliance_id'])) {
+            $sourceType = 'vacant_unit';
+        }
+
+        if ($sourceType === 'stockpile') {
+            return self::transferBetweenStockpiles($data, $userId);
+        }
+
+        // Vacant unit source (appliance transfer)
+        return self::transferVacantAppliance($data, $userId);
+    }
+
+    /**
+     * Transfer parts between stockpiles with inventory increment/decrement and audit log.
+     */
+    private static function transferBetweenStockpiles(array $data, ?int $userId = null): array
+    {
+        $sourceStockpileId = (int) ($data['source_stockpile_id'] ?? 0);
+        $destStockpileId = (int) ($data['destination_stockpile_id'] ?? 0);
+        $partId = (int) ($data['part_id'] ?? 0);
+        $quantity = max(1, (int) ($data['quantity'] ?? 1));
+        $transferredBy = trim((string) ($data['transferred_by'] ?? 'Jose (Tech)'));
+        $notes = !empty($data['notes']) ? trim((string) $data['notes']) : null;
+        $ticketId = !empty($data['ticket_id']) ? (int) $data['ticket_id'] : null;
+
+        if ($sourceStockpileId <= 0 || $destStockpileId <= 0) {
+            throw new RuntimeException("Source and destination stockpiles are required");
+        }
+        if ($sourceStockpileId === $destStockpileId) {
+            throw new RuntimeException("Source and destination stockpiles cannot be identical");
+        }
+        if ($partId <= 0) {
+            throw new RuntimeException("Part ID is required for stockpile transfer");
+        }
+
+        $sourceStockpile = Db::fetchOne('SELECT * FROM `stockpile` WHERE id = ?', [$sourceStockpileId]);
+        $destStockpile = Db::fetchOne('SELECT * FROM `stockpile` WHERE id = ?', [$destStockpileId]);
+        $part = Db::fetchOne('SELECT * FROM `part` WHERE id = ?', [$partId]);
+
+        if (!$sourceStockpile || !$destStockpile || !$part) {
+            throw new RuntimeException("Stockpile or Part not found");
+        }
+
+        $sourceAlloc = Db::fetchOne(
+            'SELECT * FROM `part_stockpile` WHERE part_id = ? AND stockpile_id = ?',
+            [$partId, $sourceStockpileId]
+        );
+        $sourceQty = (int) ($sourceAlloc['quantity'] ?? 0);
+        if ($sourceQty < $quantity) {
+            throw new RuntimeException("Insufficient stock at source stockpile ({$sourceQty} available, {$quantity} requested)");
+        }
+
+        // 1. Decrement source stockpile
+        Db::execute(
+            'UPDATE `part_stockpile` SET quantity = quantity - ?, updated_at = datetime("now") WHERE part_id = ? AND stockpile_id = ?',
+            [$quantity, $partId, $sourceStockpileId]
+        );
+
+        // 2. Increment destination stockpile (insert row if not exists)
+        $destAlloc = Db::fetchOne(
+            'SELECT * FROM `part_stockpile` WHERE part_id = ? AND stockpile_id = ?',
+            [$partId, $destStockpileId]
+        );
+        if ($destAlloc) {
+            Db::execute(
+                'UPDATE `part_stockpile` SET quantity = quantity + ?, updated_at = datetime("now") WHERE part_id = ? AND stockpile_id = ?',
+                [$quantity, $partId, $destStockpileId]
+            );
+        } else {
+            Db::execute(
+                'INSERT INTO `part_stockpile` (part_id, stockpile_id, quantity, status, minimum, created_at, updated_at) '
+                . 'VALUES (?, ?, ?, "available", 1, datetime("now"), datetime("now"))',
+                [$partId, $destStockpileId, $quantity]
+            );
+        }
+
+        $itemName = $part['name'] . ' (Part #' . ($part['part_number'] ?: $partId) . ')';
+
+        // 3. Record stock transfer row
+        $sql = 'INSERT INTO `stock_transfer` ('
+             . '`source_type`, `source_stockpile_id`, `destination_type`, `destination_stockpile_id`, '
+             . '`part_id`, `item_name`, `quantity`, `transferred_by`, `notes`, `created_at`'
+             . ') VALUES ("stockpile", ?, "stockpile", ?, ?, ?, ?, ?, ?, datetime("now"))';
+
+        Db::execute($sql, [
+            $sourceStockpileId,
+            $destStockpileId,
+            $partId,
+            $itemName,
+            $quantity,
+            $transferredBy,
+            $notes,
+        ]);
+
+        $transferId = (int) Db::lastInsertId();
+
+        // 4. Append-only correction audit for provenance
+        Correction::record(
+            'part',
+            $partId,
+            'stockpile_allocation',
+            "{$sourceStockpile['name']} (qty: {$sourceQty})",
+            "Transferred {$quantity} to {$destStockpile['name']}",
+            $userId,
+            "Stock transfer between stockpiles (#{$sourceStockpileId} -> #{$destStockpileId}): {$notes}"
+        );
+
+        // 5. If tied to a ticket, record timeline event
+        if ($ticketId) {
+            TicketTimeline::append(
+                $ticketId,
+                TicketTimeline::EVENT_PART_ARRIVED,
+                $transferredBy,
+                "Transferred {$quantity}x {$itemName} from {$sourceStockpile['name']} to {$destStockpile['name']} (Transfer #{$transferId})",
+                [
+                    'transfer_id' => $transferId,
+                    'part_id' => $partId,
+                    'quantity' => $quantity,
+                    'source_stockpile_id' => $sourceStockpileId,
+                    'destination_stockpile_id' => $destStockpileId,
+                ]
+            );
+        }
+
+        return [
+            'transfer_id' => $transferId,
+            'source_type' => 'stockpile',
+            'destination_type' => 'stockpile',
+            'source_stockpile_id' => $sourceStockpileId,
+            'destination_stockpile_id' => $destStockpileId,
+            'part_id' => $partId,
+            'item_name' => $itemName,
+            'quantity' => $quantity,
+            'transferred_by' => $transferredBy,
+            'transferred_at' => date('Y-m-d H:i:s'),
+        ];
+    }
+
+    /**
      * Pull an appliance from a vacant unit (Stock Transfer).
      * Records stock transfer and append-only correction for provenance.
      */

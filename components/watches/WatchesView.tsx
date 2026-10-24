@@ -245,6 +245,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
                 { id: 'part_wait', label: 'Part Wait' },
                 { id: 'scheduled_task', label: 'Scheduled Tasks' },
                 { id: 'notice_deadline', label: 'Notice Not Sent' },
+                { id: 'low_stock', label: 'Low Stock' },
               ].map(({ id, label }) => (
                 <button
                   key={id}
