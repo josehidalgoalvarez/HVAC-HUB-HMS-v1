@@ -43,13 +43,14 @@ class PartWorkflow
 
         $buildingId = (int) ($data['building_id'] ?? $ticket['building_id']);
         $unitId = !empty($data['unit_id']) ? (int) $data['unit_id'] : (!empty($ticket['unit_id']) ? (int) $ticket['unit_id'] : null);
+        $now = gmdate('Y-m-d H:i:s');
 
         // 1. Insert into ticket_part
         $sql = 'INSERT INTO `ticket_part` ('
              . '`ticket_id`, `building_id`, `unit_id`, `appliance_id`, `appliance_type`, '
              . '`part_number`, `part_name`, `quantity`, `supplier`, `order_ref`, `status`, '
              . '`ordered_at`, `unit_cost`, `notes`, `created_at`'
-             . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "ordered", datetime("now"), ?, ?, datetime("now"))';
+             . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "ordered", ?, ?, ?, ?)';
 
         Db::execute($sql, [
             $ticketId,
@@ -62,8 +63,10 @@ class PartWorkflow
             $quantity,
             $supplier,
             $orderRef,
+            $now,
             $unitCost,
             $notes,
+            $now,
         ]);
 
         $ticketPartId = (int) Db::lastInsertId();
@@ -116,8 +119,8 @@ class PartWorkflow
 
         // 4. Update ticket status / blocker reason to reflect part wait
         Db::execute(
-            "UPDATE `ticket` SET blocker_reason = ?, status = 'pending_parts', updated_at = datetime('now') WHERE id = ? AND status NOT IN ('done', 'closed', 'closed-elsewhere')",
-            ["Waiting on {$partName} ({$supplier} ref {$orderRef})", $ticketId]
+            "UPDATE `ticket` SET blocker_reason = ?, status = 'pending_parts', updated_at = ? WHERE id = ? AND status NOT IN ('done', 'closed', 'closed-elsewhere')",
+            ["Waiting on {$partName} ({$supplier} ref {$orderRef})", $now, $ticketId]
         );
 
         return self::getPartById($ticketPartId);
@@ -137,25 +140,26 @@ class PartWorkflow
         $ticketId = (int) $part['ticket_id'];
         $watchId = !empty($part['watch_id']) ? (int) $part['watch_id'] : null;
         $partName = $part['part_name'];
+        $now = gmdate('Y-m-d H:i:s');
 
         // 1. Update ticket_part status to 'arrived'
         Db::execute(
-            "UPDATE `ticket_part` SET status = 'arrived', arrived_at = datetime('now') WHERE id = ?",
-            [$ticketPartId]
+            "UPDATE `ticket_part` SET status = 'arrived', arrived_at = ? WHERE id = ?",
+            [$now, $ticketPartId]
         );
 
         // 2. Resolve the associated watch
         if ($watchId) {
             Db::execute(
-                "UPDATE `watch` SET state = 'resolved', resolved_at = datetime('now') WHERE id = ?",
-                [$watchId]
+                "UPDATE `watch` SET state = 'resolved', resolved_at = ? WHERE id = ?",
+                [$now, $watchId]
             );
         } else {
             // Fallback: resolve active part_wait watches for this ticket
             Db::execute(
-                "UPDATE `watch` SET state = 'resolved', resolved_at = datetime('now') "
+                "UPDATE `watch` SET state = 'resolved', resolved_at = ? "
                 . "WHERE target_id = ? AND target_type = 'ticket' AND watch_type = 'part_wait' AND state = 'active'",
-                [$ticketId]
+                [$now, $ticketId]
             );
         }
 
@@ -182,9 +186,9 @@ class PartWorkflow
 
         if ($remainingParts === 0) {
             Db::execute(
-                "UPDATE `ticket` SET blocker_reason = NULL, status = 'verified', updated_at = datetime('now') "
+                "UPDATE `ticket` SET blocker_reason = NULL, status = 'verified', updated_at = ? "
                 . "WHERE id = ? AND status = 'pending_parts'",
-                [$ticketId]
+                [$now, $ticketId]
             );
         }
 
@@ -322,10 +326,12 @@ class PartWorkflow
             throw new RuntimeException("Insufficient stock at source stockpile ({$sourceQty} available, {$quantity} requested)");
         }
 
+        $now = gmdate('Y-m-d H:i:s');
+
         // 1. Decrement source stockpile
         Db::execute(
-            'UPDATE `part_stockpile` SET quantity = quantity - ?, updated_at = datetime("now") WHERE part_id = ? AND stockpile_id = ?',
-            [$quantity, $partId, $sourceStockpileId]
+            'UPDATE `part_stockpile` SET quantity = quantity - ?, updated_at = ? WHERE part_id = ? AND stockpile_id = ?',
+            [$quantity, $now, $partId, $sourceStockpileId]
         );
 
         // 2. Increment destination stockpile (insert row if not exists)
@@ -335,14 +341,14 @@ class PartWorkflow
         );
         if ($destAlloc) {
             Db::execute(
-                'UPDATE `part_stockpile` SET quantity = quantity + ?, updated_at = datetime("now") WHERE part_id = ? AND stockpile_id = ?',
-                [$quantity, $partId, $destStockpileId]
+                'UPDATE `part_stockpile` SET quantity = quantity + ?, updated_at = ? WHERE part_id = ? AND stockpile_id = ?',
+                [$quantity, $now, $partId, $destStockpileId]
             );
         } else {
             Db::execute(
                 'INSERT INTO `part_stockpile` (part_id, stockpile_id, quantity, status, minimum, created_at, updated_at) '
-                . 'VALUES (?, ?, ?, "available", 1, datetime("now"), datetime("now"))',
-                [$partId, $destStockpileId, $quantity]
+                . 'VALUES (?, ?, ?, "available", 1, ?, ?)',
+                [$partId, $destStockpileId, $quantity, $now, $now]
             );
         }
 
@@ -352,7 +358,7 @@ class PartWorkflow
         $sql = 'INSERT INTO `stock_transfer` ('
              . '`source_type`, `source_stockpile_id`, `destination_type`, `destination_stockpile_id`, '
              . '`part_id`, `item_name`, `quantity`, `transferred_by`, `notes`, `created_at`'
-             . ') VALUES ("stockpile", ?, "stockpile", ?, ?, ?, ?, ?, ?, datetime("now"))';
+             . ') VALUES ("stockpile", ?, "stockpile", ?, ?, ?, ?, ?, ?, ?)';
 
         Db::execute($sql, [
             $sourceStockpileId,
@@ -362,6 +368,7 @@ class PartWorkflow
             $quantity,
             $transferredBy,
             $notes,
+            $now,
         ]);
 
         $transferId = (int) Db::lastInsertId();
@@ -432,13 +439,14 @@ class PartWorkflow
         $ticketId = !empty($data['ticket_id']) ? (int) $data['ticket_id'] : null;
 
         $itemName = $appliance['name'] . ' (' . $appliance['brand'] . ' ' . $appliance['type'] . ')';
+        $now = gmdate('Y-m-d H:i:s');
 
         // 1. Record stock transfer
         $sql = 'INSERT INTO `stock_transfer` ('
              . '`source_type`, `source_unit_id`, `source_building_id`, `destination_type`, '
              . '`destination_unit_id`, `destination_building_id`, `destination_stockpile_id`, '
              . '`appliance_id`, `item_name`, `quantity`, `transferred_by`, `notes`, `created_at`'
-             . ') VALUES ("vacant_unit", ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, datetime("now"))';
+             . ') VALUES ("vacant_unit", ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)';
 
         Db::execute($sql, [
             $sourceUnitId,
@@ -451,6 +459,7 @@ class PartWorkflow
             $itemName,
             $transferredBy,
             $notes,
+            $now,
         ]);
 
         $transferId = (int) Db::lastInsertId();
@@ -458,13 +467,13 @@ class PartWorkflow
         // 2. Update appliance location
         if ($destType === 'unit' && $destUnitId) {
             Db::execute(
-                'UPDATE `appliance` SET unit_id = ?, building_id = ?, location = ?, updated_at = datetime("now") WHERE id = ?',
-                [$destUnitId, $destBuildingId, "Unit {$destUnitId}", $applianceId]
+                'UPDATE `appliance` SET unit_id = ?, building_id = ?, location = ?, updated_at = ? WHERE id = ?',
+                [$destUnitId, $destBuildingId, "Unit {$destUnitId}", $now, $applianceId]
             );
         } else {
             Db::execute(
-                'UPDATE `appliance` SET unit_id = NULL, building_id = ?, location = "Stockpile", updated_at = datetime("now") WHERE id = ?',
-                [$destBuildingId ?: $sourceBuildingId, $applianceId]
+                'UPDATE `appliance` SET unit_id = NULL, building_id = ?, location = "Stockpile", updated_at = ? WHERE id = ?',
+                [$destBuildingId ?: $sourceBuildingId, $now, $applianceId]
             );
         }
 

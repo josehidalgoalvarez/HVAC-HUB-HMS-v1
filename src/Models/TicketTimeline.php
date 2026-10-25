@@ -36,9 +36,10 @@ class TicketTimeline
         ?array $metadata = null
     ): array {
         $metaJson = $metadata !== null ? json_encode($metadata) : null;
+        $now = gmdate('Y-m-d H:i:s');
 
         $sql = 'INSERT INTO `ticket_timeline` (`ticket_id`, `event_type`, `actor`, `note`, `metadata`, `created_at`) '
-             . 'VALUES (?, ?, ?, ?, ?, datetime("now"))';
+             . 'VALUES (?, ?, ?, ?, ?, ?)';
 
         Db::execute($sql, [
             $ticketId,
@@ -46,6 +47,7 @@ class TicketTimeline
             $actor,
             $note,
             $metaJson,
+            $now,
         ]);
 
         $id = (int) Db::lastInsertId();

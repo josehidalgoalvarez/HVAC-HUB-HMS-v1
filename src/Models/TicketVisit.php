@@ -88,11 +88,13 @@ class TicketVisit
             $isOurMiss = 1;
         }
 
+        $now = gmdate('Y-m-d H:i:s');
+
         $sql = 'INSERT INTO `ticket_visit` ('
              . '`ticket_id`, `building_id`, `unit_id`, `tech_id`, `tech_name`, `visited_at`, '
              . '`outcome`, `failure_reason`, `notes`, `notice_needed_snapshot`, `notice_sent_at_snapshot`, '
              . '`notice_confirmed_by_snapshot`, `is_our_miss`, `created_at`'
-             . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"))';
+             . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
         Db::execute($sql, [
             $ticketId,
@@ -108,6 +110,7 @@ class TicketVisit
             $noticeSentAtSnap,
             $noticeConfirmedBySnap,
             $isOurMiss,
+            $now,
         ]);
 
         $visitId = (int) Db::lastInsertId();
@@ -124,8 +127,8 @@ class TicketVisit
 
             // Transition ticket to done if not already closed
             Db::execute(
-                "UPDATE `ticket` SET status = 'done', updated_at = datetime('now') WHERE id = ? AND status NOT IN ('closed', 'closed-elsewhere')",
-                [$ticketId]
+                "UPDATE `ticket` SET status = 'done', updated_at = ? WHERE id = ? AND status NOT IN ('closed', 'closed-elsewhere')",
+                [$now, $ticketId]
             );
         } elseif ($outcome === self::OUTCOME_PARTIAL) {
             TicketTimeline::append(

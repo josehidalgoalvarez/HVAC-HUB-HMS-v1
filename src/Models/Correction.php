@@ -32,42 +32,23 @@ class Correction
             return 0;
         }
 
-        $sql = 'INSERT INTO `correction` (`entity_type`, `entity_id`, `field_name`, `old_value`, `new_value`, `changed_by_user_id`, `reason`, `created_at`) '
-             . 'VALUES (?, ?, ?, ?, ?, ?, ?, datetime("now"))';
+        $now = gmdate('Y-m-d H:i:s');
 
-        // Check if database driver is MySQL for NOW() vs datetime("now")
-        try {
-            Db::execute(
-                'INSERT INTO `correction` (`entity_type`, `entity_id`, `field_name`, `old_value`, `new_value`, `changed_by_user_id`, `reason`, `created_at`) '
-                . 'VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)',
-                [
-                    $entityType,
-                    (int) $entityId,
-                    $fieldName,
-                    $oldValue !== null ? (string) $oldValue : null,
-                    $newValue !== null ? (string) $newValue : null,
-                    $userId,
-                    $reason,
-                ]
-            );
-            return (int) Db::lastInsertId();
-        } catch (Throwable $e) {
-            // Fallback for drivers that don't accept CURRENT_TIMESTAMP directly in VALUES
-            Db::execute(
-                'INSERT INTO `correction` (`entity_type`, `entity_id`, `field_name`, `old_value`, `new_value`, `changed_by_user_id`, `reason`) '
-                . 'VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [
-                    $entityType,
-                    (int) $entityId,
-                    $fieldName,
-                    $oldValue !== null ? (string) $oldValue : null,
-                    $newValue !== null ? (string) $newValue : null,
-                    $userId,
-                    $reason,
-                ]
-            );
-            return (int) Db::lastInsertId();
-        }
+        Db::execute(
+            'INSERT INTO `correction` (`entity_type`, `entity_id`, `field_name`, `old_value`, `new_value`, `changed_by_user_id`, `reason`, `created_at`) '
+            . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [
+                $entityType,
+                (int) $entityId,
+                $fieldName,
+                $oldValue !== null ? (string) $oldValue : null,
+                $newValue !== null ? (string) $newValue : null,
+                $userId,
+                $reason,
+                $now,
+            ]
+        );
+        return (int) Db::lastInsertId();
     }
 
     /**

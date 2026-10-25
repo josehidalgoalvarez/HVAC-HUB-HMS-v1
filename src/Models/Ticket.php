@@ -247,7 +247,14 @@ class Ticket
         $priority = (string) ($data['priority'] ?? 'medium');
         $blockerReason = isset($data['blocker_reason']) ? (string) $data['blocker_reason'] : null;
         $assignedTechId = !empty($data['assigned_tech_id']) ? (int) $data['assigned_tech_id'] : null;
+        if ($assignedTechId !== null && !Db::fetchOne('SELECT id FROM users WHERE id = ?', [$assignedTechId])) {
+            $assignedTechId = null;
+        }
+
         $createdByUserId = $userId ?? (!empty($data['created_by_user_id']) ? (int) $data['created_by_user_id'] : null);
+        if ($createdByUserId !== null && !Db::fetchOne('SELECT id FROM users WHERE id = ?', [$createdByUserId])) {
+            $createdByUserId = null;
+        }
         $lastSeenInYardi = !empty($data['last_seen_in_yardi']) ? (string) $data['last_seen_in_yardi'] : null;
         $exteriorWork = !empty($data['exterior_work']) ? 1 : 0;
         $workExposure = in_array($data['work_exposure'] ?? '', ['indoor', 'exterior', 'exterior_ladder'], true)

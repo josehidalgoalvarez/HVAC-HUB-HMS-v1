@@ -122,10 +122,12 @@ class SOP
             ? $data['weather_warnings']
             : [];
 
+        $now = gmdate('Y-m-d H:i:s');
+
         // Insert run
         $sqlRun = 'INSERT INTO `sop_run` '
             . '(`sop_id`, `sop_version`, `sop_title`, `ticket_id`, `technician`, `started_at`, `finished_at`, `total_seconds`, `notes`, `acknowledged_gates`, `weather_warnings`, `created_at`) '
-            . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"))';
+            . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
         Db::execute($sqlRun, [
             $sop['id'],
@@ -139,6 +141,7 @@ class SOP
             $notes,
             json_encode($acknowledgedGates),
             json_encode($weatherWarnings),
+            $now,
         ]);
 
         $runId = (int) Db::lastInsertId();

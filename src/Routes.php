@@ -159,6 +159,18 @@ class Routes
             // PATCH /api/tickets/{id} (edits field, writes append-only correction row)
             $group->patch('/tickets/{id}', [TicketController::class, 'update']);
 
+            // DELETE /api/tickets/{id} (for testing cleanup: closes and archives test ticket)
+            $group->delete('/tickets/{id}', function (Request $request, Response $response, array $args): Response {
+                $id = (int) ($args['id'] ?? 0);
+                try {
+                    Db::execute("UPDATE ticket SET status = 'closed', title = CONCAT('[ARCHIVED] ', title), updated_at = CURRENT_TIMESTAMP WHERE id = ?", [$id]);
+                    Db::execute("UPDATE watch SET state = 'resolved', resolved_at = CURRENT_TIMESTAMP WHERE target_type = 'ticket' AND target_id = ?", [$id]);
+                    return Auth::jsonSuccess(['deleted' => true, 'id' => $id, 'status' => 'closed']);
+                } catch (\Throwable $e) {
+                    return Auth::jsonError('delete_failed', $e->getMessage(), 500);
+                }
+            });
+
             // POST /api/tickets/{id}/children (creates child ticket under parent)
             $group->post('/tickets/{id}/children', [TicketController::class, 'createChild']);
 
@@ -320,6 +332,100 @@ class Routes
 
             // --- Rain-Only Weather Signal ---
             $group->get('/weather/rain-check', [WeatherController::class, 'rainCheck']);
+
+            // --- Database Schema Migrations (Admin Gate) ---
+            $group->post('/admin/run-migrations', function (Request $request, Response $response): Response {
+                try {
+                    $pdo = Db::get();
+                    $messages = [];
+
+                    // 1. Notice updated_at
+                    try {
+                        $pdo->exec("ALTER TABLE `notice` ADD COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_at`");
+                        $messages[] = "Added notice.updated_at";
+                    } catch (\Throwable $e) {
+                        $messages[] = "notice.updated_at: " . $e->getMessage();
+                    }
+
+                    // 1b. Missing part columns from 006
+                    $partCols = [
+                        "ADD COLUMN `reorder_point` INT NOT NULL DEFAULT 1 AFTER `min_quantity`",
+                        "ADD COLUMN `compatible_models` JSON NULL AFTER `unit_cost`",
+                        "ADD COLUMN `price_history` JSON NULL AFTER `compatible_models`",
+                        "ADD COLUMN `stockpile_id` BIGINT UNSIGNED NULL AFTER `price_history`",
+                        "ADD COLUMN `preferred_supplier_id` BIGINT UNSIGNED NULL AFTER `stockpile_id`",
+                        "ADD COLUMN `is_reorder` TINYINT(1) NOT NULL DEFAULT 0 AFTER `preferred_supplier_id`",
+                    ];
+                    foreach ($partCols as $colSql) {
+                        try {
+                            $pdo->exec("ALTER TABLE `part` {$colSql}");
+                            $messages[] = "part col applied: {$colSql}";
+                        } catch (\Throwable $e) {
+                            $messages[] = "part col skipped: " . $e->getMessage();
+                        }
+                    }
+
+                    // 2. MaintainX external_ids & minimum
+                    try {
+                        $pdo->exec("ALTER TABLE `building` ADD COLUMN `external_id` VARCHAR(100) NULL AFTER `name`");
+                        $messages[] = "Added building.external_id";
+                    } catch (\Throwable $e) {
+                        $messages[] = "building.external_id: " . $e->getMessage();
+                    }
+
+                    try {
+                        $pdo->exec("ALTER TABLE `unit` ADD COLUMN `external_id` VARCHAR(100) NULL AFTER `unit_number`");
+                        $messages[] = "Added unit.external_id";
+                    } catch (\Throwable $e) {
+                        $messages[] = "unit.external_id: " . $e->getMessage();
+                    }
+
+                    try {
+                        $pdo->exec("ALTER TABLE `appliance` ADD COLUMN `external_id` VARCHAR(100) NULL AFTER `name`");
+                        $messages[] = "Added appliance.external_id";
+                    } catch (\Throwable $e) {
+                        $messages[] = "appliance.external_id: " . $e->getMessage();
+                    }
+
+                    try {
+                        $pdo->exec("ALTER TABLE `part_stockpile` ADD COLUMN `minimum` INT NOT NULL DEFAULT 1 AFTER `quantity`");
+                        $messages[] = "Added part_stockpile.minimum";
+                    } catch (\Throwable $e) {
+                        $messages[] = "part_stockpile.minimum: " . $e->getMessage();
+                    }
+
+                    // 3. Populate verified building external IDs
+                    $bUpdates = [
+                        'bd1719' => '1719 Bath Rd',
+                        'bd1721' => '1721 Bath Rd',
+                        'bd1723' => '1723 Bath Rd',
+                        'bd1725' => '1725 Bath Rd',
+                        'bd1727' => '1727 Bath Rd',
+                        'bd1731' => '1731 Bath Rd',
+                        'bd1733' => '1733 Bath Rd',
+                        'bd1737' => '1737 Bath Rd',
+                        'bd0505' => '505 Days Rd',
+                        'bd0507' => '507 Days Rd',
+                        'bd0509' => '509 Days Rd',
+                        'bd0511' => '511 Days Rd',
+                        '800prin' => '800 Princess Annex',
+                        '378alfr,alfr378' => '378 Alfred St',
+                        '394alfr,alfr394' => '394 Alfred St',
+                        '300skyf,sante' => '300 Skyfall Lane',
+                        'mn77a' => '77A Manitou Cres',
+                    ];
+
+                    foreach ($bUpdates as $extId => $name) {
+                        $stmt = $pdo->prepare("UPDATE building SET external_id = ? WHERE name = ?");
+                        $stmt->execute([$extId, $name]);
+                    }
+                    $messages[] = "Populated verified building external IDs";
+
+                    return Auth::jsonSuccess(['messages' => $messages]);
+                } catch (\Throwable $e) {
+                    return Auth::jsonError('migration_failed', $e->getMessage(), 500);
+                }
+            });
 
             // --- Complexes Domain (Task 1) ---
             $group->get('/complexes', function (Request $request, Response $response): Response {
@@ -708,6 +814,8 @@ class Routes
                             'failed_visits_count' => $failedCount,
                             'repeatAccessProblem' => ($failedCount >= 2),
                             'has_repeat_access_problem' => ($failedCount >= 2),
+                            'external_id' => $u['external_id'] ?? null,
+                            'externalId' => $u['external_id'] ?? null,
                         ];
                     }
                     $unitNumbers = array_column($units, 'unit_number');
@@ -737,6 +845,8 @@ class Routes
                         'responsibility' => $b['responsibility'] ?? 'internal',
                         'failedVisitsCount' => $bFailedCount,
                         'failed_visits_count' => $bFailedCount,
+                        'external_id' => $b['external_id'] ?? null,
+                        'externalId' => $b['external_id'] ?? null,
                         'createdAt' => $b['created_at'],
                     ];
                 }

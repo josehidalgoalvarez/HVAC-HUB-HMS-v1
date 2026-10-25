@@ -191,14 +191,17 @@ class Notice
                 ORDER BY 
                     CASE 
                         WHEN n.status = 'verified' THEN 3
-                        WHEN n.serve_by_deadline IS NOT NULL AND datetime(n.serve_by_deadline) < datetime('now') THEN 1
+                        WHEN n.serve_by_deadline IS NOT NULL AND n.serve_by_deadline < ? THEN 1
                         ELSE 2
                     END ASC,
                     n.serve_by_deadline ASC,
                     n.created_at DESC";
 
+        $now = gmdate('Y-m-d H:i:s');
+        $queryParams = array_merge([$now], $params);
+
         try {
-            $rows = Db::fetchAll($sql, $params);
+            $rows = Db::fetchAll($sql, $queryParams);
         } catch (Throwable) {
             // Fallback for simple schema
             $rows = Db::fetchAll("SELECT * FROM notice {$whereClause} ORDER BY id DESC", $params);

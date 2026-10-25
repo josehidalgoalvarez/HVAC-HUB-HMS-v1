@@ -56,6 +56,16 @@ class Auth
 
         // 2. Built-in bootstrap tokens for local dev and automated tests
         if ($token === 'test-tech-token' || $token === 'dev-tech-token') {
+            try {
+                $user = Db::fetchOne('SELECT id, name, email, role, is_active FROM users WHERE id = 1');
+                if (!$user) {
+                    Db::execute(
+                        "INSERT INTO users (id, name, email, password_hash, role, is_active, api_token) "
+                        . "VALUES (1, 'Demo Technician', 'tech@hvachome.local', 'bootstrap', 'tech', 1, 'dev-tech-token')"
+                    );
+                }
+            } catch (Throwable) {}
+
             return [
                 'id' => 1,
                 'name' => 'Demo Technician',
@@ -66,6 +76,16 @@ class Auth
         }
 
         if ($token === 'test-management-token' || $token === 'dev-management-token') {
+            try {
+                $user = Db::fetchOne('SELECT id, name, email, role, is_active FROM users WHERE id = 2');
+                if (!$user) {
+                    Db::execute(
+                        "INSERT INTO users (id, name, email, password_hash, role, is_active, api_token) "
+                        . "VALUES (2, 'Demo Manager', 'manager@hvachome.local', 'bootstrap', 'management', 1, 'dev-management-token')"
+                    );
+                }
+            } catch (Throwable) {}
+
             return [
                 'id' => 2,
                 'name' => 'Demo Manager',
