@@ -83,6 +83,7 @@ export interface HealthResult {
 export class ApiClient {
   private baseUrl: string;
   private readonly storageKey = 'auth_token';
+  private readonly userKey = 'auth_user';
 
   constructor(baseUrl?: string) {
     // Read from Vite env, fallback to provided or empty string (relative)
@@ -99,32 +100,38 @@ export class ApiClient {
   }
 
   public getToken(): string | null {
-    if (typeof window === 'undefined' || !window.sessionStorage) {
+    if (typeof window === 'undefined' || !window.localStorage) {
       return null;
     }
-    const stored = window.sessionStorage.getItem(this.storageKey);
-    if (stored) return stored;
-    // In local dev/preview on localhost, default to test-tech-token so the field tech app loads out-of-the-box
-    const host = window.location?.hostname;
-    if (host === 'localhost' || host === '127.0.0.1') {
-      return 'test-tech-token';
-    }
-    return null;
+    return window.localStorage.getItem(this.storageKey);
   }
 
   public setToken(token: string | null): void {
-    if (typeof window === 'undefined' || !window.sessionStorage) {
+    if (typeof window === 'undefined' || !window.localStorage) {
       return;
     }
     if (token) {
-      window.sessionStorage.setItem(this.storageKey, token);
+      window.localStorage.setItem(this.storageKey, token);
     } else {
-      window.sessionStorage.removeItem(this.storageKey);
+      window.localStorage.removeItem(this.storageKey);
     }
   }
 
   public clearToken(): void {
     this.setToken(null);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.removeItem(this.userKey);
+    }
+  }
+
+  public getUser(): { name?: string; email: string; role?: string } | null {
+    if (typeof window === 'undefined' || !window.localStorage) return null;
+    try {
+      const raw = window.localStorage.getItem(this.userKey);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
   }
 
   /**
@@ -211,7 +218,13 @@ export class ApiClient {
     if (response.status === 401) {
       const message = payload?.error?.message || 'Authentication required';
       const code = payload?.error?.code || 'unauthorized';
+      const hadSession = !!this.getToken();
       this.clearToken();
+      if (hadSession && typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('hvachome:unauthorized', {
+          detail: { message: 'Your session expired. Please sign in again.' },
+        }));
+      }
       throw new AuthError(message, code, 401);
     }
 
@@ -276,6 +289,9 @@ export class ApiClient {
     const result = await this.post<LoginResult>('/api/login', { email, password });
     if (result && result.token) {
       this.setToken(result.token);
+      if (typeof window !== 'undefined' && window.localStorage && result.user) {
+        window.localStorage.setItem(this.userKey, JSON.stringify(result.user));
+      }
     }
     return result;
   }
