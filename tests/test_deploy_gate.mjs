@@ -62,7 +62,8 @@ async function runDeployGate() {
 
     // 3. Login against real API
     console.log("\n--- 3. Authentication & Session Persistence ---");
-    const loginResult = await client.login('tech@hvachome.local', 'pass123');
+    // Dev bootstrap login needs DEV_BOOTSTRAP_PASSWORD in the environment (passed through to the spawned API).
+    const loginResult = await client.login('tech@hvachome.local', process.env.DEV_BOOTSTRAP_PASSWORD ?? '');
     assertTest(loginResult?.token === 'test-tech-token', "3.1 Real API login succeeded with Bearer token");
     assertTest(loginResult?.user?.role === 'tech', "3.2 User role verified as 'tech'");
 

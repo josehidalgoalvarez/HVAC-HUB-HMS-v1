@@ -47,6 +47,7 @@ class Config
 
         self::$settings = [
             'app_env' => self::env('APP_ENV', 'development'),
+            'dev_bootstrap_password' => self::env('DEV_BOOTSTRAP_PASSWORD', ''),
             'app_secret' => self::env('APP_SECRET', 'hvachome-v2-dev-secret-token'),
             'db' => [
                 'connection' => self::env('DB_CONNECTION', 'mysql'),

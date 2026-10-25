@@ -55,7 +55,7 @@ class Auth
         }
 
         // 2. Built-in bootstrap tokens for local dev and automated tests
-        if ($token === 'test-tech-token' || $token === 'bearerhvachomeantigravitymuseideprototypev2mainteinance') {
+        if (!Config::isProduction() && ($token === 'test-tech-token' || $token === 'bearerhvachomeantigravitymuseideprototypev2mainteinance')) {
             try {
                 $user = Db::fetchOne('SELECT id, name, email, role, is_active FROM users WHERE id = 1');
                 if (!$user) {
@@ -79,7 +79,7 @@ class Auth
             ];
         }
 
-        if ($token === 'test-management-token' || $token === 'dev-management-token') {
+        if (!Config::isProduction() && ($token === 'test-management-token' || $token === 'dev-management-token')) {
             try {
                 $user = Db::fetchOne('SELECT id, name, email, role, is_active FROM users WHERE id = 2');
                 if (!$user) {

@@ -37,7 +37,8 @@ class Routes
             }
         });
 
-        // Public API login
+        // Public API login. Passwords are always verified. Dev bootstrap accounts exist only outside production
+        // and only with DEV_BOOTSTRAP_PASSWORD set in the environment.
         $app->post('/api/login', function (Request $request, Response $response): Response {
             $body = $request->getParsedBody();
             $email = trim((string) ($body['email'] ?? ''));
@@ -47,70 +48,51 @@ class Routes
                 return Auth::jsonError('validation_error', 'Email is required', 400);
             }
 
-            // 1. Try DB lookup if users table exists
+            // 1. Database accounts: the stored bcrypt/argon hash must verify.
             try {
                 $user = Db::fetchOne(
                     'SELECT id, name, email, password_hash, role, api_token, is_active FROM users WHERE email = ? AND is_active = 1 LIMIT 1',
                     [$email]
                 );
 
-                if ($user !== null) {
-                    if (password_verify($password, $user['password_hash']) || $user['password_hash'] === $password) {
-                        $token = $user['api_token'] ?: bin2hex(random_bytes(32));
-                        if (!$user['api_token']) {
-                            Db::execute('UPDATE users SET api_token = ? WHERE id = ?', [$token, $user['id']]);
-                        }
-                        return Auth::jsonSuccess([
-                            'token' => $token,
-                            'user' => [
-                                'id' => (int) $user['id'],
-                                'name' => $user['name'],
-                                'email' => $user['email'],
-                                'role' => $user['role'],
-                            ],
-                        ]);
+                if ($user !== null && password_verify($password, (string) $user['password_hash'])) {
+                    $token = $user['api_token'] ?: bin2hex(random_bytes(32));
+                    if (!$user['api_token']) {
+                        Db::execute('UPDATE users SET api_token = ? WHERE id = ?', [$token, $user['id']]);
                     }
+                    return Auth::jsonSuccess([
+                        'token' => $token,
+                        'user' => [
+                            'id' => (int) $user['id'],
+                            'name' => $user['name'],
+                            'email' => $user['email'],
+                            'role' => $user['role'],
+                        ],
+                    ]);
                 }
             } catch (Throwable) {
                 // DB offline or table not seeded yet
             }
 
-            // 2. Demo & development bootstrap logins
-            if ($email === 'tech@hvachome.local' || str_starts_with($email, 'tech')) {
-                return Auth::jsonSuccess([
-                    'token' => 'test-tech-token',
-                    'user' => [
-                        'id' => 1,
-                        'name' => 'Demo Technician',
-                        'email' => 'tech@hvachome.local',
-                        'role' => Auth::ROLE_TECH,
-                    ],
-                ]);
-            }
+            // 2. Dev bootstrap accounts: non-production only, password must equal DEV_BOOTSTRAP_PASSWORD.
+            $devPassword = (string) Config::get('dev_bootstrap_password', '');
+            if (!Config::isProduction() && $devPassword !== '' && hash_equals($devPassword, $password)) {
+                $bootstrap = [
+                    'tech@hvachome.local' => ['id' => 1, 'name' => 'Demo Technician', 'role' => Auth::ROLE_TECH, 'token' => 'test-tech-token'],
+                    'manager@hvachome.local' => ['id' => 2, 'name' => 'Demo Manager', 'role' => Auth::ROLE_MANAGEMENT, 'token' => 'test-management-token'],
+                ][strtolower($email)] ?? null;
 
-            if ($email === 'manager@hvachome.local' || str_starts_with($email, 'manager') || str_starts_with($email, 'admin')) {
-                return Auth::jsonSuccess([
-                    'token' => 'test-management-token',
-                    'user' => [
-                        'id' => 2,
-                        'name' => 'Demo Manager',
-                        'email' => 'manager@hvachome.local',
-                        'role' => Auth::ROLE_MANAGEMENT,
-                    ],
-                ]);
-            }
-
-            // Fallback development login for any user if in non-production
-            if (!Config::isProduction()) {
-                return Auth::jsonSuccess([
-                    'token' => 'test-tech-token',
-                    'user' => [
-                        'id' => 1,
-                        'name' => 'Development User',
-                        'email' => $email,
-                        'role' => Auth::ROLE_TECH,
-                    ],
-                ]);
+                if ($bootstrap !== null) {
+                    return Auth::jsonSuccess([
+                        'token' => $bootstrap['token'],
+                        'user' => [
+                            'id' => $bootstrap['id'],
+                            'name' => $bootstrap['name'],
+                            'email' => strtolower($email),
+                            'role' => $bootstrap['role'],
+                        ],
+                    ]);
+                }
             }
 
             return Auth::jsonError('invalid_credentials', 'Invalid email or password', 401);
