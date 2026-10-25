@@ -161,7 +161,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
   return (
     <div className="max-w-xl mx-auto px-4 py-4 space-y-4 pb-32 pb-safe animate-fadeIn text-brand-black dark:text-white">
       {/* Top Header Bar */}
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           {onBack && (
             <button
@@ -181,11 +181,11 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             id="transfer-stock-btn"
             onClick={() => setIsTransferStockOpen(true)}
-            className="min-h-[44px] px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-brand-black dark:text-white font-bold text-xs flex items-center gap-1.5 border border-gray-200 dark:border-gray-700 active:scale-95 transition-all"
+            className="flex-1 sm:flex-none min-h-[44px] px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-brand-black dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-gray-200 dark:border-gray-700 active:scale-95 transition-all"
             title="Transfer Stock Between Stockpiles"
           >
             <span className="material-symbols-outlined text-[18px] text-primary">move_down</span>
@@ -195,7 +195,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
           <button
             id="add-part-btn"
             onClick={() => setIsAddPartOpen(true)}
-            className="min-h-[44px] px-3.5 py-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+            className="flex-1 sm:flex-none min-h-[44px] px-3.5 py-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
             title="Add Part to Stash"
           >
             <span className="material-symbols-outlined text-[18px]">add</span>
@@ -205,7 +205,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
           <button
             onClick={loadPartsData}
             disabled={loading}
-            className="w-11 h-11 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+            className="w-11 h-11 shrink-0 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
             title="Refresh Catalog"
           >
             <span className={`material-symbols-outlined text-[18px] ${loading ? 'animate-spin' : ''}`}>sync</span>
