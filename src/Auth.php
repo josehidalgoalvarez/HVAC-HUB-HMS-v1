@@ -55,13 +55,17 @@ class Auth
         }
 
         // 2. Built-in bootstrap tokens for local dev and automated tests
-        if ($token === 'test-tech-token' || $token === 'dev-tech-token') {
+        if ($token === 'test-tech-token' || $token === 'bearerhvachomeantigravitymuseideprototypev2mainteinance') {
             try {
                 $user = Db::fetchOne('SELECT id, name, email, role, is_active FROM users WHERE id = 1');
                 if (!$user) {
                     Db::execute(
                         "INSERT INTO users (id, name, email, password_hash, role, is_active, api_token) "
-                        . "VALUES (1, 'Demo Technician', 'tech@hvachome.local', 'bootstrap', 'tech', 1, 'dev-tech-token')"
+                        . "VALUES (1, 'Demo Technician', 'tech@hvachome.local', 'bootstrap', 'tech', 1, 'bearerhvachomeantigravitymuseideprototypev2mainteinance')"
+                    );
+                } else {
+                    Db::execute(
+                        "UPDATE users SET api_token = 'bearerhvachomeantigravitymuseideprototypev2mainteinance' WHERE id = 1"
                     );
                 }
             } catch (Throwable) {}
