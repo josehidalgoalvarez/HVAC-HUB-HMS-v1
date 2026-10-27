@@ -57,8 +57,8 @@ if ($furnace) {
         $failures
     );
     assertTest(
-        count($furnace['steps']) === 3,
-        "2.5 Gas furnace has 3 placeholder steps",
+        count($furnace['steps']) === 74,
+        "2.5 Gas furnace has Jose's 74 procedure steps (migration 037)",
         $passes,
         $failures
     );
