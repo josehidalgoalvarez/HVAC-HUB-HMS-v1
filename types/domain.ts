@@ -936,6 +936,7 @@ export interface SOPStep {
   position: number;
   instruction: string;
   est_minutes?: number | null;
+  phase?: string | null;
   todo_verify: number | boolean;
 }
 

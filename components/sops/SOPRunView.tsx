@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { apiClient } from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { SEED_SOPS } from '../../sop_constants';
-import type { SOP, SOPRun, SOPRunStep, Ticket } from '../../types/domain';
+import type { SOP, SOPRun, SOPRunStep, SOPStep, Ticket } from '../../types/domain';
 
 interface SOPRunViewProps {
   sopId: string;
@@ -21,6 +21,29 @@ interface StepTimerState {
   deviation: boolean;
   completed: boolean;
 }
+
+interface PhaseGroup {
+  label: string;
+  indices: number[];
+}
+
+// Consecutive steps that share a phase form one group; steps without a phase go under "Steps".
+const groupStepsByPhase = (steps: SOPStep[]): PhaseGroup[] => {
+  const groups: PhaseGroup[] = [];
+  steps.forEach((st, idx) => {
+    const label = st.phase || 'Steps';
+    const last = groups[groups.length - 1];
+    if (last && last.label === label) {
+      last.indices.push(idx);
+    } else {
+      groups.push({ label, indices: [idx] });
+    }
+  });
+  return groups;
+};
+
+const shortPhaseLabel = (label: string): string => (label.includes(':') ? label.split(':')[0] : label);
+const phaseTitle = (label: string): string => (label.includes(':') ? label.slice(label.indexOf(':') + 1).trim() : label);
 
 export const SOPRunView: React.FC<SOPRunViewProps> = ({
   sopId,
@@ -49,6 +72,14 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
   const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   const activeStepStartTimeRef = useRef<number>(Date.now());
+
+  // One phase open at a time. During the run the open phase follows the current step; in review the technician picks.
+  const [openPhase, setOpenPhase] = useState<string | null>(null);
+  const [reviewOpenPhase, setReviewOpenPhase] = useState<string | null>(null);
+  const currentStepPhase = sop?.steps?.[currentStepIdx]?.phase ?? null;
+  useEffect(() => {
+    setOpenPhase(currentStepPhase);
+  }, [currentStepPhase]);
 
   // Load SOP and optional ticket
   useEffect(() => {
@@ -146,6 +177,8 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
   }
 
   const steps = sop.steps || [];
+  const phaseGroups = groupStepsByPhase(steps);
+  const reviewPhase = reviewOpenPhase ?? phaseGroups[phaseGroups.length - 1]?.label ?? null;
   const complianceGates = sop.compliance_gates || [];
   const allGatesAcknowledged = complianceGates.every((g) => acknowledgedGates[g.id]);
 
@@ -594,69 +627,112 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
           </div>
         </div>
 
-        {/* Step Progress Checklist */}
+        {/* Phases: one phase open at a time */}
         <div className="bg-white dark:bg-card-dark rounded-2xl p-4 border border-gray-100 dark:border-gray-800 space-y-3 shadow-xs">
           <h3 className="text-xs font-bold text-brand-black dark:text-white uppercase tracking-wider">
-            All Steps Checklist
+            Phases
           </h3>
           <div className="space-y-2">
-            {steps.map((st, idx) => {
-              const state = stepStates[idx];
-              const isCurrent = idx === currentStepIdx;
-              const isDone = state?.completed;
-
+            {phaseGroups.map((group) => {
+              const open = group.label === openPhase;
+              const doneCount = group.indices.filter((i) => stepStates[i]?.completed).length;
+              const holdsCurrent = group.indices.includes(currentStepIdx);
               return (
                 <div
-                  key={st.position}
-                  className={`p-3 rounded-xl border flex items-center justify-between gap-3 text-xs ${
-                    isCurrent
-                      ? 'bg-primary/5 border-primary/40 ring-1 ring-primary/20'
-                      : isDone
-                      ? 'bg-emerald-500/5 border-emerald-500/20'
-                      : 'bg-gray-50 dark:bg-neutral-800/60 border-gray-100 dark:border-gray-800 text-gray-400'
+                  key={group.label}
+                  className={`rounded-xl border ${
+                    holdsCurrent ? 'border-primary/40' : 'border-gray-100 dark:border-gray-800'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div
-                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                        isDone
-                          ? 'bg-emerald-500 text-white'
-                          : isCurrent
-                          ? 'bg-primary text-white'
-                          : 'bg-gray-200 dark:bg-neutral-700 text-gray-500'
-                      }`}
-                    >
-                      {isDone ? (
-                        <span className="material-symbols-outlined text-sm">check</span>
-                      ) : (
-                        st.position
-                      )}
+                  <button
+                    type="button"
+                    aria-expanded={open}
+                    onClick={() => setOpenPhase(open ? null : group.label)}
+                    className="w-full min-h-[44px] p-3 flex items-center justify-between gap-3 text-left"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                        {shortPhaseLabel(group.label)}
+                      </p>
+                      <p className="text-xs font-semibold text-brand-black dark:text-white truncate">
+                        {phaseTitle(group.label)}
+                      </p>
                     </div>
-                    <span
-                      className={`truncate ${
-                        isDone
-                          ? 'text-gray-600 dark:text-gray-300 line-through'
-                          : isCurrent
-                          ? 'font-bold text-brand-black dark:text-white'
-                          : 'text-gray-500'
-                      }`}
-                    >
-                      {st.instruction}
-                    </span>
-                  </div>
+                    <div className="shrink-0 flex items-center gap-2 text-[11px] font-mono text-gray-500">
+                      <span>
+                        {doneCount}/{group.indices.length}
+                      </span>
+                      <span className="material-symbols-outlined text-gray-400" aria-hidden="true">
+                        {open ? 'expand_less' : 'expand_more'}
+                      </span>
+                    </div>
+                  </button>
 
-                  <div className="shrink-0 flex items-center gap-2">
-                    {state?.deviation && (
-                      <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-amber-500/10 text-amber-600 border border-amber-500/20">
-                        Deviation
-                      </span>
-                    )}
-                    {state?.durationSeconds ? (
-                      <span className="text-[11px] font-mono text-gray-400">
-                        {formatTime(state.durationSeconds)}
-                      </span>
-                    ) : null}
-                  </div>
+                  {open && (
+                    <div className="p-2 pt-0 space-y-2">
+                      {group.indices.map((idx) => {
+                        const st = steps[idx];
+                        const state = stepStates[idx];
+                        const isCurrent = idx === currentStepIdx;
+                        const isDone = state?.completed;
+
+                        return (
+                          <div
+                            key={st.position}
+                            className={`p-3 rounded-xl border flex items-center justify-between gap-3 text-xs ${
+                              isCurrent
+                                ? 'bg-primary/5 border-primary/40 ring-1 ring-primary/20'
+                                : isDone
+                                ? 'bg-emerald-500/5 border-emerald-500/20'
+                                : 'bg-gray-50 dark:bg-neutral-800/60 border-gray-100 dark:border-gray-800 text-gray-400'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div
+                                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                                  isDone
+                                    ? 'bg-emerald-500 text-white'
+                                    : isCurrent
+                                    ? 'bg-primary text-white'
+                                    : 'bg-gray-200 dark:bg-neutral-700 text-gray-500'
+                                }`}
+                              >
+                                {isDone ? (
+                                  <span className="material-symbols-outlined text-sm">check</span>
+                                ) : (
+                                  st.position
+                                )}
+                              </div>
+                              <span
+                                className={`truncate ${
+                                  isDone
+                                    ? 'text-gray-600 dark:text-gray-300 line-through'
+                                    : isCurrent
+                                    ? 'font-bold text-brand-black dark:text-white'
+                                    : 'text-gray-500'
+                                }`}
+                              >
+                                {st.instruction}
+                              </span>
+                            </div>
+
+                            <div className="shrink-0 flex items-center gap-2">
+                              {state?.deviation && (
+                                <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                                  Deviation
+                                </span>
+                              )}
+                              {state?.durationSeconds ? (
+                                <span className="text-[11px] font-mono text-gray-400">
+                                  {formatTime(state.durationSeconds)}
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -711,39 +787,69 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
           </div>
         </div>
 
-        {/* Per-step table */}
-        <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-1.5">
-          {steps.map((st, idx) => {
-            const state = stepStates[idx];
+        {/* Per-step table, grouped by phase; one phase open at a time */}
+        <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-2">
+          {phaseGroups.map((group) => {
+            const open = group.label === reviewPhase;
+            const phaseSeconds = group.indices.reduce((sum, i) => sum + (stepStates[i]?.durationSeconds || 0), 0);
             return (
-              <div
-                key={st.position}
-                className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs gap-2"
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="w-5 h-5 rounded bg-emerald-500/10 text-emerald-600 font-bold text-[10px] flex items-center justify-center shrink-0">
-                    {st.position}
+              <div key={group.label} className="rounded-xl border border-gray-100 dark:border-gray-800">
+                <button
+                  type="button"
+                  aria-expanded={open}
+                  onClick={() => setReviewOpenPhase(open ? null : group.label)}
+                  className="w-full min-h-[44px] p-2.5 flex items-center justify-between gap-2 text-left text-xs"
+                >
+                  <span className="font-bold text-brand-black dark:text-white truncate">
+                    {shortPhaseLabel(group.label)} · {phaseTitle(group.label)}
                   </span>
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold text-brand-black dark:text-white">
-                      {st.instruction}
-                    </p>
-                    {state?.note && (
-                      <p className="text-[10px] text-gray-500 italic truncate">Note: {state.note}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="shrink-0 flex items-center gap-2">
-                  {state?.deviation && (
-                    <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-amber-500/10 text-amber-600 border border-amber-500/20">
-                      Deviation
+                  <span className="shrink-0 flex items-center gap-2 font-mono text-gray-500">
+                    {formatTime(phaseSeconds)}
+                    <span className="material-symbols-outlined text-gray-400" aria-hidden="true">
+                      {open ? 'expand_less' : 'expand_more'}
                     </span>
-                  )}
-                  <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300">
-                    {formatTime(state?.durationSeconds || 0)}
                   </span>
-                </div>
+                </button>
+
+                {open && (
+                  <div className="p-2 pt-0 space-y-1.5">
+                    {group.indices.map((idx) => {
+                      const st = steps[idx];
+                      const state = stepStates[idx];
+                      return (
+                        <div
+                          key={st.position}
+                          className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs gap-2"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="w-5 h-5 rounded bg-emerald-500/10 text-emerald-600 font-bold text-[10px] flex items-center justify-center shrink-0">
+                              {st.position}
+                            </span>
+                            <div className="min-w-0">
+                              <p className="truncate font-semibold text-brand-black dark:text-white">
+                                {st.instruction}
+                              </p>
+                              {state?.note && (
+                                <p className="text-[10px] text-gray-500 italic truncate">Note: {state.note}</p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="shrink-0 flex items-center gap-2">
+                            {state?.deviation && (
+                              <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                                Deviation
+                              </span>
+                            )}
+                            <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300">
+                              {formatTime(state?.durationSeconds || 0)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           })}

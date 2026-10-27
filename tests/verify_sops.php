@@ -62,6 +62,13 @@ if ($furnace) {
         $passes,
         $failures
     );
+    $phaseCounts = array_count_values(array_column($furnace['steps'], 'phase'));
+    assertTest(
+        array_values($phaseCounts) === [10, 12, 11, 11, 18, 12],
+        "2.7 Steps are grouped into the six procedure phases (10/12/11/11/18/12)",
+        $passes,
+        $failures
+    );
 
     // Verify compliance gates
     $gates = $furnace['compliance_gates'];

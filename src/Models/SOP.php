@@ -64,6 +64,7 @@ class SOP
                 'position' => (int) $s['position'],
                 'instruction' => $s['instruction'],
                 'est_minutes' => $s['est_minutes'] !== null ? (int) $s['est_minutes'] : null,
+                'phase' => $s['phase'] ?? null,
                 'todo_verify' => (int) $s['todo_verify'],
             ];
         }
