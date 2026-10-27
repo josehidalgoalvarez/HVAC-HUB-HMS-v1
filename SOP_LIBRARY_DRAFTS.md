@@ -16,7 +16,7 @@ Rules applied to every draft:
 
 ## Caveat on WO identifiers
 
-Eight of the 21 tickets carry test-style identifiers: `WO-E2E-101`, `WO-E2E-102`, `WO-E2E-201`, `WO-E2E-301`, `WO-E2E-302`, `WO-E2E-SW1`, `WO-E2E-SW2`, and `WO-E2E-SW3`. Their titles and scope text read like field work, but the identifiers look like test fixtures. They are cited below and marked **(E2E ID)**. Jose should confirm each one is real field work before the drafts are used.
+Eight of the 21 tickets carry test-style identifiers: `WO-E2E-101`, `WO-E2E-102`, `WO-E2E-201`, `WO-E2E-301`, `WO-E2E-302`, `WO-E2E-SW1`, `WO-E2E-SW2`, and `WO-E2E-SW3`. The repo's own end-to-end tests create these identifiers: `tests/test_phase2_e2e.mjs` (101, 201, 301) and `tests/test_phase4_e2e.mjs` (SW1, SW2, SW3). `tests/verify_ticket_portfolio_reconciliation.php` and `cli/seed_portfolio.php` also list them. So they are most likely test fixtures, not field work orders. They are cited below and marked **(E2E ID)**. SOP-D rests entirely on them, and SOP-A rests on WO-E2E-302 for its main steps. Jose must confirm these are real jobs, or drop those drafts, before use.
 
 ## Patterns found
 
@@ -39,7 +39,7 @@ Not drafted:
 
 ## SOP-A: Condensate and drain line clearing
 
-Status: DRAFT — derived from WOs WO-E2E-302 (E2E ID), ticket 10 (no WO#), and the 1731/1733 drain stack note; awaiting Jose's correction.
+Status: DRAFT — derived from WO-E2E-302 (E2E ID, likely test fixture), ticket 10 (no WO#), and the 1731/1733 drain stack note; awaiting Jose's correction.
 
 When it applies:
 - Symptom: AC leaking water (ticket 10: "AC leaking water at 509 Frontenac St unit 204").
@@ -135,7 +135,7 @@ What NOT to do:
 
 ## SOP-D: Stove infinite switch replacement (WB24T10025)
 
-Status: DRAFT — derived from WOs WO-E2E-SW1, WO-E2E-SW2, WO-E2E-SW3 (all E2E IDs) and the 137 Amherst range note; awaiting Jose's correction.
+Status: DRAFT — derived from WOs WO-E2E-SW1, WO-E2E-SW2, WO-E2E-SW3 (all E2E IDs, likely test fixtures) and the 137 Amherst range note; awaiting Jose's correction. Do not use until Jose confirms the WOs are real.
 
 When it applies:
 - Burner infinite switch clicking (WO-E2E-SW1, 1719-273, unit 326).
@@ -226,43 +226,43 @@ What NOT to do:
 **Condensate or drain blockage**
 - Symptom: AC leaking water; attic condensate clog.
 - Cause (evidenced): main trap clog (WO-E2E-302); recurring stack blockage at 1731/1733.
-- Jose did: drain auger on the main trap, then contactor (WO-E2E-302).
+- WO scope: drain auger on the main trap, then contactor (WO-E2E-302). Completion not recorded.
 - Check first: trap and drain line access; ladder for attic work.
 
 **Water heater tee leak, ECO trips, scaled element**
 - Symptom: weeping tee, ECO trips every few days.
 - Cause (evidenced): scaled lower element (WO-20316).
-- Jose did: element, gasket, upper and lower thermostats, tee tightened (WO-20316).
+- WO scope: element, gasket, upper and lower thermostats, tee tightened (WO-20316). Status verified; work not itemized.
 - Check first: which heaters in the 1721 bank are in service (3 of 7).
 
 **Shorted element, breaker trip**
 - Symptom: breaker trips.
 - Cause (evidenced): lower element shorted to ground (WO-FIELD-900).
-- Jose did: trip breaker recorded; status done (WO-FIELD-900).
+- WO record: breaker trip; status done (WO-FIELD-900).
 - Check first: breaker, then ground fault on the lower element.
 
 **Burner switch failures**
 - Symptom: clicking; burner stuck on max heat; open front element.
-- Cause (evidenced): frozen contacts and open circuit on WB24T10025-type switches (WO-E2E-SW1, SW2, SW3).
-- Jose did: `[JOSE: confirm]`. WOs are open or in progress.
+- WO record: switch clicking, contacts frozen, open circuit on front element, each with a WB24T10025 switch named (WO-E2E-SW1, SW2, SW3). Cause not confirmed in the WOs.
+- Work done: `[JOSE: confirm]`. WO statuses are in-progress, new, new.
 - Check first: model number; never use a white-stove donor switch on a gray Frigidaire.
 
 **Blower squeal or vibration**
 - Symptom: high-pitch squeal and vibration.
 - Cause (evidenced): seized bearings (WO-INTAKE-202).
-- Jose did: replace 1/2 HP blower motor and run capacitor (WO-INTAKE-202; ticket 3).
+- WO scope: replace 1/2 HP blower motor and run capacitor (WO-INTAKE-202; ticket 3). Completion not recorded.
 - Check first: capacitor rating and motor fit before ordering `[JOSE: confirm]` (motor fit is not in any source).
 
 **Freezer noise**
 - Symptom: recurring freezer noise (505-103).
 - Cause: `[JOSE: confirm]`. Not evidenced beyond the complaint.
-- Jose did: inspection scope set (WO-19255).
+- WO scope: inspect evaporator fan motor and compressor mounting grommets (WO-19255).
 - Check first: evaporator fan motor and compressor mounting grommets.
 
 **Entry and notice**
-- Symptom: entry needed; tenant has not been contacted.
+- Symptom: work that needs unit entry.
 - Cause (evidenced): 24h gate on entry (WO-NOTICE-2026; CLAUDE.md rule 5).
-- Jose did: notice flagged on WO-NOTICE-2026; tenant called first on WO-19255.
+- WO record: notice_needed set (WO-NOTICE-2026); tenant called first (WO-19255).
 - Check first: notice sent time and sender; hold status on the ticket.
 
 ---
@@ -295,11 +295,13 @@ Count: 27 markers across the drafts and common-problem notes. Listed by section 
 - **SOP-E: Blower motor and run capacitor swap**: wiring, test run, and verification
 - **SOP-E: Blower motor and run capacitor swap**: None evidenced
 - **SOP-F: Entry and 24h notice coordination**: who sends the notice. CLAUDE.md rule 5 says the team does not draft or send 24h notices, so the sender is not 
-- **Common problems**: WOs are open or in progress
+- **Common problems**: WO statuses are in-progress, new, new
 - **Common problems**: motor fit is not in any source
 - **Common problems**: Not evidenced beyond the complaint
 
 Verification summary:
-- Every tool, part, and step traces to a cited WO, note, or CLAUDE.md rule.
+- Every WO number and key phrase in the drafts was checked against the in-repo sources (migration 030, residential_constants.tsx, cli/seed_portfolio.php). All traced.
+- The WO-E2E identifiers are created by repo test files, so SOP-D and the E2E-based parts of SOP-A need Jose's confirmation before use.
+- Common-problem notes describe WO scope and status, not completed work, unless the WO records completion.
 - Unevidenced items are marked `[JOSE: confirm]`.
 - No model numbers, serials, or measurements were added beyond those in the sources.
