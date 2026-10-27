@@ -986,3 +986,13 @@ export interface SOPRun {
   steps?: SOPRunStep[];
 }
 
+export interface FieldNote {
+  id: string;
+  title: string;
+  applies_to: string;
+  symptoms: string[];
+  checks: string[];
+  wo_citations: string[];
+  todo_verify: number | boolean;
+  source_note?: string | null;
+}
