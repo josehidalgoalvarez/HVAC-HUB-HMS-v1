@@ -30,6 +30,7 @@ const PartsView = React.lazy(() => import('./parts/PartsView'));
 const WatchesView = React.lazy(() => import('./watches/WatchesView'));
 const SOPListView = React.lazy(() => import('./sops/SOPListView').then(m => ({ default: m.SOPListView })));
 const SOPRunView = React.lazy(() => import('./sops/SOPRunView').then(m => ({ default: m.SOPRunView })));
+const InsightsView = React.lazy(() => import('./insights/InsightsView').then(m => ({ default: m.InsightsView })));
 
 // Note: Ensure PropertyDetailView is the correct new component. 
 // Since we have a duplicate file issue, we are importing from './properties/PropertyDetailView' explicitly.
@@ -211,6 +212,10 @@ const Router: React.FC<RouterProps> = ({
           onBack={() => setActiveView(ViewType.PROPERTIES)}
           initialSelectedTicketId={selectedTicketId}
           onOpenWatches={() => setActiveView(ViewType.WATCHES)}
+          onOpenInsights={() => {
+            setPreviousView(ViewType.TICKETS);
+            setActiveView(ViewType.INSIGHTS);
+          }}
           onRunSop={(ticketId, sopId) => {
             setSelectedTicketId(ticketId);
             if (sopId) setSelectedSopId(sopId);
@@ -274,6 +279,19 @@ const Router: React.FC<RouterProps> = ({
       return (
         <WatchesView
           onBack={() => setActiveView(ViewType.PROPERTIES)}
+        />
+      );
+
+    case ViewType.INSIGHTS:
+      return (
+        <InsightsView
+          onBack={() => {
+            if (previousView) {
+              setActiveView(previousView);
+            } else {
+              setActiveView(ViewType.TICKETS);
+            }
+          }}
         />
       );
 
