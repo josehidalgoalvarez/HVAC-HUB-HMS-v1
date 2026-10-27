@@ -12,6 +12,7 @@ interface TicketListViewProps {
   onBack?: () => void;
   initialSelectedTicketId?: string | null;
   onOpenWatches?: () => void;
+  onOpenInsights?: () => void;
   onRunSop?: (ticketId: string, sopId?: string) => void;
 }
 
@@ -19,6 +20,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   onBack,
   initialSelectedTicketId = null,
   onOpenWatches,
+  onOpenInsights,
   onRunSop,
 }) => {
   const fetchTickets = useCallback(() => apiClient.getTickets(), []);
@@ -147,6 +149,17 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5">
+          {onOpenInsights && (
+            <button
+              id="open-insights-btn"
+              onClick={onOpenInsights}
+              className="min-h-[44px] px-3 py-2 rounded-xl bg-white dark:bg-card-dark text-brand-black dark:text-white hover:border-primary/50 text-xs font-bold flex items-center gap-1.5 border border-gray-200 dark:border-gray-800 transition-colors shadow-2xs"
+              title="View Insights"
+            >
+              <span className="material-symbols-outlined text-[16px] text-primary">insights</span>
+              Insights
+            </button>
+          )}
           {onOpenWatches && (
             <button
               id="open-watches-btn"
