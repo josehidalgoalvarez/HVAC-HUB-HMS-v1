@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateTime } from '../../../utils/dateUtils';
 import { ChangeLogEntry } from '../../../types';
 
 interface ActivityLogSectionProps {
@@ -27,7 +28,7 @@ export const ActivityLogSection: React.FC<ActivityLogSectionProps> = ({ logs }) 
                                             {(log.action || '').replace('_', ' ')}
                                         </p>
                                         <p className="text-[10px] text-gray-400">
-                                            {new Date(log.timestamp).toLocaleDateString()} {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {formatDateTime(log.timestamp)}
                                         </p>
                                     </div>
                                     <p className="text-sm font-medium text-brand-black dark:text-white truncate">{log.entityName}</p>

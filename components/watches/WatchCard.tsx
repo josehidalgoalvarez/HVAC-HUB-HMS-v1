@@ -1,5 +1,6 @@
 import React from 'react';
 import type { WatchRecord, WatchType, WatchState } from '../../types/domain';
+import { formatDateTime, formatTime } from '../../utils/dateUtils';
 
 interface WatchCardProps {
   watch: WatchRecord;
@@ -162,15 +163,15 @@ export const WatchCard: React.FC<WatchCardProps> = ({
       {isSnoozed && watch.snoozed_until && (
         <div className="mt-2 mb-3 p-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2">
           <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-sm leading-none">snooze</span>
-          <span>Silenced until: <strong>{new Date(watch.snoozed_until).toLocaleString()}</strong></span>
+          <span>Silenced until: <strong>{formatDateTime(watch.snoozed_until)}</strong></span>
         </div>
       )}
 
       {/* Timestamps Row */}
       <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-800 mb-3">
-        <span>Evaluated: {watch.last_evaluated_at ? new Date(watch.last_evaluated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Pending'}</span>
+        <span>Evaluated: {watch.last_evaluated_at ? formatTime(watch.last_evaluated_at) : 'Pending'}</span>
         {watch.last_triggered_at && (
-          <span>Triggered: {new Date(watch.last_triggered_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          <span>Triggered: {formatTime(watch.last_triggered_at)}</span>
         )}
       </div>
 

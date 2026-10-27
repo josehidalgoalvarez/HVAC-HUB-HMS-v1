@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Ticket, TicketState } from '../../types/domain';
 import { getUnitContextChips } from '../../utils/unitContextUtils';
+import { formatAge } from '../../utils/dateUtils';
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -14,29 +15,6 @@ export const TicketCard: React.FC<TicketCardProps> = ({
   onQuickStateChange,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  // Format creation / relative age
-  const formatAge = (dateStr?: string | null): string => {
-    if (!dateStr) return '';
-    try {
-      const date = new Date(dateStr);
-      if (isNaN(date.getTime())) return '';
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      if (diffMs < 0) return 'Just now';
-      const diffMinutes = Math.floor(diffMs / (1000 * 60));
-      if (diffMinutes < 60) return `${Math.max(1, diffMinutes)}m ago`;
-      const diffHours = Math.floor(diffMinutes / 60);
-      if (diffHours < 24) return `${diffHours}h ago`;
-      const diffDays = Math.floor(diffHours / 24);
-      if (diffDays < 7) return `${diffDays}d ago`;
-      const diffWeeks = Math.floor(diffDays / 7);
-      if (diffWeeks < 4) return `${diffWeeks}w ago`;
-      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-    } catch {
-      return '';
-    }
-  };
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {

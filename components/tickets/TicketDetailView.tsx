@@ -15,6 +15,7 @@ import type {
   SOPRun,
 } from '../../types/domain';
 import { getUnitContextChips } from '../../utils/unitContextUtils';
+import { parseDate, formatDateTime, formatTime, formatDate } from '../../utils/dateUtils';
 
 const formatRunDuration = (totalSeconds: number): string => {
   const safe = Math.max(0, Math.round(totalSeconds || 0));
@@ -27,9 +28,7 @@ const formatRunDuration = (totalSeconds: number): string => {
 };
 
 const formatRunDate = (iso: string): string => {
-  const d = new Date(iso.replace(' ', 'T'));
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+  return formatDateTime(iso, { dateStyle: 'medium', timeStyle: 'short' }) || iso;
 };
 
 interface TicketDetailViewProps {
@@ -490,7 +489,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         description: ticket.title,
         status: 'Active in Yardi',
       });
-      setSightingSuccessMsg(`Yardi sighting stamped at ${new Date(res.sighted_at).toLocaleTimeString()}`);
+      setSightingSuccessMsg(`Yardi sighting stamped at ${formatTime(res.sighted_at)}`);
       await loadTicketData();
       setTimeout(() => setSightingSuccessMsg(null), 4000);
     } catch (err: unknown) {
@@ -661,7 +660,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         ) : (
           <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
             {ticket.last_seen_in_yardi
-              ? `Last verified in Yardi: ${new Date(ticket.last_seen_in_yardi).toLocaleString()}`
+              ? `Last verified in Yardi: ${formatDateTime(ticket.last_seen_in_yardi)}`
               : 'Status: Not yet seen in Yardi'}
           </p>
         )}
@@ -697,11 +696,12 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
               cleared: false,
             };
           } else {
-            const sentTime = new Date(noticeSentAt).getTime();
+            const parsedSent = parseDate(noticeSentAt);
+            const sentTime = parsedSent ? parsedSent.getTime() : NaN;
             if (!isNaN(sentTime)) {
               const hoursElapsed = (Date.now() - sentTime) / (1000 * 60 * 60);
               const validFrom = new Date(sentTime + 24 * 60 * 60 * 1000);
-              const validFromFormatted = validFrom.toLocaleString([], {
+              const validFromFormatted = formatDateTime(validFrom, {
                 dateStyle: 'short',
                 timeStyle: 'short',
               });
@@ -808,7 +808,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                         <div className="flex items-center gap-1.5 text-xs font-bold text-brand-black dark:text-white">
                           <span className="material-symbols-outlined text-sm text-emerald-500">check_circle</span>
                           <span>
-                            Sent — {new Date(noticeSentAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })} — confirmed by <span className="text-primary">{noticeConfirmedBy || 'Management'}</span>
+                            Sent — {formatDateTime(noticeSentAt, { dateStyle: 'short', timeStyle: 'short' })} — confirmed by <span className="text-primary">{noticeConfirmedBy || 'Management'}</span>
                           </span>
                         </div>
                         <p className="text-[11px] text-gray-500 pl-5">
@@ -1192,7 +1192,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     <span>Supplier: <strong className="text-brand-black dark:text-white">{p.supplier}</strong></span>
                     {p.order_ref && <span>Ref: <strong className="font-mono text-brand-black dark:text-white">{p.order_ref}</strong></span>}
                     <span>Qty: <strong>{p.quantity}</strong></span>
-                    {p.ordered_at && <span>Ordered: {new Date(p.ordered_at).toLocaleDateString()}</span>}
+                    {p.ordered_at && <span>Ordered: {formatDate(p.ordered_at)}</span>}
                     {p.watch_id && (
                       <span className="text-primary font-semibold flex items-center gap-0.5">
                         <span className="material-symbols-outlined text-[13px]">visibility</span>
@@ -1458,7 +1458,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                           <span className="text-[11px] text-gray-500">by {ev.actor}</span>
                         </div>
                         <span className="text-[10px] font-mono text-gray-400">
-                          {new Date(ev.created_at).toLocaleString()}
+                          {formatDateTime(ev.created_at)}
                         </span>
                       </div>
 
@@ -1690,7 +1690,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   <span className="font-mono font-bold text-primary">
                     field: {corr.fieldName || (corr as any).field_name}
                   </span>
-                  <span>{new Date(corr.createdAt || (corr as any).created_at).toLocaleString()}</span>
+                  <span>{formatDateTime(corr.createdAt || (corr as any).created_at)}</span>
                 </div>
 
                 <div className="flex items-center gap-2 font-mono text-[11px] bg-gray-50 dark:bg-gray-900 p-2 rounded-lg">
@@ -2064,7 +2064,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   <div className="p-2.5 rounded-lg bg-white dark:bg-neutral-800 border border-amber-200 dark:border-amber-800/60 text-xs text-gray-600 dark:text-gray-300">
                     <span className="font-semibold text-brand-black dark:text-white">Notice Snapshot: </span>
                     {ticket.notice_needed
-                      ? `Notice sent at ${ticket.notice_sent_at ? new Date(ticket.notice_sent_at).toLocaleString() : 'N/A'}`
+                      ? `Notice sent at ${ticket.notice_sent_at ? formatDateTime(ticket.notice_sent_at) : 'N/A'}`
                       : 'Notice not required (or vacant unit)'}
                   </div>
                 )}

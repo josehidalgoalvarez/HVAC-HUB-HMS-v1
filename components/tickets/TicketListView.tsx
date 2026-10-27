@@ -127,28 +127,28 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   }
 
   return (
-    <div className="pb-safe max-w-xl mx-auto px-3 py-3 space-y-3 animate-fadeIn">
+    <div className="pb-safe max-w-xl mx-auto px-4 py-4 space-y-4 animate-fadeIn w-full min-w-0">
       {/* Top Header */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2 min-w-0">
           {onBack && (
             <button
               onClick={onBack}
-              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 text-brand-black dark:text-white hover:border-primary/50 transition-colors"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 text-brand-black dark:text-white hover:border-primary/50 transition-colors shrink-0"
               aria-label="Back"
             >
               <span className="material-symbols-outlined text-xl">arrow_back</span>
             </button>
           )}
-          <div>
-            <h1 className="text-xl font-extrabold text-brand-black dark:text-white flex items-center gap-2 tracking-tight">
-              <span className="material-symbols-outlined text-primary text-2xl">assignment</span>
-              Tickets
+          <div className="min-w-0">
+            <h1 className="text-xl font-extrabold text-brand-black dark:text-white flex items-center gap-2 tracking-tight truncate">
+              <span className="material-symbols-outlined text-primary text-2xl shrink-0">assignment</span>
+              <span>Tickets</span>
             </h1>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
           {onOpenInsights && (
             <button
               id="open-insights-btn"
@@ -157,7 +157,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
               title="View Insights"
             >
               <span className="material-symbols-outlined text-[16px] text-primary">insights</span>
-              Insights
+              <span>Insights</span>
             </button>
           )}
           {onOpenWatches && (
@@ -168,13 +168,13 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
               title="View Watches"
             >
               <span className="material-symbols-outlined text-[16px] text-primary">notifications_active</span>
-              Watches
+              <span>Watches</span>
             </button>
           )}
           <button
             onClick={() => refreshTickets()}
             disabled={isRevalidating}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:text-brand-black dark:hover:text-white hover:border-primary/50 transition-colors shadow-2xs"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:text-brand-black dark:hover:text-white hover:border-primary/50 transition-colors shadow-2xs shrink-0"
             title="Refresh tickets"
             aria-label="Refresh tickets"
           >
@@ -239,7 +239,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar w-full min-w-0">
         <button
           onClick={() => setActiveFilter('all')}
           className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all shrink-0 uppercase tracking-wider ${activeFilter === 'all'

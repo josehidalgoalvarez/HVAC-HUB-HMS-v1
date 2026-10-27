@@ -1,7 +1,7 @@
 -- Field notes: read-only reference of WO-derived common problems (from SOP_LIBRARY_DRAFTS.md).
 -- Reference only; not runnable SOPs. todo_verify = 1 where a [JOSE: confirm] gap is kept verbatim.
 CREATE TABLE IF NOT EXISTS `field_note` (
-  `id` TEXT PRIMARY KEY,
+  `id` VARCHAR(191) PRIMARY KEY,
   `title` TEXT NOT NULL,
   `applies_to` TEXT NOT NULL,
   `symptoms` TEXT NOT NULL DEFAULT '[]',   -- JSON array of strings

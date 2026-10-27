@@ -11,6 +11,7 @@ import {
   getUnitContextDetail
 } from '../../utils/unitContextUtils';
 import { apiClient } from '../../src/api/client';
+import { formatDate } from '../../utils/dateUtils';
 import type { UnitFailedVisitsSummary } from '../../types/domain';
 
 interface PropertyListViewProps {
@@ -1489,7 +1490,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       {unitVisitsSummary?.last_failure || activeUnit.lastFailure ? (
                         <div className="text-xs">
                           <span className="font-semibold text-brand-black dark:text-white block">
-                            {new Date((unitVisitsSummary?.last_failure || activeUnit.lastFailure)!.visited_at).toLocaleDateString()}
+                            {formatDate((unitVisitsSummary?.last_failure || activeUnit.lastFailure)!.visited_at)}
                           </span>
                           <span className="text-[11px] text-gray-500 block">
                             {(unitVisitsSummary?.last_failure || activeUnit.lastFailure)!.failure_reason}
@@ -1541,7 +1542,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               {v.notes && <p className="text-[11px] text-gray-400 italic">{v.notes}</p>}
                             </div>
                             <div className="text-right shrink-0 text-[10px] text-gray-400 font-mono">
-                              <div>{new Date(v.visited_at).toLocaleDateString()}</div>
+                              <div>{formatDate(v.visited_at)}</div>
                               <div>{v.tech_name}</div>
                             </div>
                           </div>
