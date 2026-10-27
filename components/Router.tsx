@@ -30,6 +30,7 @@ const PartsView = React.lazy(() => import('./parts/PartsView'));
 const WatchesView = React.lazy(() => import('./watches/WatchesView'));
 const SOPListView = React.lazy(() => import('./sops/SOPListView').then(m => ({ default: m.SOPListView })));
 const SOPRunView = React.lazy(() => import('./sops/SOPRunView').then(m => ({ default: m.SOPRunView })));
+const FieldNotesView = React.lazy(() => import('./sops/FieldNotesView').then(m => ({ default: m.FieldNotesView })));
 
 // Note: Ensure PropertyDetailView is the correct new component. 
 // Since we have a duplicate file issue, we are importing from './properties/PropertyDetailView' explicitly.
@@ -287,10 +288,27 @@ const Router: React.FC<RouterProps> = ({
               setActiveView(ViewType.PROFILE);
             }
           }}
+          onOpenFieldNotes={() => {
+            setPreviousView(ViewType.SOPS);
+            setActiveView(ViewType.FIELD_NOTES);
+          }}
           onStartRun={(sopId) => {
             setSelectedSopId(sopId);
             setPreviousView(ViewType.SOPS);
             setActiveView(ViewType.SOP_RUN);
+          }}
+        />
+      );
+
+    case ViewType.FIELD_NOTES:
+      return (
+        <FieldNotesView
+          onBack={() => {
+            if (previousView) {
+              setActiveView(previousView);
+            } else {
+              setActiveView(ViewType.SOPS);
+            }
           }}
         />
       );

@@ -8,9 +8,10 @@ import type { SOP } from '../../types/domain';
 interface SOPListViewProps {
   onBack?: () => void;
   onStartRun: (sopId: string) => void;
+  onOpenFieldNotes?: () => void;
 }
 
-export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun }) => {
+export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, onOpenFieldNotes }) => {
   const [sops, setSops] = useState<SOP[]>(SEED_SOPS);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -85,6 +86,20 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun }) 
             {filteredSops.length} procedure{filteredSops.length === 1 ? '' : 's'}
           </span>
         </div>
+
+        {onOpenFieldNotes && (
+          <button
+            type="button"
+            onClick={onOpenFieldNotes}
+            className="w-full min-h-[44px] px-4 py-3 rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-xs flex items-center justify-between gap-3 text-left"
+          >
+            <span className="flex items-center gap-2 text-sm font-bold text-brand-black dark:text-white">
+              <span className="material-symbols-outlined text-primary" aria-hidden="true">sticky_note_2</span>
+              Field notes
+            </span>
+            <span className="material-symbols-outlined text-gray-400" aria-hidden="true">chevron_right</span>
+          </button>
+        )}
 
         {/* Search & Category Filter */}
         <div className="bg-white dark:bg-card-dark rounded-2xl p-3 border border-gray-100 dark:border-gray-800 space-y-2.5 shadow-xs">
