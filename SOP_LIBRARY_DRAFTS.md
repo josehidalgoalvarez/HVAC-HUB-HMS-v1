@@ -7,7 +7,7 @@ Status: DRAFTS for Jose to correct. Nothing here is verified field procedure unt
 - The 21 reconciled tickets in `migrations/030_reconcile_tickets_with_verified_portfolio.sql` and `RESIDENTIAL_TICKETS` in `residential_constants.tsx`.
 - Verified appliance, building, and unit notes in `cli/seed_portfolio.php` and `residential_constants.tsx`.
 - Format from the gas-furnace SOP (`sop_constants.ts`, migrations 033 and 037).
-- Standing rule 5 from `CLAUDE.md` for the 24h notice gate.
+- Notice tracking: `migrations/011_ticket_notice_tracking.sql` (`notice_needed`, `notice_sent_at`, `notice_confirmed_by`) and the 24h entry gate in `components/tickets/TicketDetailView.tsx` (Notice of Entry card).
 
 Rules applied to every draft:
 - Tools and parts are listed only where a WO or note names them. The WO is cited.
@@ -159,7 +159,7 @@ What NOT to do:
 
 ## SOP-F: Entry and 24h notice coordination
 
-Status: DRAFT — derived from WO-NOTICE-2026, WO-19255, WO-19970, and CLAUDE.md standing rule 5; awaiting Jose's correction.
+Status: DRAFT — derived from WO-NOTICE-2026, WO-19255, WO-19970, migration 011, and the 24h gate in TicketDetailView; awaiting Jose's correction.
 
 When it applies:
 - Any work needing unit entry. WO-NOTICE-2026 says "Need 24h notice for unit entry" (1719-273, notice_needed set).
@@ -168,20 +168,20 @@ When it applies:
 
 Steps:
 1. Flag notice needed on the ticket (WO-NOTICE-2026, notice_needed set).
-2. `[JOSE: confirm]` who sends the notice. CLAUDE.md rule 5 says the team does not draft or send 24h notices, so the sender is not evidenced.
-3. Record when the notice was sent and by whom (CLAUDE.md rule 5: the app tracks `notice_sent_at`).
-4. Wait for the 24h gate measured from `notice_sent_at` before entry (CLAUDE.md rule 5).
+2. `[JOSE: confirm]` who sends the notice. The team does not draft or send 24h notices; migration 011 records only who confirmed the notice (`notice_confirmed_by`), and no repo source states this rule.
+3. Record when the notice was sent and by whom (migration 011: `notice_sent_at`, `notice_confirmed_by`).
+4. Wait for the 24h gate measured from `notice_sent_at` before entry (TicketDetailView: "24h countdown active" after notice is marked sent).
 5. Check the ticket's hold status before dispatch (WO-19970 on hold).
 
 Tools and parts:
 - None. Not applicable.
 
 Safety and compliance:
-- CLAUDE.md rule 5: 24h entry gate from `notice_sent_at`.
+- 24h entry gate from `notice_sent_at` (TicketDetailView Notice of Entry card: "ENTRY BLOCKED" while notice is required but not yet sent).
 
 What NOT to do:
-- Do not enter the unit before the 24h gate passes (CLAUDE.md rule 5; WO-NOTICE-2026).
-- Do not draft or send a 24h notice as a team (CLAUDE.md rule 5).
+- Do not enter the unit before the 24h gate passes (TicketDetailView: "Tenant entry prohibited" until notice is sent; WO-NOTICE-2026).
+- Do not draft or send a 24h notice as a team. No repo source states this rule; it is kept as Jose's stated rule.
 
 ---
 
@@ -219,7 +219,7 @@ What NOT to do:
 
 **Entry and notice**
 - Symptom: work that needs unit entry.
-- Cause (evidenced): 24h gate on entry (WO-NOTICE-2026; CLAUDE.md rule 5).
+- Cause (evidenced): 24h gate on entry (WO-NOTICE-2026; TicketDetailView notice gate; migration 011).
 - WO record: notice_needed set (WO-NOTICE-2026); tenant called first (WO-19255).
 - Check first: notice sent time and sender; hold status on the ticket.
 
@@ -248,13 +248,14 @@ Count: 23 markers across the drafts and common-problem notes. Listed by section 
 - **SOP-E: Blower motor and run capacitor swap**: Run capacitor (WO-INTAKE-202; ticket 3). Rating
 - **SOP-E: Blower motor and run capacitor swap**: wiring, test run, and verification
 - **SOP-E: Blower motor and run capacitor swap**: None evidenced
-- **SOP-F: Entry and 24h notice coordination**: who sends the notice. CLAUDE.md rule 5 says the team does not draft or send 24h notices, so the sender is not 
+- **SOP-F: Entry and 24h notice coordination**: who sends the notice. The team does not draft or send 24h notices; migration 011 records only who confirmed th
 - **Common problems**: not in the sources
 - **Common problems**: motor fit is not in any source
 - **Common problems**: Not evidenced beyond the complaint
 
 Verification summary:
 - Every WO number and key phrase in the drafts was checked against the in-repo sources (migration 030, residential_constants.tsx, cli/seed_portfolio.php). All traced.
+- Notice citations point to migration 011 and the TicketDetailView notice gate. The rule that the team does not draft or send 24h notices has no repo source and is kept as Jose's stated rule.
 - SOP-D is dropped, and no remaining draft relies on a WO-E2E ticket. Those identifiers are created by repo test files.
 - Common-problem notes describe WO scope and status, not completed work, unless the WO records completion.
 - Unevidenced items are marked `[JOSE: confirm]`.
