@@ -16,20 +16,21 @@ Rules applied to every draft:
 
 ## Caveat on WO identifiers
 
-Eight of the 21 tickets carry test-style identifiers: `WO-E2E-101`, `WO-E2E-102`, `WO-E2E-201`, `WO-E2E-301`, `WO-E2E-302`, `WO-E2E-SW1`, `WO-E2E-SW2`, and `WO-E2E-SW3`. The repo's own end-to-end tests create these identifiers: `tests/test_phase2_e2e.mjs` (101, 201, 301) and `tests/test_phase4_e2e.mjs` (SW1, SW2, SW3). `tests/verify_ticket_portfolio_reconciliation.php` and `cli/seed_portfolio.php` also list them. So they are most likely test fixtures, not field work orders. They are cited below and marked **(E2E ID)**. SOP-D rests entirely on them, and SOP-A rests on WO-E2E-302 for its main steps. Jose must confirm these are real jobs, or drop those drafts, before use.
+Eight of the 21 tickets carry test-style identifiers: `WO-E2E-101`, `WO-E2E-102`, `WO-E2E-201`, `WO-E2E-301`, `WO-E2E-302`, `WO-E2E-SW1`, `WO-E2E-SW2`, and `WO-E2E-SW3`. The repo's own end-to-end tests create these identifiers: `tests/test_phase2_e2e.mjs` (101, 201, 301) and `tests/test_phase4_e2e.mjs` (SW1, SW2, SW3). `tests/verify_ticket_portfolio_reconciliation.php` and `cli/seed_portfolio.php` also list them. So they are most likely test fixtures, not field work orders. They are cited below and marked **(E2E ID)**. SOP-D has been dropped, and no remaining draft relies on a WO-E2E ticket.
 
 ## Patterns found
 
 | Pattern | Supporting WOs and notes |
 |---|---|
-| (a) Drain and condensate blockages | WO-E2E-302 (E2E ID); ticket 10 "Clear condensate drain line" (no WO#, 509 Frontenac unit 204); 1731/1733 shared mechanical room note "Building drain stack has recurring blockages" (no WO#) |
+| (a) Drain and condensate blockages | ticket 10 "Clear condensate drain line" (no WO#, 509 Frontenac unit 204); 1731/1733 shared mechanical room note "Building drain stack has recurring blockages" (no WO#) |
 | (b) Water heater element, thermostat, tee | WO-20316; WO-FIELD-900; WO-NOTICE-2026; 1721 shared heater bank note (no WO#) |
 | (c) Freezer noise | WO-19255 (505-103); seed note "noisy freezer complaint (WO 19255)" |
-| (d) Stove infinite switch WB24T10025 | WO-E2E-SW1, WO-E2E-SW2, WO-E2E-SW3 (all E2E IDs); 137 Amherst gray Frigidaire range note (no WO#) |
+| (d) Stove infinite switch WB24T10025 | Dropped: all three WOs are WO-E2E-SW1/SW2/SW3, which are test fixtures. |
 | (e) Blower motor and run capacitor | WO-INTAKE-202; ticket 3 "Unit 2 Blower Replacement" (child of WO-19970, no WO#) |
 | (f) Entry and 24h notice | WO-NOTICE-2026; WO-19255 ("Tenant called first before visits"); WO-19970 (on hold pending owner authorization) |
 
 Not drafted:
+- **Stove infinite switch (pattern d).** Dropped until Jose confirms the WO-E2E-SW IDs are real jobs.
 - **Cooling diagnosis for fridges or freezers.** The sources support only the freezer noise complaint.
 - **Main-stack clearing method.** No source says how the 1731/1733 main stack is cleared.
 - **Fridge door shelf and seal work (WO-20061).** Not a recurring pattern in the sources, so not drafted.
@@ -39,29 +40,22 @@ Not drafted:
 
 ## SOP-A: Condensate and drain line clearing
 
-Status: DRAFT — derived from WO-E2E-302 (E2E ID, likely test fixture), ticket 10 (no WO#), and the 1731/1733 drain stack note; awaiting Jose's correction.
+Status: DRAFT — derived from ticket 10 (no WO#) and the 1731/1733 drain stack note; awaiting Jose's correction.
 
 When it applies:
-- Symptom: AC leaking water (ticket 10: "AC leaking water at 509 Frontenac St unit 204").
-- Symptom: attic condensate clog needing a drain auger (WO-E2E-302, 1723-266, building 3, unit 347, exterior-ladder work).
+- Symptom: AC leaking water (ticket 10: "AC leaking water at 509 Frontenac St unit 204", building 76, unit 759).
 - Recurring blockage in the 1731/1733 shared mechanical room drain stack (appliance note, no WO#).
 
-Tools (as named in WOs):
-- Drain auger for the main trap clog (WO-E2E-302).
-- Ladder for high attic access (WO-E2E-302).
-
-Parts (as named in WOs):
-- New contactor (WO-E2E-302). Part number and rating: `[JOSE: confirm]`.
+Tools and parts:
+- None named in the sources. `[JOSE: confirm]`.
 
 Steps:
-1. Access the attic by ladder (WO-E2E-302). `[JOSE: confirm]` fall protection or ladder setup is not in any source.
-2. Clear the stubborn main trap clog with the drain auger (WO-E2E-302).
-3. Replace the contactor (WO-E2E-302). `[JOSE: confirm]` whether this is done in the same visit or after the trap is clear.
-4. `[JOSE: confirm]` how drainage is verified after clearing (no source records this).
-5. `[JOSE: confirm]` whether the 1731/1733 main stack is cleared from the mechanical room or only the trap. No source says.
+1. Clear the condensate drain line (ticket 10 verified scope). `[JOSE: confirm]` how the line is cleared.
+2. `[JOSE: confirm]` how drainage is verified after clearing.
+3. `[JOSE: confirm]` whether the 1731/1733 main stack is cleared from the mechanical room or only the trap.
 
 Safety and compliance:
-- Ladder access is named in WO-E2E-302. No other safety rule is evidenced. `[JOSE: confirm]`.
+- None evidenced. `[JOSE: confirm]`.
 
 What NOT to do:
 - Not evidenced in sources. Do not add a rule without Jose's correction.
@@ -133,36 +127,6 @@ What NOT to do:
 
 ---
 
-## SOP-D: Stove infinite switch replacement (WB24T10025)
-
-Status: DRAFT — derived from WOs WO-E2E-SW1, WO-E2E-SW2, WO-E2E-SW3 (all E2E IDs, likely test fixtures) and the 137 Amherst range note; awaiting Jose's correction. Do not use until Jose confirms the WOs are real.
-
-When it applies:
-- Burner infinite switch clicking (WO-E2E-SW1, 1719-273, unit 326).
-- Burner stays on max heat, switch contacts frozen (WO-E2E-SW2, 1721-268, unit 335).
-- Front element open circuit, burner control switch (WO-E2E-SW3, 1719-172, unit 322).
-- Gray Frigidaire range at 137 Amherst Dr, unit 137, on hold, switch WB24T10025 (appliance note, no WO#). Model is unknown (`TODO-verify`).
-
-Tools:
-- None named in WOs. `[JOSE: confirm]`.
-
-Parts:
-- Robertshaw infinite switch WB24T10025 (WO-E2E-SW1: "Need Robertshaw switch WB24T10025").
-- Order by model number (seed note on the 137 Amherst range: "Burner infinite switch WB24T10025 (order by model #)").
-
-Steps:
-1. Order switch WB24T10025 by model number (seed note).
-2. Replace the burner infinite switch (WO-E2E-SW1, WO-E2E-SW2, WO-E2E-SW3).
-3. `[JOSE: confirm]` the wiring, test, and verification steps. No source records them.
-
-Safety and compliance:
-- None evidenced. `[JOSE: confirm]`.
-
-What NOT to do:
-- Do not install a white-stove donor switch into a gray Frigidaire stove. Sources: "White stoves rule everywhere: donor coils by SIZE only — never switches into gray Frigidaire stoves" (building note and stock note).
-
----
-
 ## SOP-E: Blower motor and run capacitor swap
 
 Status: DRAFT — derived from WO-INTAKE-202 and ticket 3 (child of WO-19970, no WO#); awaiting Jose's correction.
@@ -224,10 +188,10 @@ What NOT to do:
 ## Common problems
 
 **Condensate or drain blockage**
-- Symptom: AC leaking water; attic condensate clog.
-- Cause (evidenced): main trap clog (WO-E2E-302); recurring stack blockage at 1731/1733.
-- WO scope: drain auger on the main trap, then contactor (WO-E2E-302). Completion not recorded.
-- Check first: trap and drain line access; ladder for attic work.
+- Symptom: AC leaking water (ticket 10, 509 Frontenac unit 204).
+- Cause: recurring stack blockage at the 1731/1733 shared drain (appliance note). Cause at 509 Frontenac not recorded.
+- WO scope: clear condensate drain line (ticket 10). Completion not recorded.
+- Check first: `[JOSE: confirm]` (not in the sources).
 
 **Water heater tee leak, ECO trips, scaled element**
 - Symptom: weeping tee, ECO trips every few days.
@@ -240,12 +204,6 @@ What NOT to do:
 - Cause (evidenced): lower element shorted to ground (WO-FIELD-900).
 - WO record: breaker trip; status done (WO-FIELD-900).
 - Check first: breaker, then ground fault on the lower element.
-
-**Burner switch failures**
-- Symptom: clicking; burner stuck on max heat; open front element.
-- WO record: switch clicking, contacts frozen, open circuit on front element, each with a WB24T10025 switch named (WO-E2E-SW1, SW2, SW3). Cause not confirmed in the WOs.
-- Work done: `[JOSE: confirm]`. WO statuses are in-progress, new, new.
-- Check first: model number; never use a white-stove donor switch on a gray Frigidaire.
 
 **Blower squeal or vibration**
 - Symptom: high-pitch squeal and vibration.
@@ -269,14 +227,13 @@ What NOT to do:
 
 ## Items marked [JOSE: confirm]
 
-Count: 27 markers across the drafts and common-problem notes. Listed by section below.
+Count: 23 markers across the drafts and common-problem notes. Listed by section below.
 
-- **SOP-A: Condensate and drain line clearing**: New contactor (WO-E2E-302). Part number and rating
-- **SOP-A: Condensate and drain line clearing**: fall protection or ladder setup is not in any source
-- **SOP-A: Condensate and drain line clearing**: whether this is done in the same visit or after the trap is clear
-- **SOP-A: Condensate and drain line clearing**: how drainage is verified after clearing (no source records this
-- **SOP-A: Condensate and drain line clearing**: whether the 1731/1733 main stack is cleared from the mechanical room or only the trap. No source says
-- **SOP-A: Condensate and drain line clearing**: Ladder access is named in WO-E2E-302. No other safety rule is evidenced
+- **SOP-A: Condensate and drain line clearing**: None named in the sources
+- **SOP-A: Condensate and drain line clearing**: how the line is cleared
+- **SOP-A: Condensate and drain line clearing**: how drainage is verified after clearing
+- **SOP-A: Condensate and drain line clearing**: whether the 1731/1733 main stack is cleared from the mechanical room or only the trap
+- **SOP-A: Condensate and drain line clearing**: None evidenced
 - **SOP-B: Water heater element, thermostat, and tee joint**: None named in WOs
 - **SOP-B: Water heater element, thermostat, and tee joint**: the rest of the swap sequence
 - **SOP-B: Water heater element, thermostat, and tee joint**: electrical isolation before element or thermostat work. No source names a lockout step
@@ -286,22 +243,19 @@ Count: 27 markers across the drafts and common-problem notes. Listed by section 
 - **SOP-C: Freezer noise complaint (505-103)**: the fix for each finding and how the noise is confirmed gone
 - **SOP-C: Freezer noise complaint (505-103)**: any cooling check. The sources do not support one
 - **SOP-C: Freezer noise complaint (505-103)**: None evidenced
-- **SOP-D: Stove infinite switch replacement (WB24T10025)**: None named in WOs
-- **SOP-D: Stove infinite switch replacement (WB24T10025)**: the wiring, test, and verification steps. No source records them
-- **SOP-D: Stove infinite switch replacement (WB24T10025)**: None evidenced
 - **SOP-E: Blower motor and run capacitor swap**: whether ticket 3 can proceed while the parent is on hold
 - **SOP-E: Blower motor and run capacitor swap**: None named in WOs
 - **SOP-E: Blower motor and run capacitor swap**: Run capacitor (WO-INTAKE-202; ticket 3). Rating
 - **SOP-E: Blower motor and run capacitor swap**: wiring, test run, and verification
 - **SOP-E: Blower motor and run capacitor swap**: None evidenced
 - **SOP-F: Entry and 24h notice coordination**: who sends the notice. CLAUDE.md rule 5 says the team does not draft or send 24h notices, so the sender is not 
-- **Common problems**: WO statuses are in-progress, new, new
+- **Common problems**: not in the sources
 - **Common problems**: motor fit is not in any source
 - **Common problems**: Not evidenced beyond the complaint
 
 Verification summary:
 - Every WO number and key phrase in the drafts was checked against the in-repo sources (migration 030, residential_constants.tsx, cli/seed_portfolio.php). All traced.
-- The WO-E2E identifiers are created by repo test files, so SOP-D and the E2E-based parts of SOP-A need Jose's confirmation before use.
+- SOP-D is dropped, and no remaining draft relies on a WO-E2E ticket. Those identifiers are created by repo test files.
 - Common-problem notes describe WO scope and status, not completed work, unless the WO records completion.
 - Unevidenced items are marked `[JOSE: confirm]`.
 - No model numbers, serials, or measurements were added beyond those in the sources.
