@@ -202,8 +202,8 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
 
   // Metrics calculation
   const totalPartsCount = items.length;
-  const totalQuantityUnits = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
-  const lowStockCount = items.filter(item => item.is_below_minimum || item.quantity < item.minimum).length;
+  const totalQuantityUnits = items.reduce((sum, item) => sum + (item.status === 'placeholder' ? 0 : (item.quantity || 0)), 0);
+  const lowStockCount = items.filter(item => item.status !== 'placeholder' && (item.is_below_minimum || item.quantity < item.minimum)).length;
 
   const isCentralNode = stockpile?.name?.includes('511 Days') ||
     stockpile?.location?.includes('511 Days') ||
@@ -213,7 +213,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
 
   // Filtered items
   const filteredItems = items.filter(item => {
-    if (filterBelowMinOnly && !(item.is_below_minimum || item.quantity < item.minimum)) {
+    if (filterBelowMinOnly && (item.status === 'placeholder' || !(item.is_below_minimum || item.quantity < item.minimum))) {
       return false;
     }
     if (searchQuery.trim() !== '') {
@@ -437,13 +437,16 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
           /* Inventory Items Grid */
           <div className="space-y-3">
             {filteredItems.map(item => {
-              const isBelowMin = item.is_below_minimum || item.quantity < item.minimum;
+              const isPlaceholder = item.status === 'placeholder';
+              const isBelowMin = !isPlaceholder && (item.is_below_minimum || item.quantity < item.minimum);
               return (
                 <div
                   key={`item-${item.allocation_id}`}
                   className={`p-4 rounded-2xl bg-white dark:bg-card-dark border transition-all ${
                     isBelowMin
                       ? 'border-amber-400/80 dark:border-amber-600/70 shadow-xs'
+                      : isPlaceholder
+                      ? 'border-gray-200/60 dark:border-gray-800/80 shadow-xs bg-gray-50/30 dark:bg-card-dark/60'
                       : 'border-gray-200/80 dark:border-gray-800 shadow-xs'
                   }`}
                 >
@@ -458,14 +461,16 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                         )}
                         <span
                           className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                            item.status === 'available'
+                            isPlaceholder
+                              ? 'bg-purple-50 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800 font-extrabold'
+                              : item.status === 'available'
                               ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                               : item.status === 'on_hold'
                               ? 'bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
                               : 'bg-blue-50 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
                           }`}
                         >
-                          {item.status.replace('_', ' ')}
+                          {isPlaceholder ? 'Placeholder' : item.status.replace('_', ' ')}
                         </span>
                         {isBelowMin && (
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-500 text-brand-black flex items-center gap-1">
@@ -489,12 +494,25 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
 
                     {/* Stock Quantity Display */}
                     <div className="text-right shrink-0">
-                      <div className="text-2xl font-black text-brand-black dark:text-white">
-                        {item.quantity}
-                      </div>
-                      <div className="text-[11px] text-gray-400 font-medium">
-                        Min: {item.minimum}
-                      </div>
+                      {isPlaceholder ? (
+                        <>
+                          <div className="text-xl font-black text-gray-400 dark:text-gray-500">
+                            TBD
+                          </div>
+                          <div className="text-[10px] text-gray-400 font-medium">
+                            To Count
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-2xl font-black text-brand-black dark:text-white">
+                            {item.quantity}
+                          </div>
+                          <div className="text-[11px] text-gray-400 font-medium">
+                            Min: {item.minimum}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 

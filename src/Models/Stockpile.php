@@ -101,7 +101,7 @@ class Stockpile
             $row['unit_cost'] = isset($row['unit_cost']) ? (float) $row['unit_cost'] : null;
             $row['total_quantity_on_hand'] = (int) ($row['total_quantity_on_hand'] ?? 0);
             $row['reorder_point'] = (int) ($row['reorder_point'] ?? 1);
-            $row['is_below_minimum'] = ($row['quantity'] < $row['minimum']);
+            $row['is_below_minimum'] = ($row['status'] !== 'placeholder' && $row['quantity'] < $row['minimum']);
 
             if (!empty($row['compatible_models']) && is_string($row['compatible_models'])) {
                 $decoded = json_decode($row['compatible_models'], true);

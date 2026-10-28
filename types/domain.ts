@@ -519,7 +519,7 @@ export interface StockpileAllocation {
   stockpile_location: string;
   quantity: number;
   minimum?: number;
-  status: 'available' | 'on_hold' | 'in_use';
+  status: 'available' | 'on_hold' | 'in_use' | 'placeholder';
   location_notes?: string | null;
 }
 
@@ -529,7 +529,7 @@ export interface StockpilePartItem {
   part_id: number;
   quantity: number;
   minimum: number;
-  status: 'available' | 'on_hold' | 'in_use';
+  status: 'available' | 'on_hold' | 'in_use' | 'placeholder';
   location_notes?: string | null;
   allocation_updated_at?: string;
   part_name: string;
