@@ -279,6 +279,54 @@ class PartController
     }
 
     /**
+     * POST /api/stockpiles/{id}/count
+     * Record a verified physical inventory count audit session.
+     */
+    public function countAudit(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) ($args['id'] ?? 0);
+        if ($id <= 0) {
+            return Auth::jsonError('not_found', 'Stockpile not found', 404);
+        }
+
+        $user = Auth::getCurrentUser();
+        $userId = $user['id'] ?? null;
+        $userName = $user['name'] ?? ($user['username'] ?? null);
+
+        $body = (array) ($request->getParsedBody() ?? []);
+        $counts = (array) ($body['counts'] ?? []);
+
+        try {
+            $result = Stockpile::recordCountAudit($id, $counts, $userId, $userName);
+            return Auth::jsonSuccess($result);
+        } catch (Throwable $e) {
+            return Auth::jsonError('bad_request', $e->getMessage(), 400);
+        }
+    }
+
+    /**
+     * GET /api/stockpiles/{id}/count-history
+     * List count audit history for allocations at a stockpile.
+     */
+    public function countHistory(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) ($args['id'] ?? 0);
+        if ($id <= 0) {
+            return Auth::jsonError('not_found', 'Stockpile not found', 404);
+        }
+
+        $params = $request->getQueryParams();
+        $allocationId = isset($params['allocation_id']) ? (int) $params['allocation_id'] : null;
+
+        try {
+            $history = Stockpile::getAuditHistory($id, $allocationId);
+            return $this->respondWithEtag($request, $history);
+        } catch (Throwable $e) {
+            return Auth::jsonError('server_error', $e->getMessage(), 500);
+        }
+    }
+
+    /**
      * GET /api/suppliers
      * List all suppliers with phone and hours.
      */

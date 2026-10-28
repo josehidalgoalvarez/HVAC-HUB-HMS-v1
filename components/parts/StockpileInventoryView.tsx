@@ -23,6 +23,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
   const [items, setItems] = useState<StockpilePartItem[]>([]);
   const [allParts, setAllParts] = useState<PartRecord[]>([]);
   const [storedAppliances, setStoredAppliances] = useState<any[]>([]);
+  const [auditHistory, setAuditHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterBelowMinOnly, setFilterBelowMinOnly] = useState(false);
@@ -39,17 +40,25 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
   const [moveNotes, setMoveNotes] = useState('');
   const [isSubmittingMove, setIsSubmittingMove] = useState(false);
 
+  // Count Audit session state
+  const [isCountModalOpen, setIsCountModalOpen] = useState(false);
+  const [countEntries, setCountEntries] = useState<Record<number, { counted: string; notes: string }>>({});
+  const [isSubmittingCount, setIsSubmittingCount] = useState(false);
+  const [selectedAllocationForHistory, setSelectedAllocationForHistory] = useState<StockpilePartItem | null>(null);
+
   const cacheKey = `stockpile_parts_${stockpileId}`;
   const appCacheKey = `stockpile_appliances_${stockpileId}`;
+  const historyCacheKey = `stockpile_history_${stockpileId}`;
 
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [spRes, partsRes, stockRes, appRes] = await Promise.allSettled([
+      const [spRes, partsRes, stockRes, appRes, histRes] = await Promise.allSettled([
         apiClient.getStockpiles(),
         apiClient.getParts(),
         apiClient.getStockpileParts(stockpileId),
         apiClient.getStockpileAppliances(stockpileId),
+        apiClient.getStockpileCountHistory(stockpileId),
       ]);
 
       if (spRes.status === 'fulfilled' && spRes.value) {
@@ -73,12 +82,17 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
         setStoredAppliances(appRes.value);
         appCache.set(appCacheKey, appRes.value);
       }
+
+      if (histRes.status === 'fulfilled' && Array.isArray(histRes.value)) {
+        setAuditHistory(histRes.value);
+        appCache.set(historyCacheKey, histRes.value);
+      }
     } catch (err) {
       console.warn('Error loading stockpile inventory data:', err);
     } finally {
       setLoading(false);
     }
-  }, [stockpileId, cacheKey, appCacheKey]);
+  }, [stockpileId, cacheKey, appCacheKey, historyCacheKey]);
 
   useEffect(() => {
     // 1. Instant cache load
@@ -87,7 +101,8 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       appCache.get<StockpilePartItem[]>(cacheKey),
       appCache.get<PartRecord[]>('parts'),
       appCache.get<any[]>(appCacheKey),
-    ]).then(([cachedStockpiles, cachedItems, cachedParts, cachedAppliances]) => {
+      appCache.get<any[]>(historyCacheKey),
+    ]).then(([cachedStockpiles, cachedItems, cachedParts, cachedAppliances, cachedHistory]) => {
       if (cachedStockpiles && cachedStockpiles.length > 0) {
         setAllStockpiles(cachedStockpiles);
         const current = cachedStockpiles.find(s => String(s.id) === String(stockpileId));
@@ -102,6 +117,9 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       if (cachedAppliances) {
         setStoredAppliances(cachedAppliances);
       }
+      if (cachedHistory) {
+        setAuditHistory(cachedHistory);
+      }
     });
 
     // 2. Fresh fetch
@@ -111,7 +129,54 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
     const handleGlobalRefresh = () => loadData();
     window.addEventListener('hvachome:refresh', handleGlobalRefresh);
     return () => window.removeEventListener('hvachome:refresh', handleGlobalRefresh);
-  }, [stockpileId, loadData, cacheKey, appCacheKey]);
+  }, [stockpileId, loadData, cacheKey, appCacheKey, historyCacheKey]);
+
+  const handleStartCountSession = () => {
+    // Initialise countEntries empty (empty = not counted yet)
+    const initial: Record<number, { counted: string; notes: string }> = {};
+    items.forEach(it => {
+      initial[it.allocation_id] = { counted: '', notes: '' };
+    });
+    setCountEntries(initial);
+    setIsCountModalOpen(true);
+  };
+
+  const handleCountSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setIsSubmittingCount(true);
+      const payload: Array<{ allocation_id: number; counted_quantity: number | ''; notes?: string }> = [];
+
+      Object.entries(countEntries).forEach(([allocIdStr, data]) => {
+        const val = data.counted.trim();
+        if (val !== '') {
+          payload.push({
+            allocation_id: Number(allocIdStr),
+            counted_quantity: Number(val),
+            notes: data.notes.trim() || undefined,
+          });
+        }
+      });
+
+      if (payload.length === 0) {
+        alert('No counts were entered. Enter at least one verified quantity to confirm.');
+        return;
+      }
+
+      const res = await apiClient.submitCountAudit(stockpileId, payload);
+      setFlashMsg({
+        text: `Count confirmed: updated ${res.updated_count} allocation(s) with audit provenance trail!`,
+        type: 'success',
+      });
+      setTimeout(() => setFlashMsg(null), 5000);
+      setIsCountModalOpen(false);
+      await loadData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to record count audit');
+    } finally {
+      setIsSubmittingCount(false);
+    }
+  };
 
   const handleApplianceMoveSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -249,6 +314,12 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
   const totalPartsCount = items.length;
   const totalQuantityUnits = items.reduce((sum, item) => sum + (item.status === 'placeholder' ? 0 : (item.quantity || 0)), 0);
   const lowStockCount = items.filter(item => item.status !== 'placeholder' && (item.is_below_minimum || item.quantity < item.minimum)).length;
+  const tbdCount = items.filter(item => item.status === 'placeholder').length;
+
+  // Track which allocation IDs have a count audit entry in auditHistory
+  const auditedAllocationIds = new Set(auditHistory.map(h => Number(h.entity_id)));
+  const neverCountedCount = items.filter(item => !auditedAllocationIds.has(item.allocation_id)).length;
+  const lastCountDate = auditHistory.length > 0 ? auditHistory[0].created_at : null;
 
   const isCentralNode = stockpile?.name?.includes('511 Days') ||
     stockpile?.location?.includes('511 Days') ||
@@ -351,6 +422,36 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
           <div className={`text-xl font-black mt-0.5 ${lowStockCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-400'}`}>
             {lowStockCount}
           </div>
+        </button>
+      </div>
+
+      {/* Counts-Pending & Audit Banner */}
+      <div className="p-3.5 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/30 border border-indigo-200/70 dark:border-indigo-800/60 text-xs flex items-center justify-between gap-3">
+        <div className="space-y-0.5 min-w-0">
+          <div className="flex items-center gap-1.5 font-bold text-indigo-950 dark:text-indigo-200">
+            <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-[18px]">verified</span>
+            <span>Inventory Control & Audit</span>
+          </div>
+          <div className="text-[11px] text-indigo-700 dark:text-indigo-300">
+            <span>TBD to Count: <strong>{tbdCount}</strong></span>
+            <span className="mx-1.5">•</span>
+            <span>Never Counted: <strong>{neverCountedCount}</strong></span>
+            {lastCountDate && (
+              <>
+                <span className="mx-1.5">•</span>
+                <span>Last count: <strong>{lastCountDate.substring(0, 10)}</strong></span>
+              </>
+            )}
+          </div>
+        </div>
+
+        <button
+          onClick={handleStartCountSession}
+          disabled={items.length === 0}
+          className="min-h-[44px] px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 shrink-0 disabled:opacity-40"
+        >
+          <span className="material-symbols-outlined text-[16px]">fact_check</span>
+          <span>Start Count</span>
         </button>
       </div>
 
@@ -605,6 +706,15 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                     >
                       <span className="material-symbols-outlined text-[16px] text-primary">swap_horiz</span>
                     </button>
+
+                    <button
+                      onClick={() => setSelectedAllocationForHistory(item)}
+                      className="min-h-[44px] px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-brand-black dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95"
+                      title="View Count Audit History"
+                      aria-label="View Count Audit History"
+                    >
+                      <span className="material-symbols-outlined text-[16px] text-indigo-600 dark:text-indigo-400">history</span>
+                    </button>
                   </div>
                 </div>
               );
@@ -821,6 +931,255 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Physical Count Audit Session Modal */}
+      {isCountModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="w-full max-w-lg bg-white dark:bg-card-dark rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 flex flex-col max-h-[90vh] animate-scaleUp">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between shrink-0">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-xl">fact_check</span>
+                  <h3 className="text-base font-bold text-brand-black dark:text-white truncate">
+                    Physical Inventory Count
+                  </h3>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {stockpile?.name} • TBD placeholders prioritized first
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCountModalOpen(false)}
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500 shrink-0"
+              >
+                <span className="material-symbols-outlined text-xl">close</span>
+              </button>
+            </div>
+
+            {/* Instruction Banner */}
+            <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200/80 dark:border-amber-900/60 text-[11px] text-amber-900 dark:text-amber-200 shrink-0">
+              <strong>Rules:</strong> Enter the quantity counted on the shelf. Empty rows remain uncounted/TBD. A count on a TBD row verifies it into available inventory.
+            </div>
+
+            {/* Scrollable Rows List */}
+            <form onSubmit={handleCountSubmit} className="flex-1 overflow-y-auto p-4 space-y-4">
+              {(() => {
+                // Sort TBD rows first
+                const sorted = [...items].sort((a, b) => {
+                  if (a.status === 'placeholder' && b.status !== 'placeholder') return -1;
+                  if (a.status !== 'placeholder' && b.status === 'placeholder') return 1;
+                  return a.part_name.localeCompare(b.part_name);
+                });
+
+                return sorted.map(item => {
+                  const isTbd = item.status === 'placeholder';
+                  const entry = countEntries[item.allocation_id] || { counted: '', notes: '' };
+                  const countedStr = entry.counted.trim();
+                  const hasCount = countedStr !== '';
+                  const countedNum = hasCount ? Number(countedStr) : null;
+
+                  // Variance calculation
+                  let varianceDisplay: React.ReactNode = null;
+                  if (!hasCount) {
+                    varianceDisplay = (
+                      <span className="text-gray-400 text-[11px] font-medium italic">
+                        {isTbd ? 'Still to count (TBD)' : 'Unchanged (uncounted)'}
+                      </span>
+                    );
+                  } else if (isTbd) {
+                    varianceDisplay = (
+                      <span className="text-emerald-700 dark:text-emerald-400 font-bold text-xs bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                        First count verified: {countedNum} (was TBD)
+                      </span>
+                    );
+                  } else {
+                    const diff = (countedNum || 0) - item.quantity;
+                    const diffSign = diff > 0 ? `+${diff}` : `${diff}`;
+                    const colorClass = diff === 0
+                      ? 'text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-neutral-800'
+                      : diff > 0
+                      ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 font-bold'
+                      : 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 font-bold';
+                    varianceDisplay = (
+                      <span className={`text-xs px-2 py-0.5 rounded-md ${colorClass}`}>
+                        Variance: {diffSign} ({item.quantity} → {countedNum})
+                      </span>
+                    );
+                  }
+
+                  return (
+                    <div
+                      key={`count-row-${item.allocation_id}`}
+                      className="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-neutral-800/40 space-y-2.5"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
+                                isTbd
+                                  ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
+                                  : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                              }`}
+                            >
+                              {isTbd ? 'TBD Placeholder' : 'Recorded'}
+                            </span>
+                            {item.part_number && (
+                              <span className="text-[10px] text-gray-500 font-mono">
+                                #{item.part_number}
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="text-xs font-bold text-brand-black dark:text-white mt-1 truncate">
+                            {item.part_name}
+                          </h4>
+                          <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                            Recorded on system: <strong>{isTbd ? 'TBD (placeholder)' : `${item.quantity} units`}</strong>
+                          </div>
+                        </div>
+
+                        {/* Count input */}
+                        <div className="shrink-0 w-28">
+                          <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-0.5 text-right">
+                            Counted Qty
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            placeholder={isTbd ? 'e.g. 5' : String(item.quantity)}
+                            value={entry.counted}
+                            onChange={e => {
+                              const val = e.target.value;
+                              setCountEntries(prev => ({
+                                ...prev,
+                                [item.allocation_id]: { ...entry, counted: val },
+                              }));
+                            }}
+                            className="w-full text-right px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 text-xs font-black text-brand-black dark:text-white focus:ring-2 focus:ring-indigo-500"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Variance & Note Row */}
+                      <div className="flex items-center justify-between gap-2 pt-1 border-t border-gray-200/50 dark:border-gray-800/50">
+                        <div className="min-w-0 flex-1">{varianceDisplay}</div>
+                        <input
+                          type="text"
+                          placeholder="Note (optional)"
+                          value={entry.notes}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setCountEntries(prev => ({
+                              ...prev,
+                              [item.allocation_id]: { ...entry, notes: val },
+                            }));
+                          }}
+                          className="w-36 text-right px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-neutral-800 text-[11px] text-gray-700 dark:text-gray-300"
+                        />
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+
+              {/* Form Action Buttons Footer */}
+              <div className="pt-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between gap-2 sticky bottom-0 bg-white dark:bg-card-dark py-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCountModalOpen(false)}
+                  className="min-h-[44px] px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 text-xs font-bold text-gray-700 dark:text-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingCount}
+                  className="min-h-[44px] px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white shadow-xs disabled:opacity-40"
+                >
+                  {isSubmittingCount ? 'Recording...' : 'Confirm Count & Record Audit'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Allocation Count Audit History Modal */}
+      {selectedAllocationForHistory && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white dark:bg-card-dark rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-5 space-y-4 max-h-[85vh] flex flex-col animate-scaleUp">
+            <div className="flex items-center justify-between shrink-0">
+              <div className="min-w-0">
+                <h3 className="text-base font-bold text-brand-black dark:text-white truncate">
+                  Count Audit History
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {selectedAllocationForHistory.part_name}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedAllocationForHistory(null)}
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500"
+              >
+                <span className="material-symbols-outlined text-xl">close</span>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-2.5">
+              {(() => {
+                const allocHistory = auditHistory.filter(
+                  h => Number(h.entity_id) === selectedAllocationForHistory.allocation_id
+                );
+
+                if (allocHistory.length === 0) {
+                  return (
+                    <div className="text-center py-8 text-xs text-gray-400 border border-dashed border-gray-200 dark:border-gray-800 rounded-xl">
+                      No count audit records logged for this allocation yet.
+                    </div>
+                  );
+                }
+
+                return allocHistory.map(entry => (
+                  <div
+                    key={`hist-${entry.id}`}
+                    className="p-3 rounded-xl bg-gray-50 dark:bg-neutral-800/50 border border-gray-200/70 dark:border-gray-800 text-xs space-y-1"
+                  >
+                    <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400">
+                      <span>{entry.created_at}</span>
+                      <span className="font-semibold">{entry.changed_by_name || 'Tech'}</span>
+                    </div>
+                    <div className="font-bold text-brand-black dark:text-white">
+                      <span>Quantity: </span>
+                      <span className="text-gray-400 font-normal">{entry.old_value ?? '0'}</span>
+                      <span className="mx-1.5">→</span>
+                      <span className="text-indigo-600 dark:text-indigo-400 font-black">{entry.new_value}</span>
+                    </div>
+                    {entry.reason && (
+                      <div className="text-[11px] text-gray-600 dark:text-gray-300 pt-0.5 border-t border-gray-200/40 dark:border-gray-800/40">
+                        {entry.reason}
+                      </div>
+                    )}
+                  </div>
+                ));
+              })()}
+            </div>
+
+            <div className="pt-2 border-t border-gray-200 dark:border-gray-800 flex justify-end shrink-0">
+              <button
+                type="button"
+                onClick={() => setSelectedAllocationForHistory(null)}
+                className="min-h-[44px] px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 text-xs font-bold text-gray-700 dark:text-gray-300"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

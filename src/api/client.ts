@@ -912,6 +912,21 @@ export class ApiClient {
   }
 
   /**
+   * Submit physical inventory count audit session for a stockpile
+   */
+  public async submitCountAudit(stockpileId: number | string, counts: Array<{ allocation_id: number; counted_quantity: number | null | ''; notes?: string }>): Promise<any> {
+    return this.post<any>(`/api/stockpiles/${stockpileId}/count`, { counts });
+  }
+
+  /**
+   * Get count audit history for a stockpile (or allocation)
+   */
+  public async getStockpileCountHistory(stockpileId: number | string, allocationId?: number): Promise<any[]> {
+    const query = allocationId ? `?allocation_id=${allocationId}` : '';
+    return this.get<any[]>(`/api/stockpiles/${stockpileId}/count-history${query}`);
+  }
+
+  /**
    * Create stockpile
    */
   public async createStockpile(data: Partial<Stockpile>): Promise<Stockpile> {

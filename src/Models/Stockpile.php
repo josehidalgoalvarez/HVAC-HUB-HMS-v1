@@ -266,4 +266,178 @@ class Stockpile
 
         return Db::fetchAll($sql, [$applianceId]);
     }
+
+    /**
+     * Record an inventory count audit for a stockpile.
+     * Takes an array of row counts: [ ['allocation_id' => int, 'counted_quantity' => int, 'notes' => string], ... ]
+     * Updates quantities and transitions 'placeholder' -> 'available' ONLY for counted rows.
+     * Writes append-only correction rows for each changed allocation.
+     */
+    public static function recordCountAudit(int $stockpileId, array $counts, ?int $userId = null, ?string $userName = null): array
+    {
+        $stockpile = self::findById($stockpileId);
+        if (!$stockpile) {
+            throw new \RuntimeException("Stockpile #{$stockpileId} not found");
+        }
+
+        $pdo = Db::get();
+        $mustCommit = false;
+        if (!$pdo->inTransaction()) {
+            $pdo->beginTransaction();
+            $mustCommit = true;
+        }
+
+        $now = gmdate('Y-m-d H:i:s');
+        $sessionId = 'audit_' . date('Ymd_His') . '_' . bin2hex(random_bytes(3));
+        $techName = $userName ?: ($userId ? "User #{$userId}" : 'Tech');
+        $updatedRows = [];
+
+        try {
+            foreach ($counts as $entry) {
+                $allocId = (int) ($entry['allocation_id'] ?? 0);
+                if ($allocId <= 0) {
+                    continue;
+                }
+
+                // If counted_quantity is not set or null, row is kept uncounted / TBD
+                if (!isset($entry['counted_quantity']) || $entry['counted_quantity'] === '' || $entry['counted_quantity'] === null) {
+                    continue;
+                }
+
+                $countedQty = (int) $entry['counted_quantity'];
+                if ($countedQty < 0) {
+                    throw new \InvalidArgumentException("Counted quantity cannot be negative (allocation #{$allocId})");
+                }
+
+                // Fetch current allocation row
+                $alloc = Db::fetchOne(
+                    "SELECT ps.*, p.name AS part_name, p.quantity_on_hand AS total_part_qoh
+                     FROM part_stockpile ps
+                     JOIN part p ON ps.part_id = p.id
+                     WHERE ps.id = ? AND ps.stockpile_id = ?",
+                    [$allocId, $stockpileId]
+                );
+
+                if (!$alloc) {
+                    throw new \RuntimeException("Allocation #{$allocId} does not belong to stockpile #{$stockpileId}");
+                }
+
+                $oldQty = (int) $alloc['quantity'];
+                $oldStatus = (string) $alloc['status'];
+                $wasPlaceholder = ($oldStatus === 'placeholder');
+                $partId = (int) $alloc['part_id'];
+                $rowNote = trim((string) ($entry['notes'] ?? ''));
+
+                // Calculate delta for total part quantity_on_hand
+                $qtyDelta = $countedQty - $oldQty;
+
+                // 1. Update part_stockpile: set quantity and transition placeholder -> available
+                Db::execute(
+                    "UPDATE part_stockpile
+                     SET quantity = ?, status = 'available', updated_at = ?
+                     WHERE id = ?",
+                    [$countedQty, $now, $allocId]
+                );
+
+                // 2. Adjust total catalog part quantity_on_hand by the delta if needed
+                if ($qtyDelta !== 0 || $wasPlaceholder) {
+                    // Recompute total part quantity_on_hand as sum of all allocations for this part
+                    $sumRow = Db::fetchOne(
+                        "SELECT COALESCE(SUM(quantity), 0) AS total_sum FROM part_stockpile WHERE part_id = ?",
+                        [$partId]
+                    );
+                    $newTotalQoh = (int) ($sumRow['total_sum'] ?? 0);
+                    Db::execute(
+                        "UPDATE part SET quantity_on_hand = ?, updated_at = ? WHERE id = ?",
+                        [$newTotalQoh, $now, $partId]
+                    );
+                }
+
+                // 3. Record append-only correction audit
+                $oldDisp = $wasPlaceholder ? "TBD (placeholder)" : (string) $oldQty;
+                $newDisp = (string) $countedQty;
+                $reasonStr = "[Session {$sessionId}] Verified physical inventory count by {$techName}: {$oldDisp} -> {$newDisp}";
+                if ($rowNote !== '') {
+                    $reasonStr .= ". Note: {$rowNote}";
+                }
+
+                \App\Models\Correction::record(
+                    'part_stockpile',
+                    $allocId,
+                    'quantity',
+                    $oldDisp,
+                    $newDisp,
+                    $userId,
+                    $reasonStr
+                );
+
+                $updatedRows[] = [
+                    'allocation_id' => $allocId,
+                    'part_id' => $partId,
+                    'part_name' => $alloc['part_name'],
+                    'old_quantity' => $oldDisp,
+                    'new_quantity' => $countedQty,
+                    'was_placeholder' => $wasPlaceholder,
+                    'notes' => $rowNote,
+                ];
+            }
+
+            if ($mustCommit) {
+                $pdo->commit();
+            }
+
+            return [
+                'session_id' => $sessionId,
+                'stockpile_id' => $stockpileId,
+                'counted_at' => $now,
+                'counted_by' => $techName,
+                'updated_count' => count($updatedRows),
+                'updated_rows' => $updatedRows,
+            ];
+        } catch (\Throwable $e) {
+            if ($mustCommit && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Get count history for allocations at a stockpile or for a specific allocation.
+     */
+    public static function getAuditHistory(int $stockpileId, ?int $allocationId = null): array
+    {
+        if ($allocationId !== null && $allocationId > 0) {
+            return \App\Models\Correction::getForEntity('part_stockpile', $allocationId);
+        }
+
+        // Return all corrections for part_stockpile allocations belonging to this stockpile
+        $sql = "SELECT c.*,
+                       ps.part_id,
+                       p.name AS part_name,
+                       p.part_number,
+                       u.name AS changed_by_name
+                FROM correction c
+                JOIN part_stockpile ps ON c.entity_id = ps.id AND c.entity_type = 'part_stockpile'
+                JOIN part p ON ps.part_id = p.id
+                LEFT JOIN users u ON c.changed_by_user_id = u.id
+                WHERE ps.stockpile_id = ?
+                ORDER BY c.created_at DESC, c.id DESC";
+
+        try {
+            return Db::fetchAll($sql, [$stockpileId]);
+        } catch (\Throwable) {
+            // Fallback without user join if users table missing
+            $sqlFallback = "SELECT c.*,
+                                   ps.part_id,
+                                   p.name AS part_name,
+                                   p.part_number
+                            FROM correction c
+                            JOIN part_stockpile ps ON c.entity_id = ps.id AND c.entity_type = 'part_stockpile'
+                            JOIN part p ON ps.part_id = p.id
+                            WHERE ps.stockpile_id = ?
+                            ORDER BY c.created_at DESC, c.id DESC";
+            return Db::fetchAll($sqlFallback, [$stockpileId]);
+        }
+    }
 }
