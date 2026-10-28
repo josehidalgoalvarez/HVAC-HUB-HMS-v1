@@ -1,0 +1,120 @@
+{
+  "stockpiles": [
+    {
+      "name": "Sea Can 2 — 698 McKay",
+      "location": "698 McKay St (Yard)",
+      "building_id": 89,
+      "notes": "Sea can at the McKay office site. Number per Jose's '2nd sea can' label — number plate not visible in photo, TO CONFIRM on next pass. Contents from Oct 27 photo."
+    }
+  ],
+  "items": [
+    {
+      "stockpile_match": "Sea Can 2",
+      "name": "Rocker switches, 3-way",
+      "category": "Electrical",
+      "quantity": 200,
+      "unit": "pcs",
+      "purpose": "spare",
+      "status": "available",
+      "location_notes": "bulk 3-way rocker switches, foreground box label QTY 200 PCS",
+      "source": "Sea Can 2 photo Oct 27",
+      "last_updated": "2026-10-27"
+    },
+    {
+      "stockpile_match": "Sea Can 2",
+      "name": "Receptacles",
+      "category": "Electrical",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: boxes",
+      "source": "Sea Can 2 photo Oct 27",
+      "last_updated": "2026-10-27"
+    },
+    {
+      "stockpile_match": "Sea Can 2",
+      "name": "Carpet underlay rolls",
+      "category": "Flooring",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: green speckled rolls",
+      "source": "Sea Can 2 photo Oct 27",
+      "last_updated": "2026-10-27"
+    },
+    {
+      "stockpile_match": "Sea Can 2",
+      "name": "Blue tarp / roll material",
+      "category": "Hardware",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count",
+      "source": "Sea Can 2 photo Oct 27",
+      "last_updated": "2026-10-27"
+    },
+    {
+      "stockpile_match": "Sea Can 2",
+      "name": "Flooring-plank boxes",
+      "category": "Flooring",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: stack, back wall",
+      "source": "Sea Can 2 photo Oct 27",
+      "last_updated": "2026-10-27"
+    },
+    {
+      "stockpile_match": "Sea Can 2",
+      "name": "Insulation rolls, foil-faced",
+      "category": "Insulation",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count",
+      "source": "Sea Can 2 photo Oct 27",
+      "last_updated": "2026-10-27"
+    },
+    {
+      "stockpile_match": "Sea Can 2",
+      "name": "White vinyl / flooring rolls",
+      "category": "Flooring",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count",
+      "source": "Sea Can 2 photo Oct 27",
+      "last_updated": "2026-10-27"
+    },
+    {
+      "stockpile_match": "Sea Can 2",
+      "name": "Lumber / panels",
+      "category": "Lumber",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count",
+      "source": "Sea Can 2 photo Oct 27",
+      "last_updated": "2026-10-27"
+    },
+    {
+      "stockpile_match": "Sea Can 2",
+      "name": "Misc hardware boxes",
+      "category": "Hardware",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count",
+      "source": "Sea Can 2 photo Oct 27",
+      "last_updated": "2026-10-27"
+    }
+  ]
+}

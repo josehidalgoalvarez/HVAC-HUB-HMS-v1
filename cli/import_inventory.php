@@ -46,74 +46,153 @@ if (!is_array($batch)) {
     exit(1);
 }
 
-// 1. Load all stockpiles for dynamic case-insensitive name resolution
-$stockpiles = Db::fetchAll("SELECT id, name, location FROM stockpile");
-if (empty($stockpiles)) {
-    fwrite(STDERR, "Error: No stockpile records found in database\n");
-    exit(1);
+// Parse batch format: supports either plain array of items or object with {"stockpiles": [...], "items": [...]}
+$stockpileDefinitions = [];
+$items = [];
+if (isset($batch['items']) && is_array($batch['items'])) {
+    $items = $batch['items'];
+    if (isset($batch['stockpiles']) && is_array($batch['stockpiles'])) {
+        $stockpileDefinitions = $batch['stockpiles'];
+    }
+} else {
+    $items = $batch;
 }
 
-function resolveStockpile(string $matchStr, array $stockpiles): array
-{
-    $needle = strtolower(trim($matchStr));
-    $matches = [];
-
-    // Exact name match first
-    foreach ($stockpiles as $sp) {
-        if (strtolower($sp['name']) === $needle) {
-            return $sp;
-        }
-    }
-
-    // Substring name match
-    foreach ($stockpiles as $sp) {
-        if (str_contains(strtolower($sp['name']), $needle) || str_contains($needle, strtolower($sp['name']))) {
-            $matches[] = $sp;
-        }
-    }
-
-    // Fallback: match by key tokens (e.g. "McKay", "511")
-    if (empty($matches)) {
-        if (str_contains($needle, 'mckay')) {
-            foreach ($stockpiles as $sp) {
-                // Must match warehouse/office, not sea containers unless explicitly specified
-                if (str_contains(strtolower($sp['name']), 'mckay') && !str_contains(strtolower($sp['name']), 'sea container')) {
-                    $matches[] = $sp;
-                }
-            }
-        } elseif (str_contains($needle, '511')) {
-            foreach ($stockpiles as $sp) {
-                if (str_contains(strtolower($sp['name']), '511')) {
-                    $matches[] = $sp;
-                }
-            }
-        }
-    }
-
-    if (count($matches) === 1) {
-        return $matches[0];
-    }
-
-    if (count($matches) > 1) {
-        throw new RuntimeException("Ambiguous stockpile resolution for '$matchStr': multiple matches found (" . implode(', ', array_column($matches, 'name')) . ")");
-    }
-
-    throw new RuntimeException("Zero stockpiles matched for '$matchStr'");
-}
-
-// 2. Process batch
-$results = [
-    'total_rows' => count($batch),
-    'by_stockpile' => [],
-];
-
+// 1. Process stockpile definitions (idempotent: create if absent, reuse if exists)
+$stockpileReport = [];
 $pdo = Db::get();
 if ($isApply) {
     $pdo->beginTransaction();
 }
 
 try {
-    foreach ($batch as $idx => $row) {
+    foreach ($stockpileDefinitions as $spDef) {
+        $spName = trim($spDef['name'] ?? '');
+        $spLocation = trim($spDef['location'] ?? '');
+        $spNotes = trim($spDef['notes'] ?? '');
+        $spBuildingId = isset($spDef['building_id']) ? (int) $spDef['building_id'] : null;
+
+        if ($spName === '') {
+            throw new RuntimeException("Stockpile definition must have a non-empty name");
+        }
+
+        $existing = Db::fetchOne("SELECT id, name, location FROM stockpile WHERE LOWER(name) = LOWER(?)", [$spName]);
+        if ($existing) {
+            $stockpileReport[] = [
+                'action' => 'REUSED (already exists)',
+                'name' => $existing['name'],
+                'id' => (int) $existing['id'],
+            ];
+        } else {
+            if ($isApply) {
+                Db::execute(
+                    "INSERT INTO stockpile (name, location, building_id, notes, created_at, updated_at)
+                     VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                    [$spName, $spLocation, $spBuildingId, $spNotes]
+                );
+                $newId = (int) Db::lastInsertId();
+                $stockpileReport[] = [
+                    'action' => 'CREATED',
+                    'name' => $spName,
+                    'id' => $newId,
+                ];
+            } else {
+                $stockpileReport[] = [
+                    'action' => 'WOULD_CREATE',
+                    'name' => $spName,
+                    'id' => 'TBD (new)',
+                ];
+            }
+        }
+    }
+
+    // 2. Load all stockpiles for dynamic case-insensitive name resolution
+    $stockpiles = Db::fetchAll("SELECT id, name, location FROM stockpile");
+    if (empty($stockpiles) && empty($stockpileDefinitions)) {
+        throw new RuntimeException("No stockpile records found in database");
+    }
+
+    // If dry-run and new stockpiles would be created, inject them into $stockpiles list for resolution
+    if (!$isApply) {
+        foreach ($stockpileDefinitions as $spDef) {
+            $spName = trim($spDef['name'] ?? '');
+            $alreadyInList = false;
+            foreach ($stockpiles as $sp) {
+                if (strtolower($sp['name']) === strtolower($spName)) {
+                    $alreadyInList = true;
+                    break;
+                }
+            }
+            if (!$alreadyInList) {
+                $stockpiles[] = [
+                    'id' => 9999, // placeholder for dry-run
+                    'name' => $spName,
+                    'location' => trim($spDef['location'] ?? ''),
+                ];
+            }
+        }
+    }
+
+    function resolveStockpile(string $matchStr, array $stockpiles): array
+    {
+        $needle = strtolower(trim($matchStr));
+        $matches = [];
+
+        // Exact name match first
+        foreach ($stockpiles as $sp) {
+            if (strtolower($sp['name']) === $needle) {
+                return $sp;
+            }
+        }
+
+        // Substring name match
+        foreach ($stockpiles as $sp) {
+            if (str_contains(strtolower($sp['name']), $needle) || str_contains($needle, strtolower($sp['name']))) {
+                $matches[] = $sp;
+            }
+        }
+
+        // Fallback: match by key tokens (e.g. "McKay", "511", "Sea Can 2")
+        if (empty($matches)) {
+            if (str_contains($needle, 'sea can 2') || str_contains($needle, 'can 2')) {
+                foreach ($stockpiles as $sp) {
+                    if (str_contains(strtolower($sp['name']), 'sea can 2') || str_contains(strtolower($sp['name']), 'can 2')) {
+                        $matches[] = $sp;
+                    }
+                }
+            } elseif (str_contains($needle, 'mckay')) {
+                foreach ($stockpiles as $sp) {
+                    // Must match warehouse/office, not sea containers unless explicitly specified
+                    if (str_contains(strtolower($sp['name']), 'mckay') && !str_contains(strtolower($sp['name']), 'sea container') && !str_contains(strtolower($sp['name']), 'sea can')) {
+                        $matches[] = $sp;
+                    }
+                }
+            } elseif (str_contains($needle, '511')) {
+                foreach ($stockpiles as $sp) {
+                    if (str_contains(strtolower($sp['name']), '511')) {
+                        $matches[] = $sp;
+                    }
+                }
+            }
+        }
+
+        if (count($matches) === 1) {
+            return $matches[0];
+        }
+
+        if (count($matches) > 1) {
+            throw new RuntimeException("Ambiguous stockpile resolution for '$matchStr': multiple matches found (" . implode(', ', array_column($matches, 'name')) . ")");
+        }
+
+        throw new RuntimeException("Zero stockpiles matched for '$matchStr'");
+    }
+
+    // 3. Process batch items
+    $results = [
+        'total_rows' => count($items),
+        'by_stockpile' => [],
+    ];
+    foreach ($items as $idx => $row) {
         $name = trim($row['name'] ?? '');
         $category = trim($row['category'] ?? '');
         $status = trim($row['status'] ?? 'placeholder');
@@ -220,8 +299,16 @@ try {
     exit(1);
 }
 
-// 3. Print report
-echo "--- Import Summary ---\n";
+// 4. Print report
+if (!empty($stockpileReport)) {
+    echo "--- Stockpile Definitions ---\n";
+    foreach ($stockpileReport as $rep) {
+        printf("  [%s] %s (ID: %s)\n", $rep['action'], $rep['name'], (string)$rep['id']);
+    }
+    echo "\n";
+}
+
+echo "--- Items Summary ---\n";
 printf("%-30s | %-12s | %-12s | %-12s\n", "Stockpile Name", "Resolved ID", "Inserted", "Skipped");
 echo str_repeat("-", 75) . "\n";
 
