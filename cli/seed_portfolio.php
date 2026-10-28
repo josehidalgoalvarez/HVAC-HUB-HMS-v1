@@ -821,13 +821,18 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     $pdo->exec("DELETE FROM run_sheet_block WHERE ticket_id IS NOT NULL AND ticket_id NOT IN (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21)");
     $pdo->exec("DELETE FROM ticket WHERE id NOT IN (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21)");
 
+    // Resolve unit for 137 Amherst (Building 10, Unit 137) via label-based lookup
+    $u137Stmt = $pdo->prepare("SELECT id FROM unit WHERE building_id = 10 AND unit_number = '137' LIMIT 1");
+    $u137Stmt->execute();
+    $u137Id = (int) ($u137Stmt->fetchColumn() ?: 410);
+
     // Seed Reconciled Portfolio Tickets (21 Canonical Tickets on Verified Units)
     $tickets = [
-        [1, 'WO-19970', null, 10, 584, 'Full HVAC Overhaul - 4-Unit Quadplex', '137 Amherst Dr multi-floor townhouse quadplex overhaul. All system work on hold pending owner authorization.', null, 'Quadplex HVAC overhaul on hold pending owner authorization', null, 'on-hold', 'urgent', 'Awaiting property management authorization', 'indoor', 0, 0],
-        [2, null, 1, 10, 584, 'Unit 1 Heat Pump Emergency Overhaul', 'Heat pump emergency overhaul in Unit 1 zone.', null, 'Diagnose compressor lockout, test suction pressure, check reversing valve', null, 'in-progress', 'urgent', null, 'indoor', 0, 0],
-        [3, null, 1, 10, 584, 'Unit 2 Blower Replacement', 'Blower assembly replacement in Unit 2 zone.', null, 'Replace 1/2 HP blower motor and run capacitor', null, 'in-progress', 'high', null, 'indoor', 0, 0],
-        [4, null, 1, 10, 584, 'Unit 3 Coil Replacement', 'Evaporator coil replacement in Unit 3 zone.', null, 'Awaiting delivery of OEM 3-ton cased evaporator coil', null, 'blocked', 'high', 'Awaiting 3-ton evaporator coil delivery from Carrier', 'indoor', 0, 0],
-        [5, null, 1, 10, 584, 'Unit 4 Line Set Flush', 'Line set flush and evacuation in Unit 4 zone.', null, 'Rx11-flush line set, triple evacuation to 350 microns, nitrogen holding charge verified', null, 'done', 'low', null, 'indoor', 0, 0],
+        [1, 'WO-19970', null, 10, $u137Id, 'Full HVAC Overhaul - 4-Unit Quadplex', '137 Amherst Dr multi-floor townhouse quadplex overhaul. All system work on hold pending owner authorization.', null, 'Quadplex HVAC overhaul on hold pending owner authorization', null, 'on-hold', 'urgent', 'Awaiting property management authorization', 'indoor', 0, 0],
+        [2, null, 1, 10, $u137Id, 'Unit 1 Heat Pump Emergency Overhaul', 'Heat pump emergency overhaul in Unit 1 zone.', null, 'Diagnose compressor lockout, test suction pressure, check reversing valve', null, 'in-progress', 'urgent', null, 'indoor', 0, 0],
+        [3, null, 1, 10, $u137Id, 'Unit 2 Blower Replacement', 'Blower assembly replacement in Unit 2 zone.', null, 'Replace 1/2 HP blower motor and run capacitor', null, 'in-progress', 'high', null, 'indoor', 0, 0],
+        [4, null, 1, 10, $u137Id, 'Unit 3 Coil Replacement', 'Evaporator coil replacement in Unit 3 zone.', null, 'Awaiting delivery of OEM 3-ton cased evaporator coil', null, 'blocked', 'high', 'Awaiting 3-ton evaporator coil delivery from Carrier', 'indoor', 0, 0],
+        [5, null, 1, 10, $u137Id, 'Unit 4 Line Set Flush', 'Line set flush and evacuation in Unit 4 zone.', null, 'Rx11-flush line set, triple evacuation to 350 microns, nitrogen holding charge verified', null, 'done', 'low', null, 'indoor', 0, 0],
         [6, null, null, 3, 347, '1723-266 Dishwasher Drain Pump Replacement', 'Frigidaire FFCD2418US3A dishwasher in unit 266 kitchen. Askoll M376 pump (part A16944601) replaced; load test pending.', null, 'Verify drain cycle and inspect pump gasket under load', null, 'verified', 'medium', null, 'indoor', 0, 0],
         [7, 'WO-20061', null, 1, 326, '1719-273 Refrigerator Crisper Drawer & Shelf', '1719 Bath unit 273 kitchen (WOs 20061/20062). Crisper drawer 240337103 BOUGHT 2026-10-19; door shelf 240338101 ORDERED, pickup pending.', null, 'Install replacement door shelf 240338101 and inspect door seals on Frigidaire FFHT1826LS9', null, 'pending_parts', 'medium', 'Door shelf 240338101 ordered, pickup pending', 'indoor', 0, 0],
         [8, 'WO-19255', null, 8, 270, '505-103 Recurring Freezer Noise Complaint', 'Recurring noise complaint (WO 19255). Tenant called first before visits.', null, 'Inspect evaporator fan motor and compressor mounting grommets', null, 'verified', 'medium', null, 'indoor', 0, 0],
