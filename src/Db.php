@@ -531,6 +531,27 @@ class Db
             $pdo->exec("ALTER TABLE ticket ADD COLUMN notice_confirmed_by TEXT NULL");
         } catch (\Throwable) {}
 
+        try {
+            $pdo->exec("ALTER TABLE appliance ADD COLUMN stockpile_id INTEGER NULL");
+        } catch (\Throwable) {}
+
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS appliance_movement (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                appliance_id INTEGER NOT NULL,
+                from_stockpile_id INTEGER NULL,
+                from_unit_id INTEGER NULL,
+                to_stockpile_id INTEGER NULL,
+                to_unit_id INTEGER NULL,
+                disposition TEXT NOT NULL DEFAULT 'stored',
+                movement_date TEXT DEFAULT CURRENT_TIMESTAMP,
+                ticket_id INTEGER NULL,
+                moved_by TEXT NOT NULL DEFAULT 'Tech',
+                notes TEXT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+        ");
+
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS complex (
                 id TEXT PRIMARY KEY,

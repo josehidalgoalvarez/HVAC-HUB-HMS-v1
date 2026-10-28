@@ -113,4 +113,157 @@ class Stockpile
 
         return $rows;
     }
+
+    /**
+     * Get stored appliances at a specific stockpile.
+     */
+    public static function getAppliances(int $stockpileId): array
+    {
+        $sql = "SELECT a.*,
+                       sp.name AS stockpile_name,
+                       sp.location AS stockpile_location
+                FROM appliance a
+                LEFT JOIN stockpile sp ON a.stockpile_id = sp.id
+                WHERE a.stockpile_id = ?
+                ORDER BY a.id ASC";
+
+        $rows = Db::fetchAll($sql, [$stockpileId]);
+
+        foreach ($rows as &$row) {
+            $row['id'] = (int) $row['id'];
+            $row['stockpile_id'] = $row['stockpile_id'] !== null ? (int) $row['stockpile_id'] : null;
+            $row['building_id'] = $row['building_id'] !== null ? (int) $row['building_id'] : null;
+            $row['unit_id'] = $row['unit_id'] !== null ? (int) $row['unit_id'] : null;
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Record an appliance movement and update appliance location/status.
+     */
+    public static function moveAppliance(int $applianceId, array $data, ?int $userId = null): array
+    {
+        $appliance = Db::fetchOne("SELECT * FROM appliance WHERE id = ?", [$applianceId]);
+        if (!$appliance) {
+            throw new \RuntimeException("Appliance #{$applianceId} not found");
+        }
+
+        $fromStockpileId = $appliance['stockpile_id'] !== null ? (int) $appliance['stockpile_id'] : null;
+        $fromUnitId = $appliance['unit_id'] !== null ? (int) $appliance['unit_id'] : null;
+
+        $toStockpileId = isset($data['to_stockpile_id']) && $data['to_stockpile_id'] !== '' ? (int) $data['to_stockpile_id'] : null;
+        $toUnitId = isset($data['to_unit_id']) && $data['to_unit_id'] !== '' ? (int) $data['to_unit_id'] : null;
+        $toBuildingId = isset($data['to_building_id']) && $data['to_building_id'] !== '' ? (int) $data['to_building_id'] : null;
+        $disposition = trim((string) ($data['disposition'] ?? 'installed')); // 'stored', 'installed', 'harvested', 'disposed'
+        $movedBy = trim((string) ($data['moved_by'] ?? 'Tech'));
+        $ticketId = isset($data['ticket_id']) && $data['ticket_id'] !== '' ? (int) $data['ticket_id'] : null;
+        $notes = trim((string) ($data['notes'] ?? ''));
+        $now = gmdate('Y-m-d H:i:s');
+
+        // Execute inside transaction if not already in one
+        $pdo = Db::get();
+        $mustCommit = false;
+        if (!$pdo->inTransaction()) {
+            $pdo->beginTransaction();
+            $mustCommit = true;
+        }
+
+        try {
+            // 1. Insert movement record
+            Db::execute(
+                "INSERT INTO appliance_movement (appliance_id, from_stockpile_id, from_unit_id, to_stockpile_id, to_unit_id, disposition, movement_date, ticket_id, moved_by, notes, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [$applianceId, $fromStockpileId, $fromUnitId, $toStockpileId, $toUnitId, $disposition, $now, $ticketId, $movedBy, $notes, $now]
+            );
+            $movementId = (int) Db::lastInsertId();
+
+            // 2. Update appliance record
+            if ($disposition === 'installed' && $toUnitId) {
+                // If installing into a unit, look up building_id from unit if not provided
+                if (!$toBuildingId) {
+                    $uRow = Db::fetchOne("SELECT building_id FROM unit WHERE id = ?", [$toUnitId]);
+                    $toBuildingId = $uRow ? (int) $uRow['building_id'] : $appliance['building_id'];
+                }
+                Db::execute(
+                    "UPDATE appliance
+                     SET stockpile_id = NULL, unit_id = ?, building_id = ?, status = 'operational', location = ?, updated_at = ?
+                     WHERE id = ?",
+                    [$toUnitId, $toBuildingId, "Unit {$toUnitId}", $now, $applianceId]
+                );
+            } elseif ($disposition === 'stored') {
+                Db::execute(
+                    "UPDATE appliance
+                     SET stockpile_id = ?, unit_id = NULL, status = 'stored', location = 'Stockpile', updated_at = ?
+                     WHERE id = ?",
+                    [$toStockpileId, $now, $applianceId]
+                );
+            } elseif ($disposition === 'harvested') {
+                Db::execute(
+                    "UPDATE appliance
+                     SET status = 'donor', updated_at = ?
+                     WHERE id = ?",
+                    [$now, $applianceId]
+                );
+            } elseif ($disposition === 'disposed') {
+                Db::execute(
+                    "UPDATE appliance
+                     SET stockpile_id = NULL, unit_id = NULL, status = 'disposed', location = 'Disposed', updated_at = ?
+                     WHERE id = ?",
+                    [$now, $applianceId]
+                );
+            }
+
+            // 3. Append-only correction audit
+            \App\Models\Correction::record(
+                'appliance',
+                $applianceId,
+                'location',
+                $fromStockpileId ? "Stockpile #{$fromStockpileId}" : ($fromUnitId ? "Unit #{$fromUnitId}" : 'Unknown'),
+                $toStockpileId ? "Stockpile #{$toStockpileId}" : ($toUnitId ? "Unit #{$toUnitId}" : $disposition),
+                $userId,
+                "Appliance movement ({$disposition}): {$notes}"
+            );
+
+            if ($mustCommit) {
+                $pdo->commit();
+            }
+
+            return [
+                'movement_id' => $movementId,
+                'appliance_id' => $applianceId,
+                'disposition' => $disposition,
+                'from_stockpile_id' => $fromStockpileId,
+                'to_stockpile_id' => $toStockpileId,
+                'to_unit_id' => $toUnitId,
+                'movement_date' => $now,
+            ];
+        } catch (\Throwable $e) {
+            if ($mustCommit && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Get movements history for an appliance.
+     */
+    public static function getApplianceMovements(int $applianceId): array
+    {
+        $sql = "SELECT am.*,
+                       sp_from.name AS from_stockpile_name,
+                       sp_to.name AS to_stockpile_name,
+                       u_to.unit_number AS to_unit_number,
+                       b_to.name AS to_building_name
+                FROM appliance_movement am
+                LEFT JOIN stockpile sp_from ON am.from_stockpile_id = sp_from.id
+                LEFT JOIN stockpile sp_to ON am.to_stockpile_id = sp_to.id
+                LEFT JOIN unit u_to ON am.to_unit_id = u_to.id
+                LEFT JOIN building b_to ON u_to.building_id = b_to.id
+                WHERE am.appliance_id = ?
+                ORDER BY am.id DESC";
+
+        return Db::fetchAll($sql, [$applianceId]);
+    }
 }

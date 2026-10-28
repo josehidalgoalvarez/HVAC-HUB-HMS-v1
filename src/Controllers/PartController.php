@@ -212,6 +212,73 @@ class PartController
     }
 
     /**
+     * GET /api/stockpiles/{id}/appliances
+     * List all stored appliances at a specific stockpile.
+     */
+    public function stockpileAppliances(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) ($args['id'] ?? 0);
+        if ($id <= 0) {
+            return Auth::jsonError('not_found', 'Stockpile not found', 404);
+        }
+
+        try {
+            $stockpile = Stockpile::findById($id);
+            if ($stockpile === null) {
+                return Auth::jsonError('not_found', 'Stockpile not found', 404);
+            }
+
+            $appliances = Stockpile::getAppliances($id);
+            return $this->respondWithEtag($request, $appliances);
+        } catch (Throwable $e) {
+            return Auth::jsonError('server_error', $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * POST /api/appliances/{id}/move
+     * Record an appliance movement and update status/location.
+     */
+    public function moveAppliance(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) ($args['id'] ?? 0);
+        if ($id <= 0) {
+            return Auth::jsonError('not_found', 'Appliance not found', 404);
+        }
+
+        $user = Auth::getCurrentUser();
+        $userId = $user['id'] ?? null;
+
+        $body = (array) ($request->getParsedBody() ?? []);
+
+        try {
+            $result = Stockpile::moveAppliance($id, $body, $userId);
+            return Auth::jsonSuccess($result);
+        } catch (Throwable $e) {
+            return Auth::jsonError('bad_request', $e->getMessage(), 400);
+        }
+    }
+
+    /**
+     * GET /api/appliances/{id}/movements
+     * List movement history for an appliance.
+     */
+    public function applianceMovements(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) ($args['id'] ?? 0);
+        if ($id <= 0) {
+            return Auth::jsonError('not_found', 'Appliance not found', 404);
+        }
+
+        try {
+            $movements = Stockpile::getApplianceMovements($id);
+            return $this->respondWithEtag($request, $movements);
+        } catch (Throwable $e) {
+            return Auth::jsonError('server_error', $e->getMessage(), 500);
+        }
+    }
+
+    /**
      * GET /api/suppliers
      * List all suppliers with phone and hours.
      */

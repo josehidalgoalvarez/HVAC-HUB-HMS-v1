@@ -205,9 +205,11 @@ export interface Appliance {
   external_id?: string | null;
   externalId?: string | null;
   name: string;
-  brand: string;
-  propertyId: string;
-  status: 'operational' | 'needs_service' | 'error' | 'idle' | 'connected' | 'donor' | 'valved_off' | 'disconnected';
+  brand?: string;
+  propertyId?: string;
+  stockpileId?: number | string | null;
+  stockpile_id?: number | string | null;
+  status: 'operational' | 'needs_service' | 'error' | 'idle' | 'connected' | 'donor' | 'valved_off' | 'disconnected' | 'stored' | 'harvested' | 'disposed' | 'installed';
   lastService: string;
   type: string;
   category?: string;
@@ -233,6 +235,25 @@ export interface Appliance {
   isDefault?: boolean;
   isOverride?: boolean;
   overrideForType?: string;
+}
+
+export interface ApplianceMovement {
+  id: number;
+  appliance_id: number;
+  from_stockpile_id?: number | null;
+  from_unit_id?: number | null;
+  to_stockpile_id?: number | null;
+  to_unit_id?: number | null;
+  disposition: 'stored' | 'installed' | 'harvested' | 'disposed';
+  movement_date: string;
+  ticket_id?: number | null;
+  moved_by?: string;
+  notes?: string;
+  created_at: string;
+  from_stockpile_name?: string | null;
+  to_stockpile_name?: string | null;
+  to_unit_number?: string | null;
+  to_building_name?: string | null;
 }
 
 export interface MaintenanceRecord {

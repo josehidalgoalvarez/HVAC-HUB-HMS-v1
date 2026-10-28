@@ -290,6 +290,9 @@ class Routes
             $group->post('/parts/{id}/use', [PartController::class, 'usePart']);
             $group->get('/stockpiles', [PartController::class, 'stockpiles']);
             $group->get('/stockpiles/{id}/parts', [PartController::class, 'stockpileParts']);
+            $group->get('/stockpiles/{id}/appliances', [PartController::class, 'stockpileAppliances']);
+            $group->post('/appliances/{id}/move', [PartController::class, 'moveAppliance']);
+            $group->get('/appliances/{id}/movements', [PartController::class, 'applianceMovements']);
             $group->post('/stockpiles', [PartController::class, 'createStockpile']);
             $group->get('/suppliers', [PartController::class, 'suppliers']);
             $group->post('/suppliers', [PartController::class, 'createSupplier']);

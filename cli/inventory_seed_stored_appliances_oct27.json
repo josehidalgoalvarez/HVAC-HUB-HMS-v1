@@ -1,0 +1,52 @@
+[
+  {
+    "stockpile_name": "511 Days Rd Storage",
+    "name": "Dishwasher",
+    "type": "Dishwasher",
+    "status": "stored",
+    "model_number": null,
+    "serial_number": null,
+    "brand": "Frigidaire",
+    "notes": "Stored dishwasher, 511 basement. Prior record claims Frigidaire FFCD2418US3A SN TH21634317 with Askoll M376 pump fitted Oct 19 — RATING-PLATE CONFIRMATION PENDING; confirm it is a different machine from the 1723-266 unit (pump replaced Oct 15). Model + serial are TBD until confirmed — do NOT store the claimed model/serial as facts."
+  },
+  {
+    "stockpile_name": "511 Days Rd Storage",
+    "name": "White stove (1 of 2)",
+    "type": "Range",
+    "status": "stored",
+    "model_number": null,
+    "serial_number": null,
+    "brand": "Unknown",
+    "notes": "Stored white stove, 511 basement. Model UNKNOWN."
+  },
+  {
+    "stockpile_name": "511 Days Rd Storage",
+    "name": "White stove (2 of 2)",
+    "type": "Range",
+    "status": "stored",
+    "model_number": null,
+    "serial_number": null,
+    "brand": "Unknown",
+    "notes": "Stored white stove, 511 basement. Model UNKNOWN."
+  },
+  {
+    "stockpile_name": "107 Amherst Storage",
+    "name": "White coil stove (1 of 2)",
+    "type": "Range",
+    "status": "stored",
+    "model_number": null,
+    "serial_number": null,
+    "brand": "Unknown",
+    "notes": "Stored white coil stove, 107 Amherst storage node (prior record). Model UNKNOWN."
+  },
+  {
+    "stockpile_name": "107 Amherst Storage",
+    "name": "White coil stove (2 of 2)",
+    "type": "Range",
+    "status": "stored",
+    "model_number": null,
+    "serial_number": null,
+    "brand": "Unknown",
+    "notes": "Stored white coil stove, 107 Amherst storage node (prior record). Model UNKNOWN."
+  }
+]

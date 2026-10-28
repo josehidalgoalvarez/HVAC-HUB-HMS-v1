@@ -22,6 +22,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
   const [allStockpiles, setAllStockpiles] = useState<Stockpile[]>([]);
   const [items, setItems] = useState<StockpilePartItem[]>([]);
   const [allParts, setAllParts] = useState<PartRecord[]>([]);
+  const [storedAppliances, setStoredAppliances] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterBelowMinOnly, setFilterBelowMinOnly] = useState(false);
@@ -32,16 +33,23 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
   const [isAddPartOpen, setIsAddPartOpen] = useState(false);
   const [activePartForUsage, setActivePartForUsage] = useState<PartRecord | null>(null);
   const [initialUsageMode, setInitialUsageMode] = useState<'use' | 'restock'>('use');
+  const [movingAppliance, setMovingAppliance] = useState<any | null>(null);
+  const [moveDisposition, setMoveDisposition] = useState<'installed' | 'harvested' | 'disposed' | 'stored'>('installed');
+  const [moveUnitId, setMoveUnitId] = useState('');
+  const [moveNotes, setMoveNotes] = useState('');
+  const [isSubmittingMove, setIsSubmittingMove] = useState(false);
 
   const cacheKey = `stockpile_parts_${stockpileId}`;
+  const appCacheKey = `stockpile_appliances_${stockpileId}`;
 
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [spRes, partsRes, stockRes] = await Promise.allSettled([
+      const [spRes, partsRes, stockRes, appRes] = await Promise.allSettled([
         apiClient.getStockpiles(),
         apiClient.getParts(),
         apiClient.getStockpileParts(stockpileId),
+        apiClient.getStockpileAppliances(stockpileId),
       ]);
 
       if (spRes.status === 'fulfilled' && spRes.value) {
@@ -60,12 +68,17 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
         setItems(stockRes.value);
         appCache.set(cacheKey, stockRes.value);
       }
+
+      if (appRes.status === 'fulfilled' && Array.isArray(appRes.value)) {
+        setStoredAppliances(appRes.value);
+        appCache.set(appCacheKey, appRes.value);
+      }
     } catch (err) {
       console.warn('Error loading stockpile inventory data:', err);
     } finally {
       setLoading(false);
     }
-  }, [stockpileId, cacheKey]);
+  }, [stockpileId, cacheKey, appCacheKey]);
 
   useEffect(() => {
     // 1. Instant cache load
@@ -73,7 +86,8 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       appCache.get<Stockpile[]>('stockpiles'),
       appCache.get<StockpilePartItem[]>(cacheKey),
       appCache.get<PartRecord[]>('parts'),
-    ]).then(([cachedStockpiles, cachedItems, cachedParts]) => {
+      appCache.get<any[]>(appCacheKey),
+    ]).then(([cachedStockpiles, cachedItems, cachedParts, cachedAppliances]) => {
       if (cachedStockpiles && cachedStockpiles.length > 0) {
         setAllStockpiles(cachedStockpiles);
         const current = cachedStockpiles.find(s => String(s.id) === String(stockpileId));
@@ -85,6 +99,9 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       if (cachedParts) {
         setAllParts(cachedParts);
       }
+      if (cachedAppliances) {
+        setStoredAppliances(cachedAppliances);
+      }
     });
 
     // 2. Fresh fetch
@@ -94,7 +111,35 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
     const handleGlobalRefresh = () => loadData();
     window.addEventListener('hvachome:refresh', handleGlobalRefresh);
     return () => window.removeEventListener('hvachome:refresh', handleGlobalRefresh);
-  }, [stockpileId, loadData, cacheKey]);
+  }, [stockpileId, loadData, cacheKey, appCacheKey]);
+
+  const handleApplianceMoveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!movingAppliance) return;
+    try {
+      setIsSubmittingMove(true);
+      await apiClient.moveAppliance(movingAppliance.id, {
+        disposition: moveDisposition,
+        to_unit_id: moveUnitId ? Number(moveUnitId) : null,
+        to_stockpile_id: moveDisposition === 'stored' ? Number(stockpileId) : null,
+        notes: moveNotes,
+      });
+
+      setFlashMsg({
+        text: `Appliance moved / status updated to ${moveDisposition.toUpperCase()}!`,
+        type: 'success',
+      });
+      setTimeout(() => setFlashMsg(null), 5000);
+      setMovingAppliance(null);
+      setMoveNotes('');
+      setMoveUnitId('');
+      await loadData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to update appliance disposition');
+    } finally {
+      setIsSubmittingMove(false);
+    }
+  };
 
   const handleUsePartSuccess = async (payload: LogPartUseResult) => {
     if (!activePartForUsage) return;
@@ -568,6 +613,93 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
         )}
       </PullToRefresh>
 
+      {/* Stored Appliances Section (distinct from parts) */}
+      <div className="space-y-3 pt-4 border-t border-gray-200/80 dark:border-gray-800">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-xl">kitchen</span>
+            <h2 className="text-base font-bold text-brand-black dark:text-white">
+              Stored Appliances
+            </h2>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+              Appliance ({storedAppliances.length})
+            </span>
+          </div>
+        </div>
+
+        {storedAppliances.length === 0 ? (
+          <div className="p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 text-center text-xs text-gray-400 bg-gray-50/50 dark:bg-card-dark/40">
+            No donor or stored appliances currently logged at this location.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {storedAppliances.map((app: any) => {
+              const modelDisp = app.model_number && app.model_number.trim() !== '' ? app.model_number : 'TBD (Unknown)';
+              const serialDisp = app.serial_number && app.serial_number.trim() !== '' ? app.serial_number : 'TBD (Unknown)';
+              return (
+                <div
+                  key={`appliance-${app.id}`}
+                  className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-200/80 dark:border-gray-800 shadow-xs space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/30">
+                          APPLIANCE
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20">
+                          {app.type || 'Appliance'}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+                          {app.status || 'stored'}
+                        </span>
+                      </div>
+                      <h3 className="text-sm font-bold text-brand-black dark:text-white truncate">
+                        {app.name}
+                      </h3>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
+                        <div>
+                          <span className="font-semibold text-gray-600 dark:text-gray-300">Model: </span>
+                          <span className={modelDisp.startsWith('TBD') ? 'font-mono text-amber-600 dark:text-amber-400 font-semibold' : ''}>
+                            {modelDisp}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="font-semibold text-gray-600 dark:text-gray-300">Serial: </span>
+                          <span className={serialDisp.startsWith('TBD') ? 'font-mono text-amber-600 dark:text-amber-400 font-semibold' : ''}>
+                            {serialDisp}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setMovingAppliance(app);
+                        setMoveDisposition('installed');
+                        setMoveNotes('');
+                        setMoveUnitId('');
+                      }}
+                      className="min-h-[44px] px-3 py-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-95 shrink-0"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">outbox</span>
+                      <span>Move / Install</span>
+                    </button>
+                  </div>
+
+                  {app.notes && (
+                    <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-100 dark:border-gray-800 text-[11px] text-gray-600 dark:text-gray-300">
+                      <span className="font-semibold text-brand-black dark:text-white">Note: </span>
+                      {app.notes}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       {/* Modals Reuse */}
       {isTransferOpen && (
         <StockTransferModal
@@ -599,6 +731,98 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
           onClose={() => setActivePartForUsage(null)}
           onSuccess={handleUsePartSuccess}
         />
+      )}
+
+      {/* Move / Install Appliance Modal */}
+      {movingAppliance && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white dark:bg-card-dark rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-5 space-y-4 animate-scaleUp">
+            <div className="flex items-center justify-between">
+              <div className="min-w-0">
+                <h3 className="text-base font-bold text-brand-black dark:text-white truncate">
+                  Move / Install Appliance
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {movingAppliance.name} (ID #{movingAppliance.id})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMovingAppliance(null)}
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500"
+              >
+                <span className="material-symbols-outlined text-xl">close</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleApplianceMoveSubmit} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Target Disposition / Action
+                </label>
+                <select
+                  value={moveDisposition}
+                  onChange={e => setMoveDisposition(e.target.value as any)}
+                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-800 text-xs font-semibold text-brand-black dark:text-white"
+                >
+                  <option value="installed">Install into Unit (Operational)</option>
+                  <option value="stored">Keep Stored / Relocate</option>
+                  <option value="harvested">Mark as Donor / Harvested</option>
+                  <option value="disposed">Scrap / Disposed</option>
+                </select>
+              </div>
+
+              {moveDisposition === 'installed' && (
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                    Destination Unit ID
+                  </label>
+                  <input
+                    type="number"
+                    value={moveUnitId}
+                    onChange={e => setMoveUnitId(e.target.value)}
+                    required
+                    placeholder="e.g. 137"
+                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-800 text-xs text-brand-black dark:text-white"
+                  />
+                  <p className="text-[10px] text-gray-400 mt-1">
+                    Enter the unit database ID to assign and mark as operational.
+                  </p>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Movement Notes / Work Order
+                </label>
+                <textarea
+                  value={moveNotes}
+                  onChange={e => setMoveNotes(e.target.value)}
+                  rows={2}
+                  placeholder="Reason for movement, tech notes, or work order reference..."
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-800 text-xs text-brand-black dark:text-white"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setMovingAppliance(null)}
+                  className="min-h-[44px] px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 text-xs font-bold text-gray-700 dark:text-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingMove}
+                  className="min-h-[44px] px-5 py-2 rounded-xl bg-primary hover:bg-blue-600 text-xs font-bold text-white shadow-xs"
+                >
+                  {isSubmittingMove ? 'Saving...' : 'Record Movement'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -891,6 +891,27 @@ export class ApiClient {
   }
 
   /**
+   * Get appliances stored at a specific stockpile
+   */
+  public async getStockpileAppliances(stockpileId: number | string): Promise<any[]> {
+    return this.get<any[]>(`/api/stockpiles/${stockpileId}/appliances`);
+  }
+
+  /**
+   * Move / change disposition of an appliance
+   */
+  public async moveAppliance(applianceId: number | string, data: any): Promise<any> {
+    return this.post<any>(`/api/appliances/${applianceId}/move`, data);
+  }
+
+  /**
+   * Get movement history for an appliance
+   */
+  public async getApplianceMovements(applianceId: number | string): Promise<any[]> {
+    return this.get<any[]>(`/api/appliances/${applianceId}/movements`);
+  }
+
+  /**
    * Create stockpile
    */
   public async createStockpile(data: Partial<Stockpile>): Promise<Stockpile> {
