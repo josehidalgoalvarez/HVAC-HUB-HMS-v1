@@ -127,7 +127,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   }
 
   return (
-    <div className="pb-safe max-w-xl mx-auto px-4 py-4 space-y-4 animate-fadeIn w-full min-w-0">
+    <div className="pb-safe pb-24 max-w-xl mx-auto px-4 py-4 space-y-4 animate-fadeIn w-full min-w-0">
       {/* Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2 min-w-0">

@@ -56,9 +56,6 @@ export const ManagePropertiesModal: React.FC<ManagePropertiesModalProps> = ({
                         key={p.id}
                         className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
                     >
-                        <div className="w-12 h-12 rounded-lg bg-gray-200 overflow-hidden shrink-0">
-                            <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
-                        </div>
                         <div className="flex-1 min-w-0">
                             <p className="font-bold text-brand-black dark:text-white truncate text-sm">{p.name}</p>
                             <p className="text-xs text-text-sub-light dark:text-text-sub-dark truncate">{p.address}</p>

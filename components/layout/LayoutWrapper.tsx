@@ -39,7 +39,9 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({ activeView, onNavigate, c
     <div className="pt-safe min-h-screen">
       <OfflineStatusBadge />
       <PWAInstallBanner />
-      {children}
+      <div className={showBottomNav ? 'pb-tab-bar' : ''}>
+        {children}
+      </div>
       {showBottomNav && (
         <BottomNav 
           activeView={getActiveNavTab()} 

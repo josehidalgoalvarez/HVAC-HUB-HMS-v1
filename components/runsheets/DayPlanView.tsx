@@ -123,7 +123,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
   const rollup = activeRunSheet?.rollup;
 
   return (
-    <div className="pb-safe max-w-xl mx-auto px-4 py-4 space-y-4 animate-fadeIn">
+    <div className="pb-safe pb-24 max-w-xl mx-auto px-4 py-4 space-y-4 animate-fadeIn">
       {/* Top Header Bar */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">

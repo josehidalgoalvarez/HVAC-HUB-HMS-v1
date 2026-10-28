@@ -29,7 +29,7 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
   onSuccess,
 }) => {
   const [mode, setMode] = useState<'use' | 'restock'>(initialMode);
-  const [quantity, setQuantity] = useState<number>(1);
+  const [quantity, setQuantity] = useState<number | ''>(1);
   const [jobId, setJobId] = useState<string>('');
   const [stockpileId, setStockpileId] = useState<string>(
     initialStockpileId
@@ -46,12 +46,13 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (quantity <= 0) {
-      setError('Quantity must be greater than zero');
+    const numericQty = typeof quantity === 'number' ? quantity : parseInt(String(quantity), 10);
+    if (!numericQty || isNaN(numericQty) || numericQty <= 0) {
+      setError('Please enter a valid quantity greater than zero');
       return;
     }
 
-    if (mode === 'use' && quantity > part.quantity_on_hand) {
+    if (mode === 'use' && numericQty > part.quantity_on_hand) {
       setError(`Cannot use more than current stock (${part.quantity_on_hand} pcs)`);
       return;
     }
@@ -62,7 +63,7 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
     try {
       const payload: LogPartUseResult = {
         mode,
-        quantity,
+        quantity: numericQty,
         reason,
       };
 
@@ -80,10 +81,11 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
     }
   };
 
-  const willReorder = mode === 'use' && (part.quantity_on_hand - quantity) <= part.reorder_point;
+  const parsedQty = typeof quantity === 'number' ? quantity : (parseInt(String(quantity), 10) || 0);
+  const willReorder = mode === 'use' && (part.quantity_on_hand - parsedQty) <= part.reorder_point;
   const newStockPreview = mode === 'restock'
-    ? part.quantity_on_hand + quantity
-    : Math.max(0, part.quantity_on_hand - quantity);
+    ? part.quantity_on_hand + parsedQty
+    : Math.max(0, part.quantity_on_hand - parsedQty);
 
   return (
     <Modal onClose={onClose} className="max-w-md">
@@ -197,7 +199,15 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
               min="1"
               max={mode === 'use' ? Math.max(1, part.quantity_on_hand) : undefined}
               value={quantity}
-              onChange={e => setQuantity(Math.max(1, parseInt(e.target.value, 10) || 1))}
+              onChange={e => {
+                const val = e.target.value;
+                if (val === '') {
+                  setQuantity('');
+                } else {
+                  const num = parseInt(val, 10);
+                  setQuantity(isNaN(num) ? '' : num);
+                }
+              }}
               className="w-full min-h-[44px] px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white"
               required
             />

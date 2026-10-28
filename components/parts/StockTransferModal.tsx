@@ -35,7 +35,7 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
   const [destStockpileId, setDestStockpileId] = useState<string>(
     otherStockpile ? String(otherStockpile.id) : (stockpiles[1] ? String(stockpiles[1].id) : (stockpiles[0] ? String(stockpiles[0].id) : ''))
   );
-  const [quantity, setQuantity] = useState<number>(1);
+  const [quantity, setQuantity] = useState<number | ''>(1);
   const [transferredBy, setTransferredBy] = useState<string>('Jose (Tech)');
   const [notes, setNotes] = useState<string>('');
   const [ticketId, setTicketId] = useState<string>('');
@@ -63,13 +63,14 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
       return;
     }
 
-    if (quantity <= 0) {
+    const numericQty = typeof quantity === 'number' ? quantity : parseInt(String(quantity), 10);
+    if (!numericQty || isNaN(numericQty) || numericQty <= 0) {
       setError('Quantity must be greater than zero');
       return;
     }
 
-    if (availableQtyAtSource < quantity) {
-      setError(`Insufficient quantity at source stockpile (${availableQtyAtSource} available, ${quantity} requested)`);
+    if (availableQtyAtSource < numericQty) {
+      setError(`Insufficient quantity at source stockpile (${availableQtyAtSource} available, ${numericQty} requested)`);
       return;
     }
 
@@ -196,7 +197,15 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
               min="1"
               max={availableQtyAtSource > 0 ? availableQtyAtSource : 99}
               value={quantity}
-              onChange={e => setQuantity(Math.max(1, parseInt(e.target.value, 10) || 1))}
+              onChange={e => {
+                const val = e.target.value;
+                if (val === '') {
+                  setQuantity('');
+                } else {
+                  const num = parseInt(val, 10);
+                  setQuantity(isNaN(num) ? '' : num);
+                }
+              }}
               className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-mono font-bold"
               required
             />
