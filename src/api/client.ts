@@ -898,6 +898,24 @@ export class ApiClient {
   }
 
   /**
+   * Register a new stored appliance at a stockpile
+   */
+  public async createStoredAppliance(
+    stockpileId: number | string,
+    data: {
+      type: string;
+      name?: string;
+      brand?: string;
+      model_number?: string;
+      serial_number?: string;
+      status?: 'stored' | 'donor' | 'operational' | 'needs_service';
+      notes?: string;
+    }
+  ): Promise<any> {
+    return this.post<any>(`/api/stockpiles/${stockpileId}/appliances`, data);
+  }
+
+  /**
    * Move / change disposition of an appliance
    */
   public async moveAppliance(applianceId: number | string, data: any): Promise<any> {

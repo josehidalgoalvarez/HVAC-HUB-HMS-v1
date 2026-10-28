@@ -140,6 +140,111 @@ class Stockpile
     }
 
     /**
+     * Create/register a new stored appliance at a specific stockpile.
+     * Writes 1 movement history entry (disposition: 'stored', moved_by: user name or Tech).
+     * Writes 1 append-only correction row.
+     */
+    public static function createStoredAppliance(int $stockpileId, array $data, ?int $userId = null, ?string $userName = null): array
+    {
+        $stockpile = self::findById($stockpileId);
+        if (!$stockpile) {
+            throw new \RuntimeException("Stockpile #{$stockpileId} not found");
+        }
+
+        $type = trim((string) ($data['type'] ?? ''));
+        if ($type === '') {
+            throw new \InvalidArgumentException("Appliance type/label is required");
+        }
+
+        $name = trim((string) ($data['name'] ?? ''));
+        if ($name === '') {
+            $name = $type;
+        }
+
+        $brand = trim((string) ($data['brand'] ?? ''));
+        if ($brand === '') {
+            $brand = 'Unknown';
+        }
+
+        $model = isset($data['model_number']) && trim((string) $data['model_number']) !== '' ? trim((string) $data['model_number']) : null;
+        $serial = isset($data['serial_number']) && trim((string) $data['serial_number']) !== '' ? trim((string) $data['serial_number']) : null;
+
+        $validStatuses = ['stored', 'donor', 'operational', 'needs_service'];
+        $status = trim((string) ($data['status'] ?? 'stored'));
+        if (!in_array($status, $validStatuses, true)) {
+            $status = 'stored';
+        }
+
+        $notes = trim((string) ($data['notes'] ?? ''));
+        $buildingId = $stockpile['building_id'] !== null ? (int) $stockpile['building_id'] : null;
+        $locationStr = $stockpile['location'] ?? $stockpile['name'];
+        $propertyId = $buildingId !== null ? "property-{$buildingId}" : "stockpile-{$stockpileId}";
+        $movedBy = $userName && trim($userName) !== '' ? trim($userName) : 'Tech';
+        $now = gmdate('Y-m-d H:i:s');
+
+        $pdo = Db::get();
+        $mustCommit = false;
+        if (!$pdo->inTransaction()) {
+            $pdo->beginTransaction();
+            $mustCommit = true;
+        }
+
+        try {
+            // 1. Insert appliance row
+            Db::execute(
+                "INSERT INTO appliance (stockpile_id, property_id, building_id, unit_id, name, type, brand, model_number, serial_number, location, status, notes, created_at, updated_at)
+                 VALUES (?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [$stockpileId, $propertyId, $buildingId, $name, $type, $brand, $model, $serial, $locationStr, $status, $notes, $now, $now]
+            );
+            $newAppId = (int) Db::lastInsertId();
+
+            // 2. Record initial movement audit row
+            $movementNote = $notes !== '' ? "Registered in storage: {$notes}" : "Registered in storage at {$stockpile['name']}";
+            Db::execute(
+                "INSERT INTO appliance_movement (appliance_id, from_stockpile_id, from_unit_id, to_stockpile_id, to_unit_id, disposition, movement_date, moved_by, notes, created_at)
+                 VALUES (?, NULL, NULL, ?, NULL, 'stored', ?, ?, ?, ?)",
+                [$newAppId, $stockpileId, $now, $movedBy, $movementNote, $now]
+            );
+            $movementId = (int) Db::lastInsertId();
+
+            // 3. Append-only correction audit record
+            \App\Models\Correction::record(
+                'appliance',
+                $newAppId,
+                'status',
+                null,
+                $status,
+                $userId,
+                "Appliance registered in storage at {$stockpile['name']}"
+            );
+
+            if ($mustCommit) {
+                $pdo->commit();
+            }
+
+            return [
+                'id' => $newAppId,
+                'stockpile_id' => $stockpileId,
+                'name' => $name,
+                'type' => $type,
+                'brand' => $brand,
+                'model_number' => $model,
+                'serial_number' => $serial,
+                'location' => $locationStr,
+                'status' => $status,
+                'notes' => $notes,
+                'movement_id' => $movementId,
+                'created_at' => $now,
+            ];
+        } catch (\Throwable $e) {
+            if ($mustCommit && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    /**
      * Record an appliance movement and update appliance location/status.
      */
     public static function moveAppliance(int $applianceId, array $data, ?int $userId = null): array

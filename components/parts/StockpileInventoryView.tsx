@@ -40,6 +40,16 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
   const [moveNotes, setMoveNotes] = useState('');
   const [isSubmittingMove, setIsSubmittingMove] = useState(false);
 
+  // Add Appliance state
+  const [isAddApplianceOpen, setIsAddApplianceOpen] = useState(false);
+  const [applianceType, setApplianceType] = useState('');
+  const [applianceModel, setApplianceModel] = useState('');
+  const [applianceSerial, setApplianceSerial] = useState('');
+  const [applianceStatus, setApplianceStatus] = useState<'stored' | 'donor' | 'operational' | 'needs_service'>('stored');
+  const [applianceNotes, setApplianceNotes] = useState('');
+  const [applianceError, setApplianceError] = useState<string | null>(null);
+  const [isSubmittingAppliance, setIsSubmittingAppliance] = useState(false);
+
   // Count Audit session state
   const [isCountModalOpen, setIsCountModalOpen] = useState(false);
   const [countEntries, setCountEntries] = useState<Record<number, { counted: string; notes: string }>>({});
@@ -203,6 +213,49 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       alert(err.message || 'Failed to update appliance disposition');
     } finally {
       setIsSubmittingMove(false);
+    }
+  };
+
+  const handleAddApplianceSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const typeLabel = applianceType.trim();
+    if (!typeLabel) {
+      setApplianceError('Appliance type/label is required (e.g. White stove, Dishwasher, Fridge)');
+      return;
+    }
+
+    try {
+      setIsSubmittingAppliance(true);
+      setApplianceError(null);
+
+      await apiClient.createStoredAppliance(stockpileId, {
+        type: typeLabel,
+        name: typeLabel,
+        model_number: applianceModel.trim() || undefined,
+        serial_number: applianceSerial.trim() || undefined,
+        status: applianceStatus,
+        notes: applianceNotes.trim() || undefined,
+      });
+
+      setFlashMsg({
+        text: `Stored appliance "${typeLabel}" registered at this location!`,
+        type: 'success',
+      });
+      setTimeout(() => setFlashMsg(null), 5000);
+
+      // Reset form and close modal
+      setApplianceType('');
+      setApplianceModel('');
+      setApplianceSerial('');
+      setApplianceStatus('stored');
+      setApplianceNotes('');
+      setIsAddApplianceOpen(false);
+
+      await loadData();
+    } catch (err: any) {
+      setApplianceError(err.message || 'Failed to register stored appliance');
+    } finally {
+      setIsSubmittingAppliance(false);
     }
   };
 
@@ -725,7 +778,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
 
       {/* Stored Appliances Section (distinct from parts) */}
       <div className="space-y-3 pt-4 border-t border-gray-200/80 dark:border-gray-800">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-xl">kitchen</span>
             <h2 className="text-base font-bold text-brand-black dark:text-white">
@@ -735,6 +788,21 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
               Appliance ({storedAppliances.length})
             </span>
           </div>
+          <button
+            onClick={() => {
+              setApplianceType('');
+              setApplianceModel('');
+              setApplianceSerial('');
+              setApplianceStatus('stored');
+              setApplianceNotes('');
+              setApplianceError(null);
+              setIsAddApplianceOpen(true);
+            }}
+            className="min-h-[44px] px-3.5 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-primary dark:text-blue-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-blue-200/80 dark:border-blue-800/80 transition-all active:scale-95 shadow-xs"
+          >
+            <span className="material-symbols-outlined text-[16px]">add_circle</span>
+            <span>Add Appliance</span>
+          </button>
         </div>
 
         {storedAppliances.length === 0 ? (
@@ -928,6 +996,150 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                   className="min-h-[44px] px-5 py-2 rounded-xl bg-primary hover:bg-blue-600 text-xs font-bold text-white shadow-xs"
                 >
                   {isSubmittingMove ? 'Saving...' : 'Record Movement'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Appliance to Storage Modal */}
+      {isAddApplianceOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="w-full max-w-md bg-white dark:bg-card-dark rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 flex flex-col max-h-[90vh] animate-scaleUp">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between shrink-0">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-primary text-xl">kitchen</span>
+                  <h3 className="text-base font-bold text-brand-black dark:text-white truncate">
+                    Add Stored Appliance
+                  </h3>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                  Register appliance at {stockpile?.name || 'this location'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddApplianceOpen(false)}
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500"
+              >
+                <span className="material-symbols-outlined text-xl">close</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleAddApplianceSubmit} className="p-4 overflow-y-auto space-y-4">
+              {applianceError && (
+                <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-xs text-red-700 dark:text-red-300 font-medium">
+                  {applianceError}
+                </div>
+              )}
+
+              {/* Fixed Storage Location */}
+              <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-200/80 dark:border-gray-700/80 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-base">location_on</span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Storage Location</div>
+                  <div className="text-xs font-bold text-brand-black dark:text-white truncate">
+                    {stockpile?.name || 'Current Location'}
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
+                  Fixed
+                </span>
+              </div>
+
+              {/* Type / Label (Required) */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Type / Label <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={applianceType}
+                  onChange={e => setApplianceType(e.target.value)}
+                  placeholder="e.g. White stove, Dishwasher, Refrigerator"
+                  required
+                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-xs text-brand-black dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary"
+                />
+                <p className="text-[10px] text-gray-400 mt-1">
+                  Required free-text description of the appliance.
+                </p>
+              </div>
+
+              {/* Condition / State */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Condition / State
+                </label>
+                <select
+                  value={applianceStatus}
+                  onChange={e => setApplianceStatus(e.target.value as any)}
+                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-xs font-semibold text-brand-black dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary"
+                >
+                  <option value="stored">Stored (Held in storage)</option>
+                  <option value="donor">Donor (Available for parts harvesting)</option>
+                  <option value="operational">Operational (Tested ready)</option>
+                  <option value="needs_service">Needs Service (Pending inspection/repair)</option>
+                </select>
+              </div>
+
+              {/* Model Number (Optional) */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Model Number <span className="text-[10px] font-normal text-gray-400">(Optional — blank stays TBD)</span>
+                </label>
+                <input
+                  type="text"
+                  value={applianceModel}
+                  onChange={e => setApplianceModel(e.target.value)}
+                  placeholder="Leave blank if unknown / TBD"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-xs text-brand-black dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary font-mono placeholder:font-sans"
+                />
+              </div>
+
+              {/* Serial Number (Optional) */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Serial Number <span className="text-[10px] font-normal text-gray-400">(Optional — blank stays TBD)</span>
+                </label>
+                <input
+                  type="text"
+                  value={applianceSerial}
+                  onChange={e => setApplianceSerial(e.target.value)}
+                  placeholder="Leave blank if unknown / TBD"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-xs text-brand-black dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary font-mono placeholder:font-sans"
+                />
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Notes / Provenance <span className="text-[10px] font-normal text-gray-400">(Optional, e.g. TO CONFIRM flags)</span>
+                </label>
+                <textarea
+                  value={applianceNotes}
+                  onChange={e => setApplianceNotes(e.target.value)}
+                  rows={2}
+                  placeholder="e.g. Harvest source, TO CONFIRM rating plate, prior repair..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-xs text-brand-black dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                <button
+                  type="button"
+                  onClick={() => setIsAddApplianceOpen(false)}
+                  className="min-h-[44px] px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 text-xs font-bold text-gray-700 dark:text-gray-300 transition-all active:scale-95"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingAppliance}
+                  className="min-h-[44px] px-5 py-2 rounded-xl bg-primary hover:bg-blue-600 text-xs font-bold text-white shadow-xs transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {isSubmittingAppliance ? 'Registering...' : 'Add Appliance'}
                 </button>
               </div>
             </form>

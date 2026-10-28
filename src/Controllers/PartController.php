@@ -236,6 +236,33 @@ class PartController
     }
 
     /**
+     * POST /api/stockpiles/{id}/appliances
+     * Register a new stored appliance at a specific stockpile.
+     */
+    public function createAppliance(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) ($args['id'] ?? 0);
+        if ($id <= 0) {
+            return Auth::jsonError('not_found', 'Stockpile not found', 404);
+        }
+
+        $user = Auth::getCurrentUser();
+        $userId = $user['id'] ?? null;
+        $userName = $user['name'] ?? ($user['username'] ?? null);
+
+        $body = (array) ($request->getParsedBody() ?? []);
+
+        try {
+            $created = Stockpile::createStoredAppliance($id, $body, $userId, $userName);
+            return Auth::jsonSuccess($created, 201);
+        } catch (\InvalidArgumentException $e) {
+            return Auth::jsonError('validation_error', $e->getMessage(), 400);
+        } catch (Throwable $e) {
+            return Auth::jsonError('bad_request', $e->getMessage(), 400);
+        }
+    }
+
+    /**
      * POST /api/appliances/{id}/move
      * Record an appliance movement and update status/location.
      */
