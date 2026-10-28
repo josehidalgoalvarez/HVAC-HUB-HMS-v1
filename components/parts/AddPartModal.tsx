@@ -23,8 +23,8 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
   const [partNumber, setPartNumber] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
-  const [quantityOnHand, setQuantityOnHand] = useState<number>(1);
-  const [reorderPoint, setReorderPoint] = useState<number>(1);
+  const [quantityOnHand, setQuantityOnHand] = useState<number | ''>(1);
+  const [reorderPoint, setReorderPoint] = useState<number | ''>(1);
   const [unitCost, setUnitCost] = useState<string>('');
   const [stockpileId, setStockpileId] = useState<string>(
     initialStockpileId
@@ -43,9 +43,21 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
       setError('Part name is required');
       return;
     }
-    if (quantityOnHand < 0) {
-      setError('Quantity cannot be negative');
+
+    const numQty = typeof quantityOnHand === 'number' ? quantityOnHand : parseInt(String(quantityOnHand), 10);
+    if (isNaN(numQty) || numQty < 0) {
+      setError('Please enter a valid initial quantity (0 or greater)');
       return;
+    }
+
+    let numReorder: number | undefined = undefined;
+    if (reorderPoint !== '') {
+      const parsedReorder = typeof reorderPoint === 'number' ? reorderPoint : parseInt(String(reorderPoint), 10);
+      if (isNaN(parsedReorder) || parsedReorder < 0) {
+        setError('Reorder point must be 0 or greater if specified');
+        return;
+      }
+      numReorder = parsedReorder;
     }
 
     setIsSubmitting(true);
@@ -62,9 +74,9 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
         part_number: partNumber.trim() || undefined,
         category: category.trim() || undefined,
         description: description.trim() || undefined,
-        quantity_on_hand: quantityOnHand,
-        min_quantity: reorderPoint,
-        reorder_point: reorderPoint,
+        quantity_on_hand: numQty,
+        min_quantity: numReorder,
+        reorder_point: numReorder,
         unit_cost: unitCost ? parseFloat(unitCost) : undefined,
         stockpile_id: stockpileId ? parseInt(stockpileId, 10) : undefined,
         compatible_models: modelsArray.length > 0 ? modelsArray : undefined,
@@ -167,7 +179,15 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
                 type="number"
                 min="0"
                 value={quantityOnHand}
-                onChange={e => setQuantityOnHand(parseInt(e.target.value, 10) || 0)}
+                onChange={e => {
+                  const val = e.target.value;
+                  if (val === '') {
+                    setQuantityOnHand('');
+                  } else {
+                    const num = parseInt(val, 10);
+                    setQuantityOnHand(isNaN(num) ? '' : num);
+                  }
+                }}
                 className="w-full min-h-[44px] px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:border-primary"
                 required
               />
@@ -179,9 +199,17 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
               </label>
               <input
                 type="number"
-                min="1"
+                min="0"
                 value={reorderPoint}
-                onChange={e => setReorderPoint(parseInt(e.target.value, 10) || 1)}
+                onChange={e => {
+                  const val = e.target.value;
+                  if (val === '') {
+                    setReorderPoint('');
+                  } else {
+                    const num = parseInt(val, 10);
+                    setReorderPoint(isNaN(num) ? '' : num);
+                  }
+                }}
                 className="w-full min-h-[44px] px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:border-primary"
               />
             </div>

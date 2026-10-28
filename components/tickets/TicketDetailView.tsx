@@ -71,7 +71,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   const [customSupplier, setCustomSupplier] = useState('');
   const [partOrderRef, setPartOrderRef] = useState('');
   const [partApplianceType, setPartApplianceType] = useState('Refrigerator');
-  const [partQuantity, setPartQuantity] = useState(1);
+  const [partQuantity, setPartQuantity] = useState<number | ''>(1);
   const [partUnitCost, setPartUnitCost] = useState('');
   const [partNotes, setPartNotes] = useState('');
   const [partSaving, setPartSaving] = useState(false);
@@ -299,6 +299,11 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       alert('Part name is required');
       return;
     }
+    const numericQty = typeof partQuantity === 'number' ? partQuantity : parseInt(String(partQuantity), 10);
+    if (!numericQty || isNaN(numericQty) || numericQty <= 0) {
+      alert('Please enter a valid part quantity greater than zero');
+      return;
+    }
     const supplier = partSupplier === 'other' ? (customSupplier.trim() || 'Other Supplier') : partSupplier;
     try {
       setPartSaving(true);
@@ -308,7 +313,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         supplier,
         order_ref: partOrderRef.trim() || undefined,
         appliance_type: partApplianceType,
-        quantity: partQuantity || 1,
+        quantity: numericQty,
         unit_cost: partUnitCost ? parseFloat(partUnitCost) : undefined,
         notes: partNotes.trim() || undefined,
       });
@@ -2256,7 +2261,15 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   type="number"
                   min="1"
                   value={partQuantity}
-                  onChange={(e) => setPartQuantity(parseInt(e.target.value, 10) || 1)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '') {
+                      setPartQuantity('');
+                    } else {
+                      const num = parseInt(val, 10);
+                      setPartQuantity(isNaN(num) ? '' : num);
+                    }
+                  }}
                   className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
                 />
               </div>
