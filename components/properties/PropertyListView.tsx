@@ -12,7 +12,7 @@ import {
 } from '../../utils/unitContextUtils';
 import { apiClient } from '../../src/api/client';
 import { formatDate } from '../../utils/dateUtils';
-import type { UnitFailedVisitsSummary } from '../../types/domain';
+import type { UnitFailedVisitsSummary, Stockpile } from '../../types/domain';
 
 interface PropertyListViewProps {
   onPropertyClick: (id: string) => void;
@@ -20,6 +20,7 @@ interface PropertyListViewProps {
   isEditMode: boolean;
   initialNavLevel?: ViewNavLevel;
   onNavLevelChange?: (level: ViewNavLevel) => void;
+  onOpenStockpileInventory?: (stockpileId: number | string) => void;
 }
 
 type ViewNavLevel = 'root' | 'complex' | 'building' | 'unit' | 'defaults';
@@ -29,7 +30,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
   onAddProperty,
   isEditMode,
   initialNavLevel,
-  onNavLevelChange
+  onNavLevelChange,
+  onOpenStockpileInventory,
 }) => {
   const {
     properties,
@@ -75,6 +77,17 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
       setUnitVisitsSummary(null);
     }
   }, [selectedUnitId]);
+
+  // Stockpiles for location inventory navigation
+  const [stockpilesList, setStockpilesList] = useState<Stockpile[]>([]);
+
+  React.useEffect(() => {
+    apiClient.getStockpiles()
+      .then(res => {
+        if (Array.isArray(res)) setStockpilesList(res);
+      })
+      .catch(() => {});
+  }, []);
 
   // Modals
   const [overrideModalAppliance, setOverrideModalAppliance] = useState<Appliance | null>(null);
@@ -1173,24 +1186,80 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 )}
 
                 {/* Special Role Callout */}
-                {activeBuilding.role && activeBuilding.role !== 'standard' && (
-                  <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2.5">
-                    <span className="material-symbols-outlined text-amber-600 text-xl">
-                      {activeBuilding.role === 'storage' ? 'inventory_2' : activeBuilding.role === 'mechanical' ? 'settings_suggest' : 'corporate_fare'}
-                    </span>
-                    <div>
-                      {activeBuilding.id === 'prop-days-511' || activeBuilding.id === '15' || activeBuilding.name?.includes('511 Days') ? (
-                        <><strong>Central Storage Building:</strong> 511 Days Rd basement houses primary replacement inventory for BD complex.</>
-                      ) : activeBuilding.role === 'storage' ? (
-                        <><strong>Storage Node:</strong> Key storage depot for parts, spare equipment, and replacement inventory.</>
-                      ) : activeBuilding.role === 'mechanical' ? (
-                        <><strong>Mechanical Hub:</strong> Houses central mechanical equipment, boilers, and shared plant infrastructure.</>
-                      ) : (
-                        <><strong>Operations Office:</strong> Administrative office and staging area for maintenance operations.</>
-                      )}
+                {activeBuilding.role && activeBuilding.role !== 'standard' && (() => {
+                  const isStorage = activeBuilding.role === 'storage';
+                  const isCentral = activeBuilding.id === 'prop-days-511' || activeBuilding.id === '15' || activeBuilding.name?.includes('511 Days');
+                  
+                  // Match stockpile by building_id or address/name match
+                  const matchedStockpile = isStorage ? (
+                    stockpilesList.find(sp => {
+                      if (sp.building_id && (String(sp.building_id) === activeBuilding.id || String(sp.building_id) === String(activeBuilding.id).replace(/\D/g, ''))) return true;
+                      if (sp.buildingId && String(sp.buildingId) === activeBuilding.id) return true;
+                      if (activeBuilding.name && sp.name && (sp.name.toLowerCase().includes(activeBuilding.name.toLowerCase()) || activeBuilding.name.toLowerCase().includes(sp.name.toLowerCase()))) return true;
+                      if (activeBuilding.address && sp.location && (sp.location.toLowerCase().includes(activeBuilding.address.toLowerCase()) || activeBuilding.address.toLowerCase().includes(sp.location.toLowerCase()))) return true;
+                      return false;
+                    }) || (isCentral ? stockpilesList.find(sp => sp.id === 1 || String(sp.id) === '1') : null)
+                  ) : null;
+
+                  const targetStockpileId = matchedStockpile ? matchedStockpile.id : (isCentral ? 1 : null);
+
+                  if (isStorage && targetStockpileId && onOpenStockpileInventory) {
+                    return (
+                      <div
+                        data-testid="storage-node-inventory-card"
+                        onClick={() => onOpenStockpileInventory(targetStockpileId)}
+                        className="p-3.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/25 text-amber-900 dark:text-amber-200 text-xs flex items-center justify-between gap-2.5 cursor-pointer active:scale-[0.99] transition-all group shadow-2xs"
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onOpenStockpileInventory(targetStockpileId);
+                          }
+                        }}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="material-symbols-outlined text-amber-600 text-2xl shrink-0 group-hover:scale-105 transition-transform">
+                            inventory_2
+                          </span>
+                          <div className="min-w-0">
+                            <div className="font-bold flex items-center gap-1.5 flex-wrap">
+                              <span>{isCentral ? 'Central Storage Depot' : 'Storage Node Inventory'}</span>
+                              <span className="px-2 py-0.2 rounded-md bg-amber-500 text-brand-black text-[10px] font-black uppercase tracking-wider">
+                                View Stock
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-amber-800 dark:text-amber-300 mt-0.5 truncate">
+                              {matchedStockpile ? `${matchedStockpile.name} · Tap to see parts & stock on hand` : 'Tap to see inventory stored here'}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="material-symbols-outlined text-amber-600 text-xl shrink-0 group-hover:translate-x-0.5 transition-transform">
+                          chevron_right
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2.5">
+                      <span className="material-symbols-outlined text-amber-600 text-xl">
+                        {activeBuilding.role === 'storage' ? 'inventory_2' : activeBuilding.role === 'mechanical' ? 'settings_suggest' : 'corporate_fare'}
+                      </span>
+                      <div>
+                        {isCentral ? (
+                          <><strong>Central Storage Building:</strong> 511 Days Rd basement houses primary replacement inventory for BD complex.</>
+                        ) : activeBuilding.role === 'storage' ? (
+                          <><strong>Storage Node:</strong> Key storage depot for parts, spare equipment, and replacement inventory.</>
+                        ) : activeBuilding.role === 'mechanical' ? (
+                          <><strong>Mechanical Hub:</strong> Houses central mechanical equipment, boilers, and shared plant infrastructure.</>
+                        ) : (
+                          <><strong>Operations Office:</strong> Administrative office and staging area for maintenance operations.</>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* External Responsibility Callout */}
                 {activeBuilding.responsibility === 'external' && (

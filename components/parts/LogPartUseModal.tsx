@@ -15,6 +15,7 @@ interface LogPartUseModalProps {
   part: PartRecord;
   stockpiles: Stockpile[];
   initialMode?: 'use' | 'restock';
+  initialStockpileId?: number | string;
   onClose: () => void;
   onSuccess: (result: LogPartUseResult) => void;
 }
@@ -23,6 +24,7 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
   part,
   stockpiles,
   initialMode = 'use',
+  initialStockpileId,
   onClose,
   onSuccess,
 }) => {
@@ -30,7 +32,9 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
   const [quantity, setQuantity] = useState<number>(1);
   const [jobId, setJobId] = useState<string>('');
   const [stockpileId, setStockpileId] = useState<string>(
-    part.stockpiles && part.stockpiles.length > 0 ? String(part.stockpiles[0].stockpile_id) : '1'
+    initialStockpileId
+      ? String(initialStockpileId)
+      : (part.stockpiles && part.stockpiles.length > 0 ? String(part.stockpiles[0].stockpile_id) : '1')
   );
   const [reason, setReason] = useState<string>(
     initialMode === 'restock'

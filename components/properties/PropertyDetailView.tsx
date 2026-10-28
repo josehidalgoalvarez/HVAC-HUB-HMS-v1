@@ -4,19 +4,23 @@ import { useData } from '../../hooks/useData';
 import { compressAndUploadImage } from '../../utils/imageUtils';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
+import { apiClient } from '../../src/api/client';
+import type { Stockpile } from '../../types/domain';
 
 interface PropertyDetailViewProps {
   propertyId: string;
   onBack: () => void;
   onApplianceClick: (id: string) => void;
   isEditMode: boolean;
+  onOpenStockpileInventory?: (stockpileId: number | string) => void;
 }
 
 const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
   propertyId,
   onBack,
   onApplianceClick,
-  isEditMode
+  isEditMode,
+  onOpenStockpileInventory,
 }) => {
   const { getProperty, appliances, updateProperty } = useData();
   const property = getProperty(propertyId);
@@ -25,7 +29,18 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
   const [isEditingImage, setIsEditingImage] = useState(false);
   const [newImageUrl, setNewImageUrl] = useState(property?.imageUrl || '');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [stockpilesList, setStockpilesList] = useState<Stockpile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (property?.role === 'storage') {
+      apiClient.getStockpiles()
+        .then(res => {
+          if (Array.isArray(res)) setStockpilesList(res);
+        })
+        .catch(() => {});
+    }
+  }, [property?.role]);
 
   if (!property) return <div>Property Not Found</div>;
 
@@ -115,6 +130,59 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Storage Location Inventory Whole-Box Navigation Card */}
+        {property.role === 'storage' && onOpenStockpileInventory && (() => {
+          const isCentral = property.id === 'prop-days-511' || property.id === '15' || property.name?.includes('511 Days');
+          const matchedStockpile = stockpilesList.find(sp => {
+            if (sp.building_id && (String(sp.building_id) === property.id || String(sp.building_id) === String(property.id).replace(/\D/g, ''))) return true;
+            if (sp.buildingId && String(sp.buildingId) === property.id) return true;
+            if (property.name && sp.name && (sp.name.toLowerCase().includes(property.name.toLowerCase()) || property.name.toLowerCase().includes(sp.name.toLowerCase()))) return true;
+            if (property.address && sp.location && (sp.location.toLowerCase().includes(property.address.toLowerCase()) || property.address.toLowerCase().includes(sp.location.toLowerCase()))) return true;
+            return false;
+          }) || (isCentral ? stockpilesList.find(sp => sp.id === 1 || String(sp.id) === '1') : null);
+
+          const targetStockpileId = matchedStockpile ? matchedStockpile.id : (isCentral ? 1 : null);
+          if (!targetStockpileId) return null;
+
+          return (
+            <div
+              data-testid="property-detail-storage-inventory-card"
+              onClick={() => onOpenStockpileInventory(targetStockpileId)}
+              className="p-4 rounded-2xl bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/25 text-amber-900 dark:text-amber-200 flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition-all group shadow-xs"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onOpenStockpileInventory(targetStockpileId);
+                }
+              }}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 text-amber-700 dark:text-amber-300">
+                  <span className="material-symbols-outlined text-2xl group-hover:scale-105 transition-transform">
+                    inventory_2
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <div className="font-bold text-sm flex items-center gap-1.5 flex-wrap">
+                    <span>{isCentral ? 'Central Storage Depot Stock' : 'Location Stock & Inventory'}</span>
+                    <span className="px-2 py-0.2 rounded-md bg-amber-500 text-brand-black text-[10px] font-black uppercase tracking-wider">
+                      Stock Menu
+                    </span>
+                  </div>
+                  <p className="text-xs text-amber-800 dark:text-amber-300 mt-0.5 truncate">
+                    {matchedStockpile ? `${matchedStockpile.name} · Tap to see parts & equipment on hand` : 'Tap to see inventory stored here'}
+                  </p>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-amber-600 text-2xl shrink-0 group-hover:translate-x-0.5 transition-transform">
+                chevron_right
+              </span>
+            </div>
+          );
+        })()}
 
         {/* Edit Image Modal */}
         {isEditingImage && (

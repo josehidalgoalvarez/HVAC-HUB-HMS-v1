@@ -188,6 +188,30 @@ class PartController
     }
 
     /**
+     * GET /api/stockpiles/{id}/parts
+     * List all parts allocated to a specific stockpile.
+     */
+    public function stockpileParts(Request $request, Response $response, array $args): Response
+    {
+        $id = (int) ($args['id'] ?? 0);
+        if ($id <= 0) {
+            return Auth::jsonError('not_found', 'Stockpile not found', 404);
+        }
+
+        try {
+            $stockpile = Stockpile::findById($id);
+            if ($stockpile === null) {
+                return Auth::jsonError('not_found', 'Stockpile not found', 404);
+            }
+
+            $parts = Stockpile::getParts($id);
+            return $this->respondWithEtag($request, $parts);
+        } catch (Throwable $e) {
+            return Auth::jsonError('server_error', $e->getMessage(), 500);
+        }
+    }
+
+    /**
      * GET /api/suppliers
      * List all suppliers with phone and hours.
      */

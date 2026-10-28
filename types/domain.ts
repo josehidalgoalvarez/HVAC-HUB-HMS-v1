@@ -523,6 +523,29 @@ export interface StockpileAllocation {
   location_notes?: string | null;
 }
 
+export interface StockpilePartItem {
+  allocation_id: number;
+  stockpile_id: number;
+  part_id: number;
+  quantity: number;
+  minimum: number;
+  status: 'available' | 'on_hold' | 'in_use';
+  location_notes?: string | null;
+  allocation_updated_at?: string;
+  part_name: string;
+  part_number?: string | null;
+  category?: string | null;
+  description?: string | null;
+  unit_cost?: number | null;
+  total_quantity_on_hand: number;
+  reorder_point: number;
+  compatible_models?: string[];
+  stockpile_name: string;
+  stockpile_location: string;
+  building_id?: number | null;
+  is_below_minimum: boolean;
+}
+
 export interface PriceHistoryEntry {
   date: string;
   price: number;

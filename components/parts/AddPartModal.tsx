@@ -9,6 +9,7 @@ interface AddPartModalProps {
   stockpiles: Stockpile[];
   onClose: () => void;
   onSuccess: (part: PartRecord) => void;
+  initialStockpileId?: number | string;
 }
 
 export const AddPartModal: React.FC<AddPartModalProps> = ({
@@ -16,6 +17,7 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
   stockpiles,
   onClose,
   onSuccess,
+  initialStockpileId,
 }) => {
   const [name, setName] = useState('');
   const [partNumber, setPartNumber] = useState('');
@@ -25,7 +27,9 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
   const [reorderPoint, setReorderPoint] = useState<number>(1);
   const [unitCost, setUnitCost] = useState<string>('');
   const [stockpileId, setStockpileId] = useState<string>(
-    stockpiles.length > 0 ? String(stockpiles[0].id) : '1'
+    initialStockpileId
+      ? String(initialStockpileId)
+      : (stockpiles.length > 0 ? String(stockpiles[0].id) : '1')
   );
   const [compatibleModels, setCompatibleModels] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -289,6 +289,7 @@ class Routes
             $group->patch('/parts/{id}', [PartController::class, 'update']);
             $group->post('/parts/{id}/use', [PartController::class, 'usePart']);
             $group->get('/stockpiles', [PartController::class, 'stockpiles']);
+            $group->get('/stockpiles/{id}/parts', [PartController::class, 'stockpileParts']);
             $group->post('/stockpiles', [PartController::class, 'createStockpile']);
             $group->get('/suppliers', [PartController::class, 'suppliers']);
             $group->post('/suppliers', [PartController::class, 'createSupplier']);

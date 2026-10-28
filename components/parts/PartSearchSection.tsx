@@ -11,6 +11,7 @@ interface PartSearchSectionProps {
   onRestock?: (part: PartRecord) => void;
   onAddPart?: () => void;
   onHarvestTransfer?: (candidate: HarvestCandidate) => void;
+  onOpenStockpileInventory?: (stockpileId: number | string) => void;
 }
 
 export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
@@ -23,6 +24,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
   onRestock,
   onAddPart,
   onHarvestTransfer,
+  onOpenStockpileInventory,
 }) => {
   const [filter, setFilter] = useState<'all' | 'reorder' | 'available' | 'harvest'>('all');
   const [selectedStockpileId, setSelectedStockpileId] = useState<string>('all');
@@ -185,6 +187,48 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
           })}
         </div>
       )}
+
+      {/* Selected Stockpile Dedicated Location Inventory Banner */}
+      {selectedStockpileId !== 'all' && onOpenStockpileInventory && (() => {
+        const activeSp = stockpiles.find(s => String(s.id) === selectedStockpileId);
+        if (!activeSp) return null;
+        return (
+          <div
+            data-testid="depot-inventory-banner"
+            onClick={() => onOpenStockpileInventory(activeSp.id)}
+            className="p-3 rounded-2xl bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/25 flex items-center justify-between gap-2.5 cursor-pointer active:scale-[0.99] transition-all group shadow-2xs"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onOpenStockpileInventory(activeSp.id);
+              }
+            }}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="material-symbols-outlined text-amber-600 text-xl shrink-0">warehouse</span>
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-amber-900 dark:text-amber-200 truncate flex items-center gap-1.5">
+                  <span>{activeSp.name}</span>
+                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-amber-500 text-brand-black font-black uppercase">
+                    Location Menu
+                  </span>
+                </div>
+                <p className="text-[11px] text-amber-800 dark:text-amber-300 truncate mt-0.5">
+                  {activeSp.location} · Tap to see full stock &amp; manage this location
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-300 shrink-0">
+              <span className="hidden sm:inline">Open Menu</span>
+              <span className="material-symbols-outlined text-lg group-hover:translate-x-0.5 transition-transform">
+                arrow_forward
+              </span>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Parts & Harvest Candidates List */}
       {totalHits === 0 ? (

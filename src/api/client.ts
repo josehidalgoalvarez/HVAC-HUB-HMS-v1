@@ -19,6 +19,7 @@ import type {
   Part,
   PartRecord,
   Stockpile,
+  StockpilePartItem,
   SupplierRecord,
   ShoppingListResponse,
   WatchRecord,
@@ -880,6 +881,13 @@ export class ApiClient {
    */
   public async getStockpiles(): Promise<Stockpile[]> {
     return this.get<Stockpile[]>('/api/stockpiles');
+  }
+
+  /**
+   * Get parts allocated to a specific stockpile
+   */
+  public async getStockpileParts(stockpileId: number | string): Promise<StockpilePartItem[]> {
+    return this.get<StockpilePartItem[]>(`/api/stockpiles/${stockpileId}/parts`);
   }
 
   /**

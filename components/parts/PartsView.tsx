@@ -15,9 +15,10 @@ import type { PartRecord, Stockpile, SupplierRecord, HarvestCandidate } from '..
 interface PartsViewProps {
   onBack?: () => void;
   onOpenTicket?: (ticketId: string) => void;
+  onOpenStockpileInventory?: (stockpileId: number | string) => void;
 }
 
-export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) => {
+export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket, onOpenStockpileInventory }) => {
   const [activeTab, setActiveTab] = useState<'search' | 'shopping' | 'suppliers'>('search');
   const [searchQuery, setSearchQuery] = useState('');
   const [parts, setParts] = useState<PartRecord[]>(SEED_PARTS);
@@ -290,6 +291,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket }) =>
             }}
             onAddPart={() => setIsAddPartOpen(true)}
             onHarvestTransfer={candidate => setActiveCandidateForTransfer(candidate)}
+            onOpenStockpileInventory={onOpenStockpileInventory}
           />
         )}
 

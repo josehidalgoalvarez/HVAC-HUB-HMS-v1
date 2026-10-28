@@ -32,6 +32,7 @@ const SOPListView = React.lazy(() => import('./sops/SOPListView').then(m => ({ d
 const SOPRunView = React.lazy(() => import('./sops/SOPRunView').then(m => ({ default: m.SOPRunView })));
 const InsightsView = React.lazy(() => import('./insights/InsightsView').then(m => ({ default: m.InsightsView })));
 const FieldNotesView = React.lazy(() => import('./sops/FieldNotesView').then(m => ({ default: m.FieldNotesView })));
+const StockpileInventoryView = React.lazy(() => import('./parts/StockpileInventoryView'));
 
 // Note: Ensure PropertyDetailView is the correct new component. 
 // Since we have a duplicate file issue, we are importing from './properties/PropertyDetailView' explicitly.
@@ -74,8 +75,16 @@ const Router: React.FC<RouterProps> = ({
   const [selectedSopId, setSelectedSopId] = React.useState<string>('sop-gas-furnace-service');
   const [selectedBlockForQuickLog, setSelectedBlockForQuickLog] = React.useState<RunSheetBlock | null>(null);
   const [propertyNavLevel, setPropertyNavLevel] = React.useState<'root' | 'complex' | 'building' | 'unit' | 'defaults'>('root');
+  const [selectedStockpileId, setSelectedStockpileId] = React.useState<string | number | null>(null);
 
   // --- Navigation Handlers ---
+
+  const handleOpenStockpileInventory = (stockpileId: number | string) => {
+    setSelectedStockpileId(stockpileId);
+    setPreviousView(activeView);
+    setActiveView(ViewType.STOCKPILE_INVENTORY);
+    window.scrollTo(0, 0);
+  };
 
   const handlePropertyClick = (id: string) => {
     setSelectedPropertyId(id);
@@ -113,6 +122,7 @@ const Router: React.FC<RouterProps> = ({
           isEditMode={isEditMode}
           initialNavLevel={propertyNavLevel}
           onNavLevelChange={setPropertyNavLevel}
+          onOpenStockpileInventory={handleOpenStockpileInventory}
         />
       );
 
@@ -159,6 +169,7 @@ const Router: React.FC<RouterProps> = ({
           onBack={() => setActiveView(ViewType.PROPERTIES)}
           onApplianceClick={handleApplianceClick}
           isEditMode={isEditMode}
+          onOpenStockpileInventory={handleOpenStockpileInventory}
         />
       );
 
@@ -259,6 +270,38 @@ const Router: React.FC<RouterProps> = ({
       return (
         <PartsView
           onBack={() => setActiveView(ViewType.PROPERTIES)}
+          onOpenTicket={(ticketId) => {
+            setSelectedTicketId(ticketId);
+            setActiveView(ViewType.TICKETS);
+          }}
+          onOpenStockpileInventory={handleOpenStockpileInventory}
+        />
+      );
+
+    case ViewType.STOCKPILE_INVENTORY:
+      if (!selectedStockpileId) {
+        return (
+          <div className="p-8 text-center text-sm text-gray-500">
+            No stockpile location selected.
+            <button
+              onClick={() => setActiveView(ViewType.PARTS)}
+              className="mt-3 block mx-auto px-4 py-2 bg-primary text-white rounded-xl font-bold text-xs"
+            >
+              Go to Parts
+            </button>
+          </div>
+        );
+      }
+      return (
+        <StockpileInventoryView
+          stockpileId={selectedStockpileId}
+          onBack={() => {
+            if (previousView) {
+              setActiveView(previousView);
+            } else {
+              setActiveView(ViewType.PARTS);
+            }
+          }}
           onOpenTicket={(ticketId) => {
             setSelectedTicketId(ticketId);
             setActiveView(ViewType.TICKETS);

@@ -11,6 +11,7 @@ interface StockTransferModalProps {
   onClose: () => void;
   onSuccess: (result: any) => void;
   initialPartId?: number;
+  initialSourceStockpileId?: number | string;
 }
 
 export const StockTransferModal: React.FC<StockTransferModalProps> = ({
@@ -20,15 +21,19 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
   onClose,
   onSuccess,
   initialPartId,
+  initialSourceStockpileId,
 }) => {
   const [selectedPartId, setSelectedPartId] = useState<string>(
     initialPartId ? String(initialPartId) : (parts[0] ? String(parts[0].id) : '')
   );
   const [sourceStockpileId, setSourceStockpileId] = useState<string>(
-    stockpiles[0] ? String(stockpiles[0].id) : ''
+    initialSourceStockpileId
+      ? String(initialSourceStockpileId)
+      : (stockpiles[0] ? String(stockpiles[0].id) : '')
   );
+  const otherStockpile = stockpiles.find(s => String(s.id) !== (initialSourceStockpileId ? String(initialSourceStockpileId) : String(stockpiles[0]?.id)));
   const [destStockpileId, setDestStockpileId] = useState<string>(
-    stockpiles[1] ? String(stockpiles[1].id) : (stockpiles[0] ? String(stockpiles[0].id) : '')
+    otherStockpile ? String(otherStockpile.id) : (stockpiles[1] ? String(stockpiles[1].id) : (stockpiles[0] ? String(stockpiles[0].id) : ''))
   );
   const [quantity, setQuantity] = useState<number>(1);
   const [transferredBy, setTransferredBy] = useState<string>('Jose (Tech)');
