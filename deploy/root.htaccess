@@ -1,0 +1,34 @@
+# HVACHome Production Root .htaccess Template
+#
+# TARGET LOCATION ON LIVE HOSTINGER SERVER:
+# public_html/.htaccess
+#
+# CRITICAL DEPLOY DISCIPLINE:
+# NEVER overwrite public_html/.htaccess with a plain SPA fallback or generic .htaccess file.
+# Doing so breaks /api rewrites and exposes server internals. Always preserve the full merged rules below.
+
+DirectoryIndex index.html
+
+# 1. Protect backend internals, .env, and sensitive files
+<FilesMatch "^(\.env|\.git|composer\.(json|lock)|.*\.sqlite.*|.*\.sql)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+RewriteEngine On
+
+# Explicitly block direct browser access to backend source directories
+RewriteRule ^backend/(src|migrations|cli|vendor|\.env) - [F,L]
+
+# 2. Forward /api requests to backend/public_api/index.php
+RewriteCond %{REQUEST_URI} ^/api(/.*)?$
+RewriteRule ^api(.*)$ backend/public_api/index.php [QSA,L]
+
+# 3. Pass Authorization header to PHP in FastCGI environments
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# 4. SPA Fallback: send non-existing files and non-existing directories to index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
