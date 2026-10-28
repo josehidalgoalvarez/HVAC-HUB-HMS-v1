@@ -771,7 +771,7 @@ export interface OutboxItem {
   job_id?: number | string;
   createdAt: number;
   retries: number;
-  status: 'pending' | 'syncing' | 'failed';
+  status: 'pending' | 'syncing' | 'failed' | 'unsupported';
   error?: string;
 }
 

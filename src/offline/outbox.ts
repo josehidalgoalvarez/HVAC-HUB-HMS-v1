@@ -62,15 +62,19 @@ class OfflineOutbox {
 
   public subscribe(listener: OutboxListener): () => void {
     this.listeners.add(listener);
-    this.getAll().then((items) => listener(items.length, items));
+    this.getAll().then((items) => {
+      const pendingCount = items.filter((i) => i.status !== 'failed' && i.status !== 'unsupported').length;
+      listener(pendingCount, items);
+    });
     return () => this.listeners.delete(listener);
   }
 
   private async notify(): Promise<void> {
     const items = await this.getAll();
+    const pendingCount = items.filter((i) => i.status !== 'failed' && i.status !== 'unsupported').length;
     for (const l of this.listeners) {
       try {
-        l(items.length, items);
+        l(pendingCount, items);
       } catch (e) {
         console.error('[OfflineOutbox] Listener error', e);
       }
@@ -149,7 +153,46 @@ class OfflineOutbox {
 
   public async getPendingCount(): Promise<number> {
     const items = await this.getAll();
-    return items.length;
+    return items.filter((i) => i.status !== 'failed' && i.status !== 'unsupported').length;
+  }
+
+  /**
+   * Update an existing outbox item.
+   */
+  public async updateItem(item: OutboxItem): Promise<void> {
+    const db = await this.initDb();
+    if (db) {
+      await new Promise<void>((resolve) => {
+        try {
+          const tx = db.transaction(STORE_NAME, 'readwrite');
+          const store = tx.objectStore(STORE_NAME);
+          store.put(item);
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => resolve();
+        } catch {
+          resolve();
+        }
+      });
+    }
+    const idx = this.memoryFallback.findIndex((i) => i.id === item.id);
+    if (idx >= 0) {
+      this.memoryFallback[idx] = item;
+    }
+    await this.notify();
+  }
+
+  /**
+   * Explicit user discard of an item from the outbox.
+   */
+  public async discard(id: string): Promise<void> {
+    await this.remove(id);
+  }
+
+  /**
+   * Explicit user discard of all items from the outbox.
+   */
+  public async discardAll(): Promise<void> {
+    await this.clear();
   }
 
   /**
@@ -211,13 +254,15 @@ class OfflineOutbox {
     }
 
     // Check connectivity
-    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
       return { synced: 0, failed: 0 };
     }
 
     this.isSyncing = true;
     let synced = 0;
     let failed = 0;
+
+    const supportedTypes = new Set(['create_job', 'add_note', 'add_part_used', 'add_photo', 'close_job']);
 
     try {
       // 1. Try batch sync endpoint first (/api/sync)
@@ -229,29 +274,69 @@ class OfflineOutbox {
         payload: i.payload,
       }));
 
+      let runFallback = false;
+      let fallbackReason = '';
+
       try {
         const batchRes = await client.syncBatch(mutations);
         if (batchRes && Array.isArray(batchRes.results)) {
+          // Process batch results
           for (const res of batchRes.results) {
+            const matchedItem = items.find((i) => i.idempotency_key === res.idempotency_key || i.id === res.idempotency_key);
+            if (!matchedItem) continue;
+
             if (res.status === 'synced') {
-              const matchedItem = items.find((i) => i.idempotency_key === res.idempotency_key || i.id === res.idempotency_key);
-              if (matchedItem) {
-                await this.remove(matchedItem.id);
-                synced++;
-              }
+              await this.remove(matchedItem.id);
+              synced++;
+            } else if (res.status === 'unsupported') {
+              const err = (res as { error?: string }).error || `Mutation type '${matchedItem.type}' is not supported for batch background sync. Discard or inspect details.`;
+              matchedItem.status = 'unsupported';
+              matchedItem.error = err;
+              await this.updateItem(matchedItem);
+              failed++;
+            } else {
+              matchedItem.status = 'failed';
+              matchedItem.error = (res as { error?: string }).error || 'Sync failed on server';
+              matchedItem.retries = (matchedItem.retries || 0) + 1;
+              await this.updateItem(matchedItem);
+              failed++;
             }
           }
+        } else {
+          // Non-array results shape: treat as batch failure and trigger sequential fallback
+          console.warn('[OfflineOutbox] Batch sync returned non-array results shape, falling back to sequential replay', batchRes);
+          runFallback = true;
+          fallbackReason = 'Batch sync response was not an array of results';
         }
-      } catch (batchErr) {
-        console.warn('[OfflineOutbox] Batch sync failed, falling back to sequential item replay', batchErr);
-        // 2. Sequential fallback replay in FIFO order
-        for (const item of items) {
+      } catch (batchErr: any) {
+        console.warn('[OfflineOutbox] Batch sync request threw, falling back to sequential item replay', batchErr);
+        runFallback = true;
+        fallbackReason = batchErr?.message || 'Batch sync request threw error';
+      }
+
+      if (runFallback) {
+        // 2. Sequential fallback replay in FIFO order for SUPPORTED types only
+        const remainingItems = await this.getAll();
+        for (const item of remainingItems) {
+          if (!supportedTypes.has(item.type)) {
+            // Unsupported types MUST NOT be replayed sequentially
+            item.status = 'unsupported';
+            item.error = `Mutation type '${item.type}' is not supported for background sync. Discard or inspect details. (${fallbackReason})`;
+            await this.updateItem(item);
+            failed++;
+            continue;
+          }
+
           try {
             await client.replayOutboxItem(item);
             await this.remove(item.id);
             synced++;
-          } catch (itemErr) {
+          } catch (itemErr: any) {
             console.error(`[OfflineOutbox] Failed to replay item ${item.id}`, itemErr);
+            item.status = 'failed';
+            item.error = itemErr?.message || String(itemErr) || 'Sequential sync failed';
+            item.retries = (item.retries || 0) + 1;
+            await this.updateItem(item);
             failed++;
           }
         }

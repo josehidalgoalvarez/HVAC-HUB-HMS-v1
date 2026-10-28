@@ -345,8 +345,23 @@ class JobController
                         $actionResult = Job::close($jobId, $payload, $userId);
                         break;
 
+                    case 'update_ticket':
+                    case 'custom':
                     default:
-                        throw new \RuntimeException("Unknown mutation action type '{$actionType}'");
+                        $errMsg = "Mutation type '{$actionType}' is not supported for batch background sync. Discard or inspect details.";
+                        $results[] = [
+                            'idempotency_key' => $idempotencyKey,
+                            'status' => 'unsupported',
+                            'action' => $actionType,
+                            'error' => $errMsg,
+                        ];
+                        $failures[] = [
+                            'idempotency_key' => $idempotencyKey,
+                            'action' => $actionType,
+                            'status' => 'unsupported',
+                            'error' => $errMsg,
+                        ];
+                        continue 2;
                 }
 
                 $results[] = [
@@ -358,6 +373,13 @@ class JobController
             } catch (Throwable $e) {
                 $failures[] = [
                     'idempotency_key' => $idempotencyKey,
+                    'action' => $actionType,
+                    'status' => 'failed',
+                    'error' => $e->getMessage(),
+                ];
+                $results[] = [
+                    'idempotency_key' => $idempotencyKey,
+                    'status' => 'failed',
                     'action' => $actionType,
                     'error' => $e->getMessage(),
                 ];
