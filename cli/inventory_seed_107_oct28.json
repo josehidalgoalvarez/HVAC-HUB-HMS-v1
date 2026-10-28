@@ -1,0 +1,86 @@
+[
+  {
+    "stockpile_match": "107 Amherst Storage",
+    "name": "Cleaning chemicals",
+    "category": "Cleaning",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: Photo-verified category (Jose's Sep 29, 2026 photos); quantity TBD — never counted",
+    "source": "Jose's Sep 29, 2026 photos",
+    "last_updated": "2026-10-28"
+  },
+  {
+    "stockpile_match": "107 Amherst Storage",
+    "name": "Paint + drywall supplies",
+    "category": "Maintenance",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: Photo-verified category (Jose's Sep 29, 2026 photos); quantity TBD — never counted",
+    "source": "Jose's Sep 29, 2026 photos",
+    "last_updated": "2026-10-28"
+  },
+  {
+    "stockpile_match": "107 Amherst Storage",
+    "name": "Electrical parts",
+    "category": "Electrical",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: Photo-verified category (Jose's Sep 29, 2026 photos); quantity TBD — never counted",
+    "source": "Jose's Sep 29, 2026 photos",
+    "last_updated": "2026-10-28"
+  },
+  {
+    "stockpile_match": "107 Amherst Storage",
+    "name": "Plumbing parts",
+    "category": "Plumbing",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: Photo-verified category (Jose's Sep 29, 2026 photos); quantity TBD — never counted",
+    "source": "Jose's Sep 29, 2026 photos",
+    "last_updated": "2026-10-28"
+  },
+  {
+    "stockpile_match": "107 Amherst Storage",
+    "name": "Pre-made window screens",
+    "category": "Hardware",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: Photo-verified category (Jose's Sep 29, 2026 photos); quantity TBD — never counted",
+    "source": "Jose's Sep 29, 2026 photos",
+    "last_updated": "2026-10-28"
+  },
+  {
+    "stockpile_match": "107 Amherst Storage",
+    "name": "Fire extinguisher",
+    "category": "Safety",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: Photo-verified category (Jose's Sep 29, 2026 photos); quantity TBD — never counted",
+    "source": "Jose's Sep 29, 2026 photos",
+    "last_updated": "2026-10-28"
+  },
+  {
+    "stockpile_match": "107 Amherst Storage",
+    "name": "First-aid kit",
+    "category": "Safety",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: Photo-verified category (Jose's Sep 29, 2026 photos); quantity TBD — never counted",
+    "source": "Jose's Sep 29, 2026 photos",
+    "last_updated": "2026-10-28"
+  }
+]
