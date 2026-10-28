@@ -19,5 +19,6 @@ export enum ViewType {
   SOP_RUN = 'sop_run',
   INSIGHTS = 'insights',
   FIELD_NOTES = 'field_notes',
-  STOCKPILE_INVENTORY = 'stockpile_inventory'
+  STOCKPILE_INVENTORY = 'stockpile_inventory',
+  BUY_LIST = 'buy_list'
 }

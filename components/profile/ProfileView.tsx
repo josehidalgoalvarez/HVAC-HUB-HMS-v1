@@ -15,6 +15,7 @@ interface ProfileViewProps {
   isEditMode: boolean;
   onToggleEditMode: (enabled: boolean) => void;
   onOpenParts?: () => void;
+  onOpenBuyList?: () => void;
   onOpenWatches?: () => void;
   onOpenDefaults?: () => void;
   onOpenSops?: () => void;
@@ -26,6 +27,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   isEditMode,
   onToggleEditMode,
   onOpenParts,
+  onOpenBuyList,
   onOpenWatches,
   onOpenDefaults,
   onOpenSops
@@ -133,6 +135,12 @@ const ProfileView: React.FC<ProfileViewProps> = ({
       icon: 'precision_manufacturing',
       label: 'Parts Inventory',
       action: onOpenParts,
+      color: 'text-primary'
+    }] : []),
+    ...(onOpenBuyList ? [{
+      icon: 'shopping_cart_checkout',
+      label: 'Parts Buy List',
+      action: onOpenBuyList,
       color: 'text-primary'
     }] : []),
     ...(onOpenWatches ? [{

@@ -3,7 +3,6 @@ import { apiClient } from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
 import { PartSearchSection } from './PartSearchSection';
-import { ShoppingListSection } from './ShoppingListSection';
 import { SupplierDirectorySection } from './SupplierDirectorySection';
 import { LogPartUseModal, type LogPartUseResult } from './LogPartUseModal';
 import { AddPartModal } from './AddPartModal';
@@ -16,10 +15,16 @@ interface PartsViewProps {
   onBack?: () => void;
   onOpenTicket?: (ticketId: string) => void;
   onOpenStockpileInventory?: (stockpileId: number | string) => void;
+  onOpenBuyList?: () => void;
 }
 
-export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket, onOpenStockpileInventory }) => {
-  const [activeTab, setActiveTab] = useState<'search' | 'shopping' | 'suppliers'>('search');
+export const PartsView: React.FC<PartsViewProps> = ({
+  onBack,
+  onOpenTicket,
+  onOpenStockpileInventory,
+  onOpenBuyList,
+}) => {
+  const [activeTab, setActiveTab] = useState<'search' | 'suppliers'>('search');
   const [searchQuery, setSearchQuery] = useState('');
   const [parts, setParts] = useState<PartRecord[]>(SEED_PARTS);
   const [stockpiles, setStockpiles] = useState<Stockpile[]>(SEED_STOCKPILES);
@@ -183,6 +188,18 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket, onOp
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          {onOpenBuyList && (
+            <button
+              id="open-buylist-btn"
+              onClick={onOpenBuyList}
+              className="flex-1 sm:flex-none min-h-[44px] px-3.5 py-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
+              title="Open Buy List Full Screen"
+            >
+              <span className="material-symbols-outlined text-[18px]">shopping_cart_checkout</span>
+              <span>Buy List</span>
+            </button>
+          )}
+
           <button
             id="transfer-stock-btn"
             onClick={() => setIsTransferStockOpen(true)}
@@ -196,7 +213,7 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket, onOp
           <button
             id="add-part-btn"
             onClick={() => setIsAddPartOpen(true)}
-            className="flex-1 sm:flex-none min-h-[44px] px-3.5 py-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
+            className="flex-1 sm:flex-none min-h-[44px] px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-brand-black dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-gray-200 dark:border-gray-700 active:scale-95 transition-all"
             title="Add Part to Stash"
           >
             <span className="material-symbols-outlined text-[18px]">add</span>
@@ -245,18 +262,16 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket, onOp
           Catalog
         </button>
 
-        <button
-          id="parts-tab-shopping"
-          onClick={() => setActiveTab('shopping')}
-          className={`flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-            activeTab === 'shopping'
-              ? 'bg-white dark:bg-card-dark text-primary shadow-xs'
-              : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-          }`}
-        >
-          <span className="material-symbols-outlined text-[16px]">shopping_cart</span>
-          Buy List
-        </button>
+        {onOpenBuyList && (
+          <button
+            id="parts-tab-shopping"
+            onClick={onOpenBuyList}
+            className="flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+          >
+            <span className="material-symbols-outlined text-[16px]">shopping_cart</span>
+            Buy List
+          </button>
+        )}
 
         <button
           id="parts-tab-suppliers"
@@ -293,10 +308,6 @@ export const PartsView: React.FC<PartsViewProps> = ({ onBack, onOpenTicket, onOp
             onHarvestTransfer={candidate => setActiveCandidateForTransfer(candidate)}
             onOpenStockpileInventory={onOpenStockpileInventory}
           />
-        )}
-
-        {activeTab === 'shopping' && (
-          <ShoppingListSection onOpenTicket={onOpenTicket} />
         )}
 
         {activeTab === 'suppliers' && (
