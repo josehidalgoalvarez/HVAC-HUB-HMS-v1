@@ -1,0 +1,32 @@
+{
+  "stockpiles": [
+    {
+      "name": "1731/1733 Shared Mech Room",
+      "location": "1731 Bath Rd",
+      "building_id": 5,
+      "notes": "Shared mechanical room serving both 1731 and 1733 Bath Road. Equipment and storage."
+    }
+  ],
+  "appliances": [
+    {
+      "stockpile_name": "1731/1733 Shared Mech Room",
+      "name": "Donor fridge (1 of 2)",
+      "type": "Refrigerator",
+      "status": "donor",
+      "model_number": null,
+      "serial_number": null,
+      "brand": "Unknown",
+      "notes": "Donor fridge, 1731/1733 shared mech room. Parts source, NOT in service. Brand/model UNKNOWN — never guessed."
+    },
+    {
+      "stockpile_name": "1731/1733 Shared Mech Room",
+      "name": "Donor fridge (2 of 2)",
+      "type": "Refrigerator",
+      "status": "donor",
+      "model_number": null,
+      "serial_number": null,
+      "brand": "Unknown",
+      "notes": "Donor fridge, 1731/1733 shared mech room. Parts source, NOT in service. Brand/model UNKNOWN — never guessed."
+    }
+  ]
+}
