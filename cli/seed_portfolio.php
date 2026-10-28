@@ -824,7 +824,11 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     // Resolve unit for 137 Amherst (Building 10, Unit 137) via label-based lookup
     $u137Stmt = $pdo->prepare("SELECT id FROM unit WHERE building_id = 10 AND unit_number = '137' LIMIT 1");
     $u137Stmt->execute();
-    $u137Id = (int) ($u137Stmt->fetchColumn() ?: 410);
+    $u137Val = $u137Stmt->fetchColumn();
+    if ($u137Val === false || $u137Val === null) {
+        throw new RuntimeException("Cannot seed portfolio: unit '137' under building 10 (137 Amherst Drive) not found in unit table.");
+    }
+    $u137Id = (int) $u137Val;
 
     // Seed Reconciled Portfolio Tickets (21 Canonical Tickets on Verified Units)
     $tickets = [
