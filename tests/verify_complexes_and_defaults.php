@@ -30,18 +30,23 @@ $db = Db::get();
 echo "--- 1. Database Schema & Backfill Counts ---\n";
 
 // Check complexes table
+// Migration 027 expanded portfolio grouping from initial 8 complexes to 10 complexes:
+// added 'frontenac-alfred' (merging Frontenac, Alfred & 565 Princess), 'armstrong-skyfall' (Armstrong, Skyfall/Le Sante & 2274 Princess),
+// moved 630 Princess to standalone under construction, and added 181 Hillendale Ave storage.
 $complexCount = (int)$db->query("SELECT COUNT(*) FROM complexes")->fetchColumn();
-assertTest($complexCount === 8, "1.1 Complexes table contains exactly 8 complexes (got {$complexCount})", $passes, $failures);
+assertTest($complexCount === 10, "1.1 Complexes table contains exactly 10 complexes (got {$complexCount})", $passes, $failures);
 
 $expectedComplexes = [
-    'bd' => ['id' => 1, 'name' => 'BD', 'expected_buildings' => 12],
+    'bd' => ['id' => 1, 'name' => 'BD — Bath & Days', 'expected_buildings' => 12],
     'elm-colborne' => ['id' => 2, 'name' => 'Elm + Colborne', 'expected_buildings' => 3],
     'amherst' => ['id' => 3, 'name' => 'Amherst', 'expected_buildings' => 44],
-    'princess' => ['id' => 4, 'name' => 'Princess', 'expected_buildings' => 9],
+    'princess' => ['id' => 4, 'name' => 'Princess', 'expected_buildings' => 6], // 565 Princess moved to frontenac-alfred, 630 standalone, 2274 moved to armstrong-skyfall
     'victoria' => ['id' => 5, 'name' => 'Victoria', 'expected_buildings' => 4],
-    'alfred' => ['id' => 6, 'name' => 'Alfred', 'expected_buildings' => 6],
-    'frontenac' => ['id' => 7, 'name' => 'Frontenac', 'expected_buildings' => 2],
-    'manitou' => ['id' => 8, 'name' => 'Manitou', 'expected_buildings' => 4]
+    'alfred' => ['id' => 6, 'name' => 'Alfred', 'expected_buildings' => 0], // Re-clustered into frontenac-alfred
+    'frontenac' => ['id' => 7, 'name' => 'Frontenac', 'expected_buildings' => 0], // Re-clustered into frontenac-alfred
+    'manitou' => ['id' => 8, 'name' => 'Manitou', 'expected_buildings' => 4],
+    'frontenac-alfred' => ['id' => 9, 'name' => 'Frontenac–Alfred Quadrant', 'expected_buildings' => 9],
+    'armstrong-skyfall' => ['id' => 10, 'name' => 'Armstrong / Skyfall', 'expected_buildings' => 3],
 ];
 
 foreach ($expectedComplexes as $slug => $info) {
@@ -53,27 +58,27 @@ foreach ($expectedComplexes as $slug => $info) {
 
 // Check ungrouped count
 $ungroupedCount = (int)$db->query("SELECT COUNT(*) FROM building WHERE complex_id IS NULL")->fetchColumn();
-assertTest($ungroupedCount === 11, "1.4 Exactly 11 buildings remain ungrouped (singles, Le Santé + McKay office) (got {$ungroupedCount})", $passes, $failures);
+assertTest($ungroupedCount === 11, "1.4 Exactly 11 buildings remain ungrouped (singles, 181 Hillendale storage + 630 Princess standalone + McKay office) (got {$ungroupedCount})", $passes, $failures);
 
 $totalBldgCount = (int)$db->query("SELECT COUNT(*) FROM building")->fetchColumn();
-assertTest($totalBldgCount === 95, "1.5 Total building count is 95 (84 in complexes + 11 Ungrouped) (got {$totalBldgCount})", $passes, $failures);
+assertTest($totalBldgCount === 96, "1.5 Total building count is 96 (85 in complexes + 11 Ungrouped) (got {$totalBldgCount})", $passes, $failures);
 
-// Verify Ungrouped names
+// Verify Ungrouped names (includes 181 Hillendale Ave storage and 630 Princess St standalone from migration 027)
 $ungroupedNames = $db->query("SELECT name FROM building WHERE complex_id IS NULL ORDER BY name")->fetchAll(\PDO::FETCH_COLUMN);
 $expectedSingles = [
     '176 Railway Street',
+    '181 Hillendale Ave',
     '265 Ontario Street',
     '36 Durham Street',
     '415 Albert Street',
-    '539 Armstrong Road',
     '55 Ontario Street',
+    '630 Princess St',
     '698 McKay Street (Office)',
     '810 Blackburn Mews',
     '847 Development',
-    '85 Park Street',
-    'Le Santé'
+    '85 Park Street'
 ];
-assertTest($ungroupedNames === $expectedSingles, "1.6 Ungrouped list matches exactly the singles, Le Santé and McKay office", $passes, $failures);
+assertTest($ungroupedNames === $expectedSingles, "1.6 Ungrouped list matches exactly the singles, storage and standalone buildings", $passes, $failures);
 
 // -------------------------------------------------------------
 // 2. 505 Days Pool Removal & Safety Check
@@ -159,7 +164,7 @@ $res = $app->handle($req);
 assertTest($res->getStatusCode() === 200, "7.1 GET /api/complexes returns HTTP 200", $passes, $failures);
 $complexesEnvelope = json_decode((string)$res->getBody(), true);
 $complexesPayload = $complexesEnvelope['data'] ?? [];
-assertTest(is_array($complexesPayload) && count($complexesPayload) === 8, "7.2 GET /api/complexes returns all 8 complexes with building counts (got " . count($complexesPayload) . ")", $passes, $failures);
+assertTest(is_array($complexesPayload) && count($complexesPayload) === 10, "7.2 GET /api/complexes returns all 10 complexes with building counts (got " . count($complexesPayload) . ")", $passes, $failures);
 
 // GET /api/default-sets
 $reqSets = (new \Slim\Psr7\Factory\ServerRequestFactory())
@@ -179,7 +184,7 @@ $resInv = $app->handle($reqInv);
 assertTest($resInv->getStatusCode() === 200, "7.5 GET /api/inventory returns HTTP 200", $passes, $failures);
 $invEnvelope = json_decode((string)$resInv->getBody(), true);
 $invPayload = $invEnvelope['data'] ?? [];
-assertTest(isset($invPayload['complexes']) && count($invPayload['complexes']) === 8, "7.6 /api/inventory payload includes all 8 complexes", $passes, $failures);
+assertTest(isset($invPayload['complexes']) && count($invPayload['complexes']) === 10, "7.6 /api/inventory payload includes all 10 complexes", $passes, $failures);
 assertTest(isset($invPayload['defaultSets']) && count($invPayload['defaultSets']) >= 4, "7.7 /api/inventory payload includes defaultSets array", $passes, $failures);
 
 // -------------------------------------------------------------

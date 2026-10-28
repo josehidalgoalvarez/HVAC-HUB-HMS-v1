@@ -152,13 +152,15 @@ $noticeVerified = Notice::create([
 Notice::update($noticeVerified['id'], ['status' => 'verified'], 1);
 
 // Notice for t3: DRAFTED with FUTURE entry window (should show amber - unverified)
+// Use relative date (+2 days) so test fixture never expires against current date
+$futureDate = date('Y-m-d', strtotime('+2 days'));
 $noticePending = Notice::create([
     'ticket_id' => $t3['id'],
     'building_id' => 2,
     'unit_id' => 3,
     'title' => '24h Notice for Water Heater Leak',
-    'entry_start' => '2026-10-25 14:00:00',
-    'entry_end' => '2026-10-25 16:00:00',
+    'entry_start' => "{$futureDate} 14:00:00",
+    'entry_end' => "{$futureDate} 16:00:00",
 ], 1);
 
 // Notice for t4: DRAFTED with PAST deadline (should show red - overdue)

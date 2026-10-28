@@ -675,7 +675,7 @@ class Routes
                             'washrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
                             'bathrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
                             'storeys' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
-                            'stories' => $u['storeys'] !== null ? (int) $u['stories'] : null,
+                            'stories' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
                             'washerDryerState' => $u['washer_dryer_state'] ?? null,
                             'washer_dryer_state' => $u['washer_dryer_state'] ?? null,
                             'renovated' => $u['renovated'] !== null ? (bool) $u['renovated'] : null,
