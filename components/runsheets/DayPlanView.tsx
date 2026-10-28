@@ -4,6 +4,7 @@ import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
 import { BatchBuilderModal } from './BatchBuilderModal';
 import { CloseBlockModal } from './CloseBlockModal';
+import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import type { RunSheet, RunSheetBlock } from '../../types/domain';
 
@@ -24,11 +25,14 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
   const [activeRunSheet, setActiveRunSheet] = useState<RunSheet | null>(null);
   const [loading, setLoading] = useState(true);
   const [isUpdated, setIsUpdated] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Modals
   const [isBatchBuilderOpen, setIsBatchBuilderOpen] = useState(false);
   const [closingBlock, setClosingBlock] = useState<RunSheetBlock | null>(null);
+  const [removingBlock, setRemovingBlock] = useState<RunSheetBlock | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   const loadDayPlan = async (date: string) => {
     const cacheKey = `runsheet_${date}`;
@@ -91,6 +95,33 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
       };
     });
     setClosingBlock(null);
+  };
+
+  const handleConfirmRemoveBlock = async () => {
+    if (!activeRunSheet || !removingBlock) return;
+    const targetBlock = removingBlock;
+    setIsRemoving(true);
+    setError(null);
+
+    try {
+      await apiClient.deleteRunSheetBlock(activeRunSheet.id, targetBlock.id);
+      
+      // Refresh the plan from API
+      const cacheKey = `runsheet_${currentDate}`;
+      const detailed = await apiClient.getRunSheet(activeRunSheet.id);
+      setActiveRunSheet(detailed);
+      await appCache.set(cacheKey, detailed);
+      
+      setRemovingBlock(null);
+      setFeedbackMessage(`Job removed from Day Plan`);
+      setTimeout(() => setFeedbackMessage(null), 3000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to remove job from Day Plan';
+      setError(msg);
+      setRemovingBlock(null);
+    } finally {
+      setIsRemoving(false);
+    }
   };
 
   const getGateBadge = (gate?: string) => {
@@ -235,16 +266,36 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
         </div>
       )}
 
+      {/* Confirmation feedback toast */}
+      {feedbackMessage && (
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-40 px-3.5 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-full shadow-lg animate-fadeIn flex items-center gap-1.5 pointer-events-none">
+          <span className="material-symbols-outlined text-[14px]">check</span>
+          <span>{feedbackMessage}</span>
+        </div>
+      )}
+
+      {/* Error alert banner */}
+      {error && (
+        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-2xl text-xs text-brand-red font-semibold flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-base">error</span>
+            <span>{error}</span>
+          </div>
+          <button
+            onClick={() => setError(null)}
+            className="text-gray-400 hover:text-brand-red text-sm font-bold"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Main Blocks List */}
       <PullToRefresh onRefresh={() => loadDayPlan(currentDate)}>
         {loading && !activeRunSheet ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
             <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
             <p className="text-xs font-semibold">Loading day-plan route blocks...</p>
-          </div>
-        ) : error && !activeRunSheet ? (
-          <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-2xl text-xs text-brand-red font-semibold">
-            {error}
           </div>
         ) : !activeRunSheet || !activeRunSheet.blocks || activeRunSheet.blocks.length === 0 ? (
           <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
@@ -400,7 +451,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                     ))}
                   </div>
 
-                  {/* Footer / Completion Status */}
+                  {/* Footer / Actions */}
                   <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
                     {isCompleted ? (
                       <div className="flex items-center gap-2 text-xs">
@@ -427,27 +478,38 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                       </div>
                     )}
 
-                    {!isCompleted && (
-                      <div className="flex items-center gap-1.5">
-                        {onOpenQuickLog && (
-                          <button
-                            onClick={() => onOpenQuickLog(block)}
-                            className="py-1.5 px-3 text-xs font-bold bg-gray-100 dark:bg-card-dark text-text-main-light dark:text-text-main-dark border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-neutral-800 flex items-center gap-1 active:scale-95 transition-all"
-                            title="Open quick field logging session (<60s)"
-                          >
-                            <span className="material-symbols-outlined text-sm text-primary">bolt</span>
-                            Quick Log
-                          </button>
-                        )}
+                    <div className="flex items-center gap-1.5 ml-auto">
+                      {/* Remove block button (one per job/block, asks confirmation) */}
+                      <button
+                        onClick={() => setRemovingBlock(block)}
+                        className="py-1.5 px-3 min-h-[44px] text-xs font-bold text-brand-red hover:bg-red-50 dark:hover:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-xl flex items-center gap-1 active:scale-95 transition-all"
+                        title="Remove this job from the Day Plan"
+                        aria-label={`Remove ${block.title} from Day Plan`}
+                      >
+                        <span className="material-symbols-outlined text-sm">delete</span>
+                        Remove
+                      </button>
+
+                      {!isCompleted && onOpenQuickLog && (
+                        <button
+                          onClick={() => onOpenQuickLog(block)}
+                          className="py-1.5 px-3 min-h-[44px] text-xs font-bold bg-gray-100 dark:bg-card-dark text-text-main-light dark:text-text-main-dark border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-neutral-800 flex items-center gap-1 active:scale-95 transition-all"
+                          title="Open quick field logging session (<60s)"
+                        >
+                          <span className="material-symbols-outlined text-sm text-primary">bolt</span>
+                          Quick Log
+                        </button>
+                      )}
+                      {!isCompleted && (
                         <button
                           onClick={() => setClosingBlock(block)}
-                          className="py-1.5 px-3 text-xs font-bold bg-primary text-white rounded-xl shadow-xs hover:bg-primary/90 flex items-center gap-1 active:scale-95 transition-all"
+                          className="py-1.5 px-3 min-h-[44px] text-xs font-bold bg-primary text-white rounded-xl shadow-xs hover:bg-primary/90 flex items-center gap-1 active:scale-95 transition-all"
                         >
                           <span className="material-symbols-outlined text-sm">check_circle</span>
                           Close Block
                         </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -481,6 +543,53 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
           onSuccess={handleBlockUpdated}
         />
       )}
+
+      {/* Remove Block Confirmation Modal */}
+      {removingBlock && (
+        <Modal onClose={() => !isRemoving && setRemovingBlock(null)} className="max-w-sm">
+          <div className="flex flex-col items-center text-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-brand-red mb-1">
+              <span className="material-symbols-outlined text-[32px]">delete</span>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-brand-black dark:text-white">
+                Remove this job from the Day Plan?
+              </h3>
+              <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-2">
+                <span className="font-bold text-brand-black dark:text-white block mb-1">
+                  {removingBlock.title}
+                </span>
+                {removingBlock.building_name}
+                {removingBlock.unit_number ? ` • Unit ${removingBlock.unit_number}` : ''}
+              </p>
+              <p className="text-[11px] text-gray-400 mt-2">
+                The underlying ticket will remain open and untouched.
+              </p>
+            </div>
+            <div className="flex gap-3 w-full mt-2">
+              <Button
+                onClick={() => setRemovingBlock(null)}
+                variant="secondary"
+                disabled={isRemoving}
+                fullWidth
+                className="min-h-[44px]"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmRemoveBlock}
+                variant="danger"
+                disabled={isRemoving}
+                fullWidth
+                className="min-h-[44px]"
+              >
+                {isRemoving ? 'Removing...' : 'Remove'}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };
+
