@@ -6,6 +6,7 @@ import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { apiClient } from '../../src/api/client';
 import type { Stockpile } from '../../types/domain';
+import { McKayStorageMenuView } from '../parts/McKayStorageMenuView';
 
 interface PropertyDetailViewProps {
   propertyId: string;
@@ -30,19 +31,42 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
   const [newImageUrl, setNewImageUrl] = useState(property?.imageUrl || '');
   const [isProcessing, setIsProcessing] = useState(false);
   const [stockpilesList, setStockpilesList] = useState<Stockpile[]>([]);
+  const [showMcKayMenu, setShowMcKayMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const isMcKayProperty = property?.id === 'prop-office-mckay-698' || property?.id === '89' || property?.name?.toLowerCase().includes('mckay');
+
   React.useEffect(() => {
-    if (property?.role === 'storage') {
+    if (property?.role === 'storage' || isMcKayProperty) {
       apiClient.getStockpiles()
         .then(res => {
           if (Array.isArray(res)) setStockpilesList(res);
         })
         .catch(() => {});
     }
-  }, [property?.role]);
+  }, [property?.role, isMcKayProperty]);
 
   if (!property) return <div>Property Not Found</div>;
+
+  if (showMcKayMenu) {
+    const mckayStockpiles = stockpilesList.filter(sp => {
+      if (sp.building_id && (String(sp.building_id) === '89' || String(sp.building_id) === property.id || String(sp.building_id) === String(property.id).replace(/\D/g, ''))) return true;
+      if (sp.buildingId && (String(sp.buildingId) === '89' || String(sp.buildingId) === property.id)) return true;
+      if (sp.name && sp.name.toLowerCase().includes('mckay')) return true;
+      if (sp.location && sp.location.toLowerCase().includes('mckay')) return true;
+      return false;
+    });
+
+    return (
+      <McKayStorageMenuView
+        stockpiles={mckayStockpiles}
+        onSelectStockpile={(stockpileId) => {
+          onOpenStockpileInventory?.(stockpileId);
+        }}
+        onBack={() => setShowMcKayMenu(false)}
+      />
+    );
+  }
 
   const handleUpdateImage = () => {
     updateProperty({ ...property, imageUrl: newImageUrl });
@@ -131,10 +155,61 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
           </div>
         </div>
 
-        {/* Storage Location Inventory Whole-Box Navigation Card or Informational Box */}
-        {property.role === 'storage' && (() => {
+        {/* Storage Location Inventory Whole-Box Navigation Card, McKay Storage Depot, or Informational Box */}
+        {(property.role === 'storage' || isMcKayProperty) && (() => {
           const isCentral = property.id === 'prop-days-511' || property.id === '15' || property.name?.includes('511 Days');
           
+          // Multi-stockpile building: McKay site holds multiple stockpiles
+          const mckayStockpiles = isMcKayProperty
+            ? stockpilesList.filter(sp => {
+                if (sp.building_id && (String(sp.building_id) === '89' || String(sp.building_id) === property.id || String(sp.building_id) === String(property.id).replace(/\D/g, ''))) return true;
+                if (sp.buildingId && (String(sp.buildingId) === '89' || String(sp.buildingId) === property.id)) return true;
+                if (sp.name && sp.name.toLowerCase().includes('mckay')) return true;
+                if (sp.location && sp.location.toLowerCase().includes('mckay')) return true;
+                return false;
+              })
+            : [];
+
+          if (isMcKayProperty && mckayStockpiles.length > 0) {
+            return (
+              <div
+                data-testid="property-detail-mckay-storage-card"
+                onClick={() => setShowMcKayMenu(true)}
+                className="p-4 rounded-2xl bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/25 text-amber-900 dark:text-amber-200 flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition-all group shadow-xs"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setShowMcKayMenu(true);
+                  }
+                }}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 text-amber-700 dark:text-amber-300">
+                    <span className="material-symbols-outlined text-2xl group-hover:scale-105 transition-transform">
+                      warehouse
+                    </span>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-bold text-sm flex items-center gap-1.5 flex-wrap">
+                      <span>McKay Storage Depot</span>
+                      <span className="px-2 py-0.2 rounded-md bg-amber-500 text-brand-black text-[10px] font-black uppercase tracking-wider">
+                        {mckayStockpiles.length} {mckayStockpiles.length === 1 ? 'Location' : 'Locations'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-amber-800 dark:text-amber-300 mt-0.5 truncate">
+                      Warehouse & Sea Containers · Tap to view storage facilities
+                    </p>
+                  </div>
+                </div>
+                <span className="material-symbols-outlined text-amber-600 text-2xl shrink-0 group-hover:translate-x-0.5 transition-transform">
+                  chevron_right
+                </span>
+              </div>
+            );
+          }
+
           // Generic resolution order:
           // (a) Stockpile linked by building_id to the building
           // (b) Else stockpile matched by building name / address

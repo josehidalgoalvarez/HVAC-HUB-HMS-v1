@@ -13,6 +13,7 @@ import {
 import { apiClient } from '../../src/api/client';
 import { formatDate } from '../../utils/dateUtils';
 import type { UnitFailedVisitsSummary, Stockpile } from '../../types/domain';
+import { McKayStorageMenuView } from '../parts/McKayStorageMenuView';
 
 interface PropertyListViewProps {
   onPropertyClick: (id: string) => void;
@@ -80,6 +81,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
   // Stockpiles for location inventory navigation
   const [stockpilesList, setStockpilesList] = useState<Stockpile[]>([]);
+  const [showMcKayMenu, setShowMcKayMenu] = useState(false);
 
   React.useEffect(() => {
     apiClient.getStockpiles()
@@ -1141,7 +1143,28 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
             )}
 
             {/* LEVEL 2: BUILDING LEVEL (UNITS IN BUILDING) */}
-            {navLevel === 'building' && activeBuilding && (
+            {navLevel === 'building' && activeBuilding && showMcKayMenu && (() => {
+              const mckayStockpiles = stockpilesList.filter(sp => {
+                if (sp.building_id && (String(sp.building_id) === '89' || String(sp.building_id) === activeBuilding.id || String(sp.building_id) === String(activeBuilding.id).replace(/\D/g, ''))) return true;
+                if (sp.buildingId && (String(sp.buildingId) === '89' || String(sp.buildingId) === activeBuilding.id)) return true;
+                if (sp.name && sp.name.toLowerCase().includes('mckay')) return true;
+                if (sp.location && sp.location.toLowerCase().includes('mckay')) return true;
+                return false;
+              });
+
+              return (
+                <McKayStorageMenuView
+                  stockpiles={mckayStockpiles}
+                  onSelectStockpile={(spId) => {
+                    onOpenStockpileInventory?.(spId);
+                  }}
+                  onBack={() => setShowMcKayMenu(false)}
+                />
+              );
+            })()}
+
+            {/* LEVEL 2: BUILDING LEVEL (UNITS IN BUILDING) */}
+            {navLevel === 'building' && activeBuilding && !showMcKayMenu && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
                   <div className="flex items-center gap-3">
@@ -1189,6 +1212,57 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 {activeBuilding.role && activeBuilding.role !== 'standard' && (() => {
                   const isStorage = activeBuilding.role === 'storage';
                   const isCentral = activeBuilding.id === 'prop-days-511' || activeBuilding.id === '15' || activeBuilding.name?.includes('511 Days');
+                  const isMcKay = activeBuilding.id === 'prop-office-mckay-698' || activeBuilding.id === '89' || activeBuilding.name?.toLowerCase().includes('mckay');
+
+                  // Multi-stockpile building: McKay site holds multiple stockpiles
+                  // Resolution rule: stockpiles linked to the McKay site by building_id 89 OR matched by name ('mckay')
+                  const mckayStockpiles = isMcKay
+                    ? stockpilesList.filter(sp => {
+                        if (sp.building_id && (String(sp.building_id) === '89' || String(sp.building_id) === activeBuilding.id || String(sp.building_id) === String(activeBuilding.id).replace(/\D/g, ''))) return true;
+                        if (sp.buildingId && (String(sp.buildingId) === '89' || String(sp.buildingId) === activeBuilding.id)) return true;
+                        if (sp.name && sp.name.toLowerCase().includes('mckay')) return true;
+                        if (sp.location && sp.location.toLowerCase().includes('mckay')) return true;
+                        return false;
+                      })
+                    : [];
+
+                  if (isMcKay && mckayStockpiles.length > 0) {
+                    return (
+                      <div
+                        data-testid="mckay-storage-menu-card"
+                        onClick={() => setShowMcKayMenu(true)}
+                        className="p-3.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/25 text-amber-900 dark:text-amber-200 text-xs flex items-center justify-between gap-2.5 cursor-pointer active:scale-[0.99] transition-all group shadow-2xs"
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setShowMcKayMenu(true);
+                          }
+                        }}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="material-symbols-outlined text-amber-600 text-2xl shrink-0 group-hover:scale-105 transition-transform">
+                            warehouse
+                          </span>
+                          <div className="min-w-0">
+                            <div className="font-bold flex items-center gap-1.5 flex-wrap">
+                              <span>McKay Storage Depot</span>
+                              <span className="px-2 py-0.2 rounded-md bg-amber-500 text-brand-black text-[10px] font-black uppercase tracking-wider">
+                                {mckayStockpiles.length} {mckayStockpiles.length === 1 ? 'Location' : 'Locations'}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-amber-800 dark:text-amber-300 mt-0.5 truncate">
+                              Warehouse & Sea Containers · Tap to view storage facilities
+                            </p>
+                          </div>
+                        </div>
+                        <span className="material-symbols-outlined text-amber-600 text-xl shrink-0 group-hover:translate-x-0.5 transition-transform">
+                          chevron_right
+                        </span>
+                      </div>
+                    );
+                  }
                   
                   // Generic resolution order:
                   // (a) Stockpile linked by building_id to the building
