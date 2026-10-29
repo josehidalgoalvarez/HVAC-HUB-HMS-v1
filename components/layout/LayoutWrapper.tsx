@@ -4,6 +4,7 @@ import { ViewType } from '../../types';
 import BottomNav from './BottomNav';
 import OfflineStatusBadge from '../common/OfflineStatusBadge';
 import PWAInstallBanner from '../common/PWAInstallBanner';
+import { UpdateBanner } from '../common/UpdateBanner';
 
 interface LayoutWrapperProps {
   activeView: ViewType;
@@ -39,6 +40,7 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({ activeView, onNavigate, c
     <div className="pt-safe min-h-screen">
       <OfflineStatusBadge />
       <PWAInstallBanner />
+      <UpdateBanner />
       <div className={showBottomNav ? 'pb-tab-bar' : ''}>
         {children}
       </div>

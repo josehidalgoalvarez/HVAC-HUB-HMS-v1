@@ -1,10 +1,18 @@
 import path from 'path';
+import { execSync } from 'child_process';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
+  const buildTimestamp = Date.now();
+  let commitHash = 'unknown';
+  try {
+    commitHash = execSync('git rev-parse --short HEAD').toString().trim();
+  } catch {
+    commitHash = 'dev';
+  }
   return {
     server: {
       port: 3000,
@@ -40,6 +48,27 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
+      {
+        name: 'version-marker-generator',
+        generateBundle(_options, bundle) {
+          // Find the main index entry chunk
+          const entryChunk = Object.values(bundle).find(
+            (chunk: any) => chunk.type === 'chunk' && chunk.isEntry && chunk.name === 'index'
+          );
+          const entryFileName = entryChunk ? entryChunk.fileName : 'assets/index.js';
+          const payload = {
+            version: `${buildTimestamp.toString(36)}-${commitHash}`,
+            builtAt: buildTimestamp,
+            commitHash,
+            entryBundle: entryFileName,
+          };
+          this.emitFile({
+            type: 'asset',
+            fileName: 'version.json',
+            source: JSON.stringify(payload, null, 2),
+          });
+        },
+      },
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: 'auto',
@@ -82,6 +111,7 @@ export default defineConfig(({ mode }) => {
         },
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+          globIgnores: ['**/version.json'],
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [/^\/api\//],
           runtimeCaching: [
@@ -137,6 +167,11 @@ export default defineConfig(({ mode }) => {
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      __APP_VERSION_INFO__: JSON.stringify({
+        version: `${buildTimestamp.toString(36)}-${commitHash}`,
+        builtAt: buildTimestamp,
+        commitHash,
+      }),
     },
     resolve: {
       alias: {
