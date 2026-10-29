@@ -1190,18 +1190,28 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   const isStorage = activeBuilding.role === 'storage';
                   const isCentral = activeBuilding.id === 'prop-days-511' || activeBuilding.id === '15' || activeBuilding.name?.includes('511 Days');
                   
-                  // Match stockpile by building_id or address/name match
+                  // Generic resolution order:
+                  // (a) Stockpile linked by building_id to the building
+                  // (b) Else stockpile matched by building name / address
+                  // (c) Else NO navigation (null) — hardcoded fallback removed
                   const matchedStockpile = isStorage ? (
+                    // (a) First: match by building_id
                     stockpilesList.find(sp => {
                       if (sp.building_id && (String(sp.building_id) === activeBuilding.id || String(sp.building_id) === String(activeBuilding.id).replace(/\D/g, ''))) return true;
-                      if (sp.buildingId && String(sp.buildingId) === activeBuilding.id) return true;
+                      if (sp.buildingId && (String(sp.buildingId) === activeBuilding.id || String(sp.buildingId) === String(activeBuilding.id).replace(/\D/g, ''))) return true;
+                      return false;
+                    }) ||
+                    // (b) Second: match by building name / address
+                    stockpilesList.find(sp => {
                       if (activeBuilding.name && sp.name && (sp.name.toLowerCase().includes(activeBuilding.name.toLowerCase()) || activeBuilding.name.toLowerCase().includes(sp.name.toLowerCase()))) return true;
                       if (activeBuilding.address && sp.location && (sp.location.toLowerCase().includes(activeBuilding.address.toLowerCase()) || activeBuilding.address.toLowerCase().includes(sp.location.toLowerCase()))) return true;
                       return false;
-                    }) || (isCentral ? stockpilesList.find(sp => sp.id === 1 || String(sp.id) === '1') : null)
+                    }) ||
+                    // (c) No navigation
+                    null
                   ) : null;
 
-                  const targetStockpileId = matchedStockpile ? matchedStockpile.id : (isCentral ? 1 : null);
+                  const targetStockpileId = matchedStockpile ? matchedStockpile.id : null;
 
                   if (isStorage && targetStockpileId && onOpenStockpileInventory) {
                     return (
