@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 use App\Controllers\BuyListController;
+use App\Controllers\EquipmentController;
 use App\Controllers\IntakeController;
 use App\Controllers\JobController;
 use App\Controllers\NoticeController;
@@ -304,6 +305,12 @@ class Routes
             $group->get('/buy-list/manual', [BuyListController::class, 'listManual']);
             $group->post('/buy-list/manual', [BuyListController::class, 'createManual']);
             $group->delete('/buy-list/manual/{id}', [BuyListController::class, 'deleteManual']);
+
+            // --- Equipment / Tools Domain ---
+            $group->get('/stockpiles/{id}/equipment', [EquipmentController::class, 'listByStockpile']);
+            $group->post('/stockpiles/{id}/equipment', [EquipmentController::class, 'createForStockpile']);
+            $group->patch('/equipment/{id}', [EquipmentController::class, 'update']);
+            $group->delete('/equipment/{id}', [EquipmentController::class, 'delete']);
 
             // --- Proactive Watch Engine & Digest (Phase 6) ---
             $group->get('/watches', [WatchController::class, 'index']);

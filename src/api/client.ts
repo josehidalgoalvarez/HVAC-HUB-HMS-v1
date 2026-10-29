@@ -34,6 +34,8 @@ import type {
   SOP,
   SOPRun,
   ManualBuyItem,
+  EquipmentItem,
+  EquipmentStatus,
 } from '../../types/domain';
 import { appCache } from '../offline/cache.ts';
 
@@ -943,6 +945,51 @@ export class ApiClient {
   public async getStockpileCountHistory(stockpileId: number | string, allocationId?: number): Promise<any[]> {
     const query = allocationId ? `?allocation_id=${allocationId}` : '';
     return this.get<any[]>(`/api/stockpiles/${stockpileId}/count-history${query}`);
+  }
+
+  /**
+   * List equipment / tools assigned to a specific stockpile
+   */
+  public async getStockpileEquipment(stockpileId: number | string): Promise<EquipmentItem[]> {
+    return this.get<EquipmentItem[]>(`/api/stockpiles/${stockpileId}/equipment`);
+  }
+
+  /**
+   * Create a new equipment / tool record for a stockpile
+   */
+  public async createEquipment(
+    stockpileId: number | string,
+    data: {
+      name: string;
+      category?: string | null;
+      status?: EquipmentStatus;
+      notes?: string | null;
+    }
+  ): Promise<EquipmentItem> {
+    return this.post<EquipmentItem>(`/api/stockpiles/${stockpileId}/equipment`, data);
+  }
+
+  /**
+   * Update equipment status, notes, or assignment
+   */
+  public async updateEquipment(
+    equipmentId: number | string,
+    data: {
+      name?: string;
+      category?: string | null;
+      stockpile_id?: number | null;
+      status?: EquipmentStatus;
+      notes?: string | null;
+    }
+  ): Promise<EquipmentItem> {
+    return this.patch<EquipmentItem>(`/api/equipment/${equipmentId}`, data);
+  }
+
+  /**
+   * Delete an equipment record
+   */
+  public async deleteEquipment(equipmentId: number | string): Promise<{ deleted: boolean; id: number }> {
+    return this.delete<{ deleted: boolean; id: number }>(`/api/equipment/${equipmentId}`);
   }
 
   /**

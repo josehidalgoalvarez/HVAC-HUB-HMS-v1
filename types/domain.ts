@@ -1052,3 +1052,18 @@ export interface FieldNote {
   todo_verify: number | boolean;
   source_note?: string | null;
 }
+
+export type EquipmentStatus = 'available' | 'needs_service' | 'out_of_service' | 'unknown';
+
+export interface EquipmentItem {
+  id: number;
+  name: string;
+  category?: string | null;
+  stockpile_id?: number | null;
+  stockpile_name?: string | null;
+  status: EquipmentStatus;
+  notes?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
