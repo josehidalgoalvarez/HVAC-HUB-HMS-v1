@@ -7,19 +7,7 @@ import Button from '../ui/Button';
 import { apiClient } from '../../src/api/client';
 import type { Stockpile } from '../../types/domain';
 import { McKayStorageMenuView } from '../parts/McKayStorageMenuView';
-
-function normalizeMatchString(str?: string | null): string {
-  if (!str) return '';
-  return str
-    .toLowerCase()
-    .replace(/\broad\b/g, 'rd')
-    .replace(/\bstreet\b/g, 'st')
-    .replace(/\bavenue\b/g, 'ave')
-    .replace(/\bdrive\b/g, 'dr')
-    .replace(/[^a-z0-9]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+import { normalizeMatchString, resolveBuildingStockpile } from '../../utils/stockpileMatching';
 
 interface PropertyDetailViewProps {
   propertyId: string;
@@ -47,14 +35,6 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
   const [showMcKayMenu, setShowMcKayMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isMcKayProperty = Boolean(
-    property && (
-      property.id === '89' ||
-      String(property.id).replace(/\D/g, '') === '89' ||
-      normalizeMatchString(property.name).includes('mckay')
-    )
-  );
-
   React.useEffect(() => {
     apiClient.getStockpiles()
       .then(res => {
@@ -63,23 +43,16 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
       .catch(() => {});
   }, []);
 
+  const resolution = React.useMemo(() => {
+    return resolveBuildingStockpile(property, stockpilesList);
+  }, [property, stockpilesList]);
+
   if (!property) return <div>Property Not Found</div>;
 
   if (showMcKayMenu) {
-    const propNumericId = property ? String(property.id).replace(/\D/g, '') : '';
-    const mckayStockpiles = stockpilesList.filter(sp => {
-      const spBuildingNumeric = sp.building_id ? String(sp.building_id).replace(/\D/g, '') : '';
-      const spBuildingIdStr = sp.buildingId ? String(sp.buildingId).replace(/\D/g, '') : '';
-      if (spBuildingNumeric === '89' || (propNumericId && spBuildingNumeric === propNumericId)) return true;
-      if (spBuildingIdStr === '89' || (propNumericId && spBuildingIdStr === propNumericId)) return true;
-      if (normalizeMatchString(sp.name).includes('mckay')) return true;
-      if (normalizeMatchString(sp.location).includes('mckay')) return true;
-      return false;
-    });
-
     return (
       <McKayStorageMenuView
-        stockpiles={mckayStockpiles}
+        stockpiles={resolution.mckayStockpiles}
         onSelectStockpile={(stockpileId) => {
           onOpenStockpileInventory?.(stockpileId);
         }}
@@ -161,11 +134,45 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 text-[10px] font-bold uppercase">Residential</span>
               <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 text-[10px] font-bold uppercase">{property.applianceCount} Units</span>
-              {property.role && property.role !== 'standard' && (
-                <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-[10px] font-bold uppercase">
-                  {property.role === 'storage' ? (property.id === 'prop-days-511' || property.id === '15' || property.name?.includes('511 Days') ? 'Storage Node (Central)' : 'Storage Node') : property.role === 'mechanical' ? 'Mechanical Hub' : property.role === 'office' ? 'Office' : property.role}
-                </span>
-              )}
+              {property.role && property.role !== 'standard' && (() => {
+                const badgeLabel = property.role === 'storage'
+                  ? (property.id === 'prop-days-511' || property.id === '15' || property.name?.includes('511 Days') ? 'Storage Node (Central)' : 'Storage Node')
+                  : property.role === 'mechanical'
+                  ? 'Mechanical Hub'
+                  : property.role === 'office'
+                  ? 'Office'
+                  : property.role;
+
+                const canOpenStorage = (resolution.isMcKay && resolution.mckayStockpiles.length > 0) || Boolean(resolution.targetStockpileId && onOpenStockpileInventory);
+
+                if (canOpenStorage) {
+                  return (
+                    <button
+                      type="button"
+                      data-testid="property-detail-storage-button"
+                      onClick={() => {
+                        if (resolution.isMcKay) {
+                          setShowMcKayMenu(true);
+                        } else if (resolution.targetStockpileId && onOpenStockpileInventory) {
+                          onOpenStockpileInventory(resolution.targetStockpileId);
+                        }
+                      }}
+                      className="min-h-[44px] px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 active:scale-[0.98] text-amber-800 dark:text-amber-200 border border-amber-500/40 text-[11px] font-bold uppercase flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-[16px] text-amber-700 dark:text-amber-300">
+                        {resolution.isMcKay ? 'warehouse' : 'inventory_2'}
+                      </span>
+                      <span>{badgeLabel}</span>
+                    </button>
+                  );
+                }
+
+                return (
+                  <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-[10px] font-bold uppercase">
+                    {badgeLabel}
+                  </span>
+                );
+              })()}
               {property.responsibility === 'external' && (
                 <span className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-[10px] font-bold uppercase">
                   External Super (Not Jose)
@@ -178,25 +185,10 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
         {/* Storage Location Inventory Whole-Box Navigation Card, McKay Storage Depot, or Informational Box */}
         {(() => {
           const normPropName = normalizeMatchString(property.name);
-          const normAddress = normalizeMatchString(property.address);
           const isCentral = normPropName.includes('511 days');
           const isSpecialRole = property.role === 'storage' || property.role === 'mechanical' || property.role === 'office';
-          const propNumericId = String(property.id).replace(/\D/g, '');
 
-          // Multi-stockpile building: McKay site holds multiple stockpiles
-          const mckayStockpiles = isMcKayProperty
-            ? stockpilesList.filter(sp => {
-                const spBuildingNumeric = sp.building_id ? String(sp.building_id).replace(/\D/g, '') : '';
-                const spBuildingIdStr = sp.buildingId ? String(sp.buildingId).replace(/\D/g, '') : '';
-                if (spBuildingNumeric === '89' || (propNumericId && spBuildingNumeric === propNumericId)) return true;
-                if (spBuildingIdStr === '89' || (propNumericId && spBuildingIdStr === propNumericId)) return true;
-                if (normalizeMatchString(sp.name).includes('mckay')) return true;
-                if (normalizeMatchString(sp.location).includes('mckay')) return true;
-                return false;
-              })
-            : [];
-
-          if (isMcKayProperty && mckayStockpiles.length > 0) {
+          if (resolution.isMcKay && resolution.mckayStockpiles.length > 0) {
             return (
               <div
                 data-testid="property-detail-mckay-storage-card"
@@ -221,7 +213,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                     <div className="font-bold text-sm flex items-center gap-1.5 flex-wrap">
                       <span>McKay Storage Depot</span>
                       <span className="px-2 py-0.2 rounded-md bg-amber-500 text-brand-black text-[10px] font-black uppercase tracking-wider">
-                        {mckayStockpiles.length} {mckayStockpiles.length === 1 ? 'Location' : 'Locations'}
+                        {resolution.mckayStockpiles.length} {resolution.mckayStockpiles.length === 1 ? 'Location' : 'Locations'}
                       </span>
                     </div>
                     <p className="text-xs text-amber-800 dark:text-amber-300 mt-0.5 truncate">
@@ -236,34 +228,8 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
             );
           }
 
-          // Generic resolution order (matches building to stockpile for ANY role):
-          // (a) Numeric building_id match
-          // (b) Normalized name substring match
-          // (c) Normalized address / location substring match
-          const matchedStockpile =
-            // (a) First: match numerically by building_id
-            stockpilesList.find(sp => {
-              const spBuildingNum = sp.building_id != null ? String(sp.building_id).replace(/\D/g, '') : '';
-              const spBuildingAltNum = sp.buildingId != null ? String(sp.buildingId).replace(/\D/g, '') : '';
-              if (propNumericId && spBuildingNum && propNumericId === spBuildingNum) return true;
-              if (propNumericId && spBuildingAltNum && propNumericId === spBuildingAltNum) return true;
-              return false;
-            }) ||
-            // (b) Second: match by building name
-            stockpilesList.find(sp => {
-              const normSpName = normalizeMatchString(sp.name);
-              if (normPropName && normSpName && (normSpName.includes(normPropName) || normPropName.includes(normSpName))) return true;
-              return false;
-            }) ||
-            // (c) Third: match by address / location
-            stockpilesList.find(sp => {
-              const normLoc = normalizeMatchString(sp.location);
-              if (normAddress && normLoc && (normLoc.includes(normAddress) || normAddress.includes(normLoc))) return true;
-              return false;
-            }) ||
-            null;
-
-          const targetStockpileId = matchedStockpile ? matchedStockpile.id : null;
+          const matchedStockpile = resolution.matchedStockpile;
+          const targetStockpileId = resolution.targetStockpileId;
 
           if (targetStockpileId && onOpenStockpileInventory) {
             const cardBg = isSpecialRole

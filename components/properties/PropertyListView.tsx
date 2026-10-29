@@ -14,19 +14,7 @@ import { apiClient } from '../../src/api/client';
 import { formatDate } from '../../utils/dateUtils';
 import type { UnitFailedVisitsSummary, Stockpile } from '../../types/domain';
 import { McKayStorageMenuView } from '../parts/McKayStorageMenuView';
-
-function normalizeMatchString(str?: string | null): string {
-  if (!str) return '';
-  return str
-    .toLowerCase()
-    .replace(/\broad\b/g, 'rd')
-    .replace(/\bstreet\b/g, 'st')
-    .replace(/\bavenue\b/g, 'ave')
-    .replace(/\bdrive\b/g, 'dr')
-    .replace(/[^a-z0-9]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+import { normalizeMatchString, resolveBuildingStockpile } from '../../utils/stockpileMatching';
 
 interface PropertyListViewProps {
   onPropertyClick: (id: string) => void;
@@ -871,12 +859,14 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     const uCount = units.filter(u => u.buildingId === bld.id).length;
                     const hasSpecialRole = bld.role && bld.role !== 'standard';
                     const isExternal = bld.responsibility === 'external';
+                    const bRes = resolveBuildingStockpile(bld, stockpilesList);
+                    const canOpenStorage = (bRes.isMcKay && bRes.mckayStockpiles.length > 0) || Boolean(bRes.targetStockpileId && onOpenStockpileInventory);
 
                     return (
                       <div
                         key={bld.id}
                         onClick={() => handleNavBuilding(bld.id)}
-                        className={`group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center justify-between ${
+                        className={`group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center justify-between gap-3 ${
                           isExternal
                             ? 'opacity-65 bg-gray-50/80 dark:bg-card-dark/40 border border-dashed border-gray-300 dark:border-gray-700'
                             : hasSpecialRole
@@ -884,7 +874,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             : 'bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:border-primary/40'
                         }`}
                       >
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <h4 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
                               {bld.name}
@@ -907,9 +897,32 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             {uCount > 0 ? `${uCount} Units` : '0 Units (Roster pending)'}
                           </p>
                         </div>
-                        <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl shrink-0">
-                          chevron_right
-                        </span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {canOpenStorage && (
+                            <button
+                              type="button"
+                              data-testid="building-list-stock-menu-button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (bRes.isMcKay) {
+                                  handleNavBuilding(bld.id);
+                                  setShowMcKayMenu(true);
+                                } else if (bRes.targetStockpileId && onOpenStockpileInventory) {
+                                  onOpenStockpileInventory(bRes.targetStockpileId);
+                                }
+                              }}
+                              className="min-h-[44px] px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 active:scale-[0.98] text-amber-900 dark:text-amber-200 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+                            >
+                              <span className="material-symbols-outlined text-[18px] text-amber-700 dark:text-amber-300">
+                                inventory_2
+                              </span>
+                              <span>Stock Menu</span>
+                            </button>
+                          )}
+                          <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
+                            chevron_right
+                          </span>
+                        </div>
                       </div>
                     );
                   })}
@@ -1104,6 +1117,9 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     const hasSpecialRole = bld.role && bld.role !== 'standard';
                     const isExternal = bld.responsibility === 'external';
 
+                    const bRes = resolveBuildingStockpile(bld, stockpilesList);
+                    const canOpenStorage = (bRes.isMcKay && bRes.mckayStockpiles.length > 0) || Boolean(bRes.targetStockpileId && onOpenStockpileInventory);
+
                     return (
                       <div
                         key={bld.id}
@@ -1144,11 +1160,34 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           )}
                         </div>
 
-                        <div className="pt-3 mt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub-light dark:text-text-sub-dark">
+                        <div className="pt-3 mt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2 text-xs text-text-sub-light dark:text-text-sub-dark">
                           <span>{bldUnits.length} Units</span>
-                          <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
-                            chevron_right
-                          </span>
+                          <div className="flex items-center gap-2">
+                            {canOpenStorage && (
+                              <button
+                                type="button"
+                                data-testid="building-list-stock-menu-button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (bRes.isMcKay) {
+                                    handleNavBuilding(bld.id);
+                                    setShowMcKayMenu(true);
+                                  } else if (bRes.targetStockpileId && onOpenStockpileInventory) {
+                                    onOpenStockpileInventory(bRes.targetStockpileId);
+                                  }
+                                }}
+                                className="min-h-[44px] px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 active:scale-[0.98] text-amber-900 dark:text-amber-200 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+                              >
+                                <span className="material-symbols-outlined text-[18px] text-amber-700 dark:text-amber-300">
+                                  inventory_2
+                                </span>
+                                <span>Stock Menu</span>
+                              </button>
+                            )}
+                            <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
+                              chevron_right
+                            </span>
+                          </div>
                         </div>
                       </div>
                     );
@@ -1238,26 +1277,11 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 {/* Storage Location Inventory Whole-Box Navigation Card, McKay Storage Depot, or Informational Box */}
                 {(() => {
                   const normBName = normalizeMatchString(activeBuilding.name);
-                  const normBAddress = normalizeMatchString(activeBuilding.address);
                   const isCentral = normBName.includes('511 days');
-                  const bNumericId = String(activeBuilding.id).replace(/\D/g, '');
-                  const isMcKay = bNumericId === '89' || normBName.includes('mckay');
                   const isSpecialRole = activeBuilding.role === 'storage' || activeBuilding.role === 'mechanical' || activeBuilding.role === 'office';
+                  const bRes = resolveBuildingStockpile(activeBuilding, stockpilesList);
 
-                  // Multi-stockpile building: McKay site holds multiple stockpiles
-                  const mckayStockpiles = isMcKay
-                    ? stockpilesList.filter(sp => {
-                        const spBuildingNumeric = sp.building_id ? String(sp.building_id).replace(/\D/g, '') : '';
-                        const spBuildingIdStr = sp.buildingId ? String(sp.buildingId).replace(/\D/g, '') : '';
-                        if (spBuildingNumeric === '89' || (bNumericId && spBuildingNumeric === bNumericId)) return true;
-                        if (spBuildingIdStr === '89' || (bNumericId && spBuildingIdStr === bNumericId)) return true;
-                        if (normalizeMatchString(sp.name).includes('mckay')) return true;
-                        if (normalizeMatchString(sp.location).includes('mckay')) return true;
-                        return false;
-                      })
-                    : [];
-
-                  if (isMcKay && mckayStockpiles.length > 0) {
+                  if (bRes.isMcKay && bRes.mckayStockpiles.length > 0) {
                     return (
                       <div
                         data-testid="mckay-storage-menu-card"
@@ -1280,7 +1304,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             <div className="font-bold flex items-center gap-1.5 flex-wrap">
                               <span>McKay Storage Depot</span>
                               <span className="px-2 py-0.2 rounded-md bg-amber-500 text-brand-black text-[10px] font-black uppercase tracking-wider">
-                                {mckayStockpiles.length} {mckayStockpiles.length === 1 ? 'Location' : 'Locations'}
+                                {bRes.mckayStockpiles.length} {bRes.mckayStockpiles.length === 1 ? 'Location' : 'Locations'}
                               </span>
                             </div>
                             <p className="text-[11px] text-amber-800 dark:text-amber-300 mt-0.5 truncate">
@@ -1295,34 +1319,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     );
                   }
                   
-                  // Generic resolution order (matches building to stockpile for ANY role):
-                  // (a) Numeric building_id match
-                  // (b) Normalized name substring match
-                  // (c) Normalized address / location substring match
-                  const matchedStockpile =
-                    // (a) First: match numerically by building_id
-                    stockpilesList.find(sp => {
-                      const spBuildingNum = sp.building_id != null ? String(sp.building_id).replace(/\D/g, '') : '';
-                      const spBuildingAltNum = sp.buildingId != null ? String(sp.buildingId).replace(/\D/g, '') : '';
-                      if (bNumericId && spBuildingNum && bNumericId === spBuildingNum) return true;
-                      if (bNumericId && spBuildingAltNum && bNumericId === spBuildingAltNum) return true;
-                      return false;
-                    }) ||
-                    // (b) Second: match by building name
-                    stockpilesList.find(sp => {
-                      const normSpName = normalizeMatchString(sp.name);
-                      if (normBName && normSpName && (normSpName.includes(normBName) || normBName.includes(normSpName))) return true;
-                      return false;
-                    }) ||
-                    // (c) Third: match by address / location
-                    stockpilesList.find(sp => {
-                      const normLoc = normalizeMatchString(sp.location);
-                      if (normBAddress && normLoc && (normLoc.includes(normBAddress) || normBAddress.includes(normLoc))) return true;
-                      return false;
-                    }) ||
-                    null;
-
-                  const targetStockpileId = matchedStockpile ? matchedStockpile.id : null;
+                  const matchedStockpile = bRes.matchedStockpile;
+                  const targetStockpileId = bRes.targetStockpileId;
 
                   if (targetStockpileId && onOpenStockpileInventory) {
                     const cardBg = isSpecialRole
