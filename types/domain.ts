@@ -662,6 +662,18 @@ export interface ShoppingListResponse {
   buy_count: number;
 }
 
+export interface ManualBuyItem {
+  id: number | string;
+  part_name: string;
+  quantity: number;
+  part_number?: string | null;
+  supplier?: string | null;
+  notes?: string | null;
+  ticket_id?: number | null;
+  created_at: string;
+  updated_at?: string;
+}
+
 export interface Correction {
   id: string;
   entityType: string;

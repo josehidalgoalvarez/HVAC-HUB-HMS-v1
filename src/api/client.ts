@@ -33,6 +33,7 @@ import type {
   StockTransfer,
   SOP,
   SOPRun,
+  ManualBuyItem,
 } from '../../types/domain';
 import { appCache } from '../offline/cache.ts';
 
@@ -970,6 +971,34 @@ export class ApiClient {
    */
   public async buildShoppingList(ticketIds: Array<string | number>): Promise<ShoppingListResponse> {
     return this.post<ShoppingListResponse>('/api/shopping-lists/from-tickets', { ticket_ids: ticketIds });
+  }
+
+  /**
+   * List all manual buy list items from the server
+   */
+  public async getManualBuyItems(): Promise<ManualBuyItem[]> {
+    return this.get<ManualBuyItem[]>('/api/buy-list/manual');
+  }
+
+  /**
+   * Create a manual buy list item on the server
+   */
+  public async createManualBuyItem(data: {
+    part_name: string;
+    quantity: number;
+    part_number?: string | null;
+    supplier?: string | null;
+    notes?: string | null;
+    ticket_id?: number | null;
+  }): Promise<ManualBuyItem> {
+    return this.post<ManualBuyItem>('/api/buy-list/manual', data);
+  }
+
+  /**
+   * Delete a manual buy list item on the server
+   */
+  public async deleteManualBuyItem(id: number | string): Promise<{ deleted: boolean; id: number }> {
+    return this.delete<{ deleted: boolean; id: number }>(`/api/buy-list/manual/${id}`);
   }
 
   // --- Proactive Watch Engine Methods (Phase 6) ---
