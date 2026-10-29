@@ -15,6 +15,19 @@ import { formatDate } from '../../utils/dateUtils';
 import type { UnitFailedVisitsSummary, Stockpile } from '../../types/domain';
 import { McKayStorageMenuView } from '../parts/McKayStorageMenuView';
 
+function normalizeMatchString(str?: string | null): string {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .replace(/\broad\b/g, 'rd')
+    .replace(/\bstreet\b/g, 'st')
+    .replace(/\bavenue\b/g, 'ave')
+    .replace(/\bdrive\b/g, 'dr')
+    .replace(/[^a-z0-9]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 interface PropertyListViewProps {
   onPropertyClick: (id: string) => void;
   onAddProperty: () => void;
@@ -1144,11 +1157,14 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
             {/* LEVEL 2: BUILDING LEVEL (UNITS IN BUILDING) */}
             {navLevel === 'building' && activeBuilding && showMcKayMenu && (() => {
+              const bNumericId = activeBuilding ? String(activeBuilding.id).replace(/\D/g, '') : '';
               const mckayStockpiles = stockpilesList.filter(sp => {
-                if (sp.building_id && (String(sp.building_id) === '89' || String(sp.building_id) === activeBuilding.id || String(sp.building_id) === String(activeBuilding.id).replace(/\D/g, ''))) return true;
-                if (sp.buildingId && (String(sp.buildingId) === '89' || String(sp.buildingId) === activeBuilding.id)) return true;
-                if (sp.name && sp.name.toLowerCase().includes('mckay')) return true;
-                if (sp.location && sp.location.toLowerCase().includes('mckay')) return true;
+                const spBuildingNumeric = sp.building_id ? String(sp.building_id).replace(/\D/g, '') : '';
+                const spBuildingIdStr = sp.buildingId ? String(sp.buildingId).replace(/\D/g, '') : '';
+                if (spBuildingNumeric === '89' || (bNumericId && spBuildingNumeric === bNumericId)) return true;
+                if (spBuildingIdStr === '89' || (bNumericId && spBuildingIdStr === bNumericId)) return true;
+                if (normalizeMatchString(sp.name).includes('mckay')) return true;
+                if (normalizeMatchString(sp.location).includes('mckay')) return true;
                 return false;
               });
 
@@ -1208,20 +1224,24 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   </div>
                 )}
 
-                {/* Special Role Callout */}
-                {activeBuilding.role && activeBuilding.role !== 'standard' && (() => {
-                  const isStorage = activeBuilding.role === 'storage';
-                  const isCentral = activeBuilding.id === 'prop-days-511' || activeBuilding.id === '15' || activeBuilding.name?.includes('511 Days');
-                  const isMcKay = activeBuilding.id === 'prop-office-mckay-698' || activeBuilding.id === '89' || activeBuilding.name?.toLowerCase().includes('mckay');
+                {/* Storage Location Inventory Whole-Box Navigation Card, McKay Storage Depot, or Informational Box */}
+                {(() => {
+                  const normBName = normalizeMatchString(activeBuilding.name);
+                  const normBAddress = normalizeMatchString(activeBuilding.address);
+                  const isCentral = normBName.includes('511 days');
+                  const bNumericId = String(activeBuilding.id).replace(/\D/g, '');
+                  const isMcKay = bNumericId === '89' || normBName.includes('mckay');
+                  const isSpecialRole = activeBuilding.role === 'storage' || activeBuilding.role === 'mechanical' || activeBuilding.role === 'office';
 
                   // Multi-stockpile building: McKay site holds multiple stockpiles
-                  // Resolution rule: stockpiles linked to the McKay site by building_id 89 OR matched by name ('mckay')
                   const mckayStockpiles = isMcKay
                     ? stockpilesList.filter(sp => {
-                        if (sp.building_id && (String(sp.building_id) === '89' || String(sp.building_id) === activeBuilding.id || String(sp.building_id) === String(activeBuilding.id).replace(/\D/g, ''))) return true;
-                        if (sp.buildingId && (String(sp.buildingId) === '89' || String(sp.buildingId) === activeBuilding.id)) return true;
-                        if (sp.name && sp.name.toLowerCase().includes('mckay')) return true;
-                        if (sp.location && sp.location.toLowerCase().includes('mckay')) return true;
+                        const spBuildingNumeric = sp.building_id ? String(sp.building_id).replace(/\D/g, '') : '';
+                        const spBuildingIdStr = sp.buildingId ? String(sp.buildingId).replace(/\D/g, '') : '';
+                        if (spBuildingNumeric === '89' || (bNumericId && spBuildingNumeric === bNumericId)) return true;
+                        if (spBuildingIdStr === '89' || (bNumericId && spBuildingIdStr === bNumericId)) return true;
+                        if (normalizeMatchString(sp.name).includes('mckay')) return true;
+                        if (normalizeMatchString(sp.location).includes('mckay')) return true;
                         return false;
                       })
                     : [];
@@ -1231,7 +1251,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       <div
                         data-testid="mckay-storage-menu-card"
                         onClick={() => setShowMcKayMenu(true)}
-                        className="p-3.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/25 text-amber-900 dark:text-amber-200 text-xs flex items-center justify-between gap-2.5 cursor-pointer active:scale-[0.99] transition-all group shadow-2xs"
+                        className="p-3.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/25 text-amber-900 dark:text-amber-200 text-xs flex items-center justify-between gap-2.5 cursor-pointer active:scale-[0.99] transition-all group shadow-2xs min-h-[44px]"
                         role="button"
                         tabIndex={0}
                         onKeyDown={(e) => {
@@ -1264,35 +1284,53 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     );
                   }
                   
-                  // Generic resolution order:
-                  // (a) Stockpile linked by building_id to the building
-                  // (b) Else stockpile matched by building name / address
-                  // (c) Else NO navigation (null) — hardcoded fallback removed
-                  const matchedStockpile = isStorage ? (
-                    // (a) First: match by building_id
+                  // Generic resolution order (matches building to stockpile for ANY role):
+                  // (a) Numeric building_id match
+                  // (b) Normalized name substring match
+                  // (c) Normalized address / location substring match
+                  const matchedStockpile =
+                    // (a) First: match numerically by building_id
                     stockpilesList.find(sp => {
-                      if (sp.building_id && (String(sp.building_id) === activeBuilding.id || String(sp.building_id) === String(activeBuilding.id).replace(/\D/g, ''))) return true;
-                      if (sp.buildingId && (String(sp.buildingId) === activeBuilding.id || String(sp.buildingId) === String(activeBuilding.id).replace(/\D/g, ''))) return true;
+                      const spBuildingNum = sp.building_id != null ? String(sp.building_id).replace(/\D/g, '') : '';
+                      const spBuildingAltNum = sp.buildingId != null ? String(sp.buildingId).replace(/\D/g, '') : '';
+                      if (bNumericId && spBuildingNum && bNumericId === spBuildingNum) return true;
+                      if (bNumericId && spBuildingAltNum && bNumericId === spBuildingAltNum) return true;
                       return false;
                     }) ||
-                    // (b) Second: match by building name / address
+                    // (b) Second: match by building name
                     stockpilesList.find(sp => {
-                      if (activeBuilding.name && sp.name && (sp.name.toLowerCase().includes(activeBuilding.name.toLowerCase()) || activeBuilding.name.toLowerCase().includes(sp.name.toLowerCase()))) return true;
-                      if (activeBuilding.address && sp.location && (sp.location.toLowerCase().includes(activeBuilding.address.toLowerCase()) || activeBuilding.address.toLowerCase().includes(sp.location.toLowerCase()))) return true;
+                      const normSpName = normalizeMatchString(sp.name);
+                      if (normBName && normSpName && (normSpName.includes(normBName) || normBName.includes(normSpName))) return true;
                       return false;
                     }) ||
-                    // (c) No navigation
-                    null
-                  ) : null;
+                    // (c) Third: match by address / location
+                    stockpilesList.find(sp => {
+                      const normLoc = normalizeMatchString(sp.location);
+                      if (normBAddress && normLoc && (normLoc.includes(normBAddress) || normBAddress.includes(normLoc))) return true;
+                      return false;
+                    }) ||
+                    null;
 
                   const targetStockpileId = matchedStockpile ? matchedStockpile.id : null;
 
-                  if (isStorage && targetStockpileId && onOpenStockpileInventory) {
+                  if (targetStockpileId && onOpenStockpileInventory) {
+                    const cardBg = isSpecialRole
+                      ? 'bg-amber-500/10 hover:bg-amber-500/15 border-amber-500/25 text-amber-900 dark:text-amber-200'
+                      : 'bg-primary/10 hover:bg-primary/15 border-primary/25 text-primary dark:text-primary-light';
+                    const iconBg = isSpecialRole ? 'text-amber-600' : 'text-primary';
+                    const badgeBg = isSpecialRole
+                      ? 'bg-amber-500 text-brand-black'
+                      : 'bg-primary text-white';
+                    const chevronColor = isSpecialRole ? 'text-amber-600' : 'text-primary';
+                    const subTextColor = isSpecialRole
+                      ? 'text-amber-800 dark:text-amber-300'
+                      : 'text-gray-600 dark:text-gray-300';
+
                     return (
                       <div
                         data-testid="storage-node-inventory-card"
                         onClick={() => onOpenStockpileInventory(targetStockpileId)}
-                        className="p-3.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/25 text-amber-900 dark:text-amber-200 text-xs flex items-center justify-between gap-2.5 cursor-pointer active:scale-[0.99] transition-all group shadow-2xs"
+                        className={`p-3.5 rounded-2xl border text-xs flex items-center justify-between gap-2.5 cursor-pointer active:scale-[0.99] transition-all group shadow-2xs min-h-[44px] ${cardBg}`}
                         role="button"
                         tabIndex={0}
                         onKeyDown={(e) => {
@@ -1303,46 +1341,49 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         }}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="material-symbols-outlined text-amber-600 text-2xl shrink-0 group-hover:scale-105 transition-transform">
+                          <span className={`material-symbols-outlined text-2xl shrink-0 group-hover:scale-105 transition-transform ${iconBg}`}>
                             inventory_2
                           </span>
                           <div className="min-w-0">
                             <div className="font-bold flex items-center gap-1.5 flex-wrap">
                               <span>{isCentral ? 'Central Storage Depot' : 'Storage Node Inventory'}</span>
-                              <span className="px-2 py-0.2 rounded-md bg-amber-500 text-brand-black text-[10px] font-black uppercase tracking-wider">
+                              <span className={`px-2 py-0.2 rounded-md text-[10px] font-black uppercase tracking-wider ${badgeBg}`}>
                                 View Stock
                               </span>
                             </div>
-                            <p className="text-[11px] text-amber-800 dark:text-amber-300 mt-0.5 truncate">
+                            <p className={`text-[11px] mt-0.5 truncate ${subTextColor}`}>
                               {matchedStockpile ? `${matchedStockpile.name} · Tap to see parts & stock on hand` : 'Tap to see inventory stored here'}
                             </p>
                           </div>
                         </div>
-                        <span className="material-symbols-outlined text-amber-600 text-xl shrink-0 group-hover:translate-x-0.5 transition-transform">
+                        <span className={`material-symbols-outlined text-xl shrink-0 group-hover:translate-x-0.5 transition-transform ${chevronColor}`}>
                           chevron_right
                         </span>
                       </div>
                     );
                   }
 
-                  return (
-                    <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2.5">
-                      <span className="material-symbols-outlined text-amber-600 text-xl">
-                        {activeBuilding.role === 'storage' ? 'inventory_2' : activeBuilding.role === 'mechanical' ? 'settings_suggest' : 'corporate_fare'}
-                      </span>
-                      <div>
-                        {isCentral ? (
-                          <><strong>Central Storage Building:</strong> 511 Days Rd basement houses primary replacement inventory for BD complex.</>
-                        ) : activeBuilding.role === 'storage' ? (
-                          <><strong>Storage Node:</strong> Key storage depot for parts, spare equipment, and replacement inventory.</>
-                        ) : activeBuilding.role === 'mechanical' ? (
-                          <><strong>Mechanical Hub:</strong> Houses central mechanical equipment, boilers, and shared plant infrastructure.</>
-                        ) : (
-                          <><strong>Operations Office:</strong> Administrative office and staging area for maintenance operations.</>
-                        )}
+                  // Informational-only box ONLY when role is storage or mechanical AND no stockpile matches
+                  if (activeBuilding.role === 'storage' || activeBuilding.role === 'mechanical') {
+                    return (
+                      <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2.5 min-h-[44px]">
+                        <span className="material-symbols-outlined text-amber-600 text-xl">
+                          {activeBuilding.role === 'mechanical' ? 'settings_suggest' : 'inventory_2'}
+                        </span>
+                        <div>
+                          {isCentral ? (
+                            <><strong>Central Storage Building:</strong> 511 Days Rd basement houses primary replacement inventory for BD complex.</>
+                          ) : activeBuilding.role === 'mechanical' ? (
+                            <><strong>Mechanical Hub:</strong> Houses central mechanical equipment, boilers, and shared plant infrastructure.</>
+                          ) : (
+                            <><strong>Storage Node:</strong> Key storage depot for parts, spare equipment, and replacement inventory.</>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
+                    );
+                  }
+
+                  return null;
                 })()}
 
                 {/* External Responsibility Callout */}
