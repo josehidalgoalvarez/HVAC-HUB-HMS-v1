@@ -1,0 +1,37 @@
+[
+  {
+    "stockpile_name": "107 Amherst Storage",
+    "name": "Miter saw",
+    "category": "Power Tools",
+    "status": "unknown",
+    "notes": "Miter saw located at 107 Amherst Storage. Source: Jose photos Sep 29, 2026. Condition unknown, specs TBD — never guessed."
+  },
+  {
+    "stockpile_name": "107 Amherst Storage",
+    "name": "Shop vac",
+    "category": "Cleanup",
+    "status": "unknown",
+    "notes": "Shop vac located at 107 Amherst Storage. Source: Jose photos Sep 29, 2026. Condition unknown, specs TBD — never guessed."
+  },
+  {
+    "stockpile_name": "107 Amherst Storage",
+    "name": "Air-mover fan",
+    "category": "Air Movers",
+    "status": "unknown",
+    "notes": "Air-mover fan located at 107 Amherst Storage. Source: Jose photos Sep 29, 2026. Condition unknown, specs TBD — never guessed."
+  },
+  {
+    "stockpile_name": "107 Amherst Storage",
+    "name": "Miter box",
+    "category": "Hand Tools",
+    "status": "unknown",
+    "notes": "Manual miter box located at 107 Amherst Storage. Source: Jose photos Sep 29, 2026. Condition unknown, specs TBD — never guessed."
+  },
+  {
+    "stockpile_name": "539 Armstrong Stockpile",
+    "name": "Zoom Boom telehandler",
+    "category": "Heavy Equipment",
+    "status": "unknown",
+    "notes": "Zoom Boom telehandler lift parked at 539 Armstrong. Source: Jose — telehandler lift parked at 539 Armstrong; needs a second person ideally. Condition unknown, specs TBD — never guessed."
+  }
+]

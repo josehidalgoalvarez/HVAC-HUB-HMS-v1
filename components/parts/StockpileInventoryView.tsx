@@ -5,7 +5,7 @@ import { PullToRefresh } from '../common/PullToRefresh';
 import { StockTransferModal } from './StockTransferModal';
 import { LogPartUseModal, type LogPartUseResult } from './LogPartUseModal';
 import { AddPartModal } from './AddPartModal';
-import type { Stockpile, StockpilePartItem, PartRecord } from '../../types/domain';
+import type { Stockpile, StockpilePartItem, PartRecord, EquipmentItem, EquipmentStatus } from '../../types/domain';
 
 interface StockpileInventoryViewProps {
   stockpileId: number | string;
@@ -23,6 +23,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
   const [items, setItems] = useState<StockpilePartItem[]>([]);
   const [allParts, setAllParts] = useState<PartRecord[]>([]);
   const [storedAppliances, setStoredAppliances] = useState<any[]>([]);
+  const [equipmentList, setEquipmentList] = useState<EquipmentItem[]>([]);
   const [auditHistory, setAuditHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,6 +51,16 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
   const [applianceError, setApplianceError] = useState<string | null>(null);
   const [isSubmittingAppliance, setIsSubmittingAppliance] = useState(false);
 
+  // Equipment state
+  const [isAddEquipmentOpen, setIsAddEquipmentOpen] = useState(false);
+  const [equipmentName, setEquipmentName] = useState('');
+  const [equipmentCategory, setEquipmentCategory] = useState('');
+  const [equipmentStatus, setEquipmentStatus] = useState<EquipmentStatus>('unknown');
+  const [equipmentNotes, setEquipmentNotes] = useState('');
+  const [equipmentError, setEquipmentError] = useState<string | null>(null);
+  const [isSubmittingEquipment, setIsSubmittingEquipment] = useState(false);
+  const [editingEquipment, setEditingEquipment] = useState<EquipmentItem | null>(null);
+
   // Count Audit session state
   const [isCountModalOpen, setIsCountModalOpen] = useState(false);
   const [countEntries, setCountEntries] = useState<Record<number, { counted: string; notes: string }>>({});
@@ -58,16 +69,18 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
 
   const cacheKey = `stockpile_parts_${stockpileId}`;
   const appCacheKey = `stockpile_appliances_${stockpileId}`;
+  const eqCacheKey = `stockpile_equipment_${stockpileId}`;
   const historyCacheKey = `stockpile_history_${stockpileId}`;
 
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [spRes, partsRes, stockRes, appRes, histRes] = await Promise.allSettled([
+      const [spRes, partsRes, stockRes, appRes, eqRes, histRes] = await Promise.allSettled([
         apiClient.getStockpiles(),
         apiClient.getParts(),
         apiClient.getStockpileParts(stockpileId),
         apiClient.getStockpileAppliances(stockpileId),
+        apiClient.getStockpileEquipment(stockpileId),
         apiClient.getStockpileCountHistory(stockpileId),
       ]);
 
@@ -93,6 +106,11 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
         appCache.set(appCacheKey, appRes.value);
       }
 
+      if (eqRes.status === 'fulfilled' && Array.isArray(eqRes.value)) {
+        setEquipmentList(eqRes.value);
+        appCache.set(eqCacheKey, eqRes.value);
+      }
+
       if (histRes.status === 'fulfilled' && Array.isArray(histRes.value)) {
         setAuditHistory(histRes.value);
         appCache.set(historyCacheKey, histRes.value);
@@ -102,7 +120,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [stockpileId, cacheKey, appCacheKey, historyCacheKey]);
+  }, [stockpileId, cacheKey, appCacheKey, eqCacheKey, historyCacheKey]);
 
   useEffect(() => {
     // 1. Instant cache load
@@ -111,8 +129,9 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       appCache.get<StockpilePartItem[]>(cacheKey),
       appCache.get<PartRecord[]>('parts'),
       appCache.get<any[]>(appCacheKey),
+      appCache.get<EquipmentItem[]>(eqCacheKey),
       appCache.get<any[]>(historyCacheKey),
-    ]).then(([cachedStockpiles, cachedItems, cachedParts, cachedAppliances, cachedHistory]) => {
+    ]).then(([cachedStockpiles, cachedItems, cachedParts, cachedAppliances, cachedEquipment, cachedHistory]) => {
       if (cachedStockpiles && cachedStockpiles.length > 0) {
         setAllStockpiles(cachedStockpiles);
         const current = cachedStockpiles.find(s => String(s.id) === String(stockpileId));
@@ -127,6 +146,9 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       if (cachedAppliances) {
         setStoredAppliances(cachedAppliances);
       }
+      if (cachedEquipment) {
+        setEquipmentList(cachedEquipment);
+      }
       if (cachedHistory) {
         setAuditHistory(cachedHistory);
       }
@@ -139,7 +161,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
     const handleGlobalRefresh = () => loadData();
     window.addEventListener('hvachome:refresh', handleGlobalRefresh);
     return () => window.removeEventListener('hvachome:refresh', handleGlobalRefresh);
-  }, [stockpileId, loadData, cacheKey, appCacheKey, historyCacheKey]);
+  }, [stockpileId, loadData, cacheKey, appCacheKey, eqCacheKey, historyCacheKey]);
 
   const handleStartCountSession = () => {
     // Initialise countEntries empty (empty = not counted yet)
@@ -256,6 +278,77 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       setApplianceError(err.message || 'Failed to register stored appliance');
     } finally {
       setIsSubmittingAppliance(false);
+    }
+  };
+
+  const handleAddEquipmentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = equipmentName.trim();
+    if (!name) {
+      setEquipmentError('Equipment name is required');
+      return;
+    }
+
+    try {
+      setIsSubmittingEquipment(true);
+      setEquipmentError(null);
+
+      await apiClient.createEquipment(stockpileId, {
+        name,
+        category: equipmentCategory.trim() || undefined,
+        status: equipmentStatus,
+        notes: equipmentNotes.trim() || undefined,
+      });
+
+      setFlashMsg({
+        text: `Equipment "${name}" registered at this location!`,
+        type: 'success',
+      });
+      setTimeout(() => setFlashMsg(null), 5000);
+
+      // Reset form and close modal
+      setEquipmentName('');
+      setEquipmentCategory('');
+      setEquipmentStatus('unknown');
+      setEquipmentNotes('');
+      setIsAddEquipmentOpen(false);
+
+      await loadData();
+    } catch (err: any) {
+      setEquipmentError(err.message || 'Failed to register equipment');
+    } finally {
+      setIsSubmittingEquipment(false);
+    }
+  };
+
+  const handleUpdateEquipmentStatus = async (eq: EquipmentItem, newStatus: EquipmentStatus) => {
+    try {
+      await apiClient.updateEquipment(eq.id, { status: newStatus });
+      setFlashMsg({
+        text: `Updated "${eq.name}" status to ${newStatus.toUpperCase()}`,
+        type: 'success',
+      });
+      setTimeout(() => setFlashMsg(null), 4000);
+      await loadData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to update equipment status');
+    }
+  };
+
+  const handleDeleteEquipment = async (eq: EquipmentItem) => {
+    if (!window.confirm(`Delete equipment "${eq.name}" from this location?`)) {
+      return;
+    }
+    try {
+      await apiClient.deleteEquipment(eq.id);
+      setFlashMsg({
+        text: `Equipment "${eq.name}" removed!`,
+        type: 'success',
+      });
+      setTimeout(() => setFlashMsg(null), 4000);
+      await loadData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete equipment');
     }
   };
 
@@ -878,6 +971,112 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
         )}
       </div>
 
+      {/* Equipment / Tools Section (distinct from parts and appliances) */}
+      <div className="space-y-3 pt-4 border-t border-gray-200/80 dark:border-gray-800">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-xl">home_repair_service</span>
+            <h2 className="text-base font-bold text-brand-black dark:text-white">
+              Tools & Equipment
+            </h2>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+              EQUIPMENT ({equipmentList.length})
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              setEquipmentName('');
+              setEquipmentCategory('');
+              setEquipmentStatus('unknown');
+              setEquipmentNotes('');
+              setEquipmentError(null);
+              setIsAddEquipmentOpen(true);
+            }}
+            className="min-h-[44px] px-3.5 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-amber-200/80 dark:border-amber-800/80 transition-all active:scale-95 shadow-xs"
+          >
+            <span className="material-symbols-outlined text-[16px]">add_circle</span>
+            <span>Add Equipment</span>
+          </button>
+        </div>
+
+        {equipmentList.length === 0 ? (
+          <div className="p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 text-center text-xs text-gray-400 bg-gray-50/50 dark:bg-card-dark/40">
+            No tools or physical equipment currently registered at this location.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {equipmentList.map((eq: EquipmentItem) => {
+              const statusColors: Record<EquipmentStatus, string> = {
+                available: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20',
+                needs_service: 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20',
+                out_of_service: 'bg-red-500/10 text-red-700 dark:text-red-300 border-red-500/20',
+                unknown: 'bg-gray-500/10 text-gray-700 dark:text-gray-300 border-gray-500/20',
+              };
+
+              return (
+                <div
+                  key={`equipment-${eq.id}`}
+                  className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-200/80 dark:border-gray-800 shadow-xs space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                          EQUIPMENT
+                        </span>
+                        {eq.category && (
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+                            {eq.category}
+                          </span>
+                        )}
+                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${statusColors[eq.status] || statusColors.unknown}`}>
+                          {eq.status}
+                        </span>
+                      </div>
+                      <h3 className="text-sm font-bold text-brand-black dark:text-white truncate">
+                        {eq.name}
+                      </h3>
+                    </div>
+
+                    {/* Actions: Quick Status Selector & Delete */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <select
+                        value={eq.status}
+                        onChange={(e) => handleUpdateEquipmentStatus(eq, e.target.value as EquipmentStatus)}
+                        className="min-h-[44px] px-2.5 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-800 text-xs font-semibold text-brand-black dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary cursor-pointer"
+                        title="Change Equipment Status"
+                        aria-label={`Change status for ${eq.name}`}
+                      >
+                        <option value="available">Available</option>
+                        <option value="needs_service">Needs Service</option>
+                        <option value="out_of_service">Out of Service</option>
+                        <option value="unknown">Unknown</option>
+                      </select>
+
+                      <button
+                        onClick={() => handleDeleteEquipment(eq)}
+                        className="w-11 h-11 rounded-xl bg-gray-100 hover:bg-red-50 dark:bg-neutral-800 dark:hover:bg-red-950/40 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 flex items-center justify-center transition-all active:scale-95"
+                        title="Delete Equipment"
+                        aria-label={`Delete ${eq.name}`}
+                      >
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {eq.notes && (
+                    <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-100 dark:border-gray-800 text-[11px] text-gray-600 dark:text-gray-300">
+                      <span className="font-semibold text-brand-black dark:text-white">Note: </span>
+                      {eq.notes}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       {/* Modals Reuse */}
       {isTransferOpen && (
         <StockTransferModal
@@ -1140,6 +1339,136 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                   className="min-h-[44px] px-5 py-2 rounded-xl bg-primary hover:bg-blue-600 text-xs font-bold text-white shadow-xs transition-all active:scale-95 disabled:opacity-50"
                 >
                   {isSubmittingAppliance ? 'Registering...' : 'Add Appliance'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Equipment Modal */}
+      {isAddEquipmentOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="w-full max-w-lg bg-white dark:bg-card-dark rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 flex flex-col max-h-[90vh] animate-scaleUp">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between shrink-0">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-amber-600 text-xl">home_repair_service</span>
+                  <h3 className="text-base font-bold text-brand-black dark:text-white truncate">
+                    Add Equipment / Tool
+                  </h3>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                  Register tool or equipment at {stockpile?.name || 'this location'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddEquipmentOpen(false)}
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500"
+              >
+                <span className="material-symbols-outlined text-xl">close</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleAddEquipmentSubmit} className="p-4 overflow-y-auto space-y-4">
+              {equipmentError && (
+                <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-xs text-red-700 dark:text-red-300 font-medium">
+                  {equipmentError}
+                </div>
+              )}
+
+              {/* Fixed Storage Location */}
+              <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-200/80 dark:border-gray-700/80 flex items-center gap-2">
+                <span className="material-symbols-outlined text-amber-600 text-base">location_on</span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Storage Location</div>
+                  <div className="text-xs font-bold text-brand-black dark:text-white truncate">
+                    {stockpile?.name || 'Current Location'}
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">
+                  Fixed
+                </span>
+              </div>
+
+              {/* Equipment Name (Required) */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Equipment / Tool Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={equipmentName}
+                  onChange={e => setEquipmentName(e.target.value)}
+                  placeholder="e.g. Miter saw, Shop vac, Zoom Boom telehandler"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-xs text-brand-black dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary"
+                />
+                <p className="text-[10px] text-gray-400 mt-1">
+                  Required tool name or equipment title.
+                </p>
+              </div>
+
+              {/* Category (Optional) */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Category <span className="text-[10px] font-normal text-gray-400">(Optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={equipmentCategory}
+                  onChange={e => setEquipmentCategory(e.target.value)}
+                  placeholder="e.g. Power Tools, Heavy Equipment, Cleanup, Hand Tools"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-xs text-brand-black dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              {/* Condition / Status */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Condition / Status <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={equipmentStatus}
+                  onChange={e => setEquipmentStatus(e.target.value as EquipmentStatus)}
+                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-xs font-semibold text-brand-black dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary"
+                >
+                  <option value="unknown">Unknown (Condition unverified — never guessed)</option>
+                  <option value="available">Available (Tested ready for use)</option>
+                  <option value="needs_service">Needs Service (Pending inspection/repair)</option>
+                  <option value="out_of_service">Out of Service (Decommissioned or broken)</option>
+                </select>
+              </div>
+
+              {/* Notes / Specs TBD */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Notes / Provenance <span className="text-[10px] font-normal text-gray-400">(Optional, e.g. specs TBD text)</span>
+                </label>
+                <textarea
+                  value={equipmentNotes}
+                  onChange={e => setEquipmentNotes(e.target.value)}
+                  rows={2}
+                  placeholder="e.g. Needs second person, specs TBD — never guessed..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-xs text-brand-black dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                <button
+                  type="button"
+                  onClick={() => setIsAddEquipmentOpen(false)}
+                  className="min-h-[44px] px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 text-xs font-bold text-gray-700 dark:text-gray-300 transition-all active:scale-95"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingEquipment}
+                  className="min-h-[44px] px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-xs font-bold text-white shadow-xs transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {isSubmittingEquipment ? 'Registering...' : 'Add Equipment'}
                 </button>
               </div>
             </form>
