@@ -136,12 +136,21 @@ export const InsightsView: React.FC<InsightsViewProps> = ({ onBack }) => {
             <span className="material-symbols-outlined text-xl">arrow_back</span>
           </button>
         )}
-        <div>
-          <h1 className="text-xl font-bold text-brand-black dark:text-white flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-2xl">insights</span>
-            Insights
-          </h1>
-          <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
+        <div className="flex-1">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <h1 className="text-xl font-bold text-brand-black dark:text-white flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-2xl">insights</span>
+              Insights
+            </h1>
+            <span
+              data-testid="insights-fixtures-excluded-badge"
+              className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-[12px] text-amber-500">filter_alt</span>
+              Test fixtures excluded
+            </span>
+          </div>
+          <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
             Patterns in ticket history. Correlation only, read-only.
           </p>
         </div>
@@ -274,6 +283,9 @@ export const InsightsView: React.FC<InsightsViewProps> = ({ onBack }) => {
           </section>
 
           <div className="space-y-1 text-[11px] text-gray-500 dark:text-gray-400">
+            {data.excludedFixtureCount > 0 && (
+              <p>Test fixtures excluded: {data.excludedFixtureCount} fixture tickets (WO-E2E) omitted from patterns and evidence.</p>
+            )}
             <p>Omitted: {data.omittedSingleGroups} single-ticket groups (not patterns).</p>
             {data.visitHistoryMissingFor > 0 && (
               <p>Visit history could not be loaded for {data.visitHistoryMissingFor} tickets; repeat-access results may be incomplete.</p>

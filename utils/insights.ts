@@ -76,6 +76,7 @@ export interface InsightSet {
   mostTicketed: { units: CountInsight[]; buildings: CountInsight[] };
   omittedSingleGroups: number;
   visitHistoryMissingFor: number;
+  excludedFixtureCount: number;
 }
 
 export interface InsightInput {
@@ -84,6 +85,15 @@ export interface InsightInput {
   visitHistoryMissingFor: number;
   partWaitWatches: WatchRecord[];
   now: number;
+}
+
+/**
+ * Identify test fixture tickets (e.g. WO-E2E-101/102/201/301/302, WO-E2E-SW1/SW2/SW3).
+ * Test fixtures must never pollute analytical patterns or appear in evidence citations.
+ */
+export function isFixtureTicket(t: Ticket): boolean {
+  const wo = (t.wo_number ?? (t as any).woNumber ?? '').trim().toUpperCase();
+  return wo.startsWith('WO-E2E');
 }
 
 const ticketCreated = (t: Ticket): string | null =>
@@ -122,9 +132,13 @@ const sortByNewest = <T extends { createdAt: string | null }>(xs: T[]): T[] =>
   [...xs].sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''));
 
 export function computeInsights(input: InsightInput): InsightSet {
-  const { tickets, visitsByTicket, now } = input;
+  const rawTickets = input.tickets;
+  const tickets = rawTickets.filter((t) => !isFixtureTicket(t));
+  const excludedFixtureCount = rawTickets.length - tickets.length;
+
   const byId = new Map(tickets.map((t) => [String(t.id), t]));
   let omittedSingleGroups = 0;
+  const { visitsByTicket, now } = input;
 
   // (a) Repeat problems: same building + same symptom keyword in 2+ tickets.
   const groups = new Map<string, { label: string; buildingLabel: string; ids: Set<string> }>();
@@ -234,6 +248,7 @@ export function computeInsights(input: InsightInput): InsightSet {
     },
     omittedSingleGroups,
     visitHistoryMissingFor: input.visitHistoryMissingFor,
+    excludedFixtureCount,
   };
 }
 
