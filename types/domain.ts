@@ -187,6 +187,7 @@ export interface ApplianceSpecs {
   refrigerantType?: string;
   efficiency?: string;
   model?: string;
+  color?: string;
   manualUrl?: string;
   notes?: string;
   // Dashboard Specific Specs

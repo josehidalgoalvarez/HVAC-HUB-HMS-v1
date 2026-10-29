@@ -271,7 +271,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [logs, useApi]);
 
   // --- Helpers ---
-  const getAppliance = (id: string) => appliances.find(a => a.id === id);
   const getProperty = (id: string) => properties.find(p => p.id === id);
   const getUnit = (id: string) => units.find(u => u.id === id);
   const getDefaultSet = (id: string) => defaultSets.find(s => s.id === id);
@@ -367,6 +366,17 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     return result;
+  };
+
+  const getAppliance = (id: string) => {
+    const direct = appliances.find(a => a.id === id);
+    if (direct) return direct;
+    for (const u of units) {
+      const unitApps = getUnitAppliances(u);
+      const matched = unitApps.find(a => a.id === id);
+      if (matched) return matched;
+    }
+    return undefined;
   };
 
   // --- Internal Add Log ---

@@ -11,6 +11,7 @@ export const SPEC_LABELS: Partial<Record<keyof ApplianceSpecs, string>> = {
     hertz: 'Frequency',
     airTempRise: 'Temp. Rise',
     capacity: 'Capacity',
+    color: 'Color',
     installDate: 'Install Date',
     location: 'Location',
     breakerRating: 'Breaker Rating',
@@ -43,6 +44,7 @@ export const getTechSpecs = (specs?: ApplianceSpecs) => {
         'breakerRating',
         'panelSlot',
         'capacity',
+        'color',
         'location',
         'installDate'
     ];

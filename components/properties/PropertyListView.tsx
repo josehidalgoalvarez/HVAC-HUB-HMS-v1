@@ -35,6 +35,7 @@ interface PropertyListViewProps {
   initialNavLevel?: ViewNavLevel;
   onNavLevelChange?: (level: ViewNavLevel) => void;
   onOpenStockpileInventory?: (stockpileId: number | string) => void;
+  onApplianceClick?: (id: string) => void;
 }
 
 type ViewNavLevel = 'root' | 'complex' | 'building' | 'unit' | 'defaults';
@@ -46,6 +47,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
   initialNavLevel,
   onNavLevelChange,
   onOpenStockpileInventory,
+  onApplianceClick,
 }) => {
   const {
     properties,
@@ -1087,10 +1089,10 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   {activeComplex.id !== 'ungrouped' && (
                     <button
                       onClick={() => handleNavDefaults(activeComplex.id)}
-                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs"
+                      className="min-h-[44px] flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs"
                     >
                       <span className="material-symbols-outlined text-[16px]">tune</span>
-                      {activeComplex.name} Defaults
+                      <span>{activeComplex.name} Appliances</span>
                     </button>
                   )}
                 </div>
@@ -1198,12 +1200,21 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => onPropertyClick(activeBuilding.id)}
-                    className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-800 text-text-main-light dark:text-white hover:border-primary/40 hover:text-primary transition-colors"
-                  >
-                    Building Details
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleNavDefaults(activeBuilding.complexId ? String(activeBuilding.complexId) : (selectedComplexId || undefined))}
+                      className="min-h-[44px] text-xs font-semibold px-3 py-2 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors flex items-center gap-1.5"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">tune</span>
+                      <span>Complex Appliances</span>
+                    </button>
+                    <button
+                      onClick={() => onPropertyClick(activeBuilding.id)}
+                      className="min-h-[44px] text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-800 text-text-main-light dark:text-white hover:border-primary/40 hover:text-primary transition-colors flex items-center"
+                    >
+                      Building Details
+                    </button>
+                  </div>
                 </div>
 
                 {/* Building Failed Visits Callout */}
@@ -1996,9 +2007,14 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             : 'border-gray-100 dark:border-gray-800'
                         }`}
                       >
-                        <div className="flex items-start justify-between gap-2 mb-2">
+                        <div 
+                          className="flex items-start justify-between gap-2 mb-2 cursor-pointer group"
+                          onClick={() => onApplianceClick && onApplianceClick(app.id)}
+                          role="button"
+                          tabIndex={0}
+                        >
                           <div className="flex items-center gap-2.5">
-                            <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 flex items-center justify-center shrink-0 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                               <span className="material-symbols-outlined text-[20px]">
                                 {app.type.includes('FRIDGE')
                                   ? 'kitchen'
@@ -2012,8 +2028,9 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               </span>
                             </div>
                             <div>
-                              <h4 className="text-sm font-bold text-brand-black dark:text-white">
-                                {app.name || app.type}
+                              <h4 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors flex items-center gap-1.5">
+                                <span>{app.name || app.type}</span>
+                                <span className="material-symbols-outlined text-[15px] opacity-0 group-hover:opacity-100 transition-opacity text-primary">arrow_forward</span>
                               </h4>
                               <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
                                 {app.category || 'Appliance'} · {app.type}
@@ -2061,9 +2078,20 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           )}
                         </div>
 
-                        {/* Override Action Button */}
-                        <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                        {/* Actions */}
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                          {onApplianceClick && (
+                            <button
+                              type="button"
+                              onClick={() => onApplianceClick(app.id)}
+                              className="min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-brand-black dark:text-white transition-colors flex items-center gap-1.5"
+                            >
+                              <span className="material-symbols-outlined text-[16px] text-primary">description</span>
+                              <span>Specs &amp; Rating Plate</span>
+                            </button>
+                          )}
                           <button
+                            type="button"
                             onClick={() => {
                               setOverrideModalAppliance(app);
                               setOverrideForm({
@@ -2073,10 +2101,10 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                 notes: app.notes || ''
                               });
                             }}
-                            className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 hover:border-primary text-text-main-light dark:text-white transition-colors flex items-center gap-1 shadow-xs"
+                            className="min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 hover:border-primary text-text-main-light dark:text-white transition-colors flex items-center gap-1 shadow-xs"
                           >
                             <span className="material-symbols-outlined text-[14px]">edit</span>
-                            {app.isOverride ? 'Edit Override' : 'Override Appliance'}
+                            {app.isOverride ? 'Edit Override' : 'Override'}
                           </button>
                         </div>
                       </div>
@@ -2101,9 +2129,9 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       </button>
                       <div>
                         <h2 className="text-lg font-bold text-brand-black dark:text-white flex items-center gap-2">
-                          <span>Appliance Defaults Library</span>
+                          <span>{selectedComplexId && selectedComplexId !== 'ungrouped' ? `${complexes.find(c => c.id === selectedComplexId)?.name || 'Complex'} Appliances` : 'Appliance Defaults Library'}</span>
                           <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                            {defaultSets.length} Sets
+                            {defaultsSectionFilter === 'all' ? defaultSets.length : (groupedDefaultSets.find(g => g.id === defaultsSectionFilter)?.sets.length ?? defaultSets.length)} Sets
                           </span>
                         </h2>
                         <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">

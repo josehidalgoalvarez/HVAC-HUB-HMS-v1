@@ -182,7 +182,7 @@ export const isSpecFieldRelevant = (
     case 'fridge':
       // Fridge shows capacity, volts, model, manualUrl, notes.
       // NEVER filterSize, BTU, or fuelType.
-      return ['capacity', 'volts', 'efficiency', 'manualUrl', 'notes'].includes(field);
+      return ['capacity', 'volts', 'color', 'efficiency', 'manualUrl', 'notes'].includes(field);
 
     case 'furnace':
       // Furnace shows fuelType, btuInput, btuOutput, filterSize, volts, efficiency, manualUrl, notes.
@@ -202,7 +202,7 @@ export const isSpecFieldRelevant = (
     }
 
     case 'range':
-      return ['fuelType', 'volts', 'capacity', 'manualUrl', 'notes'].includes(field);
+      return ['fuelType', 'volts', 'capacity', 'color', 'manualUrl', 'notes'].includes(field);
 
     case 'dishwasher':
       return ['volts', 'capacity', 'fuelType', 'manualUrl', 'notes'].includes(field);
@@ -264,6 +264,15 @@ export const getVisibleSpecFields = (appItem: ApplianceDefaultItem): VisibleSpec
       key: 'volts',
       label: 'Voltage',
       value: v.endsWith('V') ? v : `${v}V`
+    });
+  }
+
+  // Color
+  if (isSpecFieldRelevant(type, 'color', fuelType) && !isBlankSpec(specs.color)) {
+    items.push({
+      key: 'color',
+      label: 'Color',
+      value: specs.color!.trim()
     });
   }
 

@@ -124,6 +124,7 @@ const Router: React.FC<RouterProps> = ({
           initialNavLevel={propertyNavLevel}
           onNavLevelChange={setPropertyNavLevel}
           onOpenStockpileInventory={handleOpenStockpileInventory}
+          onApplianceClick={handleApplianceClick}
         />
       );
 

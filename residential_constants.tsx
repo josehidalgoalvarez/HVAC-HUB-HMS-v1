@@ -115,7 +115,7 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         hasUnitWaterHeater: false,
         appliances: [
             { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
-            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.', color: 'Black' } },
             { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
         ],
@@ -136,7 +136,7 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         hasUnitWaterHeater: true,
         appliances: [
             { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
-            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.', color: 'Black' } },
             { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
             { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } },
             { category: 'Water Heating', label: 'Unit Water Heater (default)', name: 'Unit Water Heater (default)', type: 'Water Heater', isDefault: true, specs: { fuelType: 'Electric', btuInput: '4500W', capacity: '60 Gallons', volts: '240' } }

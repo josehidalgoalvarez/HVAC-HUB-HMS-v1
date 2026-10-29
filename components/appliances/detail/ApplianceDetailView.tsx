@@ -44,8 +44,8 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
 
   const property = properties.find(p => p.id === appliance.propertyId);
 
-  // View State
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  // View State - default to 'specs' for default/reference appliances so user lands immediately on rating plate & specs
+  const [activeTab, setActiveTab] = useState<string>(appliance?.isDefault ? 'specs' : 'dashboard');
 
   // Modal State
   const [showMenu, setShowMenu] = useState(false);
