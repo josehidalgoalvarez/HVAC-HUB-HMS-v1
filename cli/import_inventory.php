@@ -152,11 +152,12 @@ try {
             }
         }
 
-        // Fallback: match by key tokens (e.g. "McKay", "511", "Sea Can 2")
+        // Fallback: match by key tokens (e.g. "McKay", "511", "Sea Can N", "Can N")
         if (empty($matches)) {
-            if (str_contains($needle, 'sea can 2') || str_contains($needle, 'can 2')) {
+            if (preg_match('/(?:sea\s+)?can\s+(\d+)/i', $needle, $m)) {
+                $targetCanNum = $m[1];
                 foreach ($stockpiles as $sp) {
-                    if (str_contains(strtolower($sp['name']), 'sea can 2') || str_contains(strtolower($sp['name']), 'can 2')) {
+                    if (preg_match('/(?:sea\s+)?can\s+' . preg_quote($targetCanNum, '/') . '\b/i', $sp['name'])) {
                         $matches[] = $sp;
                     }
                 }
