@@ -42,10 +42,25 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
   const [assignedTicketId, setAssignedTicketId] = useState<string>('');
   const [formError, setFormError] = useState<string | null>(null);
   const [flashMsg, setFlashMsg] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. Load manual items from cache
-  useEffect(() => {
-    const loadCachedManualItems = async () => {
+  // Network & Cache State
+  const [isOfflineView, setIsOfflineView] = useState(false);
+  const [isSyncingManual, setIsSyncingManual] = useState(false);
+
+  // Helper to test if device is currently online
+  const checkIsOnline = (): boolean => {
+    return typeof navigator !== 'undefined' ? navigator.onLine : true;
+  };
+
+  // 1. Load manual items: fetch from server with one-time local merge, fallback to cache
+  const loadManualItems = async () => {
+    setIsSyncingManual(true);
+    const online = checkIsOnline();
+
+    if (!online) {
+      // Offline: load from cache
       try {
         const cached = await appCache.get<ManualBuyItem[]>(MANUAL_BUY_CACHE_KEY);
         if (cached && Array.isArray(cached)) {
@@ -54,8 +69,92 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       } catch (err) {
         console.warn('Failed to load manual buy items cache:', err);
       }
+      setIsOfflineView(true);
+      setIsSyncingManual(false);
+      return;
+    }
+
+    try {
+      // 1. Fetch server manual items
+      const serverItems = await apiClient.getManualBuyItems();
+      setIsOfflineView(false);
+
+      // 2. Read local cache for any local-only items to merge (one-time migration)
+      let finalItems = serverItems;
+      const cached = await appCache.get<ManualBuyItem[]>(MANUAL_BUY_CACHE_KEY);
+      if (cached && Array.isArray(cached) && cached.length > 0) {
+        // Build set of server items deduplicated by part_name + ticket_id
+        const makeKey = (name: string, tid?: number | null) =>
+          `${name.toLowerCase().trim()}:::${tid ?? 'null'}`;
+
+        const serverKeySet = new Set(
+          serverItems.map(item => makeKey(item.part_name, item.ticket_id))
+        );
+
+        // Find cached local items not present on server
+        const missingOnServer = cached.filter(localItem => {
+          if (!localItem.part_name) return false;
+          const key = makeKey(localItem.part_name, localItem.ticket_id);
+          return !serverKeySet.has(key);
+        });
+
+        if (missingOnServer.length > 0) {
+          // Upload each missing item once
+          for (const missing of missingOnServer) {
+            try {
+              await apiClient.createManualBuyItem({
+                part_name: missing.part_name.trim(),
+                quantity: missing.quantity > 0 ? missing.quantity : 1,
+                part_number: missing.part_number?.trim() || null,
+                supplier: missing.supplier?.trim() || null,
+                notes: missing.notes?.trim() || null,
+                ticket_id: missing.ticket_id ? Number(missing.ticket_id) : null,
+              });
+            } catch (mergeErr) {
+              console.warn('Failed to migrate cached manual buy item to server:', missing, mergeErr);
+            }
+          }
+          // Reload fresh list from server after upload
+          finalItems = await apiClient.getManualBuyItems();
+        }
+      }
+
+      // Update state and refresh offline cache with latest server list
+      setManualItems(finalItems);
+      await appCache.set(MANUAL_BUY_CACHE_KEY, finalItems);
+    } catch (err) {
+      console.warn('Failed to fetch server manual buy items, falling back to cache:', err);
+      setIsOfflineView(true);
+      try {
+        const cached = await appCache.get<ManualBuyItem[]>(MANUAL_BUY_CACHE_KEY);
+        if (cached && Array.isArray(cached)) {
+          setManualItems(cached);
+        }
+      } catch (cacheErr) {
+        console.warn('Failed to load manual buy items cache fallback:', cacheErr);
+      }
+    } finally {
+      setIsSyncingManual(false);
+    }
+  };
+
+  useEffect(() => {
+    loadManualItems();
+
+    const handleWindowOnline = () => {
+      loadManualItems();
     };
-    loadCachedManualItems();
+    const handleWindowOffline = () => {
+      setIsOfflineView(true);
+    };
+
+    window.addEventListener('online', handleWindowOnline);
+    window.addEventListener('offline', handleWindowOffline);
+
+    return () => {
+      window.removeEventListener('online', handleWindowOnline);
+      window.removeEventListener('offline', handleWindowOffline);
+    };
   }, []);
 
   // 2. Fetch open tickets
@@ -127,6 +226,9 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
   // 4. Save manual add
   const handleAddManualItem = async (e: React.FormEvent) => {
     e.preventDefault();
+    setActionError(null);
+    setFormError(null);
+
     const trimmedName = partName.trim();
     if (!trimmedName) {
       setFormError('Part name is required');
@@ -139,40 +241,81 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       return;
     }
 
-    const newItem: ManualBuyItem = {
-      id: `manual_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      part_name: trimmedName,
-      part_number: partNumber.trim() || undefined,
-      quantity: numQty,
-      supplier: supplier.trim() || undefined,
-      notes: notes.trim() || undefined,
-      ticket_id: assignedTicketId ? Number(assignedTicketId) : null,
-      created_at: new Date().toISOString(),
-    };
+    // Check online status - FAIL LOUDLY when offline, do NOT create local item
+    if (!checkIsOnline()) {
+      setFormError('Connection required: Cannot add buy list items while offline. Please connect to the internet.');
+      return;
+    }
 
-    const updated = [newItem, ...manualItems];
-    setManualItems(updated);
-    await appCache.set(MANUAL_BUY_CACHE_KEY, updated);
+    setIsSubmitting(true);
+    try {
+      const created = await apiClient.createManualBuyItem({
+        part_name: trimmedName,
+        quantity: numQty,
+        part_number: partNumber.trim() || null,
+        supplier: supplier.trim() || null,
+        notes: notes.trim() || null,
+        ticket_id: assignedTicketId ? Number(assignedTicketId) : null,
+      });
 
-    // Reset form
-    setPartName('');
-    setPartNumber('');
-    setQuantity(1);
-    setSupplier('');
-    setNotes('');
-    setAssignedTicketId('');
-    setFormError(null);
-    setIsAddFormOpen(false);
+      // Update state and refresh offline cache
+      const updated = [created, ...manualItems.filter(item => String(item.id) !== String(created.id))];
+      setManualItems(updated);
+      await appCache.set(MANUAL_BUY_CACHE_KEY, updated);
 
-    setFlashMsg(`Added "${trimmedName}" to Buy List`);
-    setTimeout(() => setFlashMsg(null), 3500);
+      // Reset form
+      setPartName('');
+      setPartNumber('');
+      setQuantity(1);
+      setSupplier('');
+      setNotes('');
+      setAssignedTicketId('');
+      setFormError(null);
+      setIsAddFormOpen(false);
+
+      setFlashMsg(`Added "${trimmedName}" to Buy List`);
+      setTimeout(() => setFlashMsg(null), 3500);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to add item to buy list';
+      // If error indicates network / offline failure, report clear connection message
+      if (!checkIsOnline() || message.toLowerCase().includes('network') || message.toLowerCase().includes('fetch')) {
+        setFormError('Connection required: Cannot add buy list items while offline. Please connect to the internet.');
+      } else {
+        setFormError(message);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // 5. Delete manual item
-  const handleDeleteManualItem = async (id: string) => {
-    const updated = manualItems.filter(item => item.id !== id);
-    setManualItems(updated);
-    await appCache.set(MANUAL_BUY_CACHE_KEY, updated);
+  const handleDeleteManualItem = async (id: number | string) => {
+    setActionError(null);
+
+    // Check online status - FAIL LOUDLY when offline, item stays
+    if (!checkIsOnline()) {
+      setActionError('Connection required: Cannot delete items while offline. Please connect to the internet.');
+      setTimeout(() => setActionError(null), 5000);
+      return;
+    }
+
+    try {
+      await apiClient.deleteManualBuyItem(id);
+      const updated = manualItems.filter(item => String(item.id) !== String(id));
+      setManualItems(updated);
+      await appCache.set(MANUAL_BUY_CACHE_KEY, updated);
+
+      setFlashMsg('Item removed from Buy List');
+      setTimeout(() => setFlashMsg(null), 3500);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to delete buy list item';
+      if (!checkIsOnline() || message.toLowerCase().includes('network') || message.toLowerCase().includes('fetch')) {
+        setActionError('Connection required: Cannot delete items while offline. Please connect to the internet.');
+      } else {
+        setActionError(message);
+      }
+      setTimeout(() => setActionError(null), 5000);
+    }
   };
 
   // 6. Group items BY WORK ORDER
@@ -352,6 +495,24 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
         </div>
       </div>
 
+      {/* Offline Status Note / Badge */}
+      {isOfflineView && (
+        <div className="p-2.5 rounded-xl text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 flex items-center justify-between gap-2 animate-fadeIn">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-base shrink-0">cloud_off</span>
+            <span className="truncate">Offline — showing saved items</span>
+          </div>
+          <button
+            type="button"
+            onClick={loadManualItems}
+            disabled={isSyncingManual}
+            className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-200 dark:bg-amber-900/60 hover:bg-amber-300 text-amber-900 dark:text-amber-100 shrink-0 transition-colors"
+          >
+            {isSyncingManual ? 'Connecting...' : 'Retry'}
+          </button>
+        </div>
+      )}
+
       {/* Flash toast */}
       {flashMsg && (
         <div className="p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200 flex items-center gap-2 animate-fadeIn">
@@ -360,7 +521,15 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
         </div>
       )}
 
-      {/* Error alert */}
+      {/* Action / loud error alert (e.g. offline delete or network error) */}
+      {actionError && (
+        <div className="p-3 text-xs bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-900 rounded-xl flex items-center gap-2 animate-fadeIn">
+          <span className="material-symbols-outlined text-[18px] shrink-0">warning</span>
+          <span className="font-semibold">{actionError}</span>
+        </div>
+      )}
+
+      {/* General error alert */}
       {error && (
         <div className="p-3 text-xs bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-900 rounded-xl">
           {error}
@@ -492,10 +661,11 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
             <Button
               type="submit"
               variant="primary"
+              disabled={isSubmitting}
               className="py-2 px-4 text-xs shadow-sm"
-              icon="add"
+              icon={isSubmitting ? 'sync' : 'add'}
             >
-              Add to Buy List
+              {isSubmitting ? 'Adding...' : 'Add to Buy List'}
             </Button>
           </div>
         </form>
