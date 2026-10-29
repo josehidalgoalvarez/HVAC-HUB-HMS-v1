@@ -1,0 +1,74 @@
+[
+  {
+    "stockpile_match": "511 Days Rd Storage",
+    "name": "Step ladder (Featherlite)",
+    "category": "Access",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: prior record (inventory file Area 3); quantity TBD — never counted",
+    "source": "inventory file Area 3",
+    "last_updated": "2026-10-28"
+  },
+  {
+    "stockpile_match": "511 Days Rd Storage",
+    "name": "Tools (unspecified)",
+    "category": "Tools",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: prior record (inventory file Area 3); quantity TBD — never counted",
+    "source": "inventory file Area 3",
+    "last_updated": "2026-10-28"
+  },
+  {
+    "stockpile_match": "511 Days Rd Storage",
+    "name": "Vapor / pressure washer",
+    "category": "Cleaning",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: prior record (inventory file Area 3); quantity TBD — never counted",
+    "source": "inventory file Area 3",
+    "last_updated": "2026-10-28"
+  },
+  {
+    "stockpile_match": "511 Days Rd Storage",
+    "name": "Snow shovel",
+    "category": "Seasonal",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: prior record (inventory file Area 3); quantity TBD — never counted",
+    "source": "inventory file Area 3",
+    "last_updated": "2026-10-28"
+  },
+  {
+    "stockpile_match": "511 Days Rd Storage",
+    "name": "Cleaning supplies / chemicals",
+    "category": "Janitorial",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: prior record (inventory file Area 3); quantity TBD — never counted",
+    "source": "inventory file Area 3",
+    "last_updated": "2026-10-28"
+  },
+  {
+    "stockpile_match": "511 Days Rd Storage",
+    "name": "Karcher wet/dry vac",
+    "category": "Cleanup",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: prior record (inventory file Area 3); quantity TBD — never counted",
+    "source": "inventory file Area 3",
+    "last_updated": "2026-10-28"
+  }
+]
