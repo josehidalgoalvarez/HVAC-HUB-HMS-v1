@@ -619,6 +619,30 @@ class Db
         try { $pdo->exec("ALTER TABLE unit ADD COLUMN external_id TEXT NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE appliance ADD COLUMN external_id TEXT NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE part_stockpile ADD COLUMN minimum INTEGER NOT NULL DEFAULT 1"); } catch (\Throwable) {}
+
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS buy_list_item (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                part_name TEXT NOT NULL,
+                quantity INTEGER NOT NULL,
+                part_number TEXT NULL,
+                supplier TEXT NULL,
+                notes TEXT NULL,
+                ticket_id INTEGER NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS equipment (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                category TEXT NULL,
+                stockpile_id INTEGER NULL,
+                status TEXT NOT NULL DEFAULT 'unknown' CHECK (status IN ('available', 'needs_service', 'out_of_service', 'unknown')),
+                notes TEXT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+        ");
     }
 
     /**
