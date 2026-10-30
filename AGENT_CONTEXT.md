@@ -10,7 +10,8 @@
 
 ## 2. Current State & Live Baseline (Oct 29, 2026)
 - **Live Site**: `https://mediumturquoise-gazelle-912925.hostingersite.com/` (LIVE & API-FED).
-- **Last code head verified: cea24c9 (SQLite bootstrap only: buy_list_item + equipment CREATEs in src/Db.php, matching migrations 044/045; live code head remains 8065826)** | **Live Version**: `mvt1dhxx-8065826` | **Live Bundle**: `assets/index-BxZQW_OB.js`.
+- **Last code head verified: cea24c9 (SQLite bootstrap only); last test addition: cfdfe01 (tests/verify_sqlite_schema.php, 28 checks); live code head remains 8065826)** | **Live Version**: `mvt1dhxx-8065826` | **Live Bundle**: `assets/index-BxZQW_OB.js`.
+Docs commits after this do not change the code or test heads above — update this section only when a code or test commit lands, not on every docs commit.
 - **Repo vs Live**: repo HEAD cea24c9 includes docs commits ad60064/ae25eb3 plus the SQLite-only cea24c9 change; live remains 8065826. src/Db.php is SQLite-bootstrap-only and must NEVER be uploaded on a deploy — a future deploy from the then-current repo head will carry the frontend as built at that head, with version.json commitHash updated, but no live DB change from Db.php.
 - **Health**: `/api/health` returns `{"data":{"status":"ok","db":"ok"},"error":null}`.
 - **Live Counts (Verified Post-Migration 046)**:
@@ -27,7 +28,7 @@
   - Count History: 0
   - Corrections: 66
   - SOPs: gas-furnace v2 with 74 steps + 5 DRAFT SOPs (`todo_verify=1`)
-  - Verify Suites Baseline: 107/107 PASS (`verify_complexes_and_defaults` 53, `verify_phase2_api` 28, `verify_unit_context` 26).
+  - Verify Suites Baseline: 135 total PASS (107 existing: `verify_complexes_and_defaults` 53, `verify_phase2_api` 28, `verify_unit_context` 26; plus 28 new: `verify_sqlite_schema`).
 
 ## 3. Defaults & Inventory Model Facts
 - **Defaults Source of Truth**: Frontend `residential_constants.tsx` (12 sets, synced to live DB via UPDATE-only migration 046).
