@@ -12,10 +12,16 @@ import {
 } from '../../utils/unitContextUtils';
 import { apiClient } from '../../src/api/client';
 import { formatDate } from '../../utils/dateUtils';
-import type { UnitFailedVisitsSummary, Stockpile } from '../../types/domain';
+import type { UnitFailedVisitsSummary, Stockpile, PartRecord } from '../../types/domain';
 import { McKayStorageMenuView } from '../parts/McKayStorageMenuView';
 import { normalizeMatchString, resolveBuildingStockpile } from '../../utils/stockpileMatching';
 import { ApplianceHistorySection } from '../appliances/detail/components/ApplianceHistorySection';
+import { appCache } from '../../src/offline/cache';
+import { SEED_PARTS, SEED_STOCKPILES } from '../parts/partsSeedData';
+import {
+  computeInventorySearchResults,
+  InventorySearchResultsPanel
+} from './InventorySearchSection';
 
 interface PropertyListViewProps {
   onPropertyClick: (id: string) => void;
@@ -43,6 +49,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     units,
     complexes,
     defaultSets,
+    appliances,
     getUnitAppliances,
     overrideUnitAppliance,
     resetUnitToDefault,
@@ -69,6 +76,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
   // Global Search
   const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
 
   // Unit Access History & Failed Visits
   const [unitVisitsSummary, setUnitVisitsSummary] = useState<UnitFailedVisitsSummary | null>(null);
@@ -83,14 +91,25 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     }
   }, [selectedUnitId]);
 
-  // Stockpiles for location inventory navigation
-  const [stockpilesList, setStockpilesList] = useState<Stockpile[]>([]);
+  // Stockpiles & cached Parts for read-only inventory search & location navigation (no new API endpoints)
+  const [stockpilesList, setStockpilesList] = useState<Stockpile[]>(
+    () => appCache.getSync<Stockpile[]>('stockpiles') || SEED_STOCKPILES
+  );
+  const [loadedParts, setLoadedParts] = useState<PartRecord[]>(
+    () => appCache.getSync<PartRecord[]>('parts') || SEED_PARTS
+  );
   const [showMcKayMenu, setShowMcKayMenu] = useState(false);
 
   React.useEffect(() => {
     apiClient.getStockpiles()
       .then(res => {
-        if (Array.isArray(res)) setStockpilesList(res);
+        if (Array.isArray(res) && res.length > 0) setStockpilesList(res);
+      })
+      .catch(() => {});
+
+    appCache.get<PartRecord[]>('parts')
+      .then(cached => {
+        if (Array.isArray(cached) && cached.length > 0) setLoadedParts(cached);
       })
       .catch(() => {});
   }, []);
@@ -311,33 +330,20 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     return result;
   }, [defaultSets]);
 
-  // Direct Search Logic
-  const searchResults = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return null;
-
-    const tokens = q
-      .replace(/,/g, ' ')
-      .split(/\s+/)
-      .filter(t => t.length > 0 && t !== 'unit' && t !== 'apt');
-
-    const matchedBuildings = properties.filter(p => {
-      if (p.name.includes('Pool')) return false;
-      const allAliases = [...(p.aliases || []), ...(p.addressAliases || [])].join(' ');
-      const target = `${p.name} ${p.address} ${allAliases} ${p.comments || ''}`.toLowerCase();
-      return tokens.every(t => target.includes(t));
-    });
-
-    const matchedUnits = units.filter(u => {
-      const bld = properties.find(p => p.id === u.buildingId);
-      if (!bld || bld.name.includes('Pool')) return false;
-      const allAliases = [...(bld.aliases || []), ...(bld.addressAliases || [])].join(' ');
-      const fullString = `unit ${u.unitNumber} ${bld.name} ${bld.address} ${allAliases} ${bld.comments || ''}`.toLowerCase();
-      return tokens.every(t => fullString.includes(t));
-    });
-
-    return { buildings: matchedBuildings, units: matchedUnits };
-  }, [searchQuery, properties, units]);
+  // Unified Read-Only Inventory Search (client-side over already-loaded session data)
+  const searchResults = useMemo(
+    () =>
+      computeInventorySearchResults(searchQuery, {
+        properties,
+        units,
+        complexes,
+        defaultSets,
+        appliances,
+        parts: loadedParts,
+        stockpiles: stockpilesList
+      }),
+    [searchQuery, properties, units, complexes, defaultSets, appliances, loadedParts, stockpilesList]
+  );
 
   // Navigation Handlers
   const handleNavRoot = () => {
@@ -730,23 +736,26 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
           )}
         </nav>
 
-        {/* Direct Global Search Bar */}
+        {/* Direct Global Inventory Search Bar */}
         <div className="mt-2.5 relative">
           <div className="flex items-center rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-card-dark px-3 shadow-xs focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
             <span className="material-symbols-outlined text-gray-400 text-[20px]">
               search
             </span>
             <input
+              ref={searchInputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search address, building, or unit (e.g. 137 Amherst, 507 Days, Unit 266)..."
+              placeholder="Search units, buildings, appliances, models, parts, or storages (e.g. Midea, FFCD2418US3A, 1723, McKay)..."
               className="w-full py-2.5 px-2.5 text-sm bg-transparent outline-none text-text-main-light dark:text-white placeholder:text-gray-400"
+              data-testid="inventory-search-input"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
                 className="p-1 text-gray-400 hover:text-text-main-light dark:hover:text-white"
+                aria-label="Clear search"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
@@ -756,190 +765,47 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
       </div>
 
       <div className="max-w-4xl mx-auto w-full px-4 pt-4">
-        {/* DIRECT SEARCH RESULTS PANEL */}
+        {/* READ-ONLY INVENTORY SEARCH RESULTS PANEL */}
         {searchResults ? (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">manage_search</span>
-                <h2 className="text-sm font-bold text-brand-black dark:text-white">
-                  Search Results for &quot;{searchQuery}&quot;
-                </h2>
-              </div>
-              <span className="text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark px-2.5 py-1 rounded-full">
-                {searchResults.units.length} Units · {searchResults.buildings.length} Buildings
-              </span>
-            </div>
-
-            {searchResults.units.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
-                  Units ({searchResults.units.length})
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {searchResults.units.map(unit => {
-                    const bld = properties.find(p => p.id === unit.buildingId);
-                    const isExternal = unit.ownership === 'external';
-                    const wdState = unit.washerDryerState;
-                    const unitDs = defaultSets.find(s => s.id === unit.defaultSetId);
-                    const bedCount = unit.bedrooms ?? unitDs?.bedrooms ?? 2;
-                    const bathCount = unit.washrooms ?? unit.bathrooms ?? unitDs?.bathrooms ?? 1;
-                    const storeyCount = unit.storeys ?? unit.stories ?? unitDs?.stories;
-                    return (
-                      <div
-                        key={unit.id}
-                        onClick={() => handleNavUnit(unit.id)}
-                        className={`group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center justify-between ${
-                          isExternal
-                            ? 'opacity-65 bg-gray-50/80 dark:bg-card-dark/40 border border-dashed border-gray-300 dark:border-gray-700'
-                            : 'bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:border-primary/40'
-                        }`}
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
-                              Unit {unit.unitNumber}
-                            </span>
-                            {isExternal && (
-                              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                                External
-                              </span>
-                            )}
-                            {wdState && (
-                              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
-                                wdState === 'building_installed'
-                                  ? 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20'
-                                  : wdState === 'tenant_owned'
-                                  ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20'
-                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700'
-                              }`}>
-                                {wdState === 'building_installed' ? 'W/D: Installed' : wdState === 'tenant_owned' ? 'W/D: Tenant' : 'W/D: None'}
-                              </span>
-                            )}
-                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                              {unit.unitType || 'Apartment'}
-                            </span>
-                          </div>
-                          <p className="text-xs font-medium text-text-sub-light dark:text-text-sub-dark">
-                            {bld?.name} · {bld?.address}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            {bedCount} Bed · {bathCount} Bath{storeyCount ? ` · ${storeyCount} Storey${storeyCount > 1 ? 's' : ''}` : ''}
-                          </p>
-                          {(() => {
-                            const ctxChips = getUnitContextChips(unit);
-                            if (ctxChips.length === 0) return null;
-                            return (
-                              <div className="flex items-center gap-1.5 flex-wrap pt-1">
-                                {ctxChips.map(c => (
-                                  <span key={c.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md ${c.className}`}>
-                                    <span className="material-symbols-outlined text-[12px] leading-none">{c.icon}</span>
-                                    {c.label}
-                                  </span>
-                                ))}
-                              </div>
-                            );
-                          })()}
-                        </div>
-                        <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl shrink-0">
-                          chevron_right
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {searchResults.buildings.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
-                  Buildings ({searchResults.buildings.length})
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {searchResults.buildings.map(bld => {
-                    const uCount = units.filter(u => u.buildingId === bld.id).length;
-                    const hasSpecialRole = bld.role && bld.role !== 'standard';
-                    const isExternal = bld.responsibility === 'external';
-                    const bRes = resolveBuildingStockpile(bld, stockpilesList);
-                    const canOpenStorage = (bRes.isMcKay && bRes.mckayStockpiles.length > 0) || Boolean(bRes.targetStockpileId && onOpenStockpileInventory);
-
-                    return (
-                      <div
-                        key={bld.id}
-                        onClick={() => handleNavBuilding(bld.id)}
-                        className={`group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                          isExternal
-                            ? 'opacity-65 bg-gray-50/80 dark:bg-card-dark/40 border border-dashed border-gray-300 dark:border-gray-700'
-                            : hasSpecialRole
-                            ? 'border-2 border-amber-400/80 bg-amber-500/5 dark:bg-amber-500/10 hover:border-amber-500 shadow-sm shadow-amber-500/5'
-                            : 'bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:border-primary/40'
-                        }`}
-                      >
-                        <div className="space-y-1 min-w-0 flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
-                              {bld.name}
-                            </h4>
-                            {hasSpecialRole && (
-                              <span className="text-[11px] font-semibold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full capitalize">
-                                {bld.role === 'storage' ? (bld.id === 'prop-days-511' || bld.id === '15' || bld.name?.includes('511 Days') ? 'Storage Node (Central)' : 'Storage Node') : bld.role === 'mechanical' ? 'Mechanical Hub' : bld.role === 'office' ? 'Office' : bld.role}
-                              </span>
-                            )}
-                            {isExternal && (
-                              <span className="text-[11px] font-semibold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
-                                External Super (Not Jose)
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
-                            {bld.address}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            {uCount > 0 ? `${uCount} Units` : '0 Units (Roster pending)'}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          {canOpenStorage && (
-                            <button
-                              type="button"
-                              data-testid="building-list-stock-menu-button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (bRes.isMcKay) {
-                                  handleNavBuilding(bld.id);
-                                  setShowMcKayMenu(true);
-                                } else if (bRes.targetStockpileId && onOpenStockpileInventory) {
-                                  onOpenStockpileInventory(bRes.targetStockpileId);
-                                }
-                              }}
-                              className="min-h-[44px] px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 active:scale-[0.98] text-amber-900 dark:text-amber-200 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
-                            >
-                              <span className="material-symbols-outlined text-[18px] text-amber-700 dark:text-amber-300">
-                                inventory_2
-                              </span>
-                              <span>Stock Menu</span>
-                            </button>
-                          )}
-                          <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
-                            chevron_right
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {searchResults.units.length === 0 && searchResults.buildings.length === 0 && (
-              <div className="p-12 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-card-dark/50 space-y-2">
-                <span className="material-symbols-outlined text-3xl text-gray-400">search_off</span>
-                <p className="text-sm font-bold text-brand-black dark:text-white">No matches for &quot;{searchQuery}&quot;</p>
-                <p className="text-xs text-text-sub-light dark:text-text-sub-dark">Try searching by building name, address, or unit number</p>
-              </div>
-            )}
-          </div>
+          <InventorySearchResultsPanel
+            results={searchResults}
+            properties={properties}
+            units={units}
+            defaultSets={defaultSets}
+            stockpilesList={stockpilesList}
+            onSelectUnit={(unitId) => handleNavUnit(unitId)}
+            onSelectBuilding={(buildingId) => handleNavBuilding(buildingId)}
+            onSelectDirectAppliance={(app) => {
+              const targetUnit =
+                (app.unitId && units.find((u) => String(u.id) === String(app.unitId))) ||
+                (app.unitNumber &&
+                  app.unitNumber !== 'Common' &&
+                  units.find(
+                    (u) =>
+                      String(u.buildingId) === String(app.propertyId) &&
+                      String(u.unitNumber) === String(app.unitNumber)
+                  ));
+              if (targetUnit) {
+                handleNavUnit(targetUnit.id);
+                setHistoryModalAppliance(app);
+              } else if (onApplianceClick) {
+                setSearchQuery('');
+                onApplianceClick(app.id);
+              } else if (app.propertyId) {
+                handleNavBuilding(app.propertyId);
+              }
+            }}
+            onSelectDefaultPattern={(setId) => {
+              const targetSet = defaultSets.find((s) => s.id === setId);
+              handleNavDefaults(targetSet?.complexId || targetSet?.complexSlug);
+              setExpandedSetIds((prev) => new Set(prev).add(setId));
+            }}
+            onOpenStockpileInventory={onOpenStockpileInventory}
+            onOpenMcKayStorageMenu={(buildingId) => {
+              handleNavBuilding(buildingId);
+              setShowMcKayMenu(true);
+            }}
+          />
         ) : (
           /* REGULAR HIERARCHY NAVIGATION */
           <div>
