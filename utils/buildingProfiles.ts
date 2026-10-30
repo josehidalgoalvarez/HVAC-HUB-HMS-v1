@@ -447,6 +447,118 @@ export const BUILDING_PROFILES: Record<string, BuildingProfile> = {
     solarPanels: null,
     storageNote: null,
     notes: 'Tracked units: 1. Princess trio: 563 + 565 + 567 — only 565 moved to the quadrant; 567 stays in the Princess complex. Do not move it here.'
+  },
+
+  // 698 McKay St — office, NOT a rental building
+  '698 mckay st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: 'OFFICE + warehouse + sea containers (NOT a rental storage unit). Stockpile records: 698 McKay Warehouse (id 11, 20 allocations live), 698 McKay Sea Containers (id 12, ONE group record for all cans — STAYS, holds no items; individual cans list alongside it), Sea Can 2 (id 14, 9 allocations live), Sea Cans 3–14 (ids 16–27, photo-verified Oct 28, 2026, seeded live). Cans 2–14 photo-verified (13 cans); Can 1 still unseen — NEVER seed it. Parts menu is the master list; link to it, do not duplicate it.',
+    notes: 'Office (standalone, NOT a rental building — do not treat it as a residential unit source). Address settled: 698 McKay St, NOT 692. Held as too vague/unconfirmed and NOT in any profile list: McKay key-copy machine + "Milwaukee tools" (vague), vans (not tools). Can 12\'s photo-verified key machine + bench machine (DRNE) is a DIFFERENT, specific machine, already recorded as EQUIPMENT — do not merge it with the vague McKay key-copy machine note. Unit count: record the UI-computed total as found; do not assert a residential unit count for an office.'
+  },
+
+  // 539 Armstrong Rd — singles, organized storage + Zoom Boom
+  '539 armstrong rd': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: 'Excellent organized storage (stockpile record exists). Contents: NOT photographed in detail in the notes — menu shows the live stockpile state, do not invent a contents list. Parts menu is the master list.',
+    notes: 'Tracked units: 112. Caveat: rows 516–522 were included by count validation + symmetric pattern, TODO-verify spot-check owed — if the UI computes a different total, report that as the spot-check answer, do not force it to 112. Equipment note: a Zoom Boom (telehandler lift) is parked here, already recorded as equipment (Oct 28, 2026) — do not duplicate it as a storage item.'
+  },
+
+  // 394 Alfred St — quadrant main storage, converted house
+  '394 alfred st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: 'Main storage for the Frontenac/Alfred quadrant (stockpile record exists). Contents: UNKNOWN — not photographed in detail; menu shows an honest empty state until photographed. Do not invent contents.',
+    notes: 'Tracked units: 7. Converted house (letters = rooms in the Alfred converted houses). Duplicate Yardi codes exist for 378 and 394 — one building each, both codes recorded as external IDs; do not split 394 into two buildings and do not merge it with 378.'
+  },
+
+  // 265 Ontario St — singles, restaurant downstairs, junk basement
+  '265 ontario st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: 'Basement: huge junk-filled basement (cleanup project) — records exist with a junk-note and ZERO items, menu empty BY DESIGN. NEVER seed the basement junk as stock. Upstairs storage record also exists. Do not list junk as inventory.',
+    notes: 'Tracked units: 14. El Gringo restaurant downstairs (restaurant work Mondays when closed). Roof problem is beyond Jose\'s scope — do not promise roof work in this profile. Unit-level tenant facts belong on the unit, NOT here.'
+  },
+
+  // 810 Blackburn Mews — singles, storage role
+  '810 blackburn mews': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: 'Storage role recorded in the storage network list (stockpile record exists). Contents: UNKNOWN — not photographed in detail; menu shows an honest empty state until photographed. Do not invent contents.',
+    notes: 'Tracked units: 66.'
+  },
+
+  // 85 Park St — singles, small stash
+  '85 park st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: 'Small stash (stockpile record exists). Contents: UNKNOWN in detail — menu shows the live stockpile state, do not invent a contents list.',
+    notes: 'Tracked units: 15. No unit 13 (do not create it).'
+  },
+
+  // 181 Hillendale Ave — standalone, storage role-flagged
+  '181 hillendale ave': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: 'Role-flagged storage (stockpile record exists with EMPTY contents). Contents: UNKNOWN — not photographed; menu shows an honest empty state until photographed. Do not invent contents.',
+    notes: 'Standalone building (far outlier in the portfolio list). Unit count: NOT asserted in the notes — record the UI-computed total as found, do not state a tracked count for 181 Hillendale. No Yardi unit extract for 181 Hillendale is in the notes — do not invent units.'
   }
 };
 
