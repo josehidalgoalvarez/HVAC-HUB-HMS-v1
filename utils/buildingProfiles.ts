@@ -351,6 +351,102 @@ export const BUILDING_PROFILES: Record<string, BuildingProfile> = {
     solarPanels: null,
     storageNote: null,
     notes: 'Sits right behind 18/24 Elm, in that proximity cluster. NO Yardi extract yet — units unknown, do not state a unit count. NO storage (per Jose). Do not create unit records for 203 Colborne from this profile.'
+  },
+
+  // 501 Frontenac St — Frontenac, 1 building, 101 units
+  '501 frontenac st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 101, 1 building. Floors: F1: 101–107, 111–120 (108–110 do NOT exist) · F2: 201–221 · F3: 301–321 · F4: 401–421 · F5: 501–516, 519–521 (517, 518 do NOT exist). P-suffix entries are spaces, NOT units — do not create them as units. Signage reads 501 Frontenac; Yardi property of record is 495 Frontenac Street — do not split this into two buildings over the address difference. Mixed ownership: per-unit ownership field exists (patry default / external) — nobody guesses per-unit ownership; Jose will name external units. Do not state any specific unit as external here.'
+  },
+
+  // 300 Skyfall Ln / Le Santé — uniform-appliance building, Armstrong–Skyfall complex
+  'le sant': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 161. Numbering is SPARSE BY DESIGN (phased build-out, ~334 planned; gaps = unreleased units, NOT missing data — do not fill gaps). Uniform-appliance building: candidate pattern from unit 101 plates (Oct 26, 2026) — fridge, range, dishwasher, water heater, AC as the default set, microwave as a direct unit-101 row ONLY (not a default row, to preserve the 6-item roster suites). Do NOT re-list the models here; the default set is the master list. Washer/dryer OPTIONAL per unit. Yardi spelling: 19 units + all WAIT entries read "Sante" (one L) — recorded as TODO-verify, do NOT split the building over the one-L spelling. WAIT entries are waitlist placeholders — NEVER create them as units.'
+  },
+
+  // 2274 Princess St — uniform-appliance building, Armstrong–Skyfall complex, largest single building
+  '2274 princess st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 236 — largest single building in the portfolio. Zero letter suffixes, zero gaps. Uniform-appliance building: shows the same candidate pattern as Le Santé BY REFERENCE — flagged as a CANDIDATE SHARE, UNCONFIRMED until one 2274 unit\'s plates are checked; do NOT state it as confirmed that 2274 matches Le Santé. Washer/dryer OPTIONAL per unit (3-state). Do NOT re-list the models here; the default set is the master list.'
+  },
+
+  // 563 Princess St — Princess trio
+  '563 princess st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 23, plus house unit \'1\' as listed in the roster (report the UI-computed total as found alongside this note; do not force a total). Unit 602 does NOT exist — do not create it. Princess trio: 563 + 565 + 567 — Jose has NOT said to move the whole trio to the quadrant; only 565 moved (see its profile). Do not move 563 to the quadrant here.'
+  },
+
+  // 565 Princess St — Princess trio, quadrant move
+  '565 princess st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 1. This is the ONLY Princess trio building moved to the frontenac-alfred quadrant (done) — Jose has NOT said to move the whole trio, so 563 and 567 stay in the Princess complex. Do not move them from this profile.'
+  },
+
+  // 567 Princess St — Princess trio
+  '567 princess st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 1. Princess trio: 563 + 565 + 567 — only 565 moved to the quadrant; 567 stays in the Princess complex. Do not move it here.'
   }
 };
 
