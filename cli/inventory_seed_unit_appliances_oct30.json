@@ -1,0 +1,79 @@
+[
+  {
+    "building_search": ["1723", "Bath"],
+    "unit_number": "266",
+    "type": "Dishwasher",
+    "name": "Dishwasher",
+    "brand": "Frigidaire",
+    "model_number": "FFCD2418US3A",
+    "serial_number": null,
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "120",
+      "capacity": "14 Place Settings",
+      "fuelType": "Electric",
+      "model": "Frigidaire FFCD2418US3A"
+    },
+    "notes": "Askoll M376 pump (A16944601) replaced Oct 15, 2026; load test pending."
+  },
+  {
+    "building_search": ["1719", "Bath"],
+    "unit_number": "273",
+    "type": "Refrigerator",
+    "name": "Refrigerator",
+    "brand": "Frigidaire",
+    "model_number": "FFHT1826LS9",
+    "serial_number": null,
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "model": "Frigidaire FFHT1826LS9"
+    },
+    "notes": "Crisper drawer 240337103 replaced Oct 19, 2026; door shelf 240338101 ordered, pickup pending; WOs 20061/20062."
+  },
+  {
+    "building_search": ["137", "Amherst"],
+    "unit_number": "137",
+    "type": "Range",
+    "name": "Range",
+    "brand": "Frigidaire",
+    "model_number": null,
+    "serial_number": null,
+    "room": "Kitchen",
+    "status": "needs_service",
+    "specs": {
+      "fuelType": "Electric",
+      "volts": "240",
+      "capacity": "5.3 cu. ft.",
+      "color": "Gray"
+    },
+    "notes": "Gray range; switch WB24T10025 (order by model); whole 137 job ON HOLD until rent is paid."
+  },
+  {
+    "building_search": ["137", "Amherst"],
+    "unit_number": "137",
+    "type": "Water Heater",
+    "name": "Water Heater",
+    "brand": "Rheem",
+    "model_number": null,
+    "serial_number": null,
+    "room": null,
+    "status": "needs_service",
+    "specs": {},
+    "notes": "No hot water since ~Oct 8, 2026; whole 137 job ON HOLD until rent is paid."
+  },
+  {
+    "building_search": ["505", "Days"],
+    "unit_number": "103",
+    "type": "Freezer",
+    "name": "Freezer",
+    "brand": null,
+    "model_number": null,
+    "serial_number": null,
+    "room": "Kitchen",
+    "status": "needs_service",
+    "specs": {},
+    "notes": "Recurring noise; WO 19255; call/text tenant Dustine Waller first before visiting."
+  }
+]
