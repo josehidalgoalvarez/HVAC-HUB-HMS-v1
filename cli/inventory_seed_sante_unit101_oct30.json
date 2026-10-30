@@ -1,0 +1,119 @@
+[
+  {
+    "building_search": ["Le", "Sant"],
+    "unit_number": "101",
+    "type": "Refrigerator",
+    "name": "Refrigerator",
+    "brand": "Midea",
+    "model_number": "MRT18D3BST",
+    "serial_number": null,
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "115",
+      "amps": "1.2",
+      "capacity": "18 cu ft",
+      "refrigerant": "R600a 2.29 oz",
+      "defrostPower": "215W",
+      "model": "MRT18D3BST"
+    },
+    "notes": "Top-freezer, 60Hz, date code 25W05, made in Thailand, Energy Star."
+  },
+  {
+    "building_search": ["Le", "Sant"],
+    "unit_number": "101",
+    "type": "Range",
+    "name": "Range",
+    "brand": "Midea",
+    "model_number": "MER30B1A4STC",
+    "serial_number": null,
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "120/240",
+      "power": "9.64 kW",
+      "power208": "7.24 kW",
+      "model": "MER30B1A4STC"
+    },
+    "notes": "Model read as MER30B1A4STC from rotated photo — re-verify on the next pass before it becomes the locked default."
+  },
+  {
+    "building_search": ["Le", "Sant"],
+    "unit_number": "101",
+    "type": "Microwave",
+    "name": "Microwave",
+    "brand": "Midea",
+    "model_number": "MMO17S12ASTC",
+    "serial_number": null,
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "120",
+      "inputPower": "1500W",
+      "outputPower": "1000W",
+      "frequency": "2450 MHz",
+      "model": "MMO17S12ASTC"
+    },
+    "notes": "Hood-integrated over-range microwave (mounting plate + top-cabinet install, confirmed by manual)."
+  },
+  {
+    "building_search": ["Le", "Sant"],
+    "unit_number": "101",
+    "type": "Dishwasher",
+    "name": "Dishwasher",
+    "brand": "Midea",
+    "model_number": "MDF24P2BST",
+    "serial_number": null,
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "120",
+      "amps": "7.84",
+      "motorAmps": "0.84",
+      "heaterAmps": "7",
+      "model": "MDF24P2BST"
+    },
+    "notes": "60Hz, mfg January 2026, made in China."
+  },
+  {
+    "building_search": ["Le", "Sant"],
+    "unit_number": "101",
+    "type": "Water Heater",
+    "name": "Water Heater",
+    "brand": "A.O. Smith",
+    "model_number": "SS6-40LDE-45 250",
+    "serial_number": "2609147212849",
+    "room": null,
+    "status": "operational",
+    "specs": {
+      "volts": "240",
+      "capacity": "36.3 gal / 137 L",
+      "elements": "4500W",
+      "maxLoad": "11000W",
+      "pressure": "150 PSI",
+      "model": "SS6-40LDE-45 250"
+    },
+    "notes": "Item 100211072; upper + lower elements 4500W."
+  },
+  {
+    "building_search": ["Le", "Sant"],
+    "unit_number": "101",
+    "type": "Air Conditioner",
+    "name": "Air Conditioner",
+    "brand": "Islandaire",
+    "model_number": "EZVA18L341N57AA",
+    "serial_number": "A26-01950",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "208/230",
+      "cooling": "18500 Btuh",
+      "heating": "18000 Btuh",
+      "seer2": "14.0",
+      "refrigerant": "R32 44.1 oz",
+      "maxCurrent": "12.0A",
+      "model": "EZVA18L341N57AA"
+    },
+    "notes": "Space-constrained heat pump, 1Ph 60Hz, HSPF2 8.69/7.65."
+  }
+]

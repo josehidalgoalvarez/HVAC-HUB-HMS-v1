@@ -311,12 +311,12 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         stories: 1,
         hasUnitWaterHeater: true,
         appliances: [
-            { category: 'HVAC', label: 'Air Conditioner (default)', name: 'Air Conditioner (default)', type: 'Air Conditioner', isDefault: true, specs: { fuelType: 'Electric', volts: '240' } },
-            { category: 'Water Heating', label: 'Unit Water Heater (default)', name: 'Unit Water Heater (default)', type: 'Water Heater', isDefault: true, specs: { fuelType: 'Electric', btuInput: '4500W', capacity: '60 Gallons', volts: '240' } },
+            { category: 'HVAC', label: 'Air Conditioner (default)', name: 'Air Conditioner (default)', type: 'Air Conditioner', isDefault: true, model: 'EZVA18L341N57AA', specs: { volts: '208/230', cooling: '18500 Btuh', heating: '18000 Btuh', seer2: '14.0', refrigerant: 'R32 44.1 oz', maxCurrent: '12.0A', model: 'EZVA18L341N57AA' } },
+            { category: 'Water Heating', label: 'Unit Water Heater (default)', name: 'Unit Water Heater (default)', type: 'Water Heater', isDefault: true, model: 'SS6-40LDE-45 250', specs: { volts: '240', capacity: '36.3 gal / 137 L', elements: '4500W', maxLoad: '11000W', pressure: '150 PSI', model: 'SS6-40LDE-45 250' } },
             { category: 'HVAC', label: 'Thermostat (default)', name: 'Thermostat (default)', type: 'Thermostat', isDefault: true, specs: { volts: '24' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric' } },
-            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
-            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } }
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'MDF24P2BST', specs: { volts: '120', amps: '7.84', motorAmps: '0.84', heaterAmps: '7', model: 'MDF24P2BST' } },
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, model: 'MRT18D3BST', specs: { volts: '115', amps: '1.2', capacity: '18 cu ft', refrigerant: 'R600a 2.29 oz', defrostPower: '215W', model: 'MRT18D3BST' } },
+            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (electric coil) (default)', type: 'Range', isDefault: true, model: 'MER30B1A4STC', specs: { volts: '120/240', power: '9.64 kW', power208: '7.24 kW', model: 'MER30B1A4STC' } }
         ],
         notes: 'Uniform building default specification (Skyfall / Le Santé / 2274 Princess): dedicated AC, water heater, thermostat, dishwasher, fridge, stove in every unit.'
     },
