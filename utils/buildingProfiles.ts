@@ -783,6 +783,214 @@ export const BUILDING_PROFILES: Record<string, BuildingProfile> = {
     solarPanels: null,
     storageNote: null,
     notes: 'Tracked units: 4. Separate record from the 800 big record (51) — do NOT merge them. If the annex does NOT resolve to a distinct building in the repo, STOP for this building and report "800 annex: not a distinct repo building — no profile created, no merge with the big record" — that is a successful outcome for this building, not a failure.'
+  },
+
+  // 111 Amherst Dr — Amherst row building (3-2-2)
+  '111 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Amherst row building (44 buildings, odd numbers 103–229). Roster pattern: 3-2-2 — 7 units. No distinguishing building-level fact in the notes beyond the roster pattern; heating, mechanical room, storage, and laundry are all Not yet recorded for this building.'
+  },
+
+  // 115 Amherst Dr — Amherst row building (3-2-2)
+  '115 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Amherst row building (44 buildings, odd numbers 103–229). Roster pattern: 3-2-2 — 7 units. No distinguishing building-level fact in the notes beyond the roster pattern; heating, mechanical room, storage, and laundry are all Not yet recorded for this building.'
+  },
+
+  // 119 Amherst Dr — Amherst row building (3-2-2)
+  '119 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Amherst row building (44 buildings, odd numbers 103–229). Roster pattern: 3-2-2 — 7 units. No distinguishing building-level fact in the notes beyond the roster pattern; heating, mechanical room, storage, and laundry are all Not yet recorded for this building.'
+  },
+
+  // 141 Amherst Dr — Amherst row building (3-2-2)
+  '141 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Amherst row building (44 buildings, odd numbers 103–229). Roster pattern: 3-2-2 — 7 units. No distinguishing building-level fact in the notes beyond the roster pattern; heating, mechanical room, storage, and laundry are all Not yet recorded for this building.'
+  },
+
+  // 145 Amherst Dr — Amherst row building (3-2-2)
+  '145 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Amherst row building (44 buildings, odd numbers 103–229). Roster pattern: 3-2-2 — 7 units. No distinguishing building-level fact in the notes beyond the roster pattern; heating, mechanical room, storage, and laundry are all Not yet recorded for this building.'
+  },
+
+  // 149 Amherst Dr — Amherst row building (3-2-2)
+  '149 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Amherst row building (44 buildings, odd numbers 103–229). Roster pattern: 3-2-2 — 7 units. No distinguishing building-level fact in the notes beyond the roster pattern; heating, mechanical room, storage, and laundry are all Not yet recorded for this building.'
+  },
+
+  // 153 Amherst Dr — Amherst row building (3-2-2)
+  '153 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Amherst row building (44 buildings, odd numbers 103–229). Roster pattern: 3-2-2 — 7 units. No distinguishing building-level fact in the notes beyond the roster pattern; heating, mechanical room, storage, and laundry are all Not yet recorded for this building.'
+  },
+
+  // 157 Amherst Dr — Amherst row building (3-2-2)
+  '157 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Amherst row building (44 buildings, odd numbers 103–229). Roster pattern: 3-2-2 — 7 units. No distinguishing building-level fact in the notes beyond the roster pattern; heating, mechanical room, storage, and laundry are all Not yet recorded for this building.'
+  },
+
+  // 161 Amherst Dr — Amherst row building (3-2-2)
+  '161 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Amherst row building (44 buildings, odd numbers 103–229). Roster pattern: 3-2-2 — 7 units. No distinguishing building-level fact in the notes beyond the roster pattern; heating, mechanical room, storage, and laundry are all Not yet recorded for this building.'
+  },
+
+  // 183 Amherst Dr — Amherst row building (3-2-2)
+  '183 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Amherst row building (44 buildings, odd numbers 103–229). Roster pattern: 3-2-2 — 7 units. No distinguishing building-level fact in the notes beyond the roster pattern; heating, mechanical room, storage, and laundry are all Not yet recorded for this building.'
+  },
+
+  // 187 Amherst Dr — Amherst row building (3-2-2)
+  '187 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Amherst row building (44 buildings, odd numbers 103–229). Roster pattern: 3-2-2 — 7 units. No distinguishing building-level fact in the notes beyond the roster pattern; heating, mechanical room, storage, and laundry are all Not yet recorded for this building.'
+  },
+
+  // 225 Amherst Dr — Amherst row building (4x4)
+  '225 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Amherst row building (44 buildings, odd numbers 103–229). Roster pattern: 4x4 — 16 units. No distinguishing building-level fact in the notes beyond the roster pattern; heating, mechanical room, storage, and laundry are all Not yet recorded for this building.'
+  },
+
+  // 229 Amherst Dr — Amherst row building (4x4)
+  '229 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Amherst row building (44 buildings, odd numbers 103–229). Roster pattern: 4x4 — 16 units. No distinguishing building-level fact in the notes beyond the roster pattern; heating, mechanical room, storage, and laundry are all Not yet recorded for this building.'
   }
 };
 
