@@ -255,6 +255,102 @@ export const BUILDING_PROFILES: Record<string, BuildingProfile> = {
     solarPanels: null,
     storageNote: null,
     notes: 'Tracked units: 12 (BD Days pool). Attached pair with 511 Days, shared mech room (holder building unspecified). Laundry: 509 believed NO sink (UNVERIFIED — do not state it as fact; 511 WITH sink is the confirmed side).'
+  },
+
+  // 1727 Bath Rd — BD townhouses
+  '1727 bath rd': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: 'Townhouse: own water heater per unit (BELIEVED, from the BD townhouse description — not confirmed per unit). Space heating type: Not yet recorded.',
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 4 (BD Bath townhouses 33–36). No communal laundry. Townhouse description (believed): 3 stories, 2 washrooms, own water heater per unit.'
+  },
+
+  // 1737 Bath Rd — BD townhouses
+  '1737 bath rd': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: 'Townhouse: own water heater per unit (BELIEVED, from the BD townhouse description — not confirmed per unit). Space heating type: Not yet recorded.',
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 8 (BD Bath townhouses 37–44). Townhouse description (believed): 3 stories, 2 washrooms, own water heater per unit. Laundry: NOT recorded for 1737 (do not copy 1727\'s no-communal-laundry note here — 1727 and 1737 are separate buildings).'
+  },
+
+  // 103 Amherst Dr — Amherst row, twin of 107
+  '103 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 35 + UTILITY (UTILITY is a space, NOT a unit — do not count it as a unit; if the UI computes 35, that matches, UTILITY aside; report the computed total and the UTILITY note together). Same roster as 107 Amherst — 103 was confirmed Oct 22, 2026 as a real TWIN of 107 that Jose had forgotten; do not merge 103 and 107. 103 is in the Amherst row (44 buildings, odd numbers 103–229).'
+  },
+
+  // 137 Amherst Dr — Amherst row, on-hold building
+  '137 amherst dr': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Unit count: NOT asserted in the notes — record the UI-computed total as found, do not state a tracked count for 137. Field note: the whole 137 job is ON HOLD per management until rent is paid (tenant Christian Ngwale, unit 137; Yardi pest line showed Completed Oct 27, but the job itself is ON HOLD — ticket status is master, do not close or promise work on Yardi Completed alone). Enbridge gas shutoff risk is live for this building (per Jose\'s Oct 27 note). Unit-level appliance facts (range, water heater) belong on the unit, NOT here.'
+  },
+
+  // 24 Elm St — Elm complex, lettered + numeric numbering
+  '24 elm st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 14. Numbering is DUAL: lettered system 1A, 1B, 1C, 2A, 2B, 2C, 2D, 3A, 3B, 3C, 4A, 4B, 4C, 4D (14 labelled units on the Mircom intercom, matching the 14-unit count) AND numeric system 101–104 / 201–204 / 301–303 / 401–403. Letter-to-number mapping is PRESUMED, not confirmed (1A = 101 presumed, mailbox evidence 1C = 103) — especially floors 1 and 4 to confirm on site. OPEN question: if 303D/403D variants are physical 4th apartments, 24 Elm = 16 not 14 — if the UI computes 16, report that as the open-question answer, do not force it to 14. Yardi labels carried a "24-" prefix, stripped in app data.'
+  },
+
+  // 203 Colborne St — Elm proximity cluster, conditional profile
+  '203 colborne st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Sits right behind 18/24 Elm, in that proximity cluster. NO Yardi extract yet — units unknown, do not state a unit count. NO storage (per Jose). Do not create unit records for 203 Colborne from this profile.'
   }
 };
 
