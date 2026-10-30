@@ -159,6 +159,102 @@ export const BUILDING_PROFILES: Record<string, BuildingProfile> = {
     solarPanels: null,
     storageNote: 'Storage node for the Amherst row (stockpile record exists, 7 TBD placeholders live from Sep 29, 2026 photos: cleaning chemicals, paint/drywall supplies, electrical/plumbing parts, pre-made window screens + screen tools, fire extinguisher, first-aid kit — plus tools recorded as equipment: miter saw, shop vac, air-mover fan, miter box. Two white coil stoves recorded as stored appliances. Disassembled bath-exhaust-fan housing is UNCONFIRMED repair-in-progress — do NOT list it as stock. Parts menu is the master list; link to it, do not duplicate it.',
     notes: 'Tracked units: 35 (same roster as 103 Amherst — 103 was confirmed Oct 22, 2026 as a real TWIN of 107 that Jose had forgotten; do not merge 103 and 107). 107 doubles as the Amherst storage node.'
+  },
+
+  // 1719 Bath Rd — BD attached trio, basement storage building
+  '1719 bath rd': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: 'Hot water: SHARED plant in the 1721 mech room, shared with 1721 + 1723 Bath (attached trio, shared electrical + water heating). Space heating type: Not yet recorded.',
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: 'Basement storage (contents UNCERTAIN — never seed exact counts): 3–4 white coil-top stoves + 2–3 white top-freezer fridges + 1 Danby portable AC, counts as reported by Jose, not counted. Pending job (Jose opens the ticket): strip usable parts from the very old basement stoves, then dispose. Do not list these as counted stock; the Parts menu is the master list.',
+    notes: 'Tracked units: 9 (BD Bath pool). Attached trio with 1721 + 1723 Bath, shared electrical + water heating. Laundry: 1719 basement WITH sink (1721 NO, 1723 YES).'
+  },
+
+  // 1723 Bath Rd — BD attached trio
+  '1723 bath rd': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: 'Hot water: SHARED plant in the 1721 mech room, shared with 1719 + 1721 Bath (attached trio, shared electrical + water heating). Space heating type: Not yet recorded.',
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 10 (BD Bath pool). Attached trio with 1719 + 1721 Bath, shared electrical + water heating. Laundry: 1723 basement WITH sink (1719 YES, 1721 NO). Unit-level appliance facts (e.g. unit 266) belong on the unit, NOT in this building profile.'
+  },
+
+  // 1725 Bath Rd — BD apartments, inner hallways
+  '1725 bath rd': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 12 (BD Bath pool, apartments 45–56). Inner hallways. Laundry holds the Bell cable setup + 1 water heater (BELIEVED, not confirmed — do not state it as fact). NO electrical room located — OPEN field item. Do not guess where the electrical room is.'
+  },
+
+  // 505 Days Rd — BD Days apartments
+  '505 days rd': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 12 (BD Days pool). Laundry: UNVERIFIED (do not state sink yes/no). 505 Days Pool is a SEPARATE record, PERMANENTLY OUT OF ORDER — inactive record, not a building unit source; do not merge it into this building. Unit-level facts (e.g. unit 103 freezer) belong on the unit, NOT here.'
+  },
+
+  // 507 Days Rd — BD Days townhouses (COMPLETE roster)
+  '507 days rd': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: 'Townhouse: own water heater per unit (BELIEVED, from the BD townhouse description — not confirmed per unit). Space heating type: Not yet recorded.',
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 21 (BD Days townhouses, COMPLETE roster — unit 13 does NOT exist, do not create it). Townhouse description (believed): 3 stories, 2 washrooms, own water heater per unit. Access note from the field: unit 32 access runs through Maxine — that is a unit/ticket fact, NOT a building profile fact; do not put it here.'
+  },
+
+  // 509 Days Rd — BD Days apartments, attached pair with 511
+  '509 days rd': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 12 (BD Days pool). Attached pair with 511 Days, shared mech room (holder building unspecified). Laundry: 509 believed NO sink (UNVERIFIED — do not state it as fact; 511 WITH sink is the confirmed side).'
   }
 };
 
