@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Appliance, MaintenanceRecord } from '../../../types';
 import { getTechSpecs } from '../../../utils/applianceUtils';
@@ -229,9 +228,10 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
 
           {activeTab === 'history' && (
             <ApplianceHistorySection
+              appliance={appliance}
               history={appliance.maintenanceHistory}
               onAddRecord={() => setIsAddingRecord(true)}
-              isReadOnly={!isEditMode}
+              isReadOnly={true}
             />
           )}
         </div>

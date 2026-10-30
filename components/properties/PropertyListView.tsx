@@ -15,6 +15,7 @@ import { formatDate } from '../../utils/dateUtils';
 import type { UnitFailedVisitsSummary, Stockpile } from '../../types/domain';
 import { McKayStorageMenuView } from '../parts/McKayStorageMenuView';
 import { normalizeMatchString, resolveBuildingStockpile } from '../../utils/stockpileMatching';
+import { ApplianceHistorySection } from '../appliances/detail/components/ApplianceHistorySection';
 
 interface PropertyListViewProps {
   onPropertyClick: (id: string) => void;
@@ -95,6 +96,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
   }, []);
 
   // Modals
+  const [historyModalAppliance, setHistoryModalAppliance] = useState<Appliance | null>(null);
   const [overrideModalAppliance, setOverrideModalAppliance] = useState<Appliance | null>(null);
   const [overrideForm, setOverrideForm] = useState({ brand: '', model: '', serial: '', notes: '' });
 
@@ -2077,17 +2079,27 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
-                          {onApplianceClick && (
+                        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                          <div className="flex flex-wrap items-center gap-2">
                             <button
                               type="button"
-                              onClick={() => onApplianceClick(app.id)}
-                              className="min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-brand-black dark:text-white transition-colors flex items-center gap-1.5"
+                              onClick={() => setHistoryModalAppliance(app)}
+                              className="min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl bg-primary/10 hover:bg-primary/20 text-primary transition-colors flex items-center gap-1.5"
                             >
-                              <span className="material-symbols-outlined text-[16px] text-primary">description</span>
-                              <span>Specs &amp; Rating Plate</span>
+                              <span className="material-symbols-outlined text-[16px]">history</span>
+                              <span>History</span>
                             </button>
-                          )}
+                            {onApplianceClick && (
+                              <button
+                                type="button"
+                                onClick={() => onApplianceClick(app.id)}
+                                className="min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-brand-black dark:text-white transition-colors flex items-center gap-1.5"
+                              >
+                                <span className="material-symbols-outlined text-[16px] text-primary">description</span>
+                                <span>Specs &amp; Rating Plate</span>
+                              </button>
+                            )}
+                          </div>
                           <button
                             type="button"
                             onClick={() => {
@@ -3186,6 +3198,85 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
               >
                 <span className="material-symbols-outlined text-[15px]">add</span>
                 <span>Add &amp; Configure Specs</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 7: PER-APPLIANCE HISTORY (READ-ONLY V1) */}
+      {historyModalAppliance && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
+          onClick={() => setHistoryModalAppliance(null)}
+        >
+          <div
+            className="bg-white dark:bg-card-dark rounded-t-3xl sm:rounded-2xl border border-gray-200 dark:border-gray-800 p-5 sm:p-6 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto pb-safe"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3 mb-4 pb-3 border-b border-gray-100 dark:border-gray-800">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-base font-bold text-brand-black dark:text-white truncate">
+                    {historyModalAppliance.name || historyModalAppliance.type}
+                  </h3>
+                  {historyModalAppliance.isOverride ? (
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                      Override
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                      Default
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
+                  {[
+                    activeBuilding?.name || activeBuilding?.address,
+                    activeUnit?.unitNumber ? `Unit ${activeUnit.unitNumber}` : (historyModalAppliance.unitNumber ? `Unit ${historyModalAppliance.unitNumber}` : null),
+                    historyModalAppliance.type,
+                    historyModalAppliance.brand && historyModalAppliance.brand !== 'Standard / Default' ? historyModalAppliance.brand : null,
+                    historyModalAppliance.modelNumber || null
+                  ].filter(Boolean).join(' · ')}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setHistoryModalAppliance(null)}
+                className="min-w-[44px] min-h-[44px] -mr-2 -mt-2 flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Close history"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <ApplianceHistorySection
+              appliance={historyModalAppliance}
+              history={historyModalAppliance.maintenanceHistory}
+              isReadOnly={true}
+            />
+
+            <div className="mt-6 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
+              {onApplianceClick && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const targetId = historyModalAppliance.id;
+                    setHistoryModalAppliance(null);
+                    onApplianceClick(targetId);
+                  }}
+                  className="min-h-[44px] px-3.5 py-2 text-xs font-semibold rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-brand-black dark:text-white transition-colors flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-[16px] text-primary">description</span>
+                  <span>Specs &amp; Rating Plate</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setHistoryModalAppliance(null)}
+                className="min-h-[44px] ml-auto px-5 py-2 text-xs font-bold rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors"
+              >
+                Close
               </button>
             </div>
           </div>
