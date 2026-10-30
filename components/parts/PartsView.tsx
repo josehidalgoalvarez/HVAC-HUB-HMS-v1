@@ -4,6 +4,7 @@ import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
 import { PartSearchSection } from './PartSearchSection';
 import { SupplierDirectorySection } from './SupplierDirectorySection';
+import { HarvestSourcingView } from './HarvestSourcingView';
 import { LogPartUseModal, type LogPartUseResult } from './LogPartUseModal';
 import { AddPartModal } from './AddPartModal';
 import { HarvestTransferModal } from './HarvestTransferModal';
@@ -24,7 +25,7 @@ export const PartsView: React.FC<PartsViewProps> = ({
   onOpenStockpileInventory,
   onOpenBuyList,
 }) => {
-  const [activeTab, setActiveTab] = useState<'search' | 'suppliers'>('search');
+  const [activeTab, setActiveTab] = useState<'search' | 'harvest' | 'suppliers'>('search');
   const [searchQuery, setSearchQuery] = useState('');
   const [parts, setParts] = useState<PartRecord[]>(SEED_PARTS);
   const [stockpiles, setStockpiles] = useState<Stockpile[]>(SEED_STOCKPILES);
@@ -262,6 +263,19 @@ export const PartsView: React.FC<PartsViewProps> = ({
           Catalog
         </button>
 
+        <button
+          id="parts-tab-harvest"
+          onClick={() => setActiveTab('harvest')}
+          className={`flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+            activeTab === 'harvest'
+              ? 'bg-white dark:bg-card-dark text-primary shadow-xs'
+              : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
+          Harvest Sources
+        </button>
+
         {onOpenBuyList && (
           <button
             id="parts-tab-shopping"
@@ -306,6 +320,14 @@ export const PartsView: React.FC<PartsViewProps> = ({
             }}
             onAddPart={() => setIsAddPartOpen(true)}
             onHarvestTransfer={candidate => setActiveCandidateForTransfer(candidate)}
+            onOpenStockpileInventory={onOpenStockpileInventory}
+          />
+        )}
+
+        {activeTab === 'harvest' && (
+          <HarvestSourcingView
+            stockpiles={stockpiles}
+            harvestCandidates={harvestCandidates}
             onOpenStockpileInventory={onOpenStockpileInventory}
           />
         )}
