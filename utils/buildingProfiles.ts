@@ -559,6 +559,102 @@ export const BUILDING_PROFILES: Record<string, BuildingProfile> = {
     solarPanels: null,
     storageNote: 'Role-flagged storage (stockpile record exists with EMPTY contents). Contents: UNKNOWN — not photographed; menu shows an honest empty state until photographed. Do not invent contents.',
     notes: 'Standalone building (far outlier in the portfolio list). Unit count: NOT asserted in the notes — record the UI-computed total as found, do not state a tracked count for 181 Hillendale. No Yardi unit extract for 181 Hillendale is in the notes — do not invent units.'
+  },
+
+  // 77 Manitou Cres — Manitou townhouses
+  '77 manitou cres': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 58 townhouses (1–58). Manitou complex: 88 units across 4 buildings (77 Manitou Crescent + 77A + 77B + 77C). Brand-cluster idea is OPEN: Frigidaire / Midea ~10 / old white Frigidaire ~10 as assumed make/model defaults — needs Jose\'s data, do NOT assign any brand cluster to this building, to any Manitou building, or to any unit in this prompt.'
+  },
+
+  // 77A Manitou Cres — Manitou, shared pool
+  '77a manitou cres': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 10. 77A / 77B / 77C share ONE numbering pool (10 + 11 + 9 = 30 across the three, plus 58 townhouses = 88 Manitou total) — do NOT merge A/B/C into one building, and do NOT re-pool their units here. Brand clusters: OPEN, same note as 77 Manitou Crescent — do NOT assign a brand to 77A.'
+  },
+
+  // 77B Manitou Cres — Manitou, shared pool
+  '77b manitou cres': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 11. Shares ONE numbering pool with 77A + 77C (see 77A note) — do NOT merge them. Brand clusters: OPEN — do NOT assign a brand to 77B.'
+  },
+
+  // 77C Manitou Cres — Manitou, shared pool
+  '77c manitou cres': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 9. Shares ONE numbering pool with 77A + 77B (see 77A note) — do NOT merge them. Brand clusters: OPEN — do NOT assign a brand to 77C.'
+  },
+
+  // 415 Albert St — singles, lettered units are units here
+  '415 albert st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 6 — 415, 415B, 415C, 415D, 415E, 415F. EXCEPTION to the portfolio rule: lettered entries ARE units here (elsewhere, letter suffixes on a base entry are rooms/spaces, never separate units). Floor split is UNVERIFIED: an earlier agent assigned 415D/E/F to a "Second Floor" NOT present in the Yardi extract — do NOT state that floor split as fact; floors must be derived from units, and if the UI computes a floor split, report it as found, not as confirmed.'
+  },
+
+  // 36 Durham St — singles, single unit
+  '36 durham st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 1. Singles list — no other context in the notes; do not invent any.'
   }
 };
 
