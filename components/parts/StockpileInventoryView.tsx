@@ -5,6 +5,7 @@ import { PullToRefresh } from '../common/PullToRefresh';
 import { StockTransferModal } from './StockTransferModal';
 import { LogPartUseModal, type LogPartUseResult } from './LogPartUseModal';
 import { AddPartModal } from './AddPartModal';
+import { EquipmentMovementSection } from './EquipmentMovementSection';
 import type { Stockpile, StockpilePartItem, PartRecord, EquipmentItem, EquipmentStatus } from '../../types/domain';
 
 interface StockpileInventoryViewProps {
@@ -60,6 +61,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
   const [equipmentError, setEquipmentError] = useState<string | null>(null);
   const [isSubmittingEquipment, setIsSubmittingEquipment] = useState(false);
   const [editingEquipment, setEditingEquipment] = useState<EquipmentItem | null>(null);
+  const [selectedEquipmentForMovement, setSelectedEquipmentForMovement] = useState<EquipmentItem | null>(null);
 
   // Count Audit session state
   const [isCountModalOpen, setIsCountModalOpen] = useState(false);
@@ -1016,7 +1018,9 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
               return (
                 <div
                   key={`equipment-${eq.id}`}
-                  className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-200/80 dark:border-gray-800 shadow-xs space-y-3"
+                  onClick={() => setSelectedEquipmentForMovement(eq)}
+                  className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-200/80 dark:border-gray-800 hover:border-primary/40 shadow-xs space-y-3 cursor-pointer transition-all"
+                  data-testid={`equipment-row-${eq.id}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1 min-w-0">
@@ -1038,8 +1042,23 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                       </h3>
                     </div>
 
-                    {/* Actions: Quick Status Selector & Delete */}
-                    <div className="flex items-center gap-1.5 shrink-0">
+                    {/* Actions: Movement History, Quick Status Selector & Delete */}
+                    <div
+                      className="flex items-center gap-1.5 shrink-0"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setSelectedEquipmentForMovement(eq)}
+                        className="min-h-[44px] px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95"
+                        title="View Equipment Detail & Movement History"
+                        aria-label={`View movement history for ${eq.name}`}
+                        data-testid={`equipment-movement-btn-${eq.id}`}
+                      >
+                        <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
+                        <span>History</span>
+                      </button>
+
                       <select
                         value={eq.status}
                         onChange={(e) => handleUpdateEquipmentStatus(eq, e.target.value as EquipmentStatus)}
@@ -1716,6 +1735,56 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
               <button
                 type="button"
                 onClick={() => setSelectedAllocationForHistory(null)}
+                className="min-h-[44px] px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 text-xs font-bold text-gray-700 dark:text-gray-300"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Read-Only Equipment Detail & Movement History Modal (v1) */}
+      {selectedEquipmentForMovement && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+          data-testid="equipment-movement-modal"
+        >
+          <div className="w-full max-w-lg bg-white dark:bg-card-dark rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-5 space-y-4 max-h-[85vh] flex flex-col animate-scaleUp">
+            <div className="flex items-center justify-between gap-2 pb-2 border-b border-gray-100 dark:border-gray-800 shrink-0">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-primary text-xl">build</span>
+                  <h3 className="text-base font-bold text-brand-black dark:text-white truncate">
+                    {selectedEquipmentForMovement.name}
+                  </h3>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                  Equipment Detail &amp; Movement History
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedEquipmentForMovement(null)}
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500 shrink-0"
+                aria-label="Close equipment movement history"
+              >
+                <span className="material-symbols-outlined text-xl">close</span>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto pr-1">
+              <EquipmentMovementSection
+                equipment={selectedEquipmentForMovement}
+                currentLocationName={stockpile?.name}
+                auditEvents={auditHistory}
+              />
+            </div>
+
+            <div className="pt-2 border-t border-gray-200 dark:border-gray-800 flex justify-end shrink-0">
+              <button
+                type="button"
+                onClick={() => setSelectedEquipmentForMovement(null)}
                 className="min-h-[44px] px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 text-xs font-bold text-gray-700 dark:text-gray-300"
               >
                 Close
