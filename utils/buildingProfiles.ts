@@ -655,6 +655,134 @@ export const BUILDING_PROFILES: Record<string, BuildingProfile> = {
     solarPanels: null,
     storageNote: null,
     notes: 'Tracked units: 1. Singles list — no other context in the notes; do not invent any.'
+  },
+
+  // 353 Alfred St — Alfred converted house
+  '353 alfred st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 3. Converted house (in the Alfred converted houses, letters = rooms — do not treat lettered entries here as separate units unless the roster says so; report the UI-computed total as found alongside this note).'
+  },
+
+  // 359 Alfred St — Alfred converted house
+  '359 alfred st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 1. Converted house (letters = rooms in the Alfred converted houses).'
+  },
+
+  // 361 Alfred St — Alfred converted house
+  '361 alfred st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 1. Converted house (letters = rooms in the Alfred converted houses).'
+  },
+
+  // 376 Alfred St — Alfred converted house
+  '376 alfred st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 1. Converted house (letters = rooms in the Alfred converted houses).'
+  },
+
+  // 378 Alfred St — Alfred converted house, single-unit house, triple-leak field note
+  '378 alfred st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 1. Single-unit house. Duplicate Yardi codes exist for 378 and 394 — one building each, both codes recorded as external IDs; do not split 378 into two buildings and do not merge it with 394. Field note (Oct 30, 2026, three separate jobs, NOT one job): Olsen boiler leak, Giant electric water heater leak, white top-load washer leak — leak source per appliance NOT confirmed, tenant/WO still pending at the time of that note. Do NOT promise a fix, do NOT close any of the three, and do NOT model any of them as an appliance row in this prompt. A tank-body leak at that age would be a replacement ticket to management, not a same-visit repair promise — but that is a triage rule, not a confirmed diagnosis here, because the leak source per appliance is unknown.'
+  },
+
+  // 630 Princess St — Princess, standalone, under construction
+  '630 princess st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 26. Standalone (far, under construction) — do not assert occupancy or completion; report the UI-computed total as found alongside the under-construction note. Do not move 630 Princess to any other complex here.'
+  },
+
+  // 800 Princess St — Princess, "The 800" (big record)
+  '800 princess st': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 51. Alias: "The 800" (big record). Do NOT merge this record with the 800 annex (next profile) — they are separate records.'
+  },
+
+  // 800 Princess St Annex — Princess, separate record
+  '800 princess st annex': {
+    totalUnitsOverride: null,
+    floors: null,
+    elevator: null,
+    heatingType: null,
+    heatingFuel: null,
+    heatingDescription: null,
+    mechanicalRoomLocation: null,
+    waterHeaters: null,
+    pumps: null,
+    solarPanels: null,
+    storageNote: null,
+    notes: 'Tracked units: 4. Separate record from the 800 big record (51) — do NOT merge them. If the annex does NOT resolve to a distinct building in the repo, STOP for this building and report "800 annex: not a distinct repo building — no profile created, no merge with the big record" — that is a successful outcome for this building, not a failure.'
   }
 };
 
