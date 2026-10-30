@@ -99,16 +99,35 @@ try {
         $buildingId = (int)$buildings[0]['id'];
         $buildingName = $buildings[0]['name'];
 
-        // 2. Resolve unit BY building_id + unit_number (fail loud)
-        $units = Db::fetchAll("SELECT id, building_id, unit_number FROM unit WHERE building_id = ? AND unit_number = ?", [$buildingId, $unitNumber]);
-        if (count($units) === 0) {
-            throw new RuntimeException("FATAL: Unit '{$unitNumber}' not found in building '{$buildingName}' (id: {$buildingId})");
-        }
-        if (count($units) > 1) {
-            throw new RuntimeException("FATAL: Ambiguous unit '{$unitNumber}' in building '{$buildingName}' (found " . count($units) . " rows)");
-        }
+        // 2. Resolve unit BY building_id + unit_number (with 1A/101 Mapping Guard)
+        $actualUnitNumber = $unitNumber;
+        if ($unitNumber === '1A' || $unitNumber === '1A/101') {
+            $has1A = Db::fetchOne("SELECT id, building_id, unit_number FROM unit WHERE building_id = ? AND unit_number = '1A'", [$buildingId]);
+            $has101 = Db::fetchOne("SELECT id, building_id, unit_number FROM unit WHERE building_id = ? AND unit_number = '101'", [$buildingId]);
 
-        $unitId = (int)$units[0]['id'];
+            if ($has1A && $has101) {
+                throw new RuntimeException("FATAL Mapping Guard: Ambiguity in building '{$buildingName}' — both unit '1A' and unit '101' exist.");
+            } elseif (!$has1A && !$has101) {
+                throw new RuntimeException("FATAL Mapping Guard: Neither unit '1A' nor unit '101' found in building '{$buildingName}'.");
+            } elseif ($has1A) {
+                $actualUnitNumber = '1A';
+                $unitId = (int)$has1A['id'];
+            } else {
+                $actualUnitNumber = '101';
+                $unitId = (int)$has101['id'];
+                $prefix = 'Unit 1A (=101 presumed, letter-to-number mapping unconfirmed)';
+                $notes = $notes ? "{$prefix}; {$notes}" : $prefix;
+            }
+        } else {
+            $units = Db::fetchAll("SELECT id, building_id, unit_number FROM unit WHERE building_id = ? AND unit_number = ?", [$buildingId, $unitNumber]);
+            if (count($units) === 0) {
+                throw new RuntimeException("FATAL: Unit '{$unitNumber}' not found in building '{$buildingName}' (id: {$buildingId})");
+            }
+            if (count($units) > 1) {
+                throw new RuntimeException("FATAL: Ambiguous unit '{$unitNumber}' in building '{$buildingName}' (found " . count($units) . " rows)");
+            }
+            $unitId = (int)$units[0]['id'];
+        }
 
         // 3. Check idempotency: exists by (building_id + unit_id + type)
         $existing = Db::fetchOne(
@@ -121,7 +140,7 @@ try {
                 'action' => 'SKIPPED (already exists)',
                 'building' => $buildingName,
                 'building_id' => $buildingId,
-                'unit_number' => $unitNumber,
+                'unit_number' => $actualUnitNumber,
                 'unit_id' => $unitId,
                 'type' => $type,
                 'brand' => $existing['brand'],
@@ -134,7 +153,7 @@ try {
 
         $propertyId = (string)$buildingId;
         $specsJson = json_encode($specsArray, JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT);
-        $locationStr = "{$buildingName} · Unit {$unitNumber}" . ($room ? " · {$room}" : "");
+        $locationStr = "{$buildingName} · Unit {$actualUnitNumber}" . ($room ? " · {$room}" : "");
 
         if ($isApply) {
             Db::execute(
@@ -151,7 +170,7 @@ try {
                     $model,
                     $serial,
                     $room,
-                    $unitNumber,
+                    $actualUnitNumber,
                     $locationStr,
                     $notes,
                     $specsJson,
@@ -165,7 +184,7 @@ try {
                 'action' => 'INSERTED',
                 'building' => $buildingName,
                 'building_id' => $buildingId,
-                'unit_number' => $unitNumber,
+                'unit_number' => $actualUnitNumber,
                 'unit_id' => $unitId,
                 'type' => $type,
                 'brand' => $brand,
@@ -178,7 +197,7 @@ try {
                 'action' => 'WOULD_INSERT',
                 'building' => $buildingName,
                 'building_id' => $buildingId,
-                'unit_number' => $unitNumber,
+                'unit_number' => $actualUnitNumber,
                 'unit_id' => $unitId,
                 'type' => $type,
                 'brand' => $brand,

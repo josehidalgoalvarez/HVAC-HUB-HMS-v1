@@ -1,0 +1,98 @@
+[
+  {
+    "building_search": ["24", "Elm"],
+    "unit_number": "1A/101",
+    "type": "Refrigerator",
+    "name": "Refrigerator",
+    "brand": "Electrolux",
+    "model_number": "FFHT1826LK5",
+    "serial_number": "BA21422182",
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "115",
+      "amps": "6.0",
+      "refrigerant": "R134a 4.25 oz",
+      "model": "FFHT1826LK5"
+    },
+    "notes": "Manufactured Apr 2012."
+  },
+  {
+    "building_search": ["24", "Elm"],
+    "unit_number": "1A/101",
+    "type": "Range",
+    "name": "Range",
+    "brand": "Electrolux Home Products",
+    "model_number": "CFEF3048LSJ",
+    "serial_number": null,
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "120/240",
+      "power": "12.5 kW",
+      "fuelType": "Electric",
+      "model": "CFEF3048LSJ"
+    },
+    "notes": "Model read as CFEF3048LSJ from rotated barcode photo — re-read on site before ordering parts; serial partially legible VF21… only, not quoted."
+  },
+  {
+    "building_search": ["24", "Elm"],
+    "unit_number": "1A/101",
+    "type": "Dishwasher",
+    "name": "Dishwasher",
+    "brand": "Frigidaire",
+    "model_number": "FFBD2404NS0A",
+    "serial_number": "TH21610664",
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "motor": "1.1A",
+      "other": "7.6A",
+      "model": "FFBD2404NS0A"
+    },
+    "notes": null
+  },
+  {
+    "building_search": ["24", "Elm"],
+    "unit_number": "1A/101",
+    "type": "Range Hood",
+    "name": "Range Hood",
+    "brand": "Broan-NuTone",
+    "model_number": "RL6100F-C",
+    "serial_number": null,
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "120",
+      "amps": "1.7",
+      "capacity": "210 CFM",
+      "model": "RL6100F-C"
+    },
+    "notes": "Filters RLSM65 / FKM65 partial reading — confirm before ordering."
+  },
+  {
+    "building_search": ["18", "Elm"],
+    "unit_number": "411",
+    "type": "Refrigerator",
+    "name": "Refrigerator",
+    "brand": "Midea",
+    "model_number": "HD663FWS",
+    "serial_number": null,
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "needs_service",
+    "specs": {
+      "volts": "115",
+      "amps": "1.35",
+      "refrigerant": "R600a 1.8 oz",
+      "capacity": "18 cu ft",
+      "defrostPower": "180W",
+      "model": "HD663FWS"
+    },
+    "notes": "Defrost-broken fridge, originally from unit 413, staged at 411 for inspection; control board already changed, heater element verified fine, bimetal JRQ-0062 / TCRGQ-02 confirmed failed (cold OL, frozen OL); thermal-fuse check pending; date code 19W31; Dependable only for parts."
+  }
+]

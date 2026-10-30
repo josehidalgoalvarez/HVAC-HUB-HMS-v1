@@ -157,12 +157,12 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         storeys: 1,
         hasUnitWaterHeater: false,
         appliances: [
-            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, specs: { capacity: '18 cu. ft.', volts: '120', fuelType: 'Electric' } },
-            { category: 'Kitchen', label: 'Stove (electric coil)', name: 'Stove (default)', type: 'Range', isDefault: true, specs: { fuelType: 'Electric', volts: '240', capacity: '5.3 cu. ft.' } },
-            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'Frigidaire FFCD2418US3A', specs: { volts: '120', capacity: '14 Place Settings', fuelType: 'Electric', model: 'Frigidaire FFCD2418US3A' } },
-            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, specs: { volts: '120', fuelType: 'Electric', capacity: '300 CFM' } }
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, model: 'FFHT1826LK5', specs: { volts: '115', amps: '6.0', refrigerant: 'R134a 4.25 oz', model: 'FFHT1826LK5' } },
+            { category: 'Kitchen', label: 'Stove (default)', name: 'Stove (default)', type: 'Range', isDefault: true, model: 'CFEF3048LSJ', specs: { volts: '120/240', power: '12.5 kW', fuelType: 'Electric', model: 'CFEF3048LSJ' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, model: 'FFBD2404NS0A', specs: { motor: '1.1A', other: '7.6A', model: 'FFBD2404NS0A' } },
+            { category: 'Kitchen', label: 'Range Hood (default)', name: 'Range Hood (default)', type: 'Range Hood', isDefault: true, model: 'RL6100F-C', specs: { volts: '120', amps: '1.7', capacity: '210 CFM', model: 'RL6100F-C' } }
         ],
-        notes: 'Independent copy of BD apartment set for Elm + Colborne. Editable in one place.'
+        notes: 'Elm pattern specifications from 24 Elm 1A rating plates (Oct 28, 2026).'
     },
     {
         id: 'set-amherst-apt',

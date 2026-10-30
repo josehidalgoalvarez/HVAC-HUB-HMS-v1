@@ -8,6 +8,7 @@ import { apiClient } from '../../src/api/client';
 import type { Stockpile } from '../../types/domain';
 import { McKayStorageMenuView } from '../parts/McKayStorageMenuView';
 import { normalizeMatchString, resolveBuildingStockpile } from '../../utils/stockpileMatching';
+import { getBuildingProfile } from '../../utils/buildingProfiles';
 
 interface PropertyDetailViewProps {
   propertyId: string;
@@ -24,7 +25,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
   isEditMode,
   onOpenStockpileInventory,
 }) => {
-  const { getProperty, appliances, updateProperty } = useData();
+  const { getProperty, appliances, updateProperty, units } = useData();
   const property = getProperty(propertyId);
   const propertyAppliances = appliances.filter(a => a.propertyId === propertyId);
 
@@ -362,6 +363,154 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
             </div>
           </Modal>
         )}
+
+        {/* Building Details Section */}
+        {(() => {
+          const profile = getBuildingProfile(property.name) || getBuildingProfile(property.address);
+          
+          // Compute units for this building
+          const buildingUnits = units.filter(u => u.buildingId === property.id || u.propertyId === property.id);
+          const computedTotalUnits = buildingUnits.length > 0 ? buildingUnits.length : (property.applianceCount || 0);
+
+          // Compute floors: from profile, else derived from highest unit floor, else null
+          let derivedFloors: number | null = profile?.floors ?? null;
+          if (derivedFloors === null && buildingUnits.length > 0) {
+            let maxFloor = 0;
+            buildingUnits.forEach(u => {
+              if (u.floor && typeof u.floor === 'number' && u.floor > maxFloor) {
+                maxFloor = u.floor;
+              } else if (u.unitNumber) {
+                const match = u.unitNumber.match(/^(\d)/);
+                if (match) {
+                  const f = parseInt(match[1], 10);
+                  if (f > maxFloor) maxFloor = f;
+                }
+              }
+            });
+            if (maxFloor > 0) {
+              derivedFloors = maxFloor;
+            }
+          }
+
+          // Format fields
+          const totalUnitsText = profile?.totalUnitsOverride != null && profile.totalUnitsOverride !== computedTotalUnits
+            ? `${profile.totalUnitsOverride} tracked units, see notes`
+            : `${computedTotalUnits} tracked units`;
+
+          const floorsText = derivedFloors != null ? `${derivedFloors} floors` : 'Not yet recorded';
+
+          const elevatorText = profile?.elevator === true
+            ? 'Yes'
+            : profile?.elevator === false
+            ? 'No'
+            : 'Not yet recorded';
+
+          let heatingText = 'Not yet recorded';
+          if (profile?.heatingType || profile?.heatingFuel || profile?.heatingDescription) {
+            const parts = [
+              profile.heatingType,
+              profile.heatingFuel ? `(${profile.heatingFuel})` : null,
+              profile.heatingDescription
+            ].filter(Boolean);
+            heatingText = parts.join(' · ');
+          }
+
+          let mechRoomText = 'Not yet recorded';
+          if (profile?.mechanicalRoomLocation || (profile?.waterHeaters && profile.waterHeaters.length > 0) || (profile?.pumps && profile.pumps.length > 0)) {
+            const items: string[] = [];
+            if (profile.mechanicalRoomLocation) items.push(profile.mechanicalRoomLocation);
+            if (profile.waterHeaters && profile.waterHeaters.length > 0) {
+              profile.waterHeaters.forEach(wh => {
+                const countStr = wh.count ? `${wh.count}x ` : '';
+                const modelStr = wh.model ? ` (${wh.model})` : '';
+                const noteStr = wh.notes ? ` — ${wh.notes}` : '';
+                items.push(`Boiler/Tank: ${countStr}${wh.type}${modelStr}${noteStr}`);
+              });
+            }
+            if (profile.pumps && profile.pumps.length > 0) {
+              profile.pumps.forEach(p => {
+                const noteStr = p.notes ? ` — ${p.notes}` : '';
+                items.push(`Pump: ${p.type}${noteStr}`);
+              });
+            }
+            mechRoomText = items.join('\n\n');
+          }
+
+          let solarText = 'Not yet recorded';
+          if (profile?.solarPanels) {
+            if (profile.solarPanels.installed === true) {
+              solarText = `Yes${profile.solarPanels.notes ? ` — ${profile.solarPanels.notes}` : ''}`;
+            } else if (profile.solarPanels.installed === false) {
+              solarText = `No${profile.solarPanels.notes ? ` — ${profile.solarPanels.notes}` : ''}`;
+            }
+          }
+
+          const storageText = profile?.storageNote || null;
+          const notesText = profile?.notes || null;
+
+          return (
+            <div data-testid="building-details-section" className="bg-white dark:bg-card-dark rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
+                <span className="material-symbols-outlined text-primary text-xl">apartment</span>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-primary">Building Details</h3>
+              </div>
+
+              <div className="space-y-3 text-xs">
+                {/* 1. Total units */}
+                <div className="flex items-start justify-between gap-3 border-b border-gray-50 dark:border-gray-800/60 pb-2">
+                  <span className="text-text-sub-light dark:text-text-sub-dark font-medium shrink-0">Total units</span>
+                  <span className="text-brand-black dark:text-white font-semibold text-right">{totalUnitsText}</span>
+                </div>
+
+                {/* 2. Floors */}
+                <div className="flex items-start justify-between gap-3 border-b border-gray-50 dark:border-gray-800/60 pb-2">
+                  <span className="text-text-sub-light dark:text-text-sub-dark font-medium shrink-0">Floors</span>
+                  <span className="text-brand-black dark:text-white font-semibold text-right">{floorsText}</span>
+                </div>
+
+                {/* 3. Elevator */}
+                <div className="flex items-start justify-between gap-3 border-b border-gray-50 dark:border-gray-800/60 pb-2">
+                  <span className="text-text-sub-light dark:text-text-sub-dark font-medium shrink-0">Elevator</span>
+                  <span className="text-brand-black dark:text-white font-semibold text-right">{elevatorText}</span>
+                </div>
+
+                {/* 4. Heating */}
+                <div className="flex flex-col gap-1 border-b border-gray-50 dark:border-gray-800/60 pb-2">
+                  <span className="text-text-sub-light dark:text-text-sub-dark font-medium">Heating</span>
+                  <p className="text-brand-black dark:text-white font-semibold whitespace-pre-line leading-relaxed">{heatingText}</p>
+                </div>
+
+                {/* 5. Mechanical room */}
+                <div className="flex flex-col gap-1 border-b border-gray-50 dark:border-gray-800/60 pb-2">
+                  <span className="text-text-sub-light dark:text-text-sub-dark font-medium">Mechanical room</span>
+                  <p className="text-brand-black dark:text-white font-semibold whitespace-pre-line leading-relaxed">{mechRoomText}</p>
+                </div>
+
+                {/* 6. Solar panels */}
+                <div className="flex items-start justify-between gap-3 border-b border-gray-50 dark:border-gray-800/60 pb-2">
+                  <span className="text-text-sub-light dark:text-text-sub-dark font-medium shrink-0">Solar panels</span>
+                  <span className="text-brand-black dark:text-white font-semibold text-right">{solarText}</span>
+                </div>
+
+                {/* 7. Storage */}
+                {storageText && (
+                  <div className="flex flex-col gap-1 border-b border-gray-50 dark:border-gray-800/60 pb-2">
+                    <span className="text-text-sub-light dark:text-text-sub-dark font-medium">Storage</span>
+                    <p className="text-brand-black dark:text-white font-semibold whitespace-pre-line leading-relaxed">{storageText}</p>
+                  </div>
+                )}
+
+                {/* 8. Notes */}
+                {notesText && (
+                  <div className="flex flex-col gap-1 pt-1">
+                    <span className="text-text-sub-light dark:text-text-sub-dark font-medium">Notes</span>
+                    <p className="text-brand-black dark:text-white font-semibold whitespace-pre-line leading-relaxed">{notesText}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Inventory List */}
         <div>
