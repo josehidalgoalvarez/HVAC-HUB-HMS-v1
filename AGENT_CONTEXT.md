@@ -3,14 +3,14 @@
 ## 1. Project, Repo & Stack
 - **Project**: HVACHome — building maintenance work-order and operations app for Jose Hidalgo, Building Maintenance Technician at Patry Group of Companies (Kingston, Ontario, Canada). Used on a phone in the field.
 - **Scope**: Complexes → buildings → units → appliances, tickets (work orders), run sheets, watches, parts/stockpiles, equipment, stored appliances, notices of entry, and SOPs.
-- **Repository**: `https://github.com/josehidalgo/HVAC-HUB-HMS-v1` (branch `main`). Local dir: `/Users/josehidalgo/Desktop/Downloads Backup/Active-Projects/Web-Development-Apps/HVACHome`.
+- **Repository**: `https://github.com/josehidalgoalvarez/HVAC-HUB-HMS-v1` (branch `main`). Local dir: `/Users/josehidalgo/Desktop/Downloads Backup/Active-Projects/Web-Development-Apps/HVACHome`.
 - **Stack**: React 19 + Vite + TypeScript frontend; Slim 4 PHP JSON API (`src/Controllers`, `src/Models`, `src/Services`).
 - **Database**: MySQL migrations 001–046 in `migrations/`. Local dev DB is SQLite (`hvachome_dev.sqlite`, auto-created via `src/Db.php::ensureSqliteSchema()` — note: SQLite bootstrap currently lacks `buy_list_item` and `equipment` tables; live MySQL is unaffected).
 - **Environment**: Built with `VITE_USE_API=true`, same-origin `/api`. Live dev logins are disabled in production (management + tech only).
 
 ## 2. Current State & Live Baseline (Oct 29, 2026)
 - **Live Site**: `https://mediumturquoise-gazelle-912925.hostingersite.com/` (LIVE & API-FED).
-- **Repo Head**: `8065826` | **Live Version**: `mvt1dhxx-8065826` | **Live Bundle**: `assets/index-BxZQW_OB.js`.
+- **Last code head verified: 8065826 (last code change; docs commits after it do not change the code head; context refreshed Oct 29, 2026)** | **Live Version**: `mvt1dhxx-8065826` | **Live Bundle**: `assets/index-BxZQW_OB.js`.
 - **Health**: `/api/health` returns `{"data":{"status":"ok","db":"ok"},"error":null}`.
 - **Live Counts (Verified Post-Migration 046)**:
   - Units: 1,289 (verified portfolio)
