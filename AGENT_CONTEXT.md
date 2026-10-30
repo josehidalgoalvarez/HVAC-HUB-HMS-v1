@@ -5,12 +5,13 @@
 - **Scope**: Complexes → buildings → units → appliances, tickets (work orders), run sheets, watches, parts/stockpiles, equipment, stored appliances, notices of entry, and SOPs.
 - **Repository**: `https://github.com/josehidalgoalvarez/HVAC-HUB-HMS-v1` (branch `main`). Local dir: `/Users/josehidalgo/Desktop/Downloads Backup/Active-Projects/Web-Development-Apps/HVACHome`.
 - **Stack**: React 19 + Vite + TypeScript frontend; Slim 4 PHP JSON API (`src/Controllers`, `src/Models`, `src/Services`).
-- **Database**: MySQL migrations 001–046 in `migrations/`. Local dev DB is SQLite (`hvachome_dev.sqlite`, auto-created via `src/Db.php::ensureSqliteSchema()` — note: SQLite bootstrap currently lacks `buy_list_item` and `equipment` tables; live MySQL is unaffected).
+- **Database**: MySQL migrations 001–046 in `migrations/`. Local dev DB is SQLite (`hvachome_dev.sqlite`, auto-created via `src/Db.php::ensureSqliteSchema()` — note: SQLite bootstrap previously lacked buy_list_item and equipment; cea24c9 adds both, so a fresh local DB now bootstraps them; live MySQL is unaffected).
 - **Environment**: Built with `VITE_USE_API=true`, same-origin `/api`. Live dev logins are disabled in production (management + tech only).
 
 ## 2. Current State & Live Baseline (Oct 29, 2026)
 - **Live Site**: `https://mediumturquoise-gazelle-912925.hostingersite.com/` (LIVE & API-FED).
-- **Last code head verified: 8065826 (last code change; docs commits after it do not change the code head; context refreshed Oct 29, 2026)** | **Live Version**: `mvt1dhxx-8065826` | **Live Bundle**: `assets/index-BxZQW_OB.js`.
+- **Last code head verified: cea24c9 (SQLite bootstrap only: buy_list_item + equipment CREATEs in src/Db.php, matching migrations 044/045; live code head remains 8065826)** | **Live Version**: `mvt1dhxx-8065826` | **Live Bundle**: `assets/index-BxZQW_OB.js`.
+- **Repo vs Live**: repo HEAD cea24c9 includes docs commits ad60064/ae25eb3 plus the SQLite-only cea24c9 change; live remains 8065826. src/Db.php is SQLite-bootstrap-only and must NEVER be uploaded on a deploy — a future deploy from the then-current repo head will carry the frontend as built at that head, with version.json commitHash updated, but no live DB change from Db.php.
 - **Health**: `/api/health` returns `{"data":{"status":"ok","db":"ok"},"error":null}`.
 - **Live Counts (Verified Post-Migration 046)**:
   - Units: 1,289 (verified portfolio)
