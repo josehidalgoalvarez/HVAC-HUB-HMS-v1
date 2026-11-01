@@ -1,0 +1,132 @@
+{
+  "stockpiles": [
+    {
+      "name": "103 Amherst Storage",
+      "location": "103 Amherst Dr",
+      "building_id": null,
+      "notes": "Amherst storage room photographed Nov 1, 2026 — separate from 107 Amherst Storage, do not merge."
+    }
+  ],
+  "items": [
+    {
+      "stockpile_match": "103 Amherst Storage",
+      "name": "Cleaning supplies",
+      "category": "Cleaning",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Cleaning supplies (Swish winterinse, Pine-Sol, Swish stainless/oven/disinfectant cleaners, Dustbane Aqua Scrub, bulk toilet paper, Kirkland towels, spray bottles, rags/towels), Jose's Nov 1, 2026 photos; quantity TBD — never counted",
+      "source": "Jose's Nov 1, 2026 photos",
+      "last_updated": "2026-11-01"
+    },
+    {
+      "stockpile_match": "103 Amherst Storage",
+      "name": "Paint supplies",
+      "category": "Maintenance",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Paint supplies (grey paint buckets, paint cans, 3 Solo paint cans, caulk gun — paint only, not the reused Corona bucket), Jose's Nov 1, 2026 photos; quantity TBD — never counted",
+      "source": "Jose's Nov 1, 2026 photos",
+      "last_updated": "2026-11-01"
+    },
+    {
+      "stockpile_match": "103 Amherst Storage",
+      "name": "Renovation materials / finishes",
+      "category": "Maintenance",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Renovation materials / finishes (ceiling tiles and panels, loose tiles/panels, drop cloths, black panels, CG DUROCK cement board, long metal strips — profile NOT confirmed, noted as such), Jose's Nov 1, 2026 photos; quantity TBD — never counted",
+      "source": "Jose's Nov 1, 2026 photos",
+      "last_updated": "2026-11-01"
+    },
+    {
+      "stockpile_match": "103 Amherst Storage",
+      "name": "Window screens",
+      "category": "Hardware",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Window screens (at least 2 leaning — placeholder, NOT a count of 2 as a stocked quantity), Jose's Nov 1, 2026 photos; quantity TBD — never counted",
+      "source": "Jose's Nov 1, 2026 photos",
+      "last_updated": "2026-11-01"
+    },
+    {
+      "stockpile_match": "103 Amherst Storage",
+      "name": "Plumbing fixtures",
+      "category": "Plumbing",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Plumbing fixtures (white toilet tank ONLY; grey tub/sink unit type UNCONFIRMED — one placeholder row, with both facts in its notes, never two counted fixtures), Jose's Nov 1, 2026 photos; quantity TBD — never counted",
+      "source": "Jose's Nov 1, 2026 photos",
+      "last_updated": "2026-11-01"
+    },
+    {
+      "stockpile_match": "103 Amherst Storage",
+      "name": "Lighting — Hampton Bay flush mounts",
+      "category": "Electrical",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Lighting — Hampton Bay flush mounts (12-in 2-light, pewter, white marble glass shade, 6-pack box torn — completeness UNCONFIRMED, do NOT set quantity 6), Jose's Nov 1, 2026 photos; quantity TBD — never counted",
+      "source": "Jose's Nov 1, 2026 photos",
+      "last_updated": "2026-11-01"
+    },
+    {
+      "stockpile_match": "103 Amherst Storage",
+      "name": "Lighting — LED bulbs",
+      "category": "Electrical",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Lighting — LED bulbs (60W, 16-pack boxes, several — box count NOT quoted, do NOT set quantity 16), Jose's Nov 1, 2026 photos; quantity TBD — never counted",
+      "source": "Jose's Nov 1, 2026 photos",
+      "last_updated": "2026-11-01"
+    },
+    {
+      "stockpile_match": "103 Amherst Storage",
+      "name": "Electrical supplies",
+      "category": "Electrical",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Electrical supplies (yellow + orange extension cords), Jose's Nov 1, 2026 photos; quantity TBD — never counted",
+      "source": "Jose's Nov 1, 2026 photos",
+      "last_updated": "2026-11-01"
+    },
+    {
+      "stockpile_match": "103 Amherst Storage",
+      "name": "Safety — fire extinguishers",
+      "category": "Safety",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Safety — fire extinguishers (Troy inspection tags, several, count NOT quoted — placeholder, never a guessed count), Jose's Nov 1, 2026 photos; quantity TBD — never counted",
+      "source": "Jose's Nov 1, 2026 photos",
+      "last_updated": "2026-11-01"
+    },
+    {
+      "stockpile_match": "103 Amherst Storage",
+      "name": "Signs / misc",
+      "category": "Maintenance",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Signs / misc (Resident Parking signs stack, Ant Out bottle, garbage bags, box fan — as one misc placeholder row, not itemized), Jose's Nov 1, 2026 photos; quantity TBD — never counted",
+      "source": "Jose's Nov 1, 2026 photos",
+      "last_updated": "2026-11-01"
+    }
+  ]
+}
