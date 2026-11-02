@@ -1,0 +1,62 @@
+[
+  {
+    "stockpile_match": "107 Amherst Storage",
+    "name": "Door closers",
+    "category": "Hardware",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: Door closers, Jose's Nov 1, 2026 photos; quantity TBD — never counted. 3 on bench + 1 on top shelf, hands-on count still needed, do NOT total; separate from 698 McKay door-closer box qty 12.",
+    "source": "Jose's Nov 1, 2026 photos",
+    "last_updated": "2026-11-01"
+  },
+  {
+    "stockpile_match": "107 Amherst Storage",
+    "name": "Screen hardware & supplies",
+    "category": "Hardware",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: Screen hardware & supplies, Jose's Nov 1, 2026 photos; quantity TBD — never counted. Distinct from Pre-made window screens (finished screens).",
+    "source": "Jose's Nov 1, 2026 photos",
+    "last_updated": "2026-11-01"
+  },
+  {
+    "stockpile_match": "107 Amherst Storage",
+    "name": "Bathroom accessories & vent covers",
+    "category": "Maintenance",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: Bathroom accessories & vent covers, Jose's Nov 1, 2026 photos; quantity TBD — never counted",
+    "source": "Jose's Nov 1, 2026 photos",
+    "last_updated": "2026-11-01"
+  },
+  {
+    "stockpile_match": "107 Amherst Storage",
+    "name": "Duct & vent fittings",
+    "category": "HVAC",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: Duct & vent fittings, Jose's Nov 1, 2026 photos; quantity TBD — never counted",
+    "source": "Jose's Nov 1, 2026 photos",
+    "last_updated": "2026-11-01"
+  },
+  {
+    "stockpile_match": "107 Amherst Storage",
+    "name": "Caulk, adhesives & sealants",
+    "category": "Maintenance",
+    "quantity": null,
+    "unit": null,
+    "purpose": "spare",
+    "status": "placeholder",
+    "location_notes": "PLACEHOLDER — to count: Caulk, adhesives & sealants, Jose's Nov 1, 2026 photos; quantity TBD — never counted",
+    "source": "Jose's Nov 1, 2026 photos",
+    "last_updated": "2026-11-01"
+  }
+]
