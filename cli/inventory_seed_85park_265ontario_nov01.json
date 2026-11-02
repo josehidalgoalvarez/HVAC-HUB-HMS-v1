@@ -1,0 +1,312 @@
+[
+  {
+    "building_search": ["85", "Park"],
+    "unit_number": "1",
+    "type": "Refrigerator",
+    "name": "Refrigerator",
+    "brand": "Electrolux",
+    "model_number": "CFHT1842LS4",
+    "serial_number": null,
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "115",
+      "hertz": "60",
+      "amps": "6.0",
+      "refrigerant": "R134a 4.25 oz (121 g)",
+      "manufactured": "08-11",
+      "model_type": "AD-18"
+    },
+    "notes": "Model tentative — worn plate, verify first characters on re-photo before locking or ordering parts; serial partial BA1360… only, not quoted in full."
+  },
+  {
+    "building_search": ["85", "Park"],
+    "unit_number": "1",
+    "type": "Range",
+    "name": "Range",
+    "brand": "Electrolux",
+    "model_number": "CFEF3046LSG",
+    "serial_number": null,
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "hertz": "60",
+      "power_supply": "AC only",
+      "wiring": "4-wire"
+    },
+    "notes": "Serial partially legible VF1…2972 only, not quoted in full; re-read on site before any parts order."
+  },
+  {
+    "building_search": ["85", "Park"],
+    "unit_number": "1",
+    "type": "Dishwasher",
+    "name": "Dishwasher",
+    "brand": "Electrolux",
+    "model_number": "FFBD2405KS0A",
+    "serial_number": null,
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "motor": "1.1A",
+      "other": "7.6A",
+      "volts": "120",
+      "hertz": "60",
+      "operating_amps": "10.0A",
+      "standard": "CAN/CSA-C373-04"
+    },
+    "notes": "CAUTION: close to but NOT 24 Elm 1A's FFBD2404NS0A or 265 Ontario unit 6's FFBD2408NS0A — different suffix (05KS vs 04NS vs 08NS), do not conflate."
+  },
+  {
+    "building_search": ["85", "Park"],
+    "unit_number": "1",
+    "type": "Range Hood",
+    "name": "Range Hood",
+    "brand": "Nexstyle",
+    "model_number": "65A0SA009STS",
+    "serial_number": null,
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "120",
+      "hertz": "60",
+      "amps": "1.5",
+      "noise": "56–62 dB",
+      "motor_speed": "1450 RPM ±10%",
+      "illumination": "35W x 2",
+      "total_power": "180W ±10%",
+      "lamp": "MAX 35W type JDR 16 GU10 twist-and-lock"
+    },
+    "notes": "Jose's note 'draft hood' = this range hood."
+  },
+  {
+    "building_search": ["85", "Park"],
+    "unit_number": "2",
+    "type": "Refrigerator",
+    "name": "Refrigerator",
+    "brand": "Electrolux",
+    "model_number": "CFHT1842LS4",
+    "serial_number": null,
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "115",
+      "hertz": "60",
+      "amps": "6.0",
+      "refrigerant": "R134a 4.25 oz (121 g)",
+      "manufactured": "08-11",
+      "model_type": "AD-18"
+    },
+    "notes": "Model tentative — worn plate, verify first characters on re-photo before locking or ordering parts; serial partial BA1360… only, not quoted in full."
+  },
+  {
+    "building_search": ["85", "Park"],
+    "unit_number": "2",
+    "type": "Range",
+    "name": "Range",
+    "brand": "Electrolux",
+    "model_number": "CFEF3046LSG",
+    "serial_number": null,
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "hertz": "60",
+      "power_supply": "AC only",
+      "wiring": "4-wire"
+    },
+    "notes": "Serial partially legible VF1…2972 only, not quoted in full; re-read on site before any parts order."
+  },
+  {
+    "building_search": ["85", "Park"],
+    "unit_number": "2",
+    "type": "Dishwasher",
+    "name": "Dishwasher",
+    "brand": "Electrolux",
+    "model_number": "FFBD2405KS0A",
+    "serial_number": null,
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "motor": "1.1A",
+      "other": "7.6A",
+      "volts": "120",
+      "hertz": "60",
+      "operating_amps": "10.0A",
+      "standard": "CAN/CSA-C373-04"
+    },
+    "notes": "CAUTION: close to but NOT 24 Elm 1A's FFBD2404NS0A or 265 Ontario unit 6's FFBD2408NS0A — different suffix (05KS vs 04NS vs 08NS), do not conflate."
+  },
+  {
+    "building_search": ["85", "Park"],
+    "unit_number": "2",
+    "type": "Range Hood",
+    "name": "Range Hood",
+    "brand": "Nexstyle",
+    "model_number": "65A0SA009STS",
+    "serial_number": null,
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "120",
+      "hertz": "60",
+      "amps": "1.5",
+      "noise": "56–62 dB",
+      "motor_speed": "1450 RPM ±10%",
+      "illumination": "35W x 2",
+      "total_power": "180W ±10%",
+      "lamp": "MAX 35W type JDR 16 GU10 twist-and-lock"
+    },
+    "notes": "Jose's note 'draft hood' = this range hood."
+  },
+  {
+    "building_search": ["85", "Park"],
+    "unit_number": "3",
+    "type": "Refrigerator",
+    "name": "Refrigerator",
+    "brand": "Electrolux",
+    "model_number": "CFHT1842LS4",
+    "serial_number": null,
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "115",
+      "hertz": "60",
+      "amps": "6.0",
+      "refrigerant": "R134a 4.25 oz (121 g)",
+      "manufactured": "08-11",
+      "model_type": "AD-18"
+    },
+    "notes": "Model tentative — worn plate, verify first characters on re-photo before locking or ordering parts; serial partial BA1360… only, not quoted in full."
+  },
+  {
+    "building_search": ["85", "Park"],
+    "unit_number": "3",
+    "type": "Range",
+    "name": "Range",
+    "brand": "Electrolux",
+    "model_number": "CFEF3046LSG",
+    "serial_number": null,
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "hertz": "60",
+      "power_supply": "AC only",
+      "wiring": "4-wire"
+    },
+    "notes": "Serial partially legible VF1…2972 only, not quoted in full; re-read on site before any parts order."
+  },
+  {
+    "building_search": ["85", "Park"],
+    "unit_number": "3",
+    "type": "Dishwasher",
+    "name": "Dishwasher",
+    "brand": "Electrolux",
+    "model_number": "FFBD2405KS0A",
+    "serial_number": "TH12673039",
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "motor": "1.1A",
+      "other": "7.6A",
+      "volts": "120",
+      "hertz": "60",
+      "operating_amps": "10.0A",
+      "standard": "CAN/CSA-C373-04"
+    },
+    "notes": "CAUTION: close to but NOT 24 Elm 1A's FFBD2404NS0A or 265 Ontario unit 6's FFBD2408NS0A — different suffix (05KS vs 04NS vs 08NS), do not conflate."
+  },
+  {
+    "building_search": ["85", "Park"],
+    "unit_number": "3",
+    "type": "Range Hood",
+    "name": "Range Hood",
+    "brand": "Nexstyle",
+    "model_number": "65A0SA009STS",
+    "serial_number": "11N02839",
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "volts": "120",
+      "hertz": "60",
+      "amps": "1.5",
+      "noise": "56–62 dB",
+      "motor_speed": "1450 RPM ±10%",
+      "illumination": "35W x 2",
+      "total_power": "180W ±10%",
+      "lamp": "MAX 35W type JDR 16 GU10 twist-and-lock"
+    },
+    "notes": "Series No.: 11N02839. Jose's note 'draft hood' = this range hood."
+  },
+  {
+    "building_search": ["265", "Ontario"],
+    "unit_number": "6",
+    "type": "Refrigerator",
+    "name": "Refrigerator",
+    "brand": "Electrolux",
+    "model_number": "FFHT1826LK4",
+    "serial_number": "BA11905381",
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "manufactured": "05-11",
+      "volts": "115",
+      "hertz": "60",
+      "amps": "6.0",
+      "refrigerant": "R134a 4.25 oz (121 g)",
+      "design_pressures": "HS 300 psi / LS 140 psi",
+      "optional_ice_maker_kit": "IM115",
+      "model_type": "AD-18"
+    },
+    "notes": "CAUTION: same FFHT1826L family as 1719-273's FFHT1826LS9 and 24 Elm 1A's FFHT1826LK5, different suffix — do NOT assume 273's trim parts (crisper 240337103, door bin/shelf 240338101) fit LK4 without Dependable fitment confirmation."
+  },
+  {
+    "building_search": ["265", "Ontario"],
+    "unit_number": "6",
+    "type": "Dishwasher",
+    "name": "Dishwasher",
+    "brand": "Electrolux/Frigidaire",
+    "model_number": "FFBD2408NS0A",
+    "serial_number": "TH22591688",
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "motor": "1.1A",
+      "other": "7.6A",
+      "volts": "120",
+      "hertz": "60",
+      "standard": "CAN/CSA-C373-04",
+      "finish": "stainless front, black control panel, Frigidaire badge, installed under counter"
+    },
+    "notes": "CAUTION: close to but NOT 24 Elm 1A's FFBD2404NS0A (08 vs 04), do not conflate."
+  },
+  {
+    "building_search": ["265", "Ontario"],
+    "unit_number": "6",
+    "type": "Range",
+    "name": "Range",
+    "brand": "Frigidaire",
+    "model_number": "CFEF3048LSK",
+    "serial_number": "VF23153950",
+    "category": "Kitchen",
+    "room": "Kitchen",
+    "status": "operational",
+    "specs": {
+      "cooktop": "smooth-top",
+      "finish": "black smooth-top, stainless trim, Frigidaire badge"
+    },
+    "notes": "CAUTION: one letter off 24 Elm 1A's CFEF3048LSJ (K vs J), do not conflate."
+  }
+]
