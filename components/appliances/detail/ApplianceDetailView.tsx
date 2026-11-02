@@ -11,6 +11,7 @@ import { ApplianceDashboard } from '../dashboard/ApplianceDashboard';
 import { ApplianceHero } from './components/ApplianceHero';
 import { ApplianceSpecsSection } from './components/ApplianceSpecsSection';
 import { ApplianceHistorySection } from './components/ApplianceHistorySection';
+import { AppliancePartsSection } from './components/AppliancePartsSection';
 import { AddMaintenanceRecordForm } from './components/AddMaintenanceRecordForm';
 import { ServiceButton } from './components/ServiceButton';
 import { Modal } from '../../ui/Modal';
@@ -57,6 +58,7 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
   const availableTabs = useMemo(() => [
     { id: 'dashboard', label: 'DASHBOARD' },
     { id: 'specs', label: 'SPECS' },
+    { id: 'parts', label: 'PARTS' },
     { id: 'history', label: 'HISTORY' }
   ], []);
 
@@ -195,7 +197,7 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
 
         {/* Tabs */}
         {availableTabs.length > 1 && (
-          <div className="grid grid-cols-3 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
+          <div className="grid grid-cols-4 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
             {availableTabs.map(tab => (
               <button
                 key={tab.id}
@@ -223,6 +225,12 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
               onEdit={() => setIsEditing(true)}
               isEditMode={isEditMode}
               onViewProperty={() => onViewProperty(appliance.propertyId)}
+            />
+          )}
+
+          {activeTab === 'parts' && (
+            <AppliancePartsSection
+              appliance={appliance}
             />
           )}
 
