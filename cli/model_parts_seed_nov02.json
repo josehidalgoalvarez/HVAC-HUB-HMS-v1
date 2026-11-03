@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Askoll M376 drain pump",
+    "part_number": "A16944601",
+    "category": "Dishwasher",
+    "compatible_models": ["FFCD2418US3A"],
+    "evidence": "Replaced Oct 15, 2026, 1723 Bath Rd unit 266; operational, load test pending on record."
+  },
+  {
+    "name": "Crisper drawer",
+    "part_number": "240337103",
+    "category": "Refrigerator",
+    "compatible_models": ["FFHT1826LS9"],
+    "evidence": "1719 Bath Rd unit 273; ordered via Dependable once the model was known."
+  },
+  {
+    "name": "Door shelf / door bin",
+    "part_number": "240338101",
+    "category": "Refrigerator",
+    "compatible_models": ["FFHT1826LS9"],
+    "evidence": "1719 Bath Rd unit 273; ordered via Dependable once the model was known."
+  },
+  {
+    "name": "Bimetal",
+    "part_number": "JRQ-0062 / TCRGQ-02",
+    "category": "Refrigerator",
+    "compatible_models": ["HD663FWS"],
+    "evidence": "Confirmed failed Oct 28, 2026 (cold OL, frozen OL); control board already changed, heater fine."
+  },
+  {
+    "name": "Bake element",
+    "part_number": "WS01F11296",
+    "category": "Range",
+    "compatible_models": ["JCBS250SM1SS"],
+    "evidence": "Fitment confirmed for JCBS250SM1SS only (long body, replaces WG02F05400, WS01F02247)."
+  }
+]

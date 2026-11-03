@@ -1,18 +1,27 @@
 /**
  * utils/modelParts.ts
  *
- * Appliance Parts Tab v1 Reference Data & Helpers
+ * Appliance Parts Tab v2 Reference Data & Helpers
  *
  * Provides:
- * - Verified model parts (exact model match only, case-insensitive, no fuzzy matching, no family carry-over)
+ * - Verified model parts resolved from the Part catalog (catalog is single source of truth)
  * - TBD category templates by appliance type (explicitly "TBD — ask Dependable by model")
- * - Unit-only exception (137 Amherst unit 137 range switch WB24T10025)
+ * - Deduplication coverage map between catalog verified parts and TBD category templates
+ * - Unit-only exception (137 Amherst unit 137 range switch WB24T10025, frontend only)
  *
- * Note on Dependable Supplier in v1:
+ * Note on Dependable Supplier:
  * "Dependable" is displayed as name only. No price, phone, address, hours, or account.
  */
 
 import { Appliance } from '../types';
+import type { Part, StockpileAllocation } from '../types/domain';
+
+export interface ModelPartStockAllocation {
+  stockpileId: number;
+  stockpileName: string;
+  stockpileLocation: string;
+  quantity: number;
+}
 
 export interface ModelPartRow {
   id: string;
@@ -22,63 +31,12 @@ export interface ModelPartRow {
   evidenceNote: string;
   isVerified: boolean;
   statusLabel: string;
+  inStock: boolean;
+  stockAllocations: ModelPartStockAllocation[];
 }
 
 /**
- * 1. Verified Model Parts (Exact model match only)
- */
-interface VerifiedPartDef {
-  targetModel: string;
-  applianceType: string;
-  name: string;
-  partNumber: string;
-  evidenceNote: string;
-}
-
-const VERIFIED_MODEL_PARTS: VerifiedPartDef[] = [
-  // 1. Dishwasher, model FFCD2418US3A ONLY
-  {
-    targetModel: 'FFCD2418US3A',
-    applianceType: 'Dishwasher',
-    name: 'Askoll M376 drain pump',
-    partNumber: 'A16944601',
-    evidenceNote: 'Replaced Oct 15, 2026, 1723 Bath Rd unit 266; operational, load test pending on record.'
-  },
-  // 2. Refrigerator, model FFHT1826LS9 ONLY
-  {
-    targetModel: 'FFHT1826LS9',
-    applianceType: 'Refrigerator',
-    name: 'Crisper drawer',
-    partNumber: '240337103',
-    evidenceNote: '1719 Bath Rd unit 273; ordered via Dependable once the model was known.'
-  },
-  {
-    targetModel: 'FFHT1826LS9',
-    applianceType: 'Refrigerator',
-    name: 'Door shelf / door bin',
-    partNumber: '240338101',
-    evidenceNote: '1719 Bath Rd unit 273; ordered via Dependable once the model was known.'
-  },
-  // 3. Refrigerator, model Midea HD663FWS ONLY (18 Elm unit 411)
-  {
-    targetModel: 'HD663FWS',
-    applianceType: 'Refrigerator',
-    name: 'Bimetal',
-    partNumber: 'JRQ-0062 / TCRGQ-02',
-    evidenceNote: 'Confirmed failed Oct 28, 2026 (cold OL, frozen OL); control board already changed, heater fine.'
-  },
-  // 4. Range, model JCBS250SM1SS ONLY
-  {
-    targetModel: 'JCBS250SM1SS',
-    applianceType: 'Range',
-    name: 'Bake element',
-    partNumber: 'WS01F11296',
-    evidenceNote: 'Fitment confirmed for JCBS250SM1SS only (long body, replaces WG02F05400, WS01F02247).'
-  }
-];
-
-/**
- * 2. TBD Category Templates by Appliance Type
+ * 1. TBD Category Templates by Appliance Type
  */
 const TBD_TEMPLATES_BY_TYPE: Record<string, string[]> = {
   'Dishwasher': [
@@ -190,12 +148,38 @@ export interface ModelPartsResolution {
   isModelUnknown: boolean;
   cleanModel: string | null;
   applianceType: string;
+  catalogUnavailable: boolean;
+}
+
+/**
+ * Helper to extract available stock allocations from a Part record.
+ */
+function extractStockAllocations(part: Part): ModelPartStockAllocation[] {
+  const allocations: ModelPartStockAllocation[] = [];
+  if (Array.isArray(part.stockpiles)) {
+    part.stockpiles.forEach((alloc: StockpileAllocation) => {
+      const qty = Number(alloc.quantity) || 0;
+      if (qty > 0 && alloc.status !== 'on_hold') {
+        allocations.push({
+          stockpileId: alloc.stockpile_id,
+          stockpileName: alloc.stockpile_name || `Stockpile #${alloc.stockpile_id}`,
+          stockpileLocation: alloc.stockpile_location || '',
+          quantity: qty
+        });
+      }
+    });
+  }
+  return allocations;
 }
 
 /**
  * Resolves the parts rows for a given appliance.
+ * Accepts optional catalogParts list (loaded from API / cache / state).
  */
-export function getApplianceParts(appliance: Appliance): ModelPartsResolution {
+export function getApplianceParts(
+  appliance: Appliance,
+  catalogParts?: Part[] | null
+): ModelPartsResolution {
   const normType = normalizeType(appliance.type);
   const rawModel = (appliance.modelNumber || appliance.specs?.model || '').trim();
   const isModelUnknown = rawModel === '' || rawModel.toLowerCase() === 'unknown' || rawModel.toLowerCase() === 'tbd';
@@ -204,27 +188,46 @@ export function getApplianceParts(appliance: Appliance): ModelPartsResolution {
   const verifiedParts: ModelPartRow[] = [];
   const tbdTemplates: ModelPartRow[] = [];
 
-  // 1. Check Verified Model Parts (Exact model match only, case-insensitive)
-  if (cleanModel) {
-    const matched = VERIFIED_MODEL_PARTS.filter(p =>
-      normalizeType(p.applianceType) === normType &&
-      p.targetModel.toLowerCase() === cleanModel.toLowerCase()
-    );
+  const catalogUnavailable = catalogParts === undefined || catalogParts === null;
+  const activeCatalog = catalogParts || [];
 
-    matched.forEach((p, idx) => {
+  // Track verified part numbers for deduplicating TBD templates
+  const verifiedPartNumbers = new Set<string>();
+
+  // 1. Check Verified Model Parts from Catalog (Exact model match only, case-insensitive)
+  if (cleanModel && activeCatalog.length > 0) {
+    const cleanModelLower = cleanModel.toLowerCase();
+
+    const matchedParts = activeCatalog.filter(p => {
+      const models = p.compatible_models || p.compatibleModels;
+      if (!Array.isArray(models)) return false;
+      return models.some(m => typeof m === 'string' && m.trim().toLowerCase() === cleanModelLower);
+    });
+
+    matchedParts.forEach(p => {
+      const pn = p.part_number || p.partNumber || '';
+      verifiedPartNumbers.add(pn);
+
+      const allocations = extractStockAllocations(p);
+      const inStock = allocations.length > 0 || (Number(p.quantity_on_hand ?? p.quantityOnHand) > 0);
+
+      const evidence = p.description || 'Verified fitment from catalog.';
+
       verifiedParts.push({
-        id: `verified-${idx}-${p.partNumber}`,
+        id: `catalog-${p.id}-${pn}`,
         name: p.name,
-        partNumber: p.partNumber,
+        partNumber: pn || null,
         supplier: 'Dependable',
-        evidenceNote: p.evidenceNote,
+        evidenceNote: evidence,
         isVerified: true,
-        statusLabel: 'Verified'
+        statusLabel: 'Verified',
+        inStock,
+        stockAllocations: allocations
       });
     });
   }
 
-  // 2. Unit-only exception: 137 Amherst unit 137 Range
+  // 2. Unit-only exception: 137 Amherst unit 137 Range (frontend-only exception)
   if (is137AmherstRange(appliance)) {
     verifiedParts.push({
       id: 'unit-137-range-switch',
@@ -233,17 +236,36 @@ export function getApplianceParts(appliance: Appliance): ModelPartsResolution {
       supplier: 'Dependable',
       evidenceNote: 'Rear burner heats to half dial then stops (failing infinite switch); front burner receptacle worn; switches on hand since Oct 14, 2026; whole 137 job ON HOLD until rent is paid; model unknown — confirm fitment with Dependable before ordering, do not copy to other ranges.',
       isVerified: true,
-      statusLabel: 'Verified (Unit 137 Only)'
+      statusLabel: 'Verified (Unit 137 Only)',
+      inStock: false,
+      stockAllocations: []
     });
   }
 
-  // 3. TBD Category Templates
+  // 3. TBD Category Templates with exact coverage dedupe
   const templateCategories = TBD_TEMPLATES_BY_TYPE[normType];
   const hasTemplate = !!templateCategories && templateCategories.length > 0;
 
   if (hasTemplate) {
     const modelContext = cleanModel ? `model ${cleanModel}` : 'unknown model — ask by unit';
+
     templateCategories.forEach((cat, idx) => {
+      // Coverage-map deduplication:
+      // - Askoll M376 (A16944601) on FFCD2418US3A -> suppresses "Drain pump"
+      if (cat === 'Drain pump' && verifiedPartNumbers.has('A16944601')) {
+        return;
+      }
+      // - Crisper drawer (240337103) on FFHT1826LS9 -> suppresses "Crisper drawers"
+      if (cat === 'Crisper drawers' && verifiedPartNumbers.has('240337103')) {
+        return;
+      }
+      // - Bake element (WS01F11296) on JCBS250SM1SS -> suppresses "Bake element"
+      if (cat === 'Bake element' && verifiedPartNumbers.has('WS01F11296')) {
+        return;
+      }
+      // Note: Door shelf / door bin (240338101) does NOT suppress "Shelves / bins" (only partial coverage)
+      // Note: Bimetal (JRQ-0062 / TCRGQ-02) does NOT suppress defrost thermostat/heater (retained)
+
       tbdTemplates.push({
         id: `tbd-${idx}-${cat.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
         name: cat,
@@ -251,7 +273,9 @@ export function getApplianceParts(appliance: Appliance): ModelPartsResolution {
         supplier: 'Dependable',
         evidenceNote: `No part number on file — ask Dependable by ${modelContext} before ordering.`,
         isVerified: false,
-        statusLabel: 'TBD — ask Dependable'
+        statusLabel: 'TBD — ask Dependable',
+        inStock: false,
+        stockAllocations: []
       });
     });
   }
@@ -262,6 +286,7 @@ export function getApplianceParts(appliance: Appliance): ModelPartsResolution {
     hasTemplate,
     isModelUnknown,
     cleanModel,
-    applianceType: normType
+    applianceType: normType,
+    catalogUnavailable
   };
 }

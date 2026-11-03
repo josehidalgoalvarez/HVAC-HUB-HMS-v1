@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Appliance } from '../../../../types';
+import type { Part } from '../../../../types/domain';
 import { getApplianceParts, ModelPartRow } from '../../../../utils/modelParts';
 import { apiClient } from '../../../../src/api/client';
+import { appCache } from '../../../../src/offline/cache';
+import { SEED_PARTS } from '../../../parts/partsSeedData';
 import Button from '../../../ui/Button';
 
 interface AppliancePartsSectionProps {
@@ -9,20 +12,49 @@ interface AppliancePartsSectionProps {
 }
 
 export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ appliance }) => {
+  const [catalogParts, setCatalogParts] = useState<Part[] | null>(() => {
+    return appCache.getSync<Part[]>('parts') || (SEED_PARTS as unknown as Part[]);
+  });
+  const [loadingCatalog, setLoadingCatalog] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchCatalog = async () => {
+      try {
+        setLoadingCatalog(true);
+        const parts = await apiClient.getParts();
+        if (isMounted && Array.isArray(parts) && parts.length > 0) {
+          setCatalogParts(parts as unknown as Part[]);
+          appCache.set('parts', parts);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch parts catalog from API, using cached/seeded parts:', err);
+      } finally {
+        if (isMounted) setLoadingCatalog(false);
+      }
+    };
+
+    fetchCatalog();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const {
     verifiedParts,
     tbdTemplates,
     hasTemplate,
     isModelUnknown,
     cleanModel,
-    applianceType
-  } = getApplianceParts(appliance);
+    applianceType,
+    catalogUnavailable
+  } = getApplianceParts(appliance, catalogParts);
 
   const [addingId, setAddingId] = useState<string | null>(null);
   const [successId, setSuccessId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const isStored = appliance.status === 'stored' || appliance.stockpileId !== null && appliance.stockpileId !== undefined;
+  const isStored = appliance.status === 'stored' || (appliance.stockpileId !== null && appliance.stockpileId !== undefined);
 
   const handleAddToBuyList = async (part: ModelPartRow) => {
     setAddingId(part.id);
@@ -94,6 +126,15 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
         </div>
       )}
 
+      {catalogUnavailable && !loadingCatalog && (
+        <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2">
+          <span className="material-symbols-outlined text-sm text-amber-600 mt-0.5">warning</span>
+          <div>
+            <span className="font-bold">Notice:</span> Verified parts unavailable — catalog not loaded.
+          </div>
+        </div>
+      )}
+
       {errorMessage && (
         <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg p-3 text-xs text-red-700 dark:text-red-300 flex items-center justify-between">
           <span>{errorMessage}</span>
@@ -159,6 +200,28 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
                       </span>
                     )}
                   </Button>
+                </div>
+
+                {/* Stock on Hand / Allocations Section */}
+                <div className="p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/50 space-y-1">
+                  <div className="text-xs font-semibold text-brand-black dark:text-white flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-sm text-primary">inventory_2</span>
+                    Stock Status:
+                  </div>
+                  {part.stockAllocations.length > 0 ? (
+                    <div className="space-y-1 text-xs">
+                      {part.stockAllocations.map((alloc) => (
+                        <div key={alloc.stockpileId} className="flex items-center justify-between text-text-sub-light dark:text-text-sub-dark pl-5">
+                          <span>{alloc.stockpileName}</span>
+                          <span className="font-bold text-brand-black dark:text-white">{alloc.quantity} in stock</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-text-sub-light dark:text-text-sub-dark pl-5">
+                      Not in stock at any recorded location — order from Dependable.
+                    </p>
+                  )}
                 </div>
 
                 <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/40 p-2 rounded">
