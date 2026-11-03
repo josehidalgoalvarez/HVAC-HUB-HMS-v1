@@ -1,0 +1,65 @@
+[
+  {
+    "wo_number": "20471",
+    "property": "1723 Bath Road",
+    "unit": "G66",
+    "description_verbatim": "I have holes put in my bathroom ceiling and wall to fix a broken pipe in 2020, and have been asking to have it fixed, and nothing has happened. People have been calling property standards, and the newspapers and so forth i don't want that. I just want you to fix what you did, thats all",
+    "status": "open",
+    "priority": "high",
+    "opened_date": "2026-10-27"
+  },
+  {
+    "wo_number": "20488",
+    "property": "1737 Bath Road",
+    "unit": "40",
+    "description_verbatim": "Missing exterior door. Unit is completely missing its door (only unit in the row with none). Install the brown aluminum storm door removed from unit 43 (36x80, hinged left / latch right from outside) as donor. Before install: check door latch and screen condition; re-screen if needed; confirm opening and hinge side match. Do NOT log this under unit 43's bylaw WO.",
+    "status": "open",
+    "priority": "medium",
+    "opened_date": "2026-10-28"
+  },
+  {
+    "wo_number": "20498",
+    "property": "1731 Bath Road",
+    "unit": "263",
+    "description_verbatim": "Missing stove, renovated unit. Unit is completely missing a stove. Candidate: BLACK stove taken from 507 Days unit 15. CAVEATS: that stove is cockroach-infested and missing a few parts (which parts unknown) — pest clean/treat and a missing-parts check BEFORE install; do not install as-is. Stored white stoves at 511 basement / 107 Amherst are secondary candidates only. Note: the GE JCB3250SM1SS plate photo on file is from ANOTHER BD unit, NOT 507-15 — 507-15's own model is still to pull, and serial TM509193P must NOT be used for 263 parts.",
+    "status": "open",
+    "priority": "medium",
+    "opened_date": "2026-10-28"
+  },
+  {
+    "wo_number": "20499",
+    "property": "1731 Bath Road",
+    "unit": "263",
+    "description_verbatim": "Dishwasher not drain. Samsung dishwasher does not complete the wash cycle and does not drain. Model unknown — photograph the rating plate (door edge or inside tub) before ordering parts. Check first: drain hose high loop/kinks, standing water, drain pump/blockage, door latch, supply valve fully open. Display previously showed 86. Renovated unit.",
+    "status": "open",
+    "priority": "medium",
+    "opened_date": "2026-10-28"
+  },
+  {
+    "wo_number": "20495",
+    "property": "507 Days Road",
+    "unit": "32",
+    "description_verbatim": "Patio door screen ripped. Change the screen for the patio door. Access via Maxine, OK to Enter: No. Screen removed Nov 2, install screen into frame and refit, tenant told about two days, expected Nov 3-4.",
+    "status": "on-hold",
+    "priority": "medium",
+    "opened_date": "2026-10-27"
+  },
+  {
+    "wo_number": "20490",
+    "property": "18 Elm Street",
+    "unit": "411",
+    "description_verbatim": "Troubleshoot thermostat & heating. Thermostat not working / missing. Heat is central hydronic from the boiler room downstairs. Existing stat is old 2-wire (R + W). Field status Nov 2: coats in progress, install attempt after final coat, close-out waits on mount + all-radiators check.",
+    "status": "on-hold",
+    "priority": "medium",
+    "opened_date": "2026-10-27"
+  },
+  {
+    "wo_number": "20500",
+    "property": "1731 Bath Road",
+    "unit": "laundry room (shared 1731/1733)",
+    "description_verbatim": "Exhaust of dryer ripped. Repair the dryer exhaust in the laundry room.",
+    "status": "open",
+    "priority": "medium",
+    "opened_date": "2026-10-27"
+  }
+]
