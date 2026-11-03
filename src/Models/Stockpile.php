@@ -359,11 +359,15 @@ class Stockpile
         $sql = "SELECT am.*,
                        sp_from.name AS from_stockpile_name,
                        sp_to.name AS to_stockpile_name,
+                       u_from.unit_number AS from_unit_number,
+                       b_from.name AS from_building_name,
                        u_to.unit_number AS to_unit_number,
                        b_to.name AS to_building_name
                 FROM appliance_movement am
                 LEFT JOIN stockpile sp_from ON am.from_stockpile_id = sp_from.id
                 LEFT JOIN stockpile sp_to ON am.to_stockpile_id = sp_to.id
+                LEFT JOIN unit u_from ON am.from_unit_id = u_from.id
+                LEFT JOIN building b_from ON u_from.building_id = b_from.id
                 LEFT JOIN unit u_to ON am.to_unit_id = u_to.id
                 LEFT JOIN building b_to ON u_to.building_id = b_to.id
                 WHERE am.appliance_id = ?

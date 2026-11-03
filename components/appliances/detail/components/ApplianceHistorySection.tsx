@@ -13,6 +13,8 @@ export interface ApplianceMovementRecord {
   to_unit_id?: number | null;
   from_stockpile_name?: string | null;
   to_stockpile_name?: string | null;
+  from_unit_number?: string | null;
+  from_building_name?: string | null;
   to_unit_number?: string | null;
   to_building_name?: string | null;
   disposition?: string;
@@ -196,7 +198,12 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
       const routeParts: string[] = [];
       if (mov.from_stockpile_name) {
         routeParts.push(`From: ${mov.from_stockpile_name}`);
+      } else if (mov.from_unit_number) {
+        routeParts.push(
+          `From: ${mov.from_building_name ? `${mov.from_building_name} · ` : ''}Unit ${mov.from_unit_number}`
+        );
       }
+
       if (mov.to_stockpile_name) {
         routeParts.push(`To: ${mov.to_stockpile_name}`);
       } else if (mov.to_unit_number) {

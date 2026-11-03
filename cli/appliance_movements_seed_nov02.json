@@ -1,0 +1,80 @@
+[
+  {
+    "candidate_id": "candidate_1_part_1",
+    "description": "1723 Bath unit 266 newer dishwasher -> staged beside 1719 Bath unit 273 (Leg 1: Staged)",
+    "status": "pending_live_proof",
+    "appliance_match": {
+      "type": "Dishwasher",
+      "model": null,
+      "serial": null,
+      "notes_query": "newer dishwasher from 266"
+    },
+    "from": { "type": "unit", "building": "1723 Bath Road", "unit_number": "266" },
+    "to": { "type": "stockpile", "name": null, "notes": "Staged beside 1719 Bath unit 273" },
+    "disposition": "stored",
+    "movement_date": "2026-10-26 12:00:00",
+    "moved_by": "Tech",
+    "ticket_id": null,
+    "notes": "Pulled Oct 26 with another technician's help, staged beside 273 ready for install; Yardi WO 20462/20522, no live ticket — ticket link not set."
+  },
+  {
+    "candidate_id": "candidate_1_part_2",
+    "description": "Staged beside 1719 Bath unit 273 -> installed at 1719 Bath unit 273 (Leg 2: Installed)",
+    "status": "pending_live_proof",
+    "appliance_match": {
+      "type": "Dishwasher",
+      "model": null,
+      "serial": null,
+      "notes_query": "newer dishwasher from 266"
+    },
+    "from": { "type": "stockpile", "name": null, "notes": "Staged beside 1719 Bath unit 273" },
+    "to": { "type": "unit", "building": "1719 Bath Road", "unit_number": "273" },
+    "disposition": "installed",
+    "movement_date": "2026-10-28 12:00:00",
+    "moved_by": "Tech",
+    "ticket_id": null,
+    "notes": "Installed Oct 28 + wood securing piece installed (Nov 2 field confirm, complete); Yardi WO 20462/20522, no live ticket — ticket link not set."
+  },
+  {
+    "candidate_id": "candidate_2",
+    "description": "1719 Bath unit 273 OLD LG dishwasher -> STORAGE for repair (not scrap)",
+    "status": "pending_live_proof",
+    "appliance_match": {
+      "type": "Dishwasher",
+      "brand": "LG",
+      "model": "LDP6797BD",
+      "serial": "710KWKS9X733"
+    },
+    "from": { "type": "unit", "building": "1719 Bath Road", "unit_number": "273" },
+    "to": { "type": "stockpile", "name": null, "notes": "Exact storage spot TBD" },
+    "disposition": "stored",
+    "movement_date": "2026-10-26 12:00:00",
+    "moved_by": "Tech",
+    "ticket_id": null,
+    "notes": "Old LG into storage for repair (not scrap); exact storage spot TBD — to_stockpile left NULL, do NOT read this as 511 basement; Yardi WO 20462/20522, no live ticket — ticket link not set."
+  },
+  {
+    "candidate_id": "candidate_3",
+    "description": "18 Elm unit 413 Midea fridge (HD663FWS) -> STAGED at 18 Elm unit 411 for inspection",
+    "status": "pending_live_proof",
+    "appliance_match": {
+      "type": "Refrigerator",
+      "brand": "Midea",
+      "model": "HD663FWS",
+      "id": 29
+    },
+    "from": { "type": "unit", "building": "18 Elm St", "unit_number": "413" },
+    "to": { "type": "unit", "building": "18 Elm St", "unit_number": "411" },
+    "disposition": "stored",
+    "movement_date": "2026-10-28 12:00:00",
+    "moved_by": "Tech",
+    "ticket_id": null,
+    "notes": "Defrost-broken fridge originally from unit 413, staged at 411 for inspection (NOT installed as 411 fridge); movement date = Oct 28 photo evidence date, exact move day unconfirmed; fridge inspection WO not yet written — ticket link not set."
+  },
+  {
+    "candidate_id": "candidate_4_microwave",
+    "description": "Microwave 18 Elm 411 -> 630 Princess 203 (BLOCKED by design)",
+    "status": "blocked",
+    "block_reason": "No live appliance row exists for microwave (Ticket 36 is tracking record, not an appliance). Movement requires appliance_id NOT NULL."
+  }
+]
