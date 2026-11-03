@@ -4,6 +4,8 @@ import { INITIAL_APPLIANCES } from '../../../../constants';
 import { apiClient } from '../../../../src/api/client';
 import { parseDate } from '../../../../utils/dateUtils';
 
+import { RecordApplianceMoveModal } from './RecordApplianceMoveModal';
+
 export interface ApplianceMovementRecord {
   id: number | string;
   appliance_id: number | string;
@@ -41,6 +43,7 @@ interface ApplianceHistorySectionProps {
   history?: MaintenanceRecord[];
   onAddRecord?: () => void;
   isReadOnly?: boolean;
+  onApplianceUpdate?: (updated: Partial<Appliance>) => void;
 }
 
 /**
@@ -112,10 +115,12 @@ function resolveExplicitMaintenanceHistory(
  */
 export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = ({
   appliance,
-  history
+  history,
+  onApplianceUpdate
 }) => {
   const [movements, setMovements] = useState<ApplianceMovementRecord[]>([]);
   const [loadingMovements, setLoadingMovements] = useState(false);
+  const [showRecordMoveModal, setShowRecordMoveModal] = useState(false);
 
   const numericApplianceId = useMemo(() => {
     if (!appliance?.id || appliance.isDefault) return null;
@@ -126,8 +131,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
     return null;
   }, [appliance?.id, appliance?.isDefault]);
 
-  useEffect(() => {
-    let isMounted = true;
+  const fetchMovements = React.useCallback(() => {
     if (numericApplianceId === null) {
       setMovements([]);
       setLoadingMovements(false);
@@ -138,7 +142,6 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
     apiClient
       .getApplianceMovements(numericApplianceId)
       .then((res) => {
-        if (!isMounted) return;
         if (Array.isArray(res)) {
           // Hard linking guard: only keep rows whose appliance_id matches numericApplianceId
           const linked = res.filter(
@@ -150,16 +153,16 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
         }
       })
       .catch(() => {
-        if (isMounted) setMovements([]);
+        setMovements([]);
       })
       .finally(() => {
-        if (isMounted) setLoadingMovements(false);
+        setLoadingMovements(false);
       });
-
-    return () => {
-      isMounted = false;
-    };
   }, [numericApplianceId]);
+
+  useEffect(() => {
+    fetchMovements();
+  }, [fetchMovements]);
 
   const currentNotes = useMemo(() => getRealApplianceNotes(appliance), [appliance]);
 
@@ -257,7 +260,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
         </div>
       )}
 
-      {/* Chronological History Section Header (Read-only v1) */}
+      {/* Chronological History Section Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-[18px] text-primary">history</span>
@@ -265,9 +268,16 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
             Appliance History
           </h3>
         </div>
-        <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark">
-          Read-only
-        </span>
+        {numericApplianceId !== null && (
+          <button
+            type="button"
+            onClick={() => setShowRecordMoveModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold shadow-sm hover:bg-primary/90 transition-colors"
+          >
+            <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
+            Record move
+          </button>
+        )}
       </div>
 
       {loadingMovements && !hasAnyHistory ? (
@@ -354,6 +364,21 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
             No history recorded yet for this appliance.
           </p>
         </div>
+      )}
+
+      {/* Record Appliance Move Modal */}
+      {showRecordMoveModal && appliance && (
+        <RecordApplianceMoveModal
+          appliance={appliance}
+          onClose={() => setShowRecordMoveModal(false)}
+          onSuccess={(updated) => {
+            setShowRecordMoveModal(false);
+            fetchMovements();
+            if (updated && onApplianceUpdate) {
+              onApplianceUpdate(updated);
+            }
+          }}
+        />
       )}
     </div>
   );

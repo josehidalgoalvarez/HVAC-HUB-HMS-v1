@@ -240,6 +240,12 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
               history={appliance.maintenanceHistory}
               onAddRecord={() => setIsAddingRecord(true)}
               isReadOnly={true}
+              onApplianceUpdate={(updatedFields) => {
+                onUpdate({
+                  ...appliance,
+                  ...updatedFields
+                });
+              }}
             />
           )}
         </div>
