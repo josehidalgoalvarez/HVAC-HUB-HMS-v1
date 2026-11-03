@@ -13,6 +13,7 @@ interface ApplianceModuleProps {
   onNavigate: (view: ViewType, applianceId?: string | null) => void;
   isEditMode: boolean;
   onViewProperty: (propertyId: string) => void;
+  onOpenTicket?: (ticketId: string) => void;
 }
 
 const ApplianceModule: React.FC<ApplianceModuleProps> = ({
@@ -21,7 +22,8 @@ const ApplianceModule: React.FC<ApplianceModuleProps> = ({
   selectedPropertyId,
   onNavigate,
   isEditMode,
-  onViewProperty
+  onViewProperty,
+  onOpenTicket,
 }) => {
   // Use actions from context instead of props
   const { addAppliance, updateAppliance, deleteAppliance, duplicateAppliance } = useActions();
@@ -54,6 +56,7 @@ const ApplianceModule: React.FC<ApplianceModuleProps> = ({
           onDelete={deleteAppliance}
           isEditMode={isEditMode}
           onViewProperty={onViewProperty}
+          onOpenTicket={onOpenTicket}
         />
       );
 

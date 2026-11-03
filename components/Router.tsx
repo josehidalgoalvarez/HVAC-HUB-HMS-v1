@@ -200,6 +200,12 @@ const Router: React.FC<RouterProps> = ({
             setSelectedPropertyId(pid);
             setActiveView(ViewType.PROPERTY_DETAIL);
           }}
+          onOpenTicket={(ticketId) => {
+            setSelectedTicketId(ticketId);
+            setPreviousView(activeView);
+            setActiveView(ViewType.TICKETS);
+            window.scrollTo(0, 0);
+          }}
         />
       );
 

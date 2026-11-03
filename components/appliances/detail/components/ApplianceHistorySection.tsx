@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Appliance, MaintenanceRecord } from '../../../../types';
+import type { Ticket } from '../../../../types/domain';
 import { INITIAL_APPLIANCES } from '../../../../constants';
 import { apiClient } from '../../../../src/api/client';
 import { parseDate } from '../../../../utils/dateUtils';
@@ -35,7 +36,8 @@ export interface UnifiedApplianceHistoryEntry {
   title: string;
   notes: string;
   actor?: string;
-  badgeText?: string;
+  ticketId?: number | null;
+  ticketLabel?: string | null;
 }
 
 interface ApplianceHistorySectionProps {
@@ -44,6 +46,7 @@ interface ApplianceHistorySectionProps {
   onAddRecord?: () => void;
   isReadOnly?: boolean;
   onApplianceUpdate?: (updated: Partial<Appliance>) => void;
+  onOpenTicket?: (ticketId: string) => void;
 }
 
 /**
@@ -116,11 +119,13 @@ function resolveExplicitMaintenanceHistory(
 export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = ({
   appliance,
   history,
-  onApplianceUpdate
+  onApplianceUpdate,
+  onOpenTicket,
 }) => {
   const [movements, setMovements] = useState<ApplianceMovementRecord[]>([]);
   const [loadingMovements, setLoadingMovements] = useState(false);
   const [showRecordMoveModal, setShowRecordMoveModal] = useState(false);
+  const [ticketsMap, setTicketsMap] = useState<Map<number, Ticket>>(new Map());
 
   const numericApplianceId = useMemo(() => {
     if (!appliance?.id || appliance.isDefault) return null;
@@ -130,6 +135,27 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
     }
     return null;
   }, [appliance?.id, appliance?.isDefault]);
+
+  // Load tickets to resolve movement ticket links explicitly
+  useEffect(() => {
+    let isMounted = true;
+    apiClient
+      .getTickets()
+      .then((tickets) => {
+        if (!isMounted || !Array.isArray(tickets)) return;
+        const map = new Map<number, Ticket>();
+        tickets.forEach((t) => {
+          map.set(Number(t.id), t);
+        });
+        setTicketsMap(map);
+      })
+      .catch((err) => {
+        console.warn('Could not load tickets for history link resolution:', err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const fetchMovements = React.useCallback(() => {
     if (numericApplianceId === null) {
@@ -220,6 +246,19 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
         detailParts.push(mov.notes.trim());
       }
 
+      // Explicit ticket linkage: only link if ticket_id is present AND resolves in ticketsMap
+      let resolvedTicketId: number | null = null;
+      let resolvedTicketLabel: string | null = null;
+      if (mov.ticket_id) {
+        const tid = Number(mov.ticket_id);
+        const resolvedTicket = ticketsMap.get(tid);
+        if (resolvedTicket) {
+          resolvedTicketId = tid;
+          const woPart = resolvedTicket.wo_number ? `WO #${resolvedTicket.wo_number}` : `Ticket #${tid}`;
+          resolvedTicketLabel = resolvedTicket.title ? `${woPart}: ${resolvedTicket.title}` : woPart;
+        }
+      }
+
       all.push({
         id: `mov-${mov.id || idx}`,
         sourceLabel: 'Movement',
@@ -228,7 +267,8 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
         title,
         notes: detailParts.join(' — ') || 'Appliance movement recorded.',
         actor: mov.moved_by || undefined,
-        badgeText: mov.ticket_id ? `Ticket #${mov.ticket_id}` : undefined
+        ticketId: resolvedTicketId,
+        ticketLabel: resolvedTicketLabel,
       });
     });
 
@@ -239,7 +279,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
     const undated = all.filter((e) => e.sortTime === null || e.dateDisplay === '');
 
     return { datedEntries: dated, undatedEntries: undated };
-  }, [explicitMaintenanceRecords, movements]);
+  }, [explicitMaintenanceRecords, movements, ticketsMap]);
 
   const hasAnyHistory = datedEntries.length > 0 || undatedEntries.length > 0;
 
@@ -299,11 +339,23 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
                       <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-primary/10 text-primary">
                         {entry.sourceLabel}
                       </span>
-                      {entry.badgeText && (
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark">
-                          {entry.badgeText}
+                      {entry.ticketId && entry.ticketLabel && onOpenTicket ? (
+                        <button
+                          type="button"
+                          onClick={() => onOpenTicket(String(entry.ticketId))}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:underline transition-colors"
+                          title="Open linked ticket"
+                        >
+                          <span className="material-symbols-outlined text-[13px]">confirmation_number</span>
+                          <span>{entry.ticketLabel}</span>
+                          <span className="material-symbols-outlined text-[12px]">open_in_new</span>
+                        </button>
+                      ) : entry.ticketId && entry.ticketLabel ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                          <span className="material-symbols-outlined text-[13px]">confirmation_number</span>
+                          <span>{entry.ticketLabel}</span>
                         </span>
-                      )}
+                      ) : null}
                     </div>
                     <h4 className="text-sm font-bold text-brand-black dark:text-white">
                       {entry.title}

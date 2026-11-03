@@ -25,6 +25,7 @@ interface ApplianceDetailViewProps {
   onDelete: (id: string) => void;
   isEditMode: boolean;
   onViewProperty: (propertyId: string) => void;
+  onOpenTicket?: (ticketId: string) => void;
 }
 
 const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
@@ -34,7 +35,8 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
   onDuplicate,
   onDelete,
   isEditMode,
-  onViewProperty
+  onViewProperty,
+  onOpenTicket,
 }) => {
   const { getAppliance, properties, addLog } = useData();
   const appliance = applianceId ? getAppliance(applianceId) : undefined;
@@ -246,6 +248,7 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
                   ...updatedFields
                 });
               }}
+              onOpenTicket={onOpenTicket}
             />
           )}
         </div>
