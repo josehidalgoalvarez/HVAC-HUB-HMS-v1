@@ -1,0 +1,96 @@
+{
+  "stockpiles": [
+    {
+      "name": "85 Park St Storage",
+      "location": "85 Park St",
+      "building_id": 83,
+      "notes": "Park St storage location. Storage / supplies in mechanical room area."
+    }
+  ],
+  "items": [
+    {
+      "stockpile_match": "85 Park St Storage",
+      "name": "Paint supplies — SuperPaint Extra White satin",
+      "category": "Maintenance",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Sherwin-Williams SuperPaint interior acrylic latex Extra White satin paint cans (one 3.6 L can read clearly, other cans stacked), Solo paint can, Performance Pro paint tray (still wrapped), Solo paint bucket 18.3 L; quantity TBD — never counted",
+      "source": "Jose's Oct 30, 2026 photos",
+      "last_updated": "2026-11-04"
+    },
+    {
+      "stockpile_match": "85 Park St Storage",
+      "name": "Safety — fire extinguisher & cartons",
+      "category": "Safety",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Red fire extinguisher with inspection tag wall-mounted, cartons including one marked for a chemical extinguisher; quantity TBD — never counted",
+      "source": "Jose's Oct 30, 2026 photos",
+      "last_updated": "2026-11-04"
+    },
+    {
+      "stockpile_match": "85 Park St Storage",
+      "name": "Portable climate unit (type unconfirmed)",
+      "category": "HVAC",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: White portable AC/dehumidifier-type unit with SuperPaint can on top (exact type unconfirmed — do not label definitively AC vs dehumidifier); quantity TBD — never counted",
+      "source": "Jose's Oct 30, 2026 photos",
+      "last_updated": "2026-11-04"
+    },
+    {
+      "stockpile_match": "85 Park St Storage",
+      "name": "Plumbing supplies — braided supply hoses",
+      "category": "Plumbing",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Braided stainless supply hoses; quantity TBD — never counted",
+      "source": "Jose's Oct 30, 2026 photos",
+      "last_updated": "2026-11-04"
+    },
+    {
+      "stockpile_match": "85 Park St Storage",
+      "name": "Cleaning supplies — bleach & mop equipment",
+      "category": "Cleaning",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Multiple bleach jugs Great Value labels visible, one large clear jug, string mop + yellow mop bucket/wringer, black garbage bags; quantity TBD — never counted",
+      "source": "Jose's Oct 30, 2026 photos",
+      "last_updated": "2026-11-04"
+    },
+    {
+      "stockpile_match": "85 Park St Storage",
+      "name": "Electrical & battery boxes (Neata)",
+      "category": "Electrical",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Several small black battery-backup/UPS-type boxes (brand read as Neata on one, count not quoted — do not inventory as a number), coiled lines; quantity TBD — never counted",
+      "source": "Jose's Oct 30, 2026 photos",
+      "last_updated": "2026-11-04"
+    },
+    {
+      "stockpile_match": "85 Park St Storage",
+      "name": "Maintenance sundries & hardware",
+      "category": "Maintenance",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: Gloves, small boxes, rags, loose hardware, generic cartons; quantity TBD — never counted",
+      "source": "Jose's Oct 30, 2026 photos",
+      "last_updated": "2026-11-04"
+    }
+  ]
+}

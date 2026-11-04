@@ -1,0 +1,65 @@
+[
+  {
+    "stockpile_name": "18 Elm St Storage",
+    "name": "NTI FTVM Residential Condensing Gas Boiler",
+    "category": "Heating Plant",
+    "status": "available",
+    "notes": "NTI FTVM Residential Condensing Gas Boiler. Serial No. 2108292238203640, Model FTVM199, factory set natural gas, Input MBH max 199 (58.5 kW), Heating Capacity 184 MBH (53.9 kW), Net AHRI Rating 160 MBH (46.9 kW), Electrical 120V / 1ph / 60Hz / 12A. Manual 87030 rev 5.14.21. Minimum inlet gas pressure, manifold pressure, clearances not cleanly legible — re-read plate before quoting pressures/clearances. Source: Oct 28, 2026 photos."
+  },
+  {
+    "stockpile_name": "18 Elm St Storage",
+    "name": "Weil-McLain Aqua Plus Indirect Tank (1 of 2)",
+    "category": "DHW Plant",
+    "status": "available",
+    "notes": "Weil-McLain Aqua Plus 45 indirect domestic hot water tank (tank 1 of 2, piped together at top). Volume 45 gal (170 L), max boiler supply 200°F, max working pressure 150 PSIG. Has anode cap front and 'Boiler Supply / Tank In' label. Boiler + indirect DHW plant, not a plain water heater. Source: Oct 28, 2026 photos."
+  },
+  {
+    "stockpile_name": "18 Elm St Storage",
+    "name": "Weil-McLain Aqua Plus Indirect Tank (2 of 2)",
+    "category": "DHW Plant",
+    "status": "available",
+    "notes": "Weil-McLain Aqua Plus 45 indirect domestic hot water tank (tank 2 of 2, piped together at top). Volume 45 gal (170 L), max boiler supply 200°F, max working pressure 150 PSIG. Boiler + indirect DHW plant, not a plain water heater. Source: Oct 28, 2026 photos."
+  },
+  {
+    "stockpile_name": "18 Elm St Storage",
+    "name": "Taco SR506-EXP 6-Zone Switching Relay (Box #1)",
+    "category": "Zone Controls",
+    "status": "available",
+    "notes": "Taco SR506-EXP 6-zone switching relay (green box labelled 1 on wall). Box #1 in thermostat legend. Source: Oct 28, 2026 photos."
+  },
+  {
+    "stockpile_name": "18 Elm St Storage",
+    "name": "Taco SR506-EXP 6-Zone Switching Relay (Box #2)",
+    "category": "Zone Controls",
+    "status": "available",
+    "notes": "Taco SR506-EXP 6-zone switching relay (green box labelled 2 on wall). Box #2 in thermostat legend. Source: Oct 28, 2026 photos."
+  },
+  {
+    "stockpile_name": "18 Elm St Storage",
+    "name": "Taco SR506-EXP 6-Zone Switching Relay (Box #3)",
+    "category": "Zone Controls",
+    "status": "available",
+    "notes": "Taco SR506-EXP 6-zone switching relay (green box labelled 3 on wall). Box #3 in thermostat legend. Source: Oct 28, 2026 photos."
+  },
+  {
+    "stockpile_name": "18 Elm St Storage",
+    "name": "Taco SR501 1-Zone Switching Relay",
+    "category": "Zone Controls",
+    "status": "available",
+    "notes": "Taco SR501 1-zone switching relay (green box, POWER + ZONE 1 LEDs lit). Purpose UNCONFIRMED (possibly HWT zone or single-zone loop — do NOT assign to a unit zone). Source: Oct 28, 2026 photos."
+  },
+  {
+    "stockpile_name": "18 Elm St Storage",
+    "name": "Johnson Controls A419 Temperature Controller",
+    "category": "Zone Controls",
+    "status": "available",
+    "notes": "Johnson Controls A419 electronic temperature controller visible near pump manifold. Purpose UNCONFIRMED (likely aquastat / loop temperature control). Source: Oct 28, 2026 photos."
+  },
+  {
+    "stockpile_name": "85 Park St Storage",
+    "name": "NTI Trinity Modulating Condensing Boiler",
+    "category": "Heating Plant",
+    "status": "available",
+    "notes": "NTI Trinity wall-hung high-efficiency modulating condensing gas boiler. Serial 89997, Energy Star, AHRI Certified, ANSI Z21.13-2014 / CSA 4.9-2014, factory set natural gas, 120V / 1ph / 60Hz, <12A. MODEL UNCONFIRMED — rating plate lists the whole Trinity range (Tx51, Tx81, Tx101, Tx151, Tx151C, Tx200, Tx200C) with no marked selection; display reading '152' is operating temperature, not a model number. Central plant is gas boiler, not a water heater. Whether DHW runs through this plant is unconfirmed. Source: Oct 30, 2026 photos."
+  }
+]
