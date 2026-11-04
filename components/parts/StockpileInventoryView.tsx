@@ -1037,7 +1037,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                           {eq.status}
                         </span>
                       </div>
-                      <h3 className="text-sm font-bold text-brand-black dark:text-white truncate">
+                      <h3 className="text-sm font-bold text-brand-black dark:text-white leading-snug break-words">
                         {eq.name}
                       </h3>
                     </div>
