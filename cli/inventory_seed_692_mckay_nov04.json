@@ -1,0 +1,1065 @@
+{
+  "target_stockpile_name": "698 McKay St Warehouse",
+  "parts_printed": [
+    {
+      "name": "Porter-Cable 16 ga galvanized finish nails, 2-1/2\"",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 2500,
+      "status": "available",
+      "minimum": 1,
+      "location_notes": "Carton as printed: qty 2500 pcs. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Stanley heavy duty staples",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 5000,
+      "status": "available",
+      "minimum": 1,
+      "location_notes": "Carton as printed: qty 5000. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Construction screws, 6 x 2-1/2",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 1200,
+      "status": "available",
+      "minimum": 1,
+      "location_notes": "Bin as printed: qty 1200 pcs. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Soffit screws, #6 x 5/8\"",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 1000,
+      "status": "available",
+      "minimum": 1,
+      "location_notes": "Jar as printed: qty 1000 pcs. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "UCAN Scru-it anchor socket flat head, 1/4 x 1-1/4",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 100,
+      "status": "available",
+      "minimum": 1,
+      "location_notes": "Drawer pack label: qty 100 pcs. Individual pack counts NOT totalled, several packs may be partial \u2014 this row is the ONE labelled pack, not a drawer total. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Metal screws, 8 x 1-1/4",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 100,
+      "status": "available",
+      "minimum": 1,
+      "location_notes": "Drawer pack label: qty 100 pcs. Individual pack counts NOT totalled, several packs may be partial \u2014 this row is the ONE labelled pack, not a drawer total. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Machine screws, 10-24 x 2-1/2",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 100,
+      "status": "available",
+      "minimum": 1,
+      "location_notes": "Drawer pack label: qty 100 pcs. Individual pack counts NOT totalled, several packs may be partial \u2014 this row is the ONE labelled pack, not a drawer total. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Mulco Supra Expert sealant tube, bronze",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 20,
+      "status": "available",
+      "minimum": 1,
+      "location_notes": "Box marked '20 x 300 mL, bronze' \u2014 20 tubes in the box. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Emerson S84A310 transformers, White-Rodgers",
+      "part_number": "S84A310",
+      "category": "HVAC",
+      "quantity": 2,
+      "status": "available",
+      "minimum": 1,
+      "location_notes": "120V primary / 25V secondary, 40 VA \u2014 count is 2 boxes visible. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "PNC Fasteners coil roofing nails, 1-1/4\" x .120 smooth EG",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Printed '7.2M/CTN' verbatim on carton; unit count not proved, seeded TBD. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "CRISP-AIR coil roofing nails, 1-1/4\" x .120 smooth EG",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Carton visible, no printed quantity on carton. Source: Jose photos Nov 4, 2026."
+    }
+  ],
+  "parts_tbd": [
+    {
+      "name": "ROSS NEO Full Motion TV Wall Mount",
+      "part_number": null,
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Several boxes on shelf; whether each box holds a complete mount UNCONFIRMED. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Duchesne finishing nails (Ardox)",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Box on shelf. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Benchmark 2\" brad nails + collated brad nails",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Boxes on shelf. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Duchesne nails, 50 lb box",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: 50 lb box. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Ardox spiral standard bright nails, 3-1/2\", 50 lb / 22.68 kg",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: 50 lb / 22.68 kg box, yellow label. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Drywall screws boxes (red cartons)",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Red cartons, one marked 'S\u00c8CHE'. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Long silver screws / nails in grey bin",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Grey bin of long silver screws/nails. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Long bolts / screws in bin",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin of long bolts/screws. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Drywall screws bin (labelled 'DRYWALL SCREWS')",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin labelled 'DRYWALL SCREWS' (blue tape). Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Black screws / nails (bulk bags & boxes)",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bulk, unsorted bags/boxes of black screws/nails. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Mesh drywall tape roll",
+      "part_number": null,
+      "category": "Drywall",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Roll of mesh drywall tape. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Jars, contents unread",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Jars, contents unread on shelf. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Mixed screws in clear bins",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Sizes NOT sorted on camera \u2014 do NOT inventory by size. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Metal parts box",
+      "part_number": null,
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Metal parts box. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Cardboard box with store label (Store 7081, item 1000837169)",
+      "part_number": "1000837169",
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Store 7081, item 1000837169 \u2014 contents NOT read. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Small silver hardware (cam locks / cabinet fittings)",
+      "part_number": null,
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Cam locks / cabinet fittings type, NOT itemized by size. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Bolts and small fasteners (mixed bin)",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin of mixed bolts and small fasteners. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "White plastic clips / anchors strip",
+      "part_number": null,
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Strip of white plastic clips/anchors, type unconfirmed. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Leather pads / Dynamic leather pads packs",
+      "part_number": null,
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Leather pad pack + Dynamic leather pads pack. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Stainless bar cabinet pulls, packaged",
+      "part_number": null,
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Packaged stainless bar pulls, lengths NOT read. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Black J-hooks, loose",
+      "part_number": null,
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Two black J-hooks seen loose. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Brass-plated hooks pack",
+      "part_number": null,
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Brass-plated hooks pack. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Small bagged hardware (contents unread)",
+      "part_number": null,
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Contents NOT read. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Mixed screws bin",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin of mixed screws. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Drill bits in long grey bin (nearly empty)",
+      "part_number": null,
+      "category": "Tools & Supplies",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Long grey bin, nearly empty, a few drill bits only (note near-empty state, not stocked). Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Staples copy-paper box (reused for screws & bagged parts)",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Reused Staples box containing screws/bags, NOT paper. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Glass mosaic tile strips (loose, beige/brown)",
+      "part_number": null,
+      "category": "Tile/Drywall",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Loose beige/brown glass mosaic tile strips. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "UCAN rivets box",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: UCAN rivets box. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Wall anchors & concrete screws bins",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bins of wall anchors / concrete screws (NOT itemized). Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "White cabinet drawer fastener packs (misc)",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Drawer fastener packs (stove bolts 3/16x1, FitsFast 10x1-1/4, 3/8 pack, wood screws, drill screws), individual counts not totalled, several packs may be partial. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Cartons marked ITEM NO 7301SS, QTY 24 PCS",
+      "part_number": "7301SS",
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: 2 cartons seen, contents unread. Do NOT claim 48 units of anything. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "250V receptacle & 120V plug ends (ELECT 014)",
+      "part_number": "ELECT 014",
+      "category": "Electrical",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, ELECT 014. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Triple gangwall plate (ELECT 011)",
+      "part_number": "ELECT 011",
+      "category": "Electrical",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, ELECT 011. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Gangwall plate (ELECT 008)",
+      "part_number": "ELECT 008",
+      "category": "Electrical",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, ELECT 008 (partial label). Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Tub overflow kit (NOB 029)",
+      "part_number": "NOB 029",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 029. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Shower curtain hookup kits (NOB 030)",
+      "part_number": "NOB 030",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 030. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Toilet bolts / toilet rolls (NOB 031)",
+      "part_number": "NOB 031",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 031. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "1-1/4\" chrome vanity sink drain assy (NOB 032)",
+      "part_number": "NOB 032",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 032. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "1-1/2\" ABS fittings: 90\u00b0 elbow, 45\u00b0s (NOB 033)",
+      "part_number": "NOB 033",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 033. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Split pipe (NOB 034)",
+      "part_number": "NOB 034",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 034 as read. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Metal drain stem / sinks (NOB 023)",
+      "part_number": "NOB 023",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 023. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Dishwasher hookup kit 48\" (NOB 024)",
+      "part_number": "NOB 024",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 024. Bin label only, stock unverified \u2014 no claim available for job without hands-on check. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Dishwasher hookup kit 60\" (NOB 025)",
+      "part_number": "NOB 025",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 025. Bin label only, stock unverified \u2014 no claim available for job without hands-on check. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Dishwasher hookup kit 72\" (NOB 026)",
+      "part_number": "NOB 026",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 026. Bin label only, stock unverified \u2014 no claim available for job without hands-on check. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Toilet bowl ring (NOB 027)",
+      "part_number": "NOB 027",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 027. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Toilet bowl ring w/ sleeve (NOB 028)",
+      "part_number": "NOB 028",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 028. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Braided extension 12\", 1/2 IPS x 3/8 comp (NOB 019)",
+      "part_number": "NOB 019",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 019. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Braided extension 12\", 3/8 OD comp x 3/8 OD comp (NOB 020)",
+      "part_number": "NOB 020",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 020. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Braided extension 12\", 3/8 OD comp x 3/8 comp (NOB 021)",
+      "part_number": "NOB 021",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, NOB 021. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Braided extension 20\"",
+      "part_number": null,
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #5 shelf, 20\" braided extension (partial bin label). Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Slip-on tub spout adapters / shower aerators (NOB 013)",
+      "part_number": "NOB 013",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #6 shelf, NOB 013. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "1-1/2\" P-trap (NOB 014)",
+      "part_number": "NOB 014",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #6 shelf, NOB 014. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "1-1/2\" slip joint adapter (NOB 015)",
+      "part_number": "NOB 015",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #6 shelf, NOB 015. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "1-1/2\" condensate Y / condensate cap (NOB 016)",
+      "part_number": "NOB 016",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #6 shelf, NOB 016. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "1-1/2\" compression fittings (NOB 017)",
+      "part_number": "NOB 017",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #6 shelf, NOB 017 (partial label). Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "1-1/2\" ABS 22.5\u00b0 elbow (NOB 018)",
+      "part_number": "NOB 018",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #6 shelf, NOB 018. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "1-1/2\" T-ABS fittings",
+      "part_number": null,
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #6 shelf, lower bin labelled 1-1/2\" T-ABS. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "1-1/2\" Y-ABS fittings",
+      "part_number": null,
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin wall #6 shelf, lower bin labelled 1-1/2\" Y-ABS. Bin label only, stock unverified. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Box of electrical supplies (wire nuts, cover plates, lamp sockets)",
+      "part_number": null,
+      "category": "Electrical",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Box of electrical: orange wire nuts, cover plates (blue film, round openings), lamp sockets, small fittings (NOT itemized). Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "QEP XL tile leveling clips bag",
+      "part_number": null,
+      "category": "Tile/Drywall",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: QEP XL tile leveling clips bag. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Whirlpool braided washer hoses box",
+      "part_number": "821263RC",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Box read part 821263RC \u2014 verify before ordering from it. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Metal rings / trim pieces in bin",
+      "part_number": null,
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Metal rings / trim pieces in bin below washer hoses (not itemized). Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Square D Equipment Grounding Bar Kit, 40538-645-50",
+      "part_number": "40538-645-50",
+      "category": "Electrical",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Schneider Electric as printed. One kit photographed in hand; total stock not quoted. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Delta Genuine Parts RP19804 cartridge",
+      "part_number": "RP19804",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Packaged, new. One cartridge in hand in photo; warehouse count not quoted. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Delta RP52286 cartridge box in yellow bin",
+      "part_number": "RP52286",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Box seen in yellow bin; count not quoted. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Delta cartridges in yellow bin (part numbers unread)",
+      "part_number": null,
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bin of Delta cartridges, part numbers unread. Not one row per unread cartridge. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Delta MultiChoice Universal Trim, model T13420-CDN",
+      "part_number": "T13420-CDN",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Several boxes on shelf (one open, contents unconfirmed complete); second stack seen in 6th batch \u2014 NOT totalled together, single placeholder row noting both sightings. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Box labelled part 52692-WH15-BG, QTY 10",
+      "part_number": "52692-WH15-BG",
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Label verbatim (dated 30 SEP 2018 as printed). Part type NOT read \u2014 do NOT name part type. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Box marked '1000 164 370'",
+      "part_number": "1000 164 370",
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Label verbatim only; contents NOT read. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Yellow ceramic opaque bug-light bulbs",
+      "part_number": null,
+      "category": "Electrical",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Shelf labelled 'DELTA TRIM KITS / VARIOUS SHOWER HEADS' holds bulbs, NO shower heads visible. Labelled 'CERAMIC OPAQUE / JAUNE'. Hands-on check required. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Beacon 30 watt tube bulbs",
+      "part_number": null,
+      "category": "Electrical",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Tube bulbs on shelf. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "12V auto bulbs pack",
+      "part_number": null,
+      "category": "Electrical",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Pack of 12V auto bulbs on shelf. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Pro 400 Interior Latex, Extra White, B30 W0 8451",
+      "part_number": "B30 W0 8451",
+      "category": "Paint & Chemicals",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Pro 400 Interior Latex, Extra White. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Sherwin-Williams Solo Acrylic Extra White, 3.66 L",
+      "part_number": "A75 W 51 6503-23223",
+      "category": "Paint & Chemicals",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Sherwin-Williams Solo Interior/Exterior 100% Acrylic, Extra White (3.66 L is can size, not stock count). Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Ramuc Premium Pool Paint, EP Hi Build, 1 gallon",
+      "part_number": null,
+      "category": "Paint & Chemicals",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Several cans seen. NOTE: 505 Days pool REMOVED Oct 20 \u2014 pool paint in stock does NOT imply a pool to paint. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Spray can, label partial (Stick...)",
+      "part_number": null,
+      "category": "Paint & Chemicals",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Spray can, label partial ('Stick...'), unread. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "LevelQuik Advanced Acrylic Primer (Custom)",
+      "part_number": null,
+      "category": "Paint & Chemicals",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: LevelQuik Advanced Acrylic Primer. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Dynamic Eco-TSP concentrate",
+      "part_number": null,
+      "category": "Paint & Chemicals",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Dynamic Eco-TSP concentrate. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Jugs labelled '122/123 Plus' (3.5 L)",
+      "part_number": "122/123 Plus",
+      "category": "Paint & Chemicals",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: 3.5 L jugs, product type NOT read beyond label. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "IMCO 1260 MG-Krete Concrete Resurfacer",
+      "part_number": "1260",
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: IMCO 1260 MG-Krete Concrete Resurfacer. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Sakrete Concrete Adhesive",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Sakrete Concrete Adhesive. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Stone Mason primer jug",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Stone Mason primer jug. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "James Hardie ColorPlus touch-up bottles (Night Gray)",
+      "part_number": null,
+      "category": "Paint & Chemicals",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: James Hardie ColorPlus touch-up bottles (Night Gray). Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Polyurethane sealant tubes",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Polyurethane sealant tubes (box-labelled). Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Expert sealant tubes",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: 'Expert' sealant tubes. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Bird repellent tubes",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bird repellent tubes. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "GE Silicone tubes (box)",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: GE Silicone tubes (box). Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Tremco Acoustical / Curtainwall Sealant",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Tubes and full boxes \u2014 count not quoted. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "White Lightning Crystal Clear All Weather Sealant",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: White Lightning Crystal Clear All Weather Construction Sealant tube. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Mono silicone (clear) tubes",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Mono silicone (clear) tubes. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "DAP sealant tube",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: DAP sealant tube. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "GE Silicone Advanced Kitchen & Bath, clear, 100% silicone",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Tube in hand + box of same \u2014 do NOT total hand + box. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Thin wood shims / shingles pack (bulk 11.3 kg)",
+      "part_number": null,
+      "category": "Carpentry",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Box of thin wood pieces (bulk pack 11.3 kg) \u2014 shims/shingles type, unconfirmed. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Everbilt fiberglass screen patches (peel-and-stick)",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Everbilt fiberglass screen patches (peel-and-stick). Directly relevant to screen jobs, sizes not read. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Screen spline roll (bagged)",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bagged screen spline roll. Spline size not read, hands-on check required. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Peak Screening corner springs / pull tabs pack",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Peak Screening corner springs / pull tabs pack. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Screen mesh roll (bagged)",
+      "part_number": null,
+      "category": "Building Envelope",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Bagged screen mesh roll, size NOT read \u2014 do not promise fit for specific frame without check. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Rotom Canada motor, model 06-R207",
+      "part_number": "06-R207",
+      "category": "HVAC",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Label 1/70, 115V, 0.80A, 1600 TPM as read; boxes seen, count not quoted. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Honeywell Home PRO 1000 thermostat, TH1110",
+      "part_number": "TH1110",
+      "category": "HVAC",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Non-programmable 1H/1C thermostat, box photographed. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Grey access panels",
+      "part_number": null,
+      "category": "Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Grey access panels leaning beside shelf, not itemized. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "White toilet seat / lid",
+      "part_number": null,
+      "category": "Plumbing",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Toilet seat/lid leaning, bowl not seen. Source: Jose photos Nov 4, 2026."
+    }
+  ],
+  "equipment": [
+    {
+      "name": "Wheeled red-frame drain machine with coiled cable drum",
+      "category": "Drain Cleaning",
+      "status": "unknown",
+      "notes": "Large auger with coiled cable on top drum, wheeled red tubular frame. Model NULL (not legible/read), condition unknown. NOTE: Emerson motor plate photographed nearby not locked to this unit. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Ridgid drain machine (K-...)",
+      "category": "Drain Cleaning",
+      "status": "unknown",
+      "notes": "Smaller grey/red drain machine beside red auger. Plate reads brand Ridgid, model 'K-...' only, 120V ~ 60 Hz. Model, serial, and amps not legible \u2014 re-photo plate before recording model or ordering parts. Do NOT lock K-60. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Fire extinguisher (warehouse floor)",
+      "category": "Safety Equipment",
+      "status": "unknown",
+      "notes": "Fire extinguisher beside drain machines. Condition unknown. Distinct from 107 Amherst fire extinguisher. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Omega blue gas compressor (Honda engine)",
+      "category": "Air Compressors",
+      "status": "unknown",
+      "notes": "Omega blue gas compressor with Honda engine (red cover). Model NULL (not read), condition unknown. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Landa pressure washer unit",
+      "category": "Pressure Washers",
+      "status": "unknown",
+      "notes": "Grey box unit, Landa Ontario 1-800-472-3990 sticker. Model NULL (not read), condition unknown. Blue barrel + tank beside it not seeded. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Gas torch cylinder with regulator, gauges and hoses",
+      "category": "Torch Equipment",
+      "status": "unknown",
+      "notes": "Gas cylinder with regulator, pressure gauges and torch hoses. Gas type NOT read \u2014 do not guess gas type. Condition unknown. Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Air-mover floor fan (warehouse)",
+      "category": "Air Movers",
+      "status": "unknown",
+      "notes": "Black air-mover floor fan on right side of photo. Condition unconfirmed. Distinct warehouse unit (do not merge with 107 Amherst fan). Source: Jose photos Nov 4, 2026."
+    },
+    {
+      "name": "Key-cutting machine (orange/grey, bench-mounted)",
+      "category": "Key Cutting",
+      "status": "unknown",
+      "notes": "Orange/grey bench-mounted key-cutting machine. Oct 26 prior record confirmed still present Nov 4 (previously lacked live equipment row at 698 McKay Warehouse; distinct from Sea Can 12 key machine). Source: Jose photos Nov 4, 2026."
+    }
+  ]
+}
