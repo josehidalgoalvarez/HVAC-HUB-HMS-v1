@@ -301,7 +301,7 @@ export const BUILDING_PROFILES: Record<string, BuildingProfile> = {
     waterHeaters: null,
     pumps: null,
     solarPanels: null,
-    storageNote: null,
+    storageNote: 'Storage room photographed Nov 1, 2026 (stockpile record id 29 exists, 10 TBD placeholders live: cleaning supplies, paint supplies, renovation materials/finishes, window screens, plumbing fixtures, lighting flush mounts, LED bulbs, electrical supplies, fire extinguishers, signs/misc — separate from 107 Amherst Storage, do not merge). Parts menu is the master list; link to it, do not duplicate it.',
     notes: 'Tracked units: 35 + UTILITY (UTILITY is a space, NOT a unit — do not count it as a unit; if the UI computes 35, that matches, UTILITY aside; report the computed total and the UTILITY note together). Same roster as 107 Amherst — 103 was confirmed Oct 22, 2026 as a real TWIN of 107 that Jose had forgotten; do not merge 103 and 107. 103 is in the Amherst row (44 buildings, odd numbers 103–229).'
   },
 

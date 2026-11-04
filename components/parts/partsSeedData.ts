@@ -117,6 +117,14 @@ export const SEED_STOCKPILES: Stockpile[] = [
     buildingId: 'prop-mckay-698',
     building_id: 89,
     notes: '698 McKay exterior sea container storage units',
+  },
+  {
+    id: 29,
+    name: '103 Amherst Storage',
+    location: '103 Amherst Dr',
+    buildingId: 'prop-amherst-103',
+    building_id: 90,
+    notes: 'Amherst storage room photographed Nov 1, 2026 — separate from 107 Amherst Storage, do not merge.',
   }
 ];
 
