@@ -1022,43 +1022,44 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                   className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-200/80 dark:border-gray-800 hover:border-primary/40 shadow-xs space-y-3 cursor-pointer transition-all"
                   data-testid={`equipment-row-${eq.id}`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30">
-                          EQUIPMENT
+                  {/* Header: Full-width Chips & Title Row */}
+                  <div className="space-y-1.5 w-full">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                        EQUIPMENT
+                      </span>
+                      {eq.category && (
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+                          {eq.category}
                         </span>
-                        {eq.category && (
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
-                            {eq.category}
-                          </span>
-                        )}
-                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${statusColors[eq.status] || statusColors.unknown}`}>
-                          {eq.status}
-                        </span>
-                      </div>
-                      <h3 className="text-sm font-bold text-brand-black dark:text-white leading-snug break-words">
-                        {eq.name}
-                      </h3>
+                      )}
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${statusColors[eq.status] || statusColors.unknown}`}>
+                        {eq.status}
+                      </span>
                     </div>
+                    <h3 className="text-sm font-bold text-brand-black dark:text-white leading-snug break-words">
+                      {eq.name}
+                    </h3>
+                  </div>
 
-                    {/* Actions: Movement History, Quick Status Selector & Delete */}
-                    <div
-                      className="flex items-center gap-1.5 shrink-0"
-                      onClick={(e) => e.stopPropagation()}
+                  {/* Actions Row: History, Quick Status Selector & Delete with clean wrapping */}
+                  <div
+                    className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-gray-800/60 flex-wrap"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSelectedEquipmentForMovement(eq)}
+                      className="min-h-[44px] px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95"
+                      title="View Equipment Detail & Movement History"
+                      aria-label={`View movement history for ${eq.name}`}
+                      data-testid={`equipment-movement-btn-${eq.id}`}
                     >
-                      <button
-                        type="button"
-                        onClick={() => setSelectedEquipmentForMovement(eq)}
-                        className="min-h-[44px] px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95"
-                        title="View Equipment Detail & Movement History"
-                        aria-label={`View movement history for ${eq.name}`}
-                        data-testid={`equipment-movement-btn-${eq.id}`}
-                      >
-                        <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
-                        <span>History</span>
-                      </button>
+                      <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
+                      <span>History</span>
+                    </button>
 
+                    <div className="flex items-center gap-1.5 ml-auto">
                       <select
                         value={eq.status}
                         onChange={(e) => handleUpdateEquipmentStatus(eq, e.target.value as EquipmentStatus)}
