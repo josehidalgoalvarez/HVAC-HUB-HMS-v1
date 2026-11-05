@@ -627,6 +627,15 @@ export class ApiClient {
   }
 
   /**
+   * Delete an empty run sheet shell ONLY
+   */
+  public async deleteRunSheet(
+    id: string | number
+  ): Promise<{ deleted: boolean; id: number }> {
+    return this.delete<{ deleted: boolean; id: number }>(`/api/run-sheets/${id}`);
+  }
+
+  /**
    * Suggest batch of travel-ordered time blocks grouped by site proximity
    */
   public async suggestRunSheetBatch(data: {

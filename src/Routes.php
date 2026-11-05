@@ -236,6 +236,7 @@ class Routes
             $group->post('/run-sheets/{id}/blocks', [RunSheetController::class, 'addBlock']);
             $group->patch('/run-sheets/{id}/blocks/{blockId}', [RunSheetController::class, 'updateBlock']);
             $group->delete('/run-sheets/{id}/blocks/{blockId}', [RunSheetController::class, 'deleteBlock']);
+            $group->delete('/run-sheets/{id}', [RunSheetController::class, 'deleteShell']);
 
             // --- Field Jobs & Offline Sync (Phase 3 Field Loop) ---
             $group->get('/jobs', [JobController::class, 'index']);

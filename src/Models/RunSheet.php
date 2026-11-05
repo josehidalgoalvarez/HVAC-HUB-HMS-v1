@@ -254,4 +254,41 @@ class RunSheet
 
         return self::findById($id) ?? [];
     }
+
+    /**
+     * Delete an empty run sheet shell ONLY.
+     * Rejects deletion if any blocks or logged work exist on the sheet.
+     */
+    public static function deleteEmptyShell(int|string $id, ?int $userId = null, ?string $reason = null): bool
+    {
+        $sheet = self::findById($id);
+        if ($sheet === null) {
+            return false;
+        }
+
+        // Distinguishing rule: check if any blocks exist
+        $blockCount = (int) (Db::fetchOne("SELECT COUNT(*) as c FROM run_sheet_block WHERE run_sheet_id = ?", [(int) $id])['c'] ?? 0);
+        if ($blockCount > 0) {
+            throw new \RuntimeException("Cannot delete run sheet #{$id}: plan has {$blockCount} block(s). Only empty shells can be deleted.");
+        }
+
+        // Check if any jobs reference this run sheet
+        $jobCount = (int) (Db::fetchOne("SELECT COUNT(*) as c FROM job WHERE run_sheet_block_id IN (SELECT id FROM run_sheet_block WHERE run_sheet_id = ?)", [(int) $id])['c'] ?? 0);
+        if ($jobCount > 0) {
+            throw new \RuntimeException("Cannot delete run sheet #{$id}: plan has active jobs.");
+        }
+
+        Correction::record(
+            'run_sheet',
+            (int) $id,
+            'status',
+            $sheet['status'],
+            'deleted',
+            $userId,
+            $reason ?? "Deleted empty run sheet shell #{$id} ({$sheet['run_date']})"
+        );
+
+        Db::execute("DELETE FROM run_sheet WHERE id = ?", [(int) $id]);
+        return true;
+    }
 }

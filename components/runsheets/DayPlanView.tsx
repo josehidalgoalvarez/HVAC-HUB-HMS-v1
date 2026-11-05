@@ -33,6 +33,8 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
   const [closingBlock, setClosingBlock] = useState<RunSheetBlock | null>(null);
   const [removingBlock, setRemovingBlock] = useState<RunSheetBlock | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [showDeleteShellModal, setShowDeleteShellModal] = useState(false);
+  const [isDeletingShell, setIsDeletingShell] = useState(false);
 
   const loadDayPlan = async (date: string) => {
     const cacheKey = `runsheet_${date}`;
@@ -124,6 +126,30 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
     }
   };
 
+  const isEmptyShell = !!(activeRunSheet && (!activeRunSheet.blocks || activeRunSheet.blocks.length === 0));
+
+  const handleConfirmDeleteShell = async () => {
+    if (!activeRunSheet || !isEmptyShell) return;
+    setIsDeletingShell(true);
+    setError(null);
+
+    try {
+      await apiClient.deleteRunSheet(activeRunSheet.id);
+      const cacheKey = `runsheet_${currentDate}`;
+      await appCache.set(cacheKey, null);
+      setActiveRunSheet(null);
+      setShowDeleteShellModal(false);
+      setFeedbackMessage('Empty day plan deleted');
+      setTimeout(() => setFeedbackMessage(null), 3000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete empty day plan';
+      setError(msg);
+      setShowDeleteShellModal(false);
+    } finally {
+      setIsDeletingShell(false);
+    }
+  };
+
   const getGateBadge = (gate?: string) => {
     switch (gate) {
       case 'green':
@@ -177,14 +203,26 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
           </div>
         </div>
 
-        <Button
-          variant="primary"
-          onClick={() => setIsBatchBuilderOpen(true)}
-          className="py-2 px-3 text-xs shadow-md shrink-0 flex items-center gap-1"
-          icon="alt_route"
-        >
-          Plan Day
-        </Button>
+        <div className="flex items-center gap-2">
+          {isEmptyShell && (
+            <Button
+              variant="danger"
+              onClick={() => setShowDeleteShellModal(true)}
+              className="py-2 px-3 text-xs shadow-xs shrink-0 flex items-center gap-1 min-h-[44px]"
+              icon="delete"
+            >
+              Delete Plan
+            </Button>
+          )}
+          <Button
+            variant="primary"
+            onClick={() => setIsBatchBuilderOpen(true)}
+            className="py-2 px-3 text-xs shadow-md shrink-0 flex items-center gap-1 min-h-[44px]"
+            icon="alt_route"
+          >
+            Plan Day
+          </Button>
+        </div>
       </div>
 
       {/* Date Navigation Strip */}
@@ -542,6 +580,48 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
           onClose={() => setClosingBlock(null)}
           onSuccess={handleBlockUpdated}
         />
+      )}
+
+      {/* Delete Empty Shell Confirmation Modal */}
+      {showDeleteShellModal && isEmptyShell && (
+        <Modal onClose={() => !isDeletingShell && setShowDeleteShellModal(false)} className="max-w-sm">
+          <div className="flex flex-col items-center text-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-brand-red mb-1">
+              <span className="material-symbols-outlined text-[32px]">delete</span>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-brand-black dark:text-white">
+                Delete this empty plan?
+              </h3>
+              <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-2">
+                Empty plan shell for <span className="font-mono font-bold text-brand-black dark:text-white">{currentDate}</span> has no scheduled jobs or logged work.
+              </p>
+              <p className="text-[11px] text-gray-400 mt-2">
+                No tickets, jobs, or corrections will be deleted.
+              </p>
+            </div>
+            <div className="flex gap-3 w-full mt-2">
+              <Button
+                onClick={() => setShowDeleteShellModal(false)}
+                variant="secondary"
+                disabled={isDeletingShell}
+                fullWidth
+                className="min-h-[44px]"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmDeleteShell}
+                variant="danger"
+                disabled={isDeletingShell}
+                fullWidth
+                className="min-h-[44px]"
+              >
+                {isDeletingShell ? 'Deleting...' : 'Delete'}
+              </Button>
+            </div>
+          </div>
+        </Modal>
       )}
 
       {/* Remove Block Confirmation Modal */}

@@ -164,4 +164,31 @@ class RunSheetController
             return Auth::jsonError('batch_suggest_failed', 'Failed to generate batch suggestion: ' . $e->getMessage(), 500);
         }
     }
+
+    /**
+     * DELETE /api/run-sheets/{id}
+     * Delete an empty run sheet shell ONLY.
+     */
+    public function deleteShell(Request $request, Response $response, array $args): Response
+    {
+        $id = $args['id'] ?? null;
+        if (!$id) {
+            return Auth::jsonError('bad_request', 'Missing run sheet ID', 400);
+        }
+
+        $user = $request->getAttribute('user');
+        $userId = isset($user['id']) ? (int) $user['id'] : null;
+
+        try {
+            $deleted = RunSheet::deleteEmptyShell($id, $userId);
+            if (!$deleted) {
+                return Auth::jsonError('not_found', "Run sheet #{$id} not found", 404);
+            }
+            return Auth::jsonSuccess(['deleted' => true, 'id' => (int) $id]);
+        } catch (\RuntimeException $e) {
+            return Auth::jsonError('cannot_delete_non_empty', $e->getMessage(), 400);
+        } catch (\Throwable $e) {
+            return Auth::jsonError('server_error', 'Failed to delete run sheet: ' . $e->getMessage(), 500);
+        }
+    }
 }

@@ -26,6 +26,7 @@ use App\Db;
 use App\Models\Part;
 
 $isRun = in_array('--run', $argv, true);
+$confirmOverwrite = in_array('--confirm-overwrite', $argv, true);
 $mode = $isRun ? 'RUN (LIVE APPLY)' : 'DRY-RUN (NO CHANGES)';
 
 echo "=== Model Parts Seeder Nov 02, 2026 ===\n";
@@ -87,9 +88,22 @@ foreach ($items as $idx => $item) {
         $existingId = (int) $existing['id'];
         echo "       Status: EXISTS (ID: $existingId)\n";
         echo "       Existing Qty: {$existing['quantity_on_hand']}, Stockpile: " . ($existing['stockpile_id'] ?? 'NULL') . "\n";
+
+        if ($isRun && !$confirmOverwrite) {
+            echo "       Action: SKIP overwrite (pass --confirm-overwrite to update compatible_models & supplier)\n";
+            $results[] = [
+                'part_number' => $pn,
+                'name' => $name,
+                'action' => 'SKIP_OVERWRITE',
+                'id' => $existingId,
+                'models' => $models
+            ];
+            continue;
+        }
+
         echo "       Action: UPDATE compatible_models & preferred_supplier_id only (preserve stock)\n";
 
-        if ($isRun) {
+        if ($isRun && $confirmOverwrite) {
             Db::execute(
                 "UPDATE part SET compatible_models = :models, preferred_supplier_id = :supplier_id, updated_at = CURRENT_TIMESTAMP WHERE id = :id",
                 [

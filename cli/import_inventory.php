@@ -26,7 +26,8 @@ require_once __DIR__ . '/../src/Db.php';
 
 use App\Db;
 
-$options = getopt('', ['dry-run', 'apply', 'file:']);
+$options = getopt('', ['dry-run', 'apply', 'confirm-overwrite', 'file:']);
+$confirmOverwrite = isset($options['confirm-overwrite']);
 $isApply = isset($options['apply']);
 $filePath = $options['file'] ?? (__DIR__ . '/inventory_seed_oct27.json');
 
