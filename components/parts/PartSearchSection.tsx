@@ -14,6 +14,57 @@ interface PartSearchSectionProps {
   onOpenStockpileInventory?: (stockpileId: number | string) => void;
 }
 
+/**
+ * Abbreviates stockpile names for compact chip display in the Parts Catalog.
+ * Preserves street number and distinguishing words while dropping redundant 'Storage'/'Stockpile'
+ * and shortening standard road suffixes.
+ */
+export function abbreviateStockpileName(name: string): string {
+  const s = (name || '').trim();
+
+  // 265 Ontario specific distinctions
+  if (/265\s+Ontario.*(?:1st Floor|Upstairs)/i.test(s)) {
+    return '265 Upstairs';
+  }
+  if (/265\s+Ontario.*Basement/i.test(s)) {
+    return '265 Basement';
+  }
+
+  // Sea Cans: 'Sea Can X — 698 McKay' -> 'Sea Can X'
+  const mCan = s.match(/^(Sea Can \d+)(?:\s*[—\-]\s*.*)?$/i);
+  if (mCan) {
+    return mCan[1];
+  }
+
+  let out = s;
+  if (/Sea Containers/i.test(out)) {
+    out = out.replace(/Sea Containers/i, 'Sea Cans');
+  }
+
+  // Drop trailing ' Storage' or ' Stockpile'
+  out = out.replace(/\s+(?:Storage|Stockpile)$/i, '');
+
+  // 698 / 692 McKay St Warehouse -> 698 / 692 Warehouse
+  if (/698\s+McKay.*Warehouse/i.test(out)) {
+    return '698 Warehouse';
+  }
+  if (/692\s+McKay.*Warehouse/i.test(out)) {
+    return '692 Warehouse';
+  }
+
+  // Standard road abbreviations
+  out = out
+    .replace(/Street/gi, 'St')
+    .replace(/Road/gi, 'Rd')
+    .replace(/Drive/gi, 'Dr')
+    .replace(/Avenue/gi, 'Ave');
+
+  // Drop ' St ' / ' Rd ' before Warehouse if still present
+  out = out.replace(/\s+(?:St|Rd|Ave|Dr)\s+Warehouse/gi, ' Warehouse');
+
+  return out.trim();
+}
+
 export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
   parts,
   stockpiles = [],
@@ -28,6 +79,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
 }) => {
   const [filter, setFilter] = useState<'all' | 'reorder' | 'available' | 'harvest'>('all');
   const [selectedStockpileId, setSelectedStockpileId] = useState<string>('all');
+  const [locationQuery, setLocationQuery] = useState<string>('');
   const [expandedPriceHistoryId, setExpandedPriceHistoryId] = useState<number | null>(null);
 
   const filteredHarvestCandidates = harvestCandidates.filter(c => {
@@ -152,41 +204,92 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
         </button>
       </div>
 
-      {/* Storage Location Filter Chips */}
-      {stockpiles && stockpiles.length > 0 && (
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark shrink-0 flex items-center gap-1">
-            <span className="material-symbols-outlined text-[15px] text-amber-500">warehouse</span>
-            Depot:
-          </span>
-          <button
-            onClick={() => setSelectedStockpileId('all')}
-            className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-              selectedStockpileId === 'all'
-                ? 'bg-amber-500 text-brand-black shadow-xs'
-                : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
-            }`}
-          >
-            All Locations ({stockpiles.length})
-          </button>
-          {stockpiles.map(sp => {
-            const isSelected = selectedStockpileId === String(sp.id);
-            return (
+      {/* Storage Location Filter Chips & Location Filter Input */}
+      {stockpiles && stockpiles.length > 0 && (() => {
+        const trimmedLocQuery = locationQuery.trim().toLowerCase();
+        const filteredStockpiles = stockpiles.filter(sp => {
+          if (!trimmedLocQuery) return true;
+          const fullName = (sp.name || '').toLowerCase();
+          const loc = (sp.location || '').toLowerCase();
+          const abbr = abbreviateStockpileName(sp.name).toLowerCase();
+          return fullName.includes(trimmedLocQuery) || loc.includes(trimmedLocQuery) || abbr.includes(trimmedLocQuery);
+        });
+
+        return (
+          <div className="space-y-2.5 pt-1">
+            {/* Location Filter Input Bar */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="relative flex-1">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-amber-500 text-base">
+                  warehouse
+                </span>
+                <input
+                  type="text"
+                  placeholder="Filter locations…"
+                  value={locationQuery}
+                  onChange={e => setLocationQuery(e.target.value)}
+                  className="w-full pl-9 pr-8 py-2 rounded-xl bg-gray-50 dark:bg-card-dark border border-gray-200 dark:border-gray-800 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 shadow-2xs transition-all placeholder:text-gray-400"
+                />
+                {locationQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setLocationQuery('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full cursor-pointer"
+                    aria-label="Clear location filter"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">close</span>
+                  </button>
+                )}
+              </div>
+              <span className="text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark shrink-0 px-1">
+                Showing {filteredStockpiles.length} of {stockpiles.length}
+              </span>
+            </div>
+
+            {/* Wrapping Chips Layout */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {/* All Locations Chip (Always Visible) */}
               <button
-                key={sp.id}
-                onClick={() => setSelectedStockpileId(isSelected ? 'all' : String(sp.id))}
-                className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                  isSelected
-                    ? 'bg-amber-500 text-brand-black font-bold shadow-xs'
+                type="button"
+                onClick={() => setSelectedStockpileId('all')}
+                className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                  selectedStockpileId === 'all'
+                    ? 'bg-amber-500 text-brand-black shadow-xs'
                     : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
                 }`}
               >
-                {sp.name}
+                <span>All Locations ({stockpiles.length})</span>
               </button>
-            );
-          })}
-        </div>
-      )}
+
+              {filteredStockpiles.length === 0 ? (
+                <div className="w-full py-3 px-3.5 rounded-xl bg-gray-50 dark:bg-card-dark/60 border border-dashed border-gray-300 dark:border-gray-700 text-xs text-text-sub-light dark:text-text-sub-dark italic">
+                  No location matches &apos;{locationQuery}&apos;
+                </div>
+              ) : (
+                filteredStockpiles.map(sp => {
+                  const isSelected = selectedStockpileId === String(sp.id);
+                  const abbrLabel = abbreviateStockpileName(sp.name);
+                  return (
+                    <button
+                      type="button"
+                      key={sp.id}
+                      onClick={() => setSelectedStockpileId(isSelected ? 'all' : String(sp.id))}
+                      title={sp.name}
+                      className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-amber-500 text-brand-black font-bold shadow-xs'
+                          : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
+                      }`}
+                    >
+                      {abbrLabel}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Selected Stockpile Dedicated Location Inventory Banner */}
       {selectedStockpileId !== 'all' && onOpenStockpileInventory && (() => {
