@@ -331,13 +331,31 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     }
   };
 
-  const handleMarkPartArrived = async (partId: number | string) => {
+  const handleMarkPartArrived = async (part: any) => {
     if (!ticket) return;
+    const partName = part.part_name || 'Part';
+    const woLabel = ticket.wo_number ? `WO #${ticket.wo_number}` : `Ticket #${ticket.id}`;
+    const confirmed = window.confirm(
+      `Mark "${partName}" as arrived for ${ticket.title} (${woLabel})?`
+    );
+    if (!confirmed) return;
+
     try {
-      await apiClient.markTicketPartArrived(partId);
+      await apiClient.markTicketPartArrived(part.id);
       await loadTicketData();
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Failed to mark part arrived');
+    }
+  };
+
+  const handleUndoPartArrived = async (part: any) => {
+    if (!ticket) return;
+    const partName = part.part_name || 'Part';
+    try {
+      await apiClient.unmarkTicketPartArrived(part.id);
+      await loadTicketData();
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : `Failed to undo arrival for ${partName}`);
     }
   };
 
@@ -1226,11 +1244,23 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 {p.status === 'ordered' && (
                   <button
                     type="button"
-                    onClick={() => handleMarkPartArrived(p.id)}
-                    className="min-h-[36px] px-3 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs flex items-center justify-center gap-1 shrink-0 transition-colors"
+                    onClick={() => handleMarkPartArrived(p)}
+                    className="min-h-[36px] px-3 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs flex items-center justify-center gap-1 shrink-0 transition-colors active:scale-95"
                   >
                     <span className="material-symbols-outlined text-[16px]">inventory_2</span>
                     Mark Arrived
+                  </button>
+                )}
+
+                {p.status === 'arrived' && (
+                  <button
+                    type="button"
+                    onClick={() => handleUndoPartArrived(p)}
+                    className="min-h-[36px] px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-brand-red border border-gray-200 dark:border-gray-700 hover:border-red-300 rounded-xl transition-colors flex items-center justify-center gap-1 shrink-0 active:scale-95"
+                    title="Undo marked as arrived (restore to ordered)"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">undo</span>
+                    <span>Undo</span>
                   </button>
                 )}
               </div>

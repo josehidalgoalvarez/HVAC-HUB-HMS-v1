@@ -374,6 +374,72 @@ class Job
     }
 
     /**
+     * Remove a note from a job (undo action).
+     */
+    public static function removeNote(int|string $jobId, int|string $noteId, ?int $userId = null, string $reason = 'Undo note'): bool
+    {
+        $job = self::findById($jobId);
+        if ($job === null) {
+            throw new RuntimeException("Job #{$jobId} not found");
+        }
+        if ($job['status'] === self::STATUS_COMPLETED) {
+            throw new RuntimeException("Cannot undo note on completed job #{$jobId}");
+        }
+
+        $note = Db::fetchOne('SELECT * FROM job_note WHERE id = ? AND job_id = ?', [(int) $noteId, (int) $jobId]);
+        if (!$note) {
+            return false;
+        }
+
+        Db::execute('DELETE FROM job_note WHERE id = ? AND job_id = ?', [(int) $noteId, (int) $jobId]);
+
+        Correction::record(
+            'job',
+            (int) $jobId,
+            'note_removed',
+            mb_substr((string) ($note['note_text'] ?? ''), 0, 100),
+            null,
+            $userId,
+            $reason
+        );
+
+        return true;
+    }
+
+    /**
+     * Remove a part used record from a job (undo action).
+     */
+    public static function removePartUsed(int|string $jobId, int|string $partId, ?int $userId = null, string $reason = 'Undo part used'): bool
+    {
+        $job = self::findById($jobId);
+        if ($job === null) {
+            throw new RuntimeException("Job #{$jobId} not found");
+        }
+        if ($job['status'] === self::STATUS_COMPLETED) {
+            throw new RuntimeException("Cannot undo part on completed job #{$jobId}");
+        }
+
+        $part = Db::fetchOne('SELECT * FROM job_part WHERE id = ? AND job_id = ?', [(int) $partId, (int) $jobId]);
+        if (!$part) {
+            return false;
+        }
+
+        Db::execute('DELETE FROM job_part WHERE id = ? AND job_id = ?', [(int) $partId, (int) $jobId]);
+
+        Correction::record(
+            'job',
+            (int) $jobId,
+            'part_removed',
+            (string) ($part['part_name'] ?? ''),
+            null,
+            $userId,
+            $reason
+        );
+
+        return true;
+    }
+
+    /**
      * Attach a photo record to a job.
      */
     public static function addPhoto(int|string $jobId, string $filePath, int $fileSizeBytes = 0, ?string $caption = null, ?int $userId = null): array

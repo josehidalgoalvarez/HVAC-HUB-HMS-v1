@@ -220,6 +220,18 @@ class Routes
                     return Auth::jsonError('part_arrival_failed', $e->getMessage(), 400);
                 }
             });
+            $group->post('/ticket-parts/{id}/unarrive', function (Request $request, Response $response, array $args): Response {
+                $id = (int) ($args['id'] ?? 0);
+                $body = (array) ($request->getParsedBody() ?? []);
+                $actor = trim((string) ($body['actor'] ?? 'Jose (Tech)'));
+                $reason = trim((string) ($body['reason'] ?? ''));
+                try {
+                    $part = \App\Models\PartWorkflow::unmarkPartArrived($id, $actor, $reason ?: null);
+                    return Auth::jsonSuccess($part);
+                } catch (\Throwable $e) {
+                    return Auth::jsonError('part_unarrival_failed', $e->getMessage(), 400);
+                }
+            });
 
             // --- Notice Domain Endpoints ---
             $group->get('/notices', [NoticeController::class, 'index']);
@@ -245,7 +257,9 @@ class Routes
             $group->patch('/jobs/{id}', [JobController::class, 'update']);
             $group->post('/jobs/{id}/photos', [JobController::class, 'uploadPhoto']);
             $group->post('/jobs/{id}/parts-used', [JobController::class, 'addPartsUsed']);
+            $group->delete('/jobs/{id}/parts-used/{partId}', [JobController::class, 'removePartUsed']);
             $group->post('/jobs/{id}/notes', [JobController::class, 'addNotes']);
+            $group->delete('/jobs/{id}/notes/{noteId}', [JobController::class, 'removeNote']);
             $group->post('/jobs/{id}/close', [JobController::class, 'close']);
             $group->post('/sync', [JobController::class, 'batchSync']);
 

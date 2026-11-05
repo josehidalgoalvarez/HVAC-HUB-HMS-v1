@@ -48,6 +48,8 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
 
   // Network & Cache State
   const [isOfflineView, setIsOfflineView] = useState(false);
+  const [lastDeletedItem, setLastDeletedItem] = useState<{ item: ManualBuyItem; linkedWo?: string | null } | null>(null);
+  const [undoDeleting, setUndoDeleting] = useState(false);
   const [isSyncingManual, setIsSyncingManual] = useState(false);
 
   // Helper to test if device is currently online
@@ -306,9 +308,27 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
     }
   };
 
-  // 5. Delete manual item
+  // 5. Delete manual item with explicit confirmation
   const handleDeleteManualItem = async (id: number | string) => {
     setActionError(null);
+
+    const targetItem = manualItems.find(m => String(m.id) === String(id));
+    if (!targetItem) return;
+
+    // Derive linked WO if present
+    let linkedWo: string | null = null;
+    if (targetItem.ticket_id) {
+      const matchedTicket = tickets.find(t => String(t.id) === String(targetItem.ticket_id));
+      linkedWo = matchedTicket ? (matchedTicket.wo_number ? `WO-${matchedTicket.wo_number}` : `Ticket #${matchedTicket.id}`) : `Ticket #${targetItem.ticket_id}`;
+    }
+
+    const confirmPrompt = linkedWo
+      ? `Delete "${targetItem.part_name}" (Qty: ${targetItem.quantity}, Linked: ${linkedWo}) from Buy List?`
+      : `Delete "${targetItem.part_name}" (Qty: ${targetItem.quantity}) from Buy List?`;
+
+    if (!window.confirm(confirmPrompt)) {
+      return;
+    }
 
     // Check online status - FAIL LOUDLY when offline, item stays
     if (!checkIsOnline()) {
@@ -323,7 +343,10 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       setManualItems(updated);
       await appCache.set(MANUAL_BUY_CACHE_KEY, updated);
 
-      setFlashMsg('Item removed from Buy List');
+      // Save to lastDeletedItem for single-level undo
+      setLastDeletedItem({ item: targetItem, linkedWo });
+
+      setFlashMsg(`Removed "${targetItem.part_name}" from Buy List`);
       setTimeout(() => setFlashMsg(null), 3500);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to delete buy list item';
@@ -333,6 +356,46 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
         setActionError(message);
       }
       setTimeout(() => setActionError(null), 5000);
+    }
+  };
+
+  // 5b. Undo deletion of manual item
+  const handleUndoDeleteManualItem = async () => {
+    if (!lastDeletedItem || undoDeleting) return;
+
+    if (!checkIsOnline()) {
+      setActionError('Connection required: Cannot restore deleted item while offline.');
+      setTimeout(() => setActionError(null), 5000);
+      return;
+    }
+
+    const { item } = lastDeletedItem;
+    setUndoDeleting(true);
+    setActionError(null);
+
+    try {
+      const restored = await apiClient.createManualBuyItem({
+        part_name: item.part_name,
+        quantity: item.quantity,
+        part_number: item.part_number || null,
+        supplier: item.supplier || null,
+        notes: item.notes || null,
+        ticket_id: item.ticket_id ? Number(item.ticket_id) : null,
+      });
+
+      const updated = [restored, ...manualItems];
+      setManualItems(updated);
+      await appCache.set(MANUAL_BUY_CACHE_KEY, updated);
+
+      setLastDeletedItem(null); // Affordance disappears after first use (prevents double-undo duplicates)
+      setFlashMsg(`Restored "${item.part_name}" to Buy List`);
+      setTimeout(() => setFlashMsg(null), 3500);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to restore item';
+      setActionError(message);
+      setTimeout(() => setActionError(null), 5000);
+    } finally {
+      setUndoDeleting(false);
     }
   };
 
@@ -539,6 +602,31 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
             className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-200 dark:bg-amber-900/60 hover:bg-amber-300 text-amber-900 dark:text-amber-100 shrink-0 transition-colors"
           >
             {isSyncingManual ? 'Connecting...' : 'Retry'}
+          </button>
+        </div>
+      )}
+
+      {/* Undo Banner for Delete Manual Item */}
+      {lastDeletedItem && (
+        <div className="p-3.5 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between gap-3 animate-fadeIn">
+          <div className="space-y-0.5 min-w-0">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-brand-black dark:text-white truncate">
+              <span className="material-symbols-outlined text-sm text-amber-500 shrink-0">delete</span>
+              <span className="truncate">Deleted "{lastDeletedItem.item.part_name}" (x{lastDeletedItem.item.quantity}{lastDeletedItem.linkedWo ? ` · ${lastDeletedItem.linkedWo}` : ''})</span>
+            </div>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+              Item removed from list. Tap Undo to restore with identical details.
+            </p>
+          </div>
+
+          <button
+            onClick={handleUndoDeleteManualItem}
+            disabled={undoDeleting}
+            className="min-h-[44px] px-3.5 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200 hover:text-brand-red dark:hover:text-red-400 border border-gray-300 dark:border-gray-600 hover:border-red-300 rounded-xl transition-colors shrink-0 flex items-center gap-1"
+            title="Restore deleted item (Undo)"
+          >
+            <span className="material-symbols-outlined text-sm">undo</span>
+            <span>{undoDeleting ? 'Restoring...' : 'Undo'}</span>
           </button>
         </div>
       )}

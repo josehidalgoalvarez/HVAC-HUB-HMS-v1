@@ -195,6 +195,73 @@ class PartWorkflow
         return self::getPartById($ticketPartId);
     }
 
+    /**
+     * Revert / Undo a part arrival.
+     * Restores ticket_part status to 'ordered', restores active watch, restores ticket pending_parts if appropriate,
+     * and appends an undo timeline note (without deleting previous events).
+     */
+    public static function unmarkPartArrived(int $ticketPartId, string $actor = 'Jose (Tech)', ?string $reason = null): array
+    {
+        $part = Db::fetchOne('SELECT * FROM `ticket_part` WHERE id = ?', [$ticketPartId]);
+        if (!$part) {
+            throw new RuntimeException("Ticket part #{$ticketPartId} not found");
+        }
+
+        if ($part['status'] !== 'arrived') {
+            throw new RuntimeException("Cannot undo arrival: part status is '{$part['status']}', not 'arrived'");
+        }
+
+        // Downstream guard: check if part has been installed or used
+        if ($part['status'] === 'installed' || $part['status'] === 'used') {
+            throw new RuntimeException("Cannot undo arrival: part has already been installed or used on the ticket");
+        }
+
+        $ticketId = (int) $part['ticket_id'];
+        $watchId = !empty($part['watch_id']) ? (int) $part['watch_id'] : null;
+        $partName = $part['part_name'];
+        $now = gmdate('Y-m-d H:i:s');
+        $undoReason = $reason ?: "Reverted part arrival (undo)";
+
+        // 1. Revert ticket_part status to 'ordered' and clear arrived_at
+        Db::execute(
+            "UPDATE `ticket_part` SET status = 'ordered', arrived_at = NULL WHERE id = ?",
+            [$ticketPartId]
+        );
+
+        // 2. Reactivate watch if it exists
+        if ($watchId) {
+            Db::execute(
+                "UPDATE `watch` SET state = 'active', resolved_at = NULL WHERE id = ?",
+                [$watchId]
+            );
+        }
+
+        // 3. Append timeline event documenting the undo (never deletes the original part_arrived event)
+        TicketTimeline::append(
+            $ticketId,
+            TicketTimeline::EVENT_NOTE,
+            $actor,
+            "Undid part arrival for {$partName}. Part status reverted to ordered. Reason: {$undoReason}",
+            [
+                'ticket_part_id' => $ticketPartId,
+                'part_name' => $partName,
+                'watch_id' => $watchId,
+                'action' => 'undo_part_arrived',
+            ]
+        );
+
+        // 4. If ticket was moved to 'verified' because parts arrived, restore ticket to pending_parts if ticket is not closed
+        $ticket = Db::fetchOne('SELECT id, status, blocker_reason FROM `ticket` WHERE id = ?', [$ticketId]);
+        if ($ticket && in_array($ticket['status'], ['verified', 'new'], true)) {
+            Db::execute(
+                "UPDATE `ticket` SET status = 'pending_parts', blocker_reason = ?, updated_at = ? WHERE id = ?",
+                ["Waiting on part: {$partName}", $now, $ticketId]
+            );
+        }
+
+        return self::getPartById($ticketPartId);
+    }
+
     public static function getPartById(int $id): ?array
     {
         $p = Db::fetchOne('SELECT * FROM `ticket_part` WHERE id = ?', [$id]);

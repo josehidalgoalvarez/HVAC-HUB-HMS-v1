@@ -462,6 +462,14 @@ export class ApiClient {
     return this.post<TicketPart>(`/api/ticket-parts/${partId}/arrive`, { actor });
   }
 
+  public async unmarkTicketPartArrived(
+    partId: string | number,
+    actor: string = 'Jose (Tech)',
+    reason?: string
+  ): Promise<TicketPart> {
+    return this.post<TicketPart>(`/api/ticket-parts/${partId}/unarrive`, { actor, reason });
+  }
+
   public async getUnitVisits(unitId: string | number): Promise<UnitFailedVisitsSummary> {
     return this.get<UnitFailedVisitsSummary>(`/api/units/${unitId}/visits`);
   }
@@ -784,6 +792,20 @@ export class ApiClient {
    */
   public async addJobNote(id: string | number, noteText: string): Promise<JobNote> {
     return this.post<JobNote>(`/api/jobs/${id}/notes`, { note_text: noteText });
+  }
+
+  /**
+   * Delete a note from a job (undo)
+   */
+  public async deleteJobNote(jobId: string | number, noteId: string | number): Promise<{ success: boolean }> {
+    return this.delete<{ success: boolean }>(`/api/jobs/${jobId}/notes/${noteId}`);
+  }
+
+  /**
+   * Delete a part used from a job (undo)
+   */
+  public async deleteJobPartUsed(jobId: string | number, partId: string | number): Promise<{ success: boolean }> {
+    return this.delete<{ success: boolean }>(`/api/jobs/${jobId}/parts-used/${partId}`);
   }
 
   /**

@@ -39,6 +39,12 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
   const [noteInput, setNoteInput] = useState<string>('');
   const [showCloseModal, setShowCloseModal] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
+  const [lastAction, setLastAction] = useState<{
+    type: 'note' | 'part';
+    id: number | string;
+    description: string;
+    outboxId?: string;
+  } | null>(null);
 
   // Pre-filled context derived from block or ticket
   const siteName = block?.building_name || (ticket as any)?.building_name || 'Active Site';
@@ -134,7 +140,8 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
     const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
 
     if (!isOnline) {
-      await outbox.enqueue({
+      const mockNoteId = Date.now();
+      const queuedItem = await outbox.enqueue({
         type: 'add_note',
         endpoint: `/api/jobs/${activeJob.id}/notes`,
         method: 'POST',
@@ -145,10 +152,16 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
         prev
           ? {
               ...prev,
-              notes_list: [...(prev.notes_list || []), { id: Date.now(), note_text: text, created_at: new Date().toISOString() }],
+              notes_list: [...(prev.notes_list || []), { id: mockNoteId, note_text: text, created_at: new Date().toISOString() }],
             }
           : prev
       );
+      setLastAction({
+        type: 'note',
+        id: mockNoteId,
+        description: text,
+        outboxId: queuedItem?.id,
+      });
       setNoteInput('');
       flashMessage('Note queued in offline outbox', 'info');
       return;
@@ -164,6 +177,11 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             }
           : prev
       );
+      setLastAction({
+        type: 'note',
+        id: added.id,
+        description: text,
+      });
       setNoteInput('');
       flashMessage('Field note saved', 'success');
     } catch (e: any) {
@@ -176,7 +194,8 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
     const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
 
     if (!isOnline) {
-      await outbox.enqueue({
+      const mockPartId = Date.now();
+      const queuedItem = await outbox.enqueue({
         type: 'add_part_used',
         endpoint: `/api/jobs/${activeJob.id}/parts-used`,
         method: 'POST',
@@ -187,10 +206,16 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
         prev
           ? {
               ...prev,
-              parts_used: [...(prev.parts_used || []), { id: Date.now(), part_name: partName, quantity: 1, unit: 'pcs' }],
+              parts_used: [...(prev.parts_used || []), { id: mockPartId, part_name: partName, quantity: 1, unit: 'pcs' }],
             }
           : prev
       );
+      setLastAction({
+        type: 'part',
+        id: mockPartId,
+        description: partName,
+        outboxId: queuedItem?.id,
+      });
       flashMessage(`Part ${partName} queued in outbox`, 'info');
       return;
     }
@@ -205,9 +230,64 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             }
           : prev
       );
+      setLastAction({
+        type: 'part',
+        id: added.id,
+        description: partName,
+      });
       flashMessage(`Part recorded: ${partName}`, 'success');
     } catch (e: any) {
       flashMessage(e.message || 'Error recording part', 'error');
+    }
+  };
+
+  const handleUndoLastAction = async () => {
+    if (!lastAction || !activeJob) return;
+
+    if (activeJob.status === 'completed') {
+      flashMessage('Cannot undo: job is already completed', 'error');
+      setLastAction(null);
+      return;
+    }
+
+    const { type, id, description, outboxId } = lastAction;
+    const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+
+    try {
+      if (outboxId) {
+        await outbox.discard(outboxId);
+      } else if (isOnline && id) {
+        if (type === 'note') {
+          await apiClient.deleteJobNote(activeJob.id, id);
+        } else if (type === 'part') {
+          await apiClient.deleteJobPartUsed(activeJob.id, id);
+        }
+      }
+
+      if (type === 'note') {
+        setActiveJob((prev) =>
+          prev
+            ? {
+                ...prev,
+                notes_list: (prev.notes_list || []).filter((n) => String(n.id) !== String(id)),
+              }
+            : prev
+        );
+      } else if (type === 'part') {
+        setActiveJob((prev) =>
+          prev
+            ? {
+                ...prev,
+                parts_used: (prev.parts_used || []).filter((p) => String(p.id) !== String(id)),
+              }
+            : prev
+        );
+      }
+
+      setLastAction(null);
+      flashMessage(`Undone: removed ${type === 'note' ? 'note' : 'part'} "${description}"`, 'info');
+    } catch (e: any) {
+      flashMessage(e.message || `Failed to undo ${type}`, 'error');
     }
   };
 
@@ -317,6 +397,27 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             {statusMessage.type === 'success' ? 'check' : statusMessage.type === 'info' ? 'info' : 'warning'}
           </span>
           <span>{statusMessage.text}</span>
+        </div>
+      )}
+
+      {/* Undo Banner (Notice Pattern) for Chip / Quick Log tap */}
+      {lastAction && (
+        <div className="p-3 rounded-xl bg-white dark:bg-neutral-800/80 border border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3 text-xs shadow-sm">
+          <div className="min-w-0 flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm text-primary">history</span>
+            <div className="truncate">
+              <span className="font-bold text-brand-black dark:text-white">Logged: </span>
+              <span className="text-gray-500 dark:text-gray-400">"{lastAction.description}"</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleUndoLastAction}
+            className="flex-shrink-0 min-h-[36px] px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-brand-red border border-gray-200 dark:border-gray-700 hover:border-red-300 rounded-xl transition-colors flex items-center gap-1 active:scale-95"
+          >
+            <span className="material-symbols-outlined text-sm">undo</span>
+            <span>Undo</span>
+          </button>
         </div>
       )}
 

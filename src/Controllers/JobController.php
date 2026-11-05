@@ -264,6 +264,52 @@ class JobController
     }
 
     /**
+     * DELETE /api/jobs/{id}/notes/{noteId}
+     * Remove a note from the job (undo).
+     */
+    public function removeNote(Request $request, Response $response, array $args): Response
+    {
+        $id = $args['id'] ?? null;
+        $noteId = $args['noteId'] ?? null;
+        if (!$id || !$noteId) {
+            return Auth::jsonError('bad_request', 'Missing job ID or note ID', 400);
+        }
+
+        $user = $request->getAttribute('user');
+        $userId = isset($user['id']) ? (int) $user['id'] : null;
+
+        try {
+            $ok = Job::removeNote($id, $noteId, $userId);
+            return Auth::jsonSuccess(['success' => $ok]);
+        } catch (Throwable $e) {
+            return Auth::jsonError('note_remove_failed', $e->getMessage(), 400);
+        }
+    }
+
+    /**
+     * DELETE /api/jobs/{id}/parts-used/{partId}
+     * Remove a part used record from the job (undo).
+     */
+    public function removePartUsed(Request $request, Response $response, array $args): Response
+    {
+        $id = $args['id'] ?? null;
+        $partId = $args['partId'] ?? null;
+        if (!$id || !$partId) {
+            return Auth::jsonError('bad_request', 'Missing job ID or part ID', 400);
+        }
+
+        $user = $request->getAttribute('user');
+        $userId = isset($user['id']) ? (int) $user['id'] : null;
+
+        try {
+            $ok = Job::removePartUsed($id, $partId, $userId);
+            return Auth::jsonSuccess(['success' => $ok]);
+        } catch (Throwable $e) {
+            return Auth::jsonError('part_remove_failed', $e->getMessage(), 400);
+        }
+    }
+
+    /**
      * POST /api/jobs/{id}/close
      * Close out job with actual minutes, notes, parts, and advance ticket to done.
      */
