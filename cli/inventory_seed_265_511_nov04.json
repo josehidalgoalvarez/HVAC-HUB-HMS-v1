@@ -1,0 +1,115 @@
+{
+  "section_a_target": "265 Ontario \u2014 1st Floor Storage",
+  "section_a_notes_append": "\n\nUpstairs storage area includes a usable washroom with sink and a hallway electrical panel (facilities, not stock). Source: Jose report Nov 4, 2026.",
+  "section_a_parts": [
+    {
+      "name": "Wood screws, assorted sizes",
+      "part_number": null,
+      "category": "Fasteners & Hardware",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Lots of wood screws, different sizes, believed zinc \u2014 material believed, NOT confirmed. Source: Jose report Nov 4, 2026 (memory of room, not a photo pass or count)."
+    },
+    {
+      "name": "Drywall patching/masking tape, paper-like",
+      "part_number": null,
+      "category": "Drywall",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: One of two drywall tape kinds reported Nov 4, 2026: paper-like tape. Width/length/count unknown. Source: Jose report Nov 4, 2026."
+    },
+    {
+      "name": "Drywall patching/masking tape, net/mesh",
+      "part_number": null,
+      "category": "Drywall",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Second of two drywall tape kinds reported Nov 4, 2026: net/mesh tape. Width/length/count unknown. Source: Jose report Nov 4, 2026."
+    },
+    {
+      "name": "Paint buckets, white / extra white",
+      "part_number": null,
+      "category": "Paint & Chemicals",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "PLACEHOLDER \u2014 to count: Buckets of paint, most white or extra white. Bucket count and exact shades unknown. Source: Jose report Nov 4, 2026."
+    }
+  ],
+  "section_a_equipment": [
+    {
+      "name": "Shop vac (265 Ontario upstairs)",
+      "category": "Cleanup",
+      "status": "unknown",
+      "notes": "Shop vac reported in 265 upstairs storage Nov 4, 2026. Working status UNKNOWN. Count ambiguous in the report ('vacuums' mentioned generally, one shop vac described) \u2014 hands-on count still owed; this row covers at least one unit and must not be read as 'exactly one vacuum in the room'. Source: Jose report Nov 4, 2026."
+    }
+  ],
+  "section_b_target": "265 Ontario \u2014 Basement (Junk, Not Stock)",
+  "section_b_notes_append": "\n\nBasement is storage AND mechanical room, and a junkyard by Jose's Nov 4, 2026 description \u2014 notes only, not stock. Reported contents: at least 10 water heaters that should be disposed of; around 15\u201320 water heaters already installed there; lots of junk; usable pieces of wood; an A-coil / evaporator in a box; some cases; complete sheets of drywall (not only broken pieces); spare garbage-disposal totes; random furniture. Room needs clean-up and organizing, but hauling garbage + furniture out of the basement needs a van/pickup \u2014 the tote system cannot move that amount. Source: Jose report Nov 4, 2026 (memory of room).",
+  "section_c_target": "511 Days Rd Storage",
+  "section_c_parts": [
+    {
+      "name": "Step ladder",
+      "match_existing": "Step ladder (Featherlite)",
+      "part_number": null,
+      "category": "Access",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "Category pending detail, quantity TBD. Source: 511 basement pending-category list."
+    },
+    {
+      "name": "Tools",
+      "match_existing": "Tools (unspecified)",
+      "part_number": null,
+      "category": "Tools",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "Category pending detail, quantity TBD. Source: 511 basement pending-category list."
+    },
+    {
+      "name": "Vapor/pressure washer",
+      "match_existing": "Vapor / pressure washer",
+      "part_number": null,
+      "category": "Cleaning",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "Category pending detail, quantity TBD. Source: 511 basement pending-category list."
+    },
+    {
+      "name": "Snow shovel",
+      "match_existing": "Snow shovel",
+      "part_number": null,
+      "category": "Seasonal",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "Category pending detail, quantity TBD. Source: 511 basement pending-category list."
+    },
+    {
+      "name": "Cleaning supplies",
+      "match_existing": "Cleaning supplies / chemicals",
+      "part_number": null,
+      "category": "Janitorial",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "Category pending detail, quantity TBD. Source: 511 basement pending-category list."
+    },
+    {
+      "name": "Karcher vac",
+      "match_existing": "Karcher wet/dry vac",
+      "part_number": null,
+      "category": "Cleanup",
+      "quantity": 0,
+      "status": "placeholder",
+      "minimum": 1,
+      "location_notes": "Category pending detail, quantity TBD. Source: 511 basement pending-category list."
+    }
+  ]
+}
