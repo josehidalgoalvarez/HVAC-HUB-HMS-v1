@@ -411,7 +411,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     setEditPriority(ticket.priority || 'medium');
     setEditState((ticket.status || ticket.state || 'new') as TicketState);
     setEditScope(ticket.verified_scope || '');
-    setEditBlocker(ticket.blocker_reason || '');
+    setEditBlocker(ticket.blocked_reason || ticket.blocker_reason || '');
     setEditExposure((ticket.work_exposure || (ticket.exterior_work ? 'exterior' : 'indoor')) as 'indoor' | 'exterior' | 'exterior_ladder');
     setEditReason('');
     setIsEditModalOpen(true);
@@ -421,6 +421,12 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     e.preventDefault();
     if (!ticket) return;
     setEditSaving(true);
+    if (editState === 'blocked' && !editBlocker.trim()) {
+      alert('A blocker reason is strictly required when setting a ticket to Blocked.');
+      setEditSaving(false);
+      return;
+    }
+
     try {
       const payload: Partial<Ticket> & { reason: string } = {
         title: editTitle.trim(),
@@ -429,6 +435,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         status: editState,
         verified_scope: editScope.trim() || null,
         blocker_reason: editState === 'blocked' ? editBlocker.trim() : null,
+        blocked_reason: editState === 'blocked' ? editBlocker.trim() : null,
         work_exposure: editExposure,
         exterior_work: editExposure !== 'indoor',
         reason: editReason.trim() || 'Updated ticket details',
@@ -462,6 +469,12 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     if (!ticket) return;
     if (!childTitle.trim()) return;
 
+    if (childState === 'blocked' && !childBlocker.trim()) {
+      alert('A blocker reason is strictly required when setting a sub-job to Blocked.');
+      setChildSaving(false);
+      return;
+    }
+
     setChildSaving(true);
     try {
       await apiClient.createChildTicket(ticket.id, {
@@ -469,6 +482,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         status: childState,
         priority: childPriority,
         blocker_reason: childState === 'blocked' ? childBlocker.trim() : null,
+        blocked_reason: childState === 'blocked' ? childBlocker.trim() : null,
       });
 
       setIsAddChildOpen(false);
@@ -1115,10 +1129,10 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         )}
 
         {/* Blocker Reason if present */}
-        {ticket.blocker_reason && (
+        {(ticket.blocked_reason || ticket.blocker_reason) && (
           <div className="bg-rose-50 dark:bg-rose-950/40 rounded-xl p-3 border border-rose-200 dark:border-rose-900 text-xs text-brand-red">
             <span className="font-bold block mb-1">Active Blocker:</span>
-            <p>{ticket.blocker_reason}</p>
+            <p>{ticket.blocked_reason || ticket.blocker_reason}</p>
           </div>
         )}
 
@@ -1793,14 +1807,20 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
               {editState === 'blocked' && (
                 <div>
-                  <label className="block text-xs font-bold uppercase text-brand-red mb-1">Blocker Reason</label>
+                  <label className="block text-xs font-bold uppercase text-brand-red mb-1">
+                    Blocker Reason <span className="text-brand-red">*</span>
+                  </label>
                   <input
                     type="text"
+                    required
                     value={editBlocker}
                     onChange={(e) => setEditBlocker(e.target.value)}
-                    placeholder="e.g. Parts on order"
+                    placeholder="Why is this blocked? (e.g. Awaiting owner authorization / rent hold)"
                     className="w-full px-3 py-2 text-sm rounded-xl border border-red-300 dark:border-red-800 bg-red-50/50"
                   />
+                  <span className="text-[10px] text-gray-500 mt-0.5 block">
+                    Distinction: on-hold = waiting on next expected step; blocked = outside tech control.
+                  </span>
                 </div>
               )}
             </div>
@@ -1967,12 +1987,15 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
             {childState === 'blocked' && (
               <div>
-                <label className="block text-xs font-bold uppercase text-brand-red mb-1">Blocker Reason</label>
+                <label className="block text-xs font-bold uppercase text-brand-red mb-1">
+                  Blocker Reason <span className="text-brand-red">*</span>
+                </label>
                 <input
                   type="text"
+                  required
                   value={childBlocker}
                   onChange={(e) => setChildBlocker(e.target.value)}
-                  placeholder="e.g. Waiting on refrigerant shipment"
+                  placeholder="Why is this blocked? (e.g. Waiting on owner approval)"
                   className="w-full px-3 py-2 text-sm rounded-xl border border-red-300 dark:border-red-800 bg-red-50/50"
                 />
               </div>

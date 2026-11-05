@@ -117,7 +117,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
     'No issue description provided';
 
   // Blocker / waiting status checks
-  const blocker = ticket.blocker_reason?.toLowerCase() || '';
+  const blocker = (ticket.blocked_reason || ticket.blocker_reason)?.toLowerCase() || '';
   const isPartWait = blocker.includes('part') || blocker.includes('order');
   const isReplyWait = blocker.includes('reply') || blocker.includes('tenant') || blocker.includes('wait') || blocker.includes('pending');
 
@@ -273,10 +273,10 @@ export const TicketCard: React.FC<TicketCardProps> = ({
               </div>
             )}
 
-            {ticket.blocker_reason && (
+            {(ticket.blocked_reason || ticket.blocker_reason) && (
               <div className="bg-rose-50 dark:bg-rose-950/40 rounded-xl p-2 text-brand-red dark:text-rose-300 border border-rose-200 dark:border-rose-900">
                 <span className="font-bold block mb-0.5">Blocker Reason:</span>
-                <p>{ticket.blocker_reason}</p>
+                <p>{ticket.blocked_reason || ticket.blocker_reason}</p>
               </div>
             )}
 
@@ -362,10 +362,10 @@ export const TicketCard: React.FC<TicketCardProps> = ({
             <span className="material-symbols-outlined text-[13px] leading-none">hourglass_top</span>
             Reply Waiting
           </span>
-        ) : ticket.blocker_reason ? (
+        ) : (ticket.blocked_reason || ticket.blocker_reason) ? (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded-md bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
             <span className="material-symbols-outlined text-[13px] leading-none">block</span>
-            Blocked
+            Blocked: {ticket.blocked_reason || ticket.blocker_reason}
           </span>
         ) : null}
 

@@ -315,6 +315,7 @@ export interface Ticket {
   status?: TicketState;               // API compatibility alias
   priority: TicketPriority;
   blocker_reason?: string | null;
+  blocked_reason?: string | null;
   last_seen_in_yardi?: string | null; // null = not yet verified in Yardi; >=7d = stale warning
   is_stale_yardi?: boolean;
   yardi_warning?: string | null;

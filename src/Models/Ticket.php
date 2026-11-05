@@ -245,7 +245,17 @@ class Ticket
         $photoUrl = isset($data['photo_url']) ? (string) $data['photo_url'] : null;
         $status = (string) ($data['status'] ?? self::STATE_NEW);
         $priority = (string) ($data['priority'] ?? 'medium');
-        $blockerReason = isset($data['blocker_reason']) ? (string) $data['blocker_reason'] : null;
+        $blockerReason = isset($data['blocked_reason'])
+            ? (string) $data['blocked_reason']
+            : (isset($data['blocker_reason']) ? (string) $data['blocker_reason'] : null);
+        if ($blockerReason !== null && trim($blockerReason) === '') {
+            $blockerReason = null;
+        }
+
+        // Hard validation: setting ticket to blocked requires a non-empty reason
+        if ($status === self::STATE_BLOCKED && empty(trim((string) $blockerReason))) {
+            throw new RuntimeException("A non-empty blocked_reason is required when status is 'blocked'");
+        }
         $assignedTechId = !empty($data['assigned_tech_id']) ? (int) $data['assigned_tech_id'] : null;
         if ($assignedTechId !== null && !Db::fetchOne('SELECT id FROM users WHERE id = ?', [$assignedTechId])) {
             $assignedTechId = null;
@@ -271,10 +281,10 @@ class Ticket
         $sql = 'INSERT INTO ticket (
                     wo_number, parent_ticket_id, building_id, unit_id, 
                     title, description, verbatim_text, verified_scope, photo_url,
-                    status, priority, blocker_reason, last_seen_in_yardi,
+                    status, priority, blocker_reason, blocked_reason, last_seen_in_yardi,
                     created_by_user_id, assigned_tech_id, exterior_work, work_exposure, weather_note,
                     notice_needed, notice_sent_at, notice_confirmed_by, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
 
         Db::execute($sql, [
             $woNumber,
@@ -288,6 +298,7 @@ class Ticket
             $photoUrl,
             $status,
             $priority,
+            $blockerReason,
             $blockerReason,
             $lastSeenInYardi,
             $createdByUserId,
@@ -360,6 +371,37 @@ class Ticket
             throw new RuntimeException("Ticket #{$id} not found");
         }
 
+        // Support alias: blocked_reason -> blocker_reason
+        if (array_key_exists('blocked_reason', $data) && !array_key_exists('blocker_reason', $data)) {
+            $data['blocker_reason'] = $data['blocked_reason'];
+        }
+        if (array_key_exists('blocker_reason', $data) && !array_key_exists('blocked_reason', $data)) {
+            $data['blocked_reason'] = $data['blocker_reason'];
+        }
+
+        $targetStatus = array_key_exists('status', $data) ? (string) $data['status'] : ($existing['status'] ?? self::STATE_NEW);
+        $targetBlockerReason = array_key_exists('blocked_reason', $data)
+            ? $data['blocked_reason']
+            : (array_key_exists('blocker_reason', $data) ? $data['blocker_reason'] : ($existing['blocked_reason'] ?? $existing['blocker_reason'] ?? null));
+
+        // Hard requirement: transition to blocked requires non-empty reason
+        if ($targetStatus === self::STATE_BLOCKED && empty(trim((string) $targetBlockerReason))) {
+            throw new RuntimeException("A non-empty blocked_reason is required when setting status to 'blocked'");
+        }
+
+        // Timeline note preservation: if moving AWAY from blocked, preserve previous reason in timeline
+        $oldStatus = $existing['status'] ?? null;
+        $oldBlockerReason = $existing['blocked_reason'] ?? $existing['blocker_reason'] ?? null;
+        if ($oldStatus === self::STATE_BLOCKED && $targetStatus !== self::STATE_BLOCKED && !empty(trim((string) $oldBlockerReason))) {
+            TicketTimeline::append(
+                (int) $id,
+                TicketTimeline::EVENT_NOTE,
+                'Tech',
+                "Ticket unblocked (moved to {$targetStatus}). Previous blocked reason: {$oldBlockerReason}",
+                ['previous_status' => $oldStatus, 'new_status' => $targetStatus, 'previous_blocked_reason' => $oldBlockerReason]
+            );
+        }
+
         $updatableFields = [
             'wo_number',
             'parent_ticket_id',
@@ -373,6 +415,7 @@ class Ticket
             'status',
             'priority',
             'blocker_reason',
+            'blocked_reason',
             'last_seen_in_yardi',
             'assigned_tech_id',
             'work_exposure',

@@ -119,6 +119,7 @@ class Db
                 status TEXT NOT NULL DEFAULT 'new',
                 priority TEXT NOT NULL DEFAULT 'medium',
                 blocker_reason TEXT NULL,
+                blocked_reason TEXT NULL,
                 last_seen_in_yardi TEXT NULL,
                 created_by_user_id INTEGER NULL,
                 assigned_tech_id INTEGER NULL,

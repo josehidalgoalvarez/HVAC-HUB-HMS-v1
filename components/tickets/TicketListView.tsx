@@ -92,7 +92,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
       }
       if (activeFilter === 'blocked') {
         const s = t.status || t.state;
-        return s === 'blocked' || s === 'on-hold' || s === 'on_hold';
+        return s === 'blocked';
       }
       if (activeFilter === 'unassigned') {
         return !t.wo_number;
