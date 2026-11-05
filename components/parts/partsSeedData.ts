@@ -5,7 +5,7 @@ export const SEED_SUPPLIERS: SupplierRecord[] = [
     id: 1,
     name: 'Dependable Appliances',
     contact_name: 'Parts Desk',
-    phone: '613-542-8822',
+    phone: '',
     hours: 'Mon–Fri 8:30–5',
     address: 'Kingston, ON',
     account_number: 'DEP-HVAC-9941',
@@ -188,7 +188,7 @@ export const SEED_PARTS: PartRecord[] = [
     preferred_supplier: {
       id: 1,
       name: 'Dependable Appliances',
-      phone: '613-542-8822',
+      phone: '',
       hours: 'Mon–Fri 8:30–5'
     }
   },
@@ -239,7 +239,7 @@ export const SEED_PARTS: PartRecord[] = [
     preferred_supplier: {
       id: 1,
       name: 'Dependable Appliances',
-      phone: '613-542-8822',
+      phone: '',
       hours: 'Mon–Fri 8:30–5'
     }
   }

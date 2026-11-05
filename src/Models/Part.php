@@ -513,10 +513,24 @@ class Part
                 }
             }
 
+            $supplierName = $partRecord['preferred_supplier_name'] ?? 'Dependable Appliances';
+            $supplierPhone = $partRecord['preferred_supplier_phone'] ?? null;
+            $supplierHours = $partRecord['preferred_supplier_hours'] ?? 'Mon–Fri 8:30–5';
+
+            if (empty($supplierPhone)) {
+                $supRow = Db::fetchOne("SELECT phone, hours FROM supplier WHERE name = ? LIMIT 1", [$supplierName]);
+                if ($supRow) {
+                    $supplierPhone = $supRow['phone'] ?? null;
+                    if (!empty($supRow['hours'])) {
+                        $supplierHours = $supRow['hours'];
+                    }
+                }
+            }
+
             $supplierInfo = [
-                'name' => $partRecord['preferred_supplier_name'] ?? 'Dependable Appliances',
-                'phone' => $partRecord['preferred_supplier_phone'] ?? '613-542-8822',
-                'hours' => $partRecord['preferred_supplier_hours'] ?? 'Mon–Fri 8:30–5',
+                'name' => $supplierName,
+                'phone' => $supplierPhone,
+                'hours' => $supplierHours,
             ];
 
             // Clean location string (e.g. if location is "511 Days Rd" or "511 Days Rd Storage")

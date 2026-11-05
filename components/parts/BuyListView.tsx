@@ -3,7 +3,7 @@ import { apiClient } from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
 import Button from '../ui/Button';
-import type { ShoppingListResponse, Ticket } from '../../types/domain';
+import type { ShoppingListResponse, SupplierRecord, Ticket } from '../../types/domain';
 
 export interface ManualBuyItem {
   id: string;
@@ -28,6 +28,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
   const [selectedTicketIds, setSelectedTicketIds] = useState<number[]>([]);
   const [shoppingList, setShoppingList] = useState<ShoppingListResponse | null>(null);
   const [manualItems, setManualItems] = useState<ManualBuyItem[]>([]);
+  const [suppliers, setSuppliers] = useState<SupplierRecord[]>([]);
   const [loadingTickets, setLoadingTickets] = useState(true);
   const [loadingList, setLoadingList] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -140,6 +141,23 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
 
   useEffect(() => {
     loadManualItems();
+
+    const fetchSuppliers = async () => {
+      try {
+        const cached = await appCache.get<SupplierRecord[]>('suppliers');
+        if (cached && cached.length > 0) {
+          setSuppliers(cached);
+        }
+        const suppList = await apiClient.getSuppliers();
+        if (suppList && suppList.length > 0) {
+          setSuppliers(suppList);
+          appCache.set('suppliers', suppList);
+        }
+      } catch (e) {
+        console.warn('Could not fetch suppliers in BuyListView:', e);
+      }
+    };
+    fetchSuppliers();
 
     const handleWindowOnline = () => {
       loadManualItems();
@@ -352,6 +370,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       partNumber?: string | null;
       quantity: number;
       supplierName?: string | null;
+      supplierPhone?: string | null;
       notes?: string | null;
       manualId: string;
     }> = [];
@@ -396,7 +415,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
               partNumber: item.part_number,
               quantity: item.buy_quantity > 0 ? item.buy_quantity : item.total_needed,
               supplierName: item.preferred_supplier?.name || (item.buy_quantity > 0 ? 'Dependable Appliances' : null),
-              supplierPhone: item.preferred_supplier?.phone || null,
+              supplierPhone: item.preferred_supplier?.phone || findSupplierPhone(item.preferred_supplier?.name || (item.buy_quantity > 0 ? 'Dependable Appliances' : null)),
               supplierHours: item.preferred_supplier?.hours || null,
               harvestTag: item.harvest_tag,
               buyTag: item.buy_tag,
@@ -412,7 +431,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
               partNumber: item.part_number,
               quantity: item.buy_quantity > 0 ? item.buy_quantity : item.total_needed,
               supplierName: item.preferred_supplier?.name || (item.buy_quantity > 0 ? 'Dependable Appliances' : null),
-              supplierPhone: item.preferred_supplier?.phone || null,
+              supplierPhone: item.preferred_supplier?.phone || findSupplierPhone(item.preferred_supplier?.name || (item.buy_quantity > 0 ? 'Dependable Appliances' : null)),
               supplierHours: item.preferred_supplier?.hours || null,
               harvestTag: item.harvest_tag,
               buyTag: item.buy_tag,
@@ -423,8 +442,17 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       }
     }
 
+    // Helper to find supplier phone from loaded suppliers
+    const findSupplierPhone = (name?: string | null): string | null => {
+      if (!name) return null;
+      const match = suppliers.find(s => s.name?.toLowerCase().trim() === name.toLowerCase().trim());
+      return match?.phone || null;
+    };
+
     // B. Add manual items
     for (const m of manualItems) {
+      const sName = m.supplier || null;
+      const sPhone = findSupplierPhone(sName);
       if (m.ticket_id) {
         const grp = getOrCreateGroup(m.ticket_id);
         grp.items.push({
@@ -432,7 +460,8 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
           partName: m.part_name,
           partNumber: m.part_number,
           quantity: m.quantity,
-          supplierName: m.supplier || null,
+          supplierName: sName,
+          supplierPhone: sPhone,
           notes: m.notes || null,
           sourceType: 'manual',
           manualId: m.id,
@@ -443,7 +472,8 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
           partName: m.part_name,
           partNumber: m.part_number,
           quantity: m.quantity,
-          supplierName: m.supplier || null,
+          supplierName: sName,
+          supplierPhone: sPhone,
           notes: m.notes || null,
           manualId: m.id,
         });
@@ -454,7 +484,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       ticketGroups: Array.from(groups.values()),
       manualOnly,
     };
-  }, [shoppingList, manualItems, tickets]);
+  }, [shoppingList, manualItems, tickets, suppliers]);
 
   const totalGroupsCount = groupedData.ticketGroups.length + (groupedData.manualOnly.length > 0 ? 1 : 0);
   const totalItemsCount =
@@ -859,7 +889,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                         )}
 
                         {item.supplierName && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <span className="px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 font-bold text-[11px] flex items-center gap-1">
                               <span className="material-symbols-outlined text-[13px]">store</span>
                               {item.supplierName}
@@ -868,10 +898,13 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                             {item.supplierPhone && (
                               <a
                                 href={`tel:${item.supplierPhone.replace(/[^0-9+]/g, '')}`}
-                                className="px-2 py-0.5 text-[11px] font-bold rounded-lg bg-primary text-white flex items-center gap-1"
+                                onClick={(e) => e.stopPropagation()}
+                                className="min-h-[44px] px-2.5 py-1 text-[11px] font-bold rounded-lg bg-primary text-white flex items-center gap-1.5 active:scale-95 shadow-xs transition-all"
+                                title={`Call ${item.supplierName}`}
+                                aria-label={`Call ${item.supplierName} at ${item.supplierPhone}`}
                               >
-                                <span className="material-symbols-outlined text-[12px]">call</span>
-                                Call
+                                <span className="material-symbols-outlined text-[14px]">call</span>
+                                <span>{item.supplierPhone}</span>
                               </a>
                             )}
                           </div>
@@ -943,11 +976,24 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                       </div>
 
                       {item.supplierName && (
-                        <div className="pt-1">
+                        <div className="pt-1 flex flex-wrap items-center gap-2">
                           <span className="px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 font-bold text-[11px] inline-flex items-center gap-1">
                             <span className="material-symbols-outlined text-[13px]">store</span>
                             {item.supplierName}
                           </span>
+
+                          {item.supplierPhone && (
+                            <a
+                              href={`tel:${item.supplierPhone.replace(/[^0-9+]/g, '')}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="min-h-[44px] px-2.5 py-1 text-[11px] font-bold rounded-lg bg-primary text-white inline-flex items-center gap-1.5 active:scale-95 shadow-xs transition-all"
+                              title={`Call ${item.supplierName}`}
+                              aria-label={`Call ${item.supplierName} at ${item.supplierPhone}`}
+                            >
+                              <span className="material-symbols-outlined text-[14px]">call</span>
+                              <span>{item.supplierPhone}</span>
+                            </a>
+                          )}
                         </div>
                       )}
                     </div>
