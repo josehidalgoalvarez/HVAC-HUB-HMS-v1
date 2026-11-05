@@ -12,8 +12,17 @@ export const UpdateBanner: React.FC<UpdateBannerProps> = ({
   checkIntervalMs = 5 * 60 * 1000,
   customVersionFetcher,
 }) => {
+  const DISMISSED_VERSION_KEY = 'hvachome-dismissed-version';
+
   const [hasUpdate, setHasUpdate] = useState<boolean>(false);
-  const [isDismissed, setIsDismissed] = useState<boolean>(false);
+  const [serverVersion, setServerVersion] = useState<string | null>(null);
+  const [isDismissed, setIsDismissed] = useState<boolean>(() => {
+    try {
+      return false;
+    } catch {
+      return false;
+    }
+  });
   const [isReloading, setIsReloading] = useState<boolean>(false);
   const isCheckingRef = useRef<boolean>(false);
 
@@ -26,9 +35,26 @@ export const UpdateBanner: React.FC<UpdateBannerProps> = ({
         : await fetchServerVersion();
 
       if (serverVer && isNewerVersion(APP_CURRENT_VERSION, serverVer)) {
-        setHasUpdate(true);
-        // On a fresh check trigger (focus / interval), un-dismiss so banner reappears
-        setIsDismissed(false);
+        setServerVersion(serverVer.version);
+        // Check per-version dismissal in localStorage
+        let dismissedVer: string | null = null;
+        try {
+          dismissedVer = localStorage.getItem(DISMISSED_VERSION_KEY);
+        } catch {
+          // localStorage disabled / private mode
+        }
+
+        if (dismissedVer === serverVer.version) {
+          // User already dismissed this specific server version: do not show banner
+          setHasUpdate(false);
+          setIsDismissed(true);
+        } else {
+          // Server version is genuinely new or not yet dismissed
+          setHasUpdate(true);
+          setIsDismissed(false);
+        }
+      } else {
+        setHasUpdate(false);
       }
     } catch {
       // Offline or network error: stay completely silent
@@ -72,28 +98,49 @@ export const UpdateBanner: React.FC<UpdateBannerProps> = ({
 
   const handleReload = async () => {
     setIsReloading(true);
+
     try {
       if ('serviceWorker' in navigator) {
         const registration = await navigator.serviceWorker.getRegistration();
         if (registration) {
-          // If a new worker is waiting, post SKIP_WAITING to activate it
-          if (registration.waiting) {
-            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-          }
-          // Request worker update
+          // (a) Call registration.update()
           await registration.update().catch(() => {});
+
+          // (b) If a waiting worker exists, post SKIP_WAITING and WAIT for controllerchange
+          if (registration.waiting) {
+            const waitingWorker = registration.waiting;
+            const controllerChanged = new Promise<void>((resolve) => {
+              const onChange = () => {
+                navigator.serviceWorker.removeEventListener('controllerchange', onChange);
+                resolve();
+              };
+              navigator.serviceWorker.addEventListener('controllerchange', onChange);
+              // Timeout fallback (~3s) in case controllerchange doesn't fire
+              setTimeout(resolve, 3000);
+            });
+
+            waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+            await controllerChanged;
+          }
         }
       }
     } catch (e) {
-      console.warn('[UpdateBanner] SW activation notice error:', e);
+      console.warn('[UpdateBanner] SW activation error:', e);
     }
 
-    // Force hard reload from server
+    // Force reload from server
     window.location.reload();
   };
 
   const handleDismiss = () => {
-    // Dismiss temporarily: will reappear on next focus or interval check
+    // Record dismissed version in localStorage so it never returns for the same version
+    if (serverVersion) {
+      try {
+        localStorage.setItem(DISMISSED_VERSION_KEY, serverVersion);
+      } catch {
+        // localStorage disabled / private mode
+      }
+    }
     setIsDismissed(true);
   };
 

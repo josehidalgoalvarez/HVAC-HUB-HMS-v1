@@ -58,6 +58,51 @@ interface RouterProps {
   isDarkMode: boolean;
 }
 
+export interface PropertiesNavState {
+  navLevel: 'root' | 'complex' | 'building' | 'unit' | 'defaults';
+  selectedComplexId: string | null;
+  selectedBuildingId: string | null;
+  selectedUnitId: string | null;
+  defaultsSectionFilter?: string;
+}
+
+const PROPERTIES_NAV_STORAGE_KEY = 'hvachome-properties-nav';
+
+function loadStoredPropertiesNav(): PropertiesNavState {
+  try {
+    const raw = sessionStorage.getItem(PROPERTIES_NAV_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.navLevel === 'string') {
+        return {
+          navLevel: parsed.navLevel || 'root',
+          selectedComplexId: parsed.selectedComplexId ?? null,
+          selectedBuildingId: parsed.selectedBuildingId ?? null,
+          selectedUnitId: parsed.selectedUnitId ?? null,
+          defaultsSectionFilter: parsed.defaultsSectionFilter ?? 'all'
+        };
+      }
+    }
+  } catch (err) {
+    // sessionStorage unavailable or private mode
+  }
+  return {
+    navLevel: 'root',
+    selectedComplexId: null,
+    selectedBuildingId: null,
+    selectedUnitId: null,
+    defaultsSectionFilter: 'all'
+  };
+}
+
+function savePropertiesNav(state: PropertiesNavState) {
+  try {
+    sessionStorage.setItem(PROPERTIES_NAV_STORAGE_KEY, JSON.stringify(state));
+  } catch (err) {
+    // sessionStorage full or private mode
+  }
+}
+
 const Router: React.FC<RouterProps> = ({
   activeView,
   selectedPropertyId,
@@ -75,8 +120,18 @@ const Router: React.FC<RouterProps> = ({
   const [selectedTicketId, setSelectedTicketId] = React.useState<string | null>(null);
   const [selectedSopId, setSelectedSopId] = React.useState<string>('sop-gas-furnace-service');
   const [selectedBlockForQuickLog, setSelectedBlockForQuickLog] = React.useState<RunSheetBlock | null>(null);
-  const [propertyNavLevel, setPropertyNavLevel] = React.useState<'root' | 'complex' | 'building' | 'unit' | 'defaults'>('root');
+  
+  // Lifted Properties navigation state (sticky within session)
+  const [propertiesNav, setPropertiesNav] = React.useState<PropertiesNavState>(() => loadStoredPropertiesNav());
   const [selectedStockpileId, setSelectedStockpileId] = React.useState<string | number | null>(null);
+
+  const handleUpdatePropertiesNav = React.useCallback((updates: Partial<PropertiesNavState>) => {
+    setPropertiesNav(prev => {
+      const next: PropertiesNavState = { ...prev, ...updates };
+      savePropertiesNav(next);
+      return next;
+    });
+  }, []);
 
   // --- Navigation Handlers ---
 
@@ -121,8 +176,12 @@ const Router: React.FC<RouterProps> = ({
           onPropertyClick={handlePropertyClick}
           onAddProperty={() => setActiveView(ViewType.ADD_PROPERTY)}
           isEditMode={isEditMode}
-          initialNavLevel={propertyNavLevel}
-          onNavLevelChange={setPropertyNavLevel}
+          initialNavLevel={propertiesNav.navLevel}
+          initialComplexId={propertiesNav.selectedComplexId}
+          initialBuildingId={propertiesNav.selectedBuildingId}
+          initialUnitId={propertiesNav.selectedUnitId}
+          initialDefaultsFilter={propertiesNav.defaultsSectionFilter}
+          onPropertiesNavChange={handleUpdatePropertiesNav}
           onOpenStockpileInventory={handleOpenStockpileInventory}
           onApplianceClick={handleApplianceClick}
         />
@@ -224,7 +283,13 @@ const Router: React.FC<RouterProps> = ({
           onOpenWatches={() => setActiveView(ViewType.WATCHES)}
           onOpenSops={() => setActiveView(ViewType.SOPS)}
           onOpenDefaults={() => {
-            setPropertyNavLevel('defaults');
+            handleUpdatePropertiesNav({
+              navLevel: 'defaults',
+              selectedComplexId: null,
+              selectedBuildingId: null,
+              selectedUnitId: null,
+              defaultsSectionFilter: 'all'
+            });
             setActiveView(ViewType.PROPERTIES);
           }}
         />

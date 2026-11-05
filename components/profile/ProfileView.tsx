@@ -8,6 +8,7 @@ import { ActivityLogSection } from './components/ActivityLogSection';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { ExportDataModal } from './components/ExportDataModal';
 import { ManagePropertiesModal } from './components/ManagePropertiesModal';
+import { APP_CURRENT_VERSION } from '../../utils/version';
 
 interface ProfileViewProps {
   isDarkMode: boolean;
@@ -244,6 +245,13 @@ const ProfileView: React.FC<ProfileViewProps> = ({
           onDelete={(id, name, count) => setPropertyToDelete({ id, name, applianceCount: count } as Property)}
         />
       )}
+
+      {/* Visible build stamp */}
+      <div className="pt-4 pb-2 text-center">
+        <p className="text-xs text-text-sub-light dark:text-text-sub-dark font-mono font-medium">
+          Build {APP_CURRENT_VERSION.commitHash || 'dev'}
+        </p>
+      </div>
 
       {/* Delete Confirmation Modal (Kept here as it's a high-level alert) */}
       {propertyToDelete && (

@@ -28,6 +28,17 @@ interface PropertyListViewProps {
   onAddProperty: () => void;
   isEditMode: boolean;
   initialNavLevel?: ViewNavLevel;
+  initialComplexId?: string | null;
+  initialBuildingId?: string | null;
+  initialUnitId?: string | null;
+  initialDefaultsFilter?: string;
+  onPropertiesNavChange?: (nav: {
+    navLevel: ViewNavLevel;
+    selectedComplexId: string | null;
+    selectedBuildingId: string | null;
+    selectedUnitId: string | null;
+    defaultsSectionFilter?: string;
+  }) => void;
   onNavLevelChange?: (level: ViewNavLevel) => void;
   onOpenStockpileInventory?: (stockpileId: number | string) => void;
   onApplianceClick?: (id: string) => void;
@@ -40,6 +51,11 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
   onAddProperty,
   isEditMode,
   initialNavLevel,
+  initialComplexId,
+  initialBuildingId,
+  initialUnitId,
+  initialDefaultsFilter,
+  onPropertiesNavChange,
   onNavLevelChange,
   onOpenStockpileInventory,
   onApplianceClick,
@@ -60,23 +76,95 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
   // Navigation State
   const [navLevel, setNavLevelState] = useState<ViewNavLevel>(initialNavLevel || 'root');
-  const setNavLevel = (level: ViewNavLevel) => {
-    setNavLevelState(level);
-    onNavLevelChange?.(level);
+  const [selectedComplexId, setSelectedComplexIdState] = useState<string | null>(initialComplexId ?? null);
+  const [selectedBuildingId, setSelectedBuildingIdState] = useState<string | null>(initialBuildingId ?? null);
+  const [selectedUnitId, setSelectedUnitIdState] = useState<string | null>(initialUnitId ?? null);
+
+  // Sync state transitions to parent Router callback
+  const updateNav = (
+    nextLevel: ViewNavLevel,
+    nextComplex: string | null,
+    nextBuilding: string | null,
+    nextUnit: string | null,
+    nextDefaultsFilter?: string
+  ) => {
+    setNavLevelState(nextLevel);
+    setSelectedComplexIdState(nextComplex);
+    setSelectedBuildingIdState(nextBuilding);
+    setSelectedUnitIdState(nextUnit);
+    onNavLevelChange?.(nextLevel);
+    onPropertiesNavChange?.({
+      navLevel: nextLevel,
+      selectedComplexId: nextComplex,
+      selectedBuildingId: nextBuilding,
+      selectedUnitId: nextUnit,
+      defaultsSectionFilter: nextDefaultsFilter ?? defaultsSectionFilter
+    });
   };
+
+  // Sync if initial props change from outside (e.g. Profile -> Appliance Defaults)
   React.useEffect(() => {
     if (initialNavLevel && initialNavLevel !== navLevel) {
       setNavLevelState(initialNavLevel);
     }
-  }, [initialNavLevel]);
-
-  const [selectedComplexId, setSelectedComplexId] = useState<string | null>(null);
-  const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
-  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
+    if (initialComplexId !== undefined && initialComplexId !== selectedComplexId) {
+      setSelectedComplexIdState(initialComplexId);
+    }
+    if (initialBuildingId !== undefined && initialBuildingId !== selectedBuildingId) {
+      setSelectedBuildingIdState(initialBuildingId);
+    }
+    if (initialUnitId !== undefined && initialUnitId !== selectedUnitId) {
+      setSelectedUnitIdState(initialUnitId);
+    }
+  }, [initialNavLevel, initialComplexId, initialBuildingId, initialUnitId]);
 
   // Global Search
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  // STALE-ID GUARD & ANCESTOR FALLBACK
+  // Asynchronously loaded data guard: validate restored IDs once data arrives
+  React.useEffect(() => {
+    // If complexes/properties/units are not loaded yet, wait for them to load
+    if (properties.length === 0) return;
+
+    if (navLevel === 'unit') {
+      if (!selectedUnitId) {
+        // Fall back to building if available, else complex, else root
+        if (selectedBuildingId && properties.some(p => p.id === selectedBuildingId)) {
+          updateNav('building', selectedComplexId, selectedBuildingId, null);
+        } else if (selectedComplexId && (selectedComplexId === 'ungrouped' || complexes.some(c => c.id === selectedComplexId || c.slug === selectedComplexId))) {
+          updateNav('complex', selectedComplexId, null, null);
+        } else {
+          updateNav('root', null, null, null);
+        }
+      } else if (units.length > 0) {
+        const foundUnit = units.find(u => u.id === selectedUnitId);
+        if (!foundUnit) {
+          // Unit no longer resolves: fall back to building or complex or root
+          if (selectedBuildingId && properties.some(p => p.id === selectedBuildingId)) {
+            updateNav('building', selectedComplexId, selectedBuildingId, null);
+          } else if (selectedComplexId && (selectedComplexId === 'ungrouped' || complexes.some(c => c.id === selectedComplexId || c.slug === selectedComplexId))) {
+            updateNav('complex', selectedComplexId, null, null);
+          } else {
+            updateNav('root', null, null, null);
+          }
+        }
+      }
+    } else if (navLevel === 'building') {
+      if (!selectedBuildingId || !properties.some(p => p.id === selectedBuildingId)) {
+        if (selectedComplexId && (selectedComplexId === 'ungrouped' || complexes.some(c => c.id === selectedComplexId || c.slug === selectedComplexId))) {
+          updateNav('complex', selectedComplexId, null, null);
+        } else {
+          updateNav('root', null, null, null);
+        }
+      }
+    } else if (navLevel === 'complex') {
+      if (!selectedComplexId || (selectedComplexId !== 'ungrouped' && !complexes.some(c => c.id === selectedComplexId || c.slug === selectedComplexId))) {
+        updateNav('root', null, null, null);
+      }
+    }
+  }, [navLevel, selectedComplexId, selectedBuildingId, selectedUnitId, properties, units, complexes]);
 
   // Unit Access History & Failed Visits
   const [unitVisitsSummary, setUnitVisitsSummary] = useState<UnitFailedVisitsSummary | null>(null);
@@ -157,7 +245,17 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     showAllFields: false
   });
 
-  const [defaultsSectionFilter, setDefaultsSectionFilter] = useState<string>('all');
+  const [defaultsSectionFilter, setDefaultsSectionFilterState] = useState<string>(initialDefaultsFilter || 'all');
+  const setDefaultsSectionFilter = (filter: string) => {
+    setDefaultsSectionFilterState(filter);
+    onPropertiesNavChange?.({
+      navLevel,
+      selectedComplexId,
+      selectedBuildingId,
+      selectedUnitId,
+      defaultsSectionFilter: filter
+    });
+  };
 
   // 1. Group buildings into complexes by complexId (reads complexId from data, zero address matching)
   const { complexCards, ungroupedProperties } = useMemo(() => {
@@ -347,53 +445,38 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
   // Navigation Handlers
   const handleNavRoot = () => {
-    setNavLevel('root');
-    setSelectedComplexId(null);
-    setSelectedBuildingId(null);
-    setSelectedUnitId(null);
+    updateNav('root', null, null, null);
     setSearchQuery('');
   };
 
   const handleNavComplex = (cId: string) => {
-    setSelectedComplexId(cId);
-    setSelectedBuildingId(null);
-    setSelectedUnitId(null);
-    setNavLevel('complex');
+    updateNav('complex', cId, null, null);
     setSearchQuery('');
   };
 
   const handleNavBuilding = (bId: string) => {
     const bld = properties.find(p => p.id === bId);
-    if (bld) {
-      setSelectedComplexId(bld.complexId || 'ungrouped');
-    }
-    setSelectedBuildingId(bId);
-    setSelectedUnitId(null);
-    setNavLevel('building');
+    const cId = bld ? (bld.complexId || 'ungrouped') : (selectedComplexId || 'ungrouped');
+    updateNav('building', cId, bId, null);
     setSearchQuery('');
   };
 
   const handleNavUnit = (uId: string) => {
     const u = units.find(unit => unit.id === uId);
+    let cId = selectedComplexId;
+    let bId = selectedBuildingId;
     if (u) {
       const bld = properties.find(p => p.id === u.buildingId);
-      if (bld) setSelectedComplexId(bld.complexId || 'ungrouped');
-      setSelectedBuildingId(u.buildingId);
+      if (bld) cId = bld.complexId || 'ungrouped';
+      bId = u.buildingId;
     }
-    setSelectedUnitId(uId);
-    setNavLevel('unit');
+    updateNav('unit', cId, bId, uId);
     setSearchQuery('');
   };
 
   const handleNavDefaults = (cId?: string) => {
-    if (cId) {
-      setSelectedComplexId(cId);
-      setDefaultsSectionFilter(mapComplexIdToSection(cId));
-    } else {
-      setSelectedComplexId(null);
-      setDefaultsSectionFilter('all');
-    }
-    setNavLevel('defaults');
+    const nextFilter = cId ? mapComplexIdToSection(cId) : 'all';
+    updateNav('defaults', cId || null, null, null, nextFilter);
     setSearchQuery('');
   };
 
