@@ -121,6 +121,7 @@ class Db
                 blocker_reason TEXT NULL,
                 blocked_reason TEXT NULL,
                 blocked_at TEXT NULL,
+                closed_by_party TEXT NULL,
                 last_seen_in_yardi TEXT NULL,
                 created_by_user_id INTEGER NULL,
                 assigned_tech_id INTEGER NULL,
@@ -620,6 +621,7 @@ class Db
         try { $pdo->exec("ALTER TABLE building ADD COLUMN external_id TEXT NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE unit ADD COLUMN external_id TEXT NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE appliance ADD COLUMN external_id TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket ADD COLUMN closed_by_party TEXT NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE part_stockpile ADD COLUMN minimum INTEGER NOT NULL DEFAULT 1"); } catch (\Throwable) {}
 
         $pdo->exec("

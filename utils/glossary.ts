@@ -63,8 +63,8 @@ export const STATUS_GLOSSARY: Record<string, GlossaryEntry> = {
   },
   'closed-elsewhere': {
     term: 'closed-elsewhere',
-    label: 'Closed-Elsewhere',
-    explanation: 'Closed or resolved via external system or outside contractor.',
+    label: 'Closed Elsewhere',
+    explanation: 'Completed by another party (Third party, Contractor, Handoff, or Coworker) rather than this technician.',
     category: 'ticket_state',
   },
   pending_parts: {

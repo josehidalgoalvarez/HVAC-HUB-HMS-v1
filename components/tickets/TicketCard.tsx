@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Ticket, TicketState } from '../../types/domain';
+import type { Ticket, TicketState, ClosedByParty } from '../../types/domain';
 import { getUnitContextChips } from '../../utils/unitContextUtils';
 import { formatAge } from '../../utils/dateUtils';
 import { ExplainableTerm } from '../common/ExplainableTerm';
@@ -7,7 +7,7 @@ import { ExplainableTerm } from '../common/ExplainableTerm';
 interface TicketCardProps {
   ticket: Ticket;
   onSelect: (ticket: Ticket) => void;
-  onQuickStateChange?: (ticketId: string, newState: TicketState) => void;
+  onQuickStateChange?: (ticketId: string, newState: TicketState, closedByParty?: ClosedByParty | null) => void;
 }
 
 export const TicketCard: React.FC<TicketCardProps> = ({
@@ -85,12 +85,31 @@ export const TicketCard: React.FC<TicketCardProps> = ({
           </span>
         );
       case 'closed':
-      case 'closed-elsewhere':
         return (
           <span className="shrink-0 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
-            <ExplainableTerm term={s}>CLOSED</ExplainableTerm>
+            <ExplainableTerm term="closed">CLOSED</ExplainableTerm>
           </span>
         );
+      case 'closed-elsewhere': {
+        const party = ticket.closed_by_party;
+        const partyLabel =
+          party === 'third-party'
+            ? 'Third party'
+            : party === 'contractor'
+            ? 'Contractor'
+            : party === 'handoff'
+            ? 'Handoff'
+            : party === 'coworker'
+            ? 'Coworker'
+            : null;
+        const displayLabel = partyLabel ? `Closed — ${partyLabel}` : 'Closed elsewhere';
+
+        return (
+          <span className="shrink-0 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+            <ExplainableTerm term="closed-elsewhere">{displayLabel}</ExplainableTerm>
+          </span>
+        );
+      }
       case 'new':
       default:
         return (
@@ -298,14 +317,28 @@ export const TicketCard: React.FC<TicketCardProps> = ({
                   ? 'border-amber-400 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-600 font-bold'
                   : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white';
 
+              const currentRawState = ticket.status || ticket.state;
+              const currentValue =
+                currentRawState === 'closed-elsewhere' && ticket.closed_by_party
+                  ? `closed-elsewhere:${ticket.closed_by_party}`
+                  : currentRawState;
+
               return (
                 <div className="flex items-center justify-between gap-2 pt-1">
                   <span className="text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark">
                     Quick State:
                   </span>
                   <select
-                    value={ticket.status || ticket.state}
-                    onChange={(e) => onQuickStateChange(ticket.id, e.target.value as TicketState)}
+                    value={currentValue}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val.startsWith('closed-elsewhere:')) {
+                        const party = val.split(':')[1] as ClosedByParty;
+                        onQuickStateChange(ticket.id, 'closed-elsewhere', party);
+                      } else {
+                        onQuickStateChange(ticket.id, val as TicketState, null);
+                      }
+                    }}
                     className={`min-h-[44px] py-1 px-2.5 text-xs rounded-xl border ${stateSelectClass}`}
                   >
                     <option value="new">New</option>
@@ -315,7 +348,10 @@ export const TicketCard: React.FC<TicketCardProps> = ({
                     <option value="on-hold">On-Hold</option>
                     <option value="done">Done</option>
                     <option value="closed">Closed</option>
-                    <option value="closed-elsewhere">Closed-Elsewhere</option>
+                    <option value="closed-elsewhere:third-party">Closed — Third party</option>
+                    <option value="closed-elsewhere:contractor">Closed — Contractor</option>
+                    <option value="closed-elsewhere:handoff">Closed — Handoff</option>
+                    <option value="closed-elsewhere:coworker">Closed — Coworker</option>
                   </select>
                 </div>
               );

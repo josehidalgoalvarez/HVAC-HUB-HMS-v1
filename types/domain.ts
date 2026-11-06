@@ -292,6 +292,8 @@ export interface TicketRollup {
   states: Record<string, number>;
 }
 
+export type ClosedByParty = 'third-party' | 'contractor' | 'handoff' | 'coworker';
+
 export interface Ticket {
   id: string;
   wo_number: string | null;           // nullable per spec (unnumbered jobs allowed, linkable later)
@@ -318,6 +320,7 @@ export interface Ticket {
   blocker_reason?: string | null;
   blocked_reason?: string | null;
   blocked_at?: string | null;
+  closed_by_party?: ClosedByParty | null;
   last_seen_in_yardi?: string | null; // null = not yet verified in Yardi; >=7d = stale warning
   is_stale_yardi?: boolean;
   yardi_warning?: string | null;

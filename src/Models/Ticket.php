@@ -282,14 +282,15 @@ class Ticket
         $noticeNeeded = !empty($data['notice_needed']) ? 1 : 0;
         $noticeSentAt = !empty($data['notice_sent_at']) ? (string) $data['notice_sent_at'] : null;
         $noticeConfirmedBy = !empty($data['notice_confirmed_by']) ? trim((string) $data['notice_confirmed_by']) : null;
+        $closedByParty = !empty($data['closed_by_party']) ? trim((string) $data['closed_by_party']) : null;
 
         $sql = 'INSERT INTO ticket (
                     wo_number, parent_ticket_id, building_id, unit_id, 
                     title, description, verbatim_text, verified_scope, photo_url,
-                    status, priority, blocker_reason, blocked_reason, blocked_at, last_seen_in_yardi,
+                    status, priority, blocker_reason, blocked_reason, blocked_at, closed_by_party, last_seen_in_yardi,
                     created_by_user_id, assigned_tech_id, exterior_work, work_exposure, weather_note,
                     notice_needed, notice_sent_at, notice_confirmed_by, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
 
         $blockedAt = ($status === self::STATE_BLOCKED) ? gmdate('Y-m-d H:i:s') : null;
 
@@ -308,6 +309,7 @@ class Ticket
             $blockerReason,
             $blockerReason,
             $blockedAt,
+            $closedByParty,
             $lastSeenInYardi,
             $createdByUserId,
             $assignedTechId,
@@ -419,6 +421,12 @@ class Ticket
             $data['blocked_at'] = null;
         }
 
+        // Party handling:
+        // - If moving away from 'closed-elsewhere', clear closed_by_party = null
+        if ($oldStatus === self::STATE_CLOSED_ELSEWHERE && $targetStatus !== self::STATE_CLOSED_ELSEWHERE) {
+            $data['closed_by_party'] = null;
+        }
+
         $updatableFields = [
             'wo_number',
             'parent_ticket_id',
@@ -434,6 +442,7 @@ class Ticket
             'blocker_reason',
             'blocked_reason',
             'blocked_at',
+            'closed_by_party',
             'last_seen_in_yardi',
             'assigned_tech_id',
             'work_exposure',

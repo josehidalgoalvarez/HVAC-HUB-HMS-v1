@@ -6,6 +6,7 @@ import type {
   Ticket,
   TicketState,
   TicketPriority,
+  ClosedByParty,
   Correction,
   TicketTimelineEvent,
   TicketVisit,
@@ -97,6 +98,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   const [editWoNumber, setEditWoNumber] = useState('');
   const [editPriority, setEditPriority] = useState<TicketPriority>('medium');
   const [editState, setEditState] = useState<TicketState>('new');
+  const [editParty, setEditParty] = useState<ClosedByParty | null>(null);
   const [editScope, setEditScope] = useState('');
   const [editBlocker, setEditBlocker] = useState('');
   const [editExposure, setEditExposure] = useState<'indoor' | 'exterior' | 'exterior_ladder'>('indoor');
@@ -429,6 +431,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     setEditWoNumber(ticket.wo_number || '');
     setEditPriority(ticket.priority || 'medium');
     setEditState((ticket.status || ticket.state || 'new') as TicketState);
+    setEditParty((ticket.closed_by_party as ClosedByParty) || null);
     setEditScope(ticket.verified_scope || '');
     setEditBlocker(ticket.blocked_reason || ticket.blocker_reason || '');
     setEditExposure((ticket.work_exposure || (ticket.exterior_work ? 'exterior' : 'indoor')) as 'indoor' | 'exterior' | 'exterior_ladder');
@@ -475,6 +478,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         wo_number: editWoNumber.trim() || null,
         priority: editPriority,
         status: editState,
+        closed_by_party: editState === 'closed-elsewhere' ? editParty : null,
         verified_scope: editScope.trim() || null,
         blocker_reason: editState === 'blocked' ? editBlocker.trim() : null,
         blocked_reason: editState === 'blocked' ? editBlocker.trim() : null,
@@ -1185,9 +1189,25 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   ? 'bg-amber-500 text-white border-amber-500 font-bold'
                   : 'bg-primary/10 text-primary border-primary/20 font-bold';
 
+              let displayStatus = ticket.status || ticket.state;
+              if (s === 'closed-elsewhere') {
+                const party = ticket.closed_by_party;
+                const partyLabel =
+                  party === 'third-party'
+                    ? 'Third party'
+                    : party === 'contractor'
+                    ? 'Contractor'
+                    : party === 'handoff'
+                    ? 'Handoff'
+                    : party === 'coworker'
+                    ? 'Coworker'
+                    : null;
+                displayStatus = partyLabel ? `Closed — ${partyLabel}` : 'Closed elsewhere';
+              }
+
               return (
                 <span className={`px-2.5 py-0.5 text-xs rounded-lg uppercase tracking-wide border shadow-2xs ${badgeClass}`}>
-                  <ExplainableTerm term={s}>{ticket.status || ticket.state}</ExplainableTerm>
+                  <ExplainableTerm term={s}>{displayStatus}</ExplainableTerm>
                 </span>
               );
             })()}
@@ -1208,6 +1228,28 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             </span>
           </div>
         </div>
+
+        {/* Completing party metadata for closed-elsewhere tickets */}
+        {(ticket.status === 'closed-elsewhere' || ticket.state === 'closed-elsewhere') && (
+          <div className="flex items-center gap-2 pt-1 pb-1 text-xs">
+            <span className="font-bold text-gray-500">Completed By Party:</span>
+            <span className="font-semibold text-brand-black dark:text-white">
+              {ticket.closed_by_party ? (
+                ticket.closed_by_party === 'third-party'
+                  ? 'Third party'
+                  : ticket.closed_by_party === 'contractor'
+                  ? 'Contractor'
+                  : ticket.closed_by_party === 'handoff'
+                  ? 'Handoff'
+                  : ticket.closed_by_party === 'coworker'
+                  ? 'Coworker'
+                  : ticket.closed_by_party
+              ) : (
+                <span className="text-gray-400 italic">Not recorded</span>
+              )}
+            </span>
+          </div>
+        )}
 
         {/* Verified Scope Section */}
         {ticket.verified_scope ? (
@@ -1904,8 +1946,24 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
               <div>
                 <label className="block text-xs font-bold uppercase text-gray-500 mb-1">State</label>
                 <select
-                  value={editState}
-                  onChange={(e) => setEditState(e.target.value as TicketState)}
+                  value={
+                    editState === 'closed-elsewhere' && editParty
+                      ? `closed-elsewhere:${editParty}`
+                      : editState
+                  }
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val.startsWith('closed-elsewhere:')) {
+                      setEditState('closed-elsewhere');
+                      setEditParty(val.split(':')[1] as ClosedByParty);
+                    } else if (val === 'closed-elsewhere') {
+                      setEditState('closed-elsewhere');
+                      setEditParty(null);
+                    } else {
+                      setEditState(val as TicketState);
+                      setEditParty(null);
+                    }
+                  }}
                   className={`w-full px-3 py-2 text-sm rounded-xl border font-semibold ${
                     editState === 'done'
                       ? 'border-emerald-500 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-500'
@@ -1925,7 +1983,10 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   <option value="on-hold">On-Hold</option>
                   <option value="done">Done</option>
                   <option value="closed">Closed</option>
-                  <option value="closed-elsewhere">Closed-Elsewhere</option>
+                  <option value="closed-elsewhere:third-party">Closed — Third party</option>
+                  <option value="closed-elsewhere:contractor">Closed — Contractor</option>
+                  <option value="closed-elsewhere:handoff">Closed — Handoff</option>
+                  <option value="closed-elsewhere:coworker">Closed — Coworker</option>
                 </select>
               </div>
             </div>

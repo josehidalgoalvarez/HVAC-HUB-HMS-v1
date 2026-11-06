@@ -6,7 +6,7 @@ import { TicketCard } from './TicketCard';
 import { TicketIntakeModal } from './TicketIntakeModal';
 import { TicketDetailView } from './TicketDetailView';
 import Button from '../ui/Button';
-import type { Ticket, TicketState } from '../../types/domain';
+import type { Ticket, TicketState, ClosedByParty } from '../../types/domain';
 
 interface TicketListViewProps {
   onBack?: () => void;
@@ -54,14 +54,21 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
     }
   }, [initialSelectedTicketId]);
 
-  const handleQuickStateChange = async (ticketId: string, newState: TicketState) => {
+  const handleQuickStateChange = async (ticketId: string, newState: TicketState, closedByParty?: ClosedByParty | null) => {
     try {
-      const updated = await apiClient.updateTicket(ticketId, {
+      const payload: Partial<Ticket> & { reason: string } = {
         status: newState,
         reason: `Quick state transition to ${newState}`,
-      });
+      };
+      if (newState === 'closed-elsewhere') {
+        payload.closed_by_party = closedByParty || null;
+      } else {
+        payload.closed_by_party = null;
+      }
+
+      const updated = await apiClient.updateTicket(ticketId, payload);
       setTickets((prev) =>
-        prev.map((t) => (t.id === ticketId ? { ...t, ...updated, status: newState, state: newState } : t))
+        prev.map((t) => (t.id === ticketId ? { ...t, ...updated, status: newState, state: newState, closed_by_party: payload.closed_by_party } : t))
       );
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Failed to change state');
