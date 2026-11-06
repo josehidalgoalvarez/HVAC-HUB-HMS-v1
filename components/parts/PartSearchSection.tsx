@@ -80,6 +80,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
   const [filter, setFilter] = useState<'all' | 'reorder' | 'available' | 'harvest'>('all');
   const [selectedStockpileId, setSelectedStockpileId] = useState<string>('all');
   const [locationQuery, setLocationQuery] = useState<string>('');
+  const [isLocationsExpanded, setIsLocationsExpanded] = useState<boolean>(false);
   const [expandedPriceHistoryId, setExpandedPriceHistoryId] = useState<number | null>(null);
 
   const filteredHarvestCandidates = harvestCandidates.filter(c => {
@@ -246,9 +247,8 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
               </span>
             </div>
 
-            {/* Wrapping Chips Layout */}
-            <div className="flex flex-wrap items-center gap-1.5">
-              {/* All Locations Chip (Always Visible) */}
+            {/* Top Row: All Locations Chip (Always Visible, sits outside two-row budget) */}
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => setSelectedStockpileId('all')}
@@ -260,33 +260,56 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
               >
                 <span>All Locations ({stockpiles.length})</span>
               </button>
-
-              {filteredStockpiles.length === 0 ? (
-                <div className="w-full py-3 px-3.5 rounded-xl bg-gray-50 dark:bg-card-dark/60 border border-dashed border-gray-300 dark:border-gray-700 text-xs text-text-sub-light dark:text-text-sub-dark italic">
-                  No location matches &apos;{locationQuery}&apos;
-                </div>
-              ) : (
-                filteredStockpiles.map(sp => {
-                  const isSelected = selectedStockpileId === String(sp.id);
-                  const abbrLabel = abbreviateStockpileName(sp.name);
-                  return (
-                    <button
-                      type="button"
-                      key={sp.id}
-                      onClick={() => setSelectedStockpileId(isSelected ? 'all' : String(sp.id))}
-                      title={sp.name}
-                      className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                        isSelected
-                          ? 'bg-amber-500 text-brand-black font-bold shadow-xs'
-                          : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
-                      }`}
-                    >
-                      {abbrLabel}
-                    </button>
-                  );
-                })
-              )}
             </div>
+
+            {/* Property Chips Container (Collapsed to 2 rows by default unless filtered or expanded) */}
+            {filteredStockpiles.length === 0 ? (
+              <div className="w-full py-3 px-3.5 rounded-xl bg-gray-50 dark:bg-card-dark/60 border border-dashed border-gray-300 dark:border-gray-700 text-xs text-text-sub-light dark:text-text-sub-dark italic">
+                No location matches &apos;{locationQuery}&apos;
+              </div>
+            ) : (
+              <>
+                <div
+                  className={`flex flex-wrap items-center gap-1.5 transition-all ${
+                    !trimmedLocQuery && !isLocationsExpanded
+                      ? 'max-h-[84px] overflow-hidden'
+                      : ''
+                  }`}
+                >
+                  {filteredStockpiles.map(sp => {
+                    const isSelected = selectedStockpileId === String(sp.id);
+                    const abbrLabel = abbreviateStockpileName(sp.name);
+                    return (
+                      <button
+                        type="button"
+                        key={sp.id}
+                        onClick={() => setSelectedStockpileId(isSelected ? 'all' : String(sp.id))}
+                        title={sp.name}
+                        className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-amber-500 text-brand-black font-bold shadow-xs'
+                            : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
+                        }`}
+                      >
+                        {abbrLabel}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Expand / Collapse Affordance (Only shown when not actively filtering and more than 2 rows) */}
+                {!trimmedLocQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setIsLocationsExpanded(!isLocationsExpanded)}
+                    className="min-h-[44px] w-full py-2 px-3 rounded-xl bg-gray-100/80 hover:bg-gray-200/80 dark:bg-card-dark dark:hover:bg-neutral-800 border border-gray-200/80 dark:border-gray-800 text-xs font-bold text-text-sub-light dark:text-text-sub-dark flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    aria-expanded={isLocationsExpanded}
+                  >
+                    <span>{isLocationsExpanded ? 'Show less ▴' : `Show all ${stockpiles.length} ▾`}</span>
+                  </button>
+                )}
+              </>
+            )}
           </div>
         );
       })()}
