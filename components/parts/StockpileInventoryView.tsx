@@ -7,6 +7,7 @@ import { LogPartUseModal, type LogPartUseResult } from './LogPartUseModal';
 import { AddPartModal } from './AddPartModal';
 import { EquipmentMovementSection } from './EquipmentMovementSection';
 import type { Stockpile, StockpilePartItem, PartRecord, EquipmentItem, EquipmentStatus } from '../../types/domain';
+import { ExplainableTerm } from '../common/ExplainableTerm';
 
 interface StockpileInventoryViewProps {
   stockpileId: number | string;
@@ -924,7 +925,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                           {app.type || 'Appliance'}
                         </span>
                         <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
-                          {app.status || 'stored'}
+                          <ExplainableTerm term={app.status || 'stored'}>{app.status || 'stored'}</ExplainableTerm>
                         </span>
                       </div>
                       <h3 className="text-sm font-bold text-brand-black dark:text-white truncate">

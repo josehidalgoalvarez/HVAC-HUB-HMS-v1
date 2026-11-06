@@ -16,6 +16,7 @@ import type {
 } from '../../types/domain';
 import { getUnitContextChips } from '../../utils/unitContextUtils';
 import { parseDate, formatDateTime, formatTime, formatDate } from '../../utils/dateUtils';
+import { ExplainableTerm } from '../common/ExplainableTerm';
 
 const formatRunDuration = (totalSeconds: number): string => {
   const safe = Math.max(0, Math.round(totalSeconds || 0));
@@ -639,7 +640,11 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md ${chip.className}`}
               >
                 <span className="material-symbols-outlined text-[11px] leading-none">{chip.icon}</span>
-                {chip.label}
+                {chip.key === 'renovated' ? (
+                  <ExplainableTerm term="renovated">{chip.label}</ExplainableTerm>
+                ) : (
+                  chip.label
+                )}
               </span>
             ))}
           </div>
@@ -1182,7 +1187,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
               return (
                 <span className={`px-2.5 py-0.5 text-xs rounded-lg uppercase tracking-wide border shadow-2xs ${badgeClass}`}>
-                  {ticket.status || ticket.state}
+                  <ExplainableTerm term={s}>{ticket.status || ticket.state}</ExplainableTerm>
                 </span>
               );
             })()}
@@ -1199,7 +1204,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
               }`}
             >
-              {ticket.priority}
+              <ExplainableTerm term={ticket.priority}>{ticket.priority}</ExplainableTerm>
             </span>
           </div>
         </div>

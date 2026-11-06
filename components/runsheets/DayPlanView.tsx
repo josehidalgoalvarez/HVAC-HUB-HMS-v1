@@ -7,6 +7,7 @@ import { CloseBlockModal } from './CloseBlockModal';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import type { RunSheet, RunSheetBlock } from '../../types/domain';
+import { ExplainableTerm } from '../common/ExplainableTerm';
 
 interface DayPlanViewProps {
   onBack?: () => void;
@@ -497,7 +498,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                       <div className="flex items-center gap-2 text-xs">
                         <span className="px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-bold flex items-center gap-1 shadow-2xs">
                           <span className="material-symbols-outlined text-sm">done_all</span>
-                          Completed
+                          <ExplainableTerm term="completed">Completed</ExplainableTerm>
                         </span>
                         <span className="font-mono font-bold text-emerald-950 dark:text-emerald-100">
                           Est: {block.estimated_minutes}m | Act: {block.actual_minutes}m
@@ -514,7 +515,9 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                       </div>
                     ) : (
                       <div className="text-xs text-gray-400">
-                        Status: <span className="uppercase font-semibold text-gray-500">{block.status}</span>
+                        Status: <span className="uppercase font-semibold text-gray-500">
+                          <ExplainableTerm term={block.status}>{block.status}</ExplainableTerm>
+                        </span>
                       </div>
                     )}
 
