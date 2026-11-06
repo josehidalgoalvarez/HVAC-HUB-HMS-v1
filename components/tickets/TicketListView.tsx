@@ -155,7 +155,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
               <span className="material-symbols-outlined text-xl">arrow_back</span>
             </button>
           )}
-          <div className="min-w-0">
+          <div className="min-w-0 border-l-4 border-primary pl-2.5 py-0.5">
             <h1 className="text-xl font-extrabold text-brand-black dark:text-white flex items-center gap-2 tracking-tight truncate">
               <span className="material-symbols-outlined text-primary text-2xl shrink-0">assignment</span>
               <span>Tickets</span>

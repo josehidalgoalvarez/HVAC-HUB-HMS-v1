@@ -280,27 +280,41 @@ export const TicketCard: React.FC<TicketCardProps> = ({
               </div>
             )}
 
-            {onQuickStateChange && (
-              <div className="flex items-center justify-between gap-2 pt-1">
-                <span className="text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark">
-                  Quick State:
-                </span>
-                <select
-                  value={ticket.status || ticket.state}
-                  onChange={(e) => onQuickStateChange(ticket.id, e.target.value as TicketState)}
-                  className="min-h-[44px] py-1 px-2.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white"
-                >
-                  <option value="new">New</option>
-                  <option value="verified">Verified</option>
-                  <option value="in-progress">In-Progress</option>
-                  <option value="blocked">Blocked</option>
-                  <option value="on-hold">On-Hold</option>
-                  <option value="done">Done</option>
-                  <option value="closed">Closed</option>
-                  <option value="closed-elsewhere">Closed-Elsewhere</option>
-                </select>
-              </div>
-            )}
+            {onQuickStateChange && (() => {
+              const currentState = (ticket.status || ticket.state || 'new').toLowerCase();
+              const stateSelectClass =
+                currentState === 'done' || currentState === 'resolved'
+                  ? 'border-emerald-500 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-500 font-bold'
+                  : currentState === 'blocked'
+                  ? 'border-rose-500 bg-rose-50 text-rose-900 dark:bg-rose-950/50 dark:text-rose-200 dark:border-rose-500 font-bold'
+                  : currentState === 'in-progress' || currentState === 'in_progress'
+                  ? 'border-primary/40 bg-primary/5 text-primary dark:border-primary/60 dark:bg-primary/20 dark:text-sky-300 font-bold'
+                  : currentState === 'on-hold' || currentState === 'on_hold'
+                  ? 'border-amber-400 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-600 font-bold'
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white';
+
+              return (
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <span className="text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark">
+                    Quick State:
+                  </span>
+                  <select
+                    value={ticket.status || ticket.state}
+                    onChange={(e) => onQuickStateChange(ticket.id, e.target.value as TicketState)}
+                    className={`min-h-[44px] py-1 px-2.5 text-xs rounded-xl border ${stateSelectClass}`}
+                  >
+                    <option value="new">New</option>
+                    <option value="verified">Verified</option>
+                    <option value="in-progress">In-Progress</option>
+                    <option value="blocked">Blocked</option>
+                    <option value="on-hold">On-Hold</option>
+                    <option value="done">Done</option>
+                    <option value="closed">Closed</option>
+                    <option value="closed-elsewhere">Closed-Elsewhere</option>
+                  </select>
+                </div>
+              );
+            })()}
           </div>
         )}
       </div>

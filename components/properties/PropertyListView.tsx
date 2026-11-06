@@ -907,7 +907,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
             {navLevel === 'root' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 border-l-4 border-primary pl-2.5 py-0.5">
                     <span className="material-symbols-outlined text-primary text-xl">domain</span>
                     <h1 className="text-sm font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
                       Portfolio ({properties.length} Total Buildings)

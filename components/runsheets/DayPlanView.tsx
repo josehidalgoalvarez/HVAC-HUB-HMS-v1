@@ -192,7 +192,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
               <span className="material-symbols-outlined">arrow_back</span>
             </button>
           )}
-          <div>
+          <div className="border-l-4 border-primary pl-2.5 py-0.5">
             <h1 className="text-xl font-extrabold text-brand-black dark:text-white flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-2xl">schedule</span>
               Day Plan
@@ -374,7 +374,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                 <div
                   className={`rounded-2xl p-4 border transition-all shadow-xs ${
                     isCompleted
-                      ? 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900'
+                      ? 'bg-emerald-500/15 dark:bg-emerald-950/60 border-2 border-emerald-500 dark:border-emerald-400'
                       : exceedsCarry
                       ? 'bg-amber-50/40 dark:bg-amber-950/20 border-amber-300 dark:border-amber-800'
                       : 'bg-white dark:bg-card-dark border-gray-100 dark:border-gray-800'
@@ -490,19 +490,21 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                   </div>
 
                   {/* Footer / Actions */}
-                  <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
+                  <div className={`mt-3 pt-2.5 border-t flex items-center justify-between gap-2 ${
+                    isCompleted ? 'border-emerald-500/30 dark:border-emerald-500/40' : 'border-gray-100 dark:border-gray-800'
+                  }`}>
                     {isCompleted ? (
                       <div className="flex items-center gap-2 text-xs">
-                        <span className="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-bold flex items-center gap-1 shadow-2xs">
                           <span className="material-symbols-outlined text-sm">done_all</span>
                           Completed
                         </span>
-                        <span className="font-mono font-bold text-gray-600 dark:text-gray-300">
+                        <span className="font-mono font-bold text-emerald-950 dark:text-emerald-100">
                           Est: {block.estimated_minutes}m | Act: {block.actual_minutes}m
                           {block.variance_minutes !== null && (
                             <span
                               className={`ml-1 font-bold ${
-                                block.variance_minutes > 0 ? 'text-amber-600' : 'text-emerald-600'
+                                block.variance_minutes > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-emerald-700 dark:text-emerald-300'
                               }`}
                             >
                               ({block.variance_minutes > 0 ? `+${block.variance_minutes}m` : `${block.variance_minutes}m`})

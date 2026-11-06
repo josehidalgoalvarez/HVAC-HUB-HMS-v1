@@ -1167,17 +1167,33 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-gray-500">Status:</span>
-            <span className="px-2.5 py-0.5 text-xs font-bold rounded-lg bg-primary/10 text-primary border border-primary/20">
-              {ticket.status || ticket.state}
-            </span>
+            {(() => {
+              const s = (ticket.status || ticket.state || 'new').toLowerCase();
+              const badgeClass =
+                s === 'done' || s === 'resolved'
+                  ? 'bg-emerald-600 text-white border-emerald-600 font-bold'
+                  : s === 'blocked'
+                  ? 'bg-rose-600 text-white border-rose-600 font-bold'
+                  : s === 'in-progress' || s === 'in_progress'
+                  ? 'bg-primary text-white border-primary font-bold'
+                  : s === 'on-hold' || s === 'on_hold'
+                  ? 'bg-amber-500 text-white border-amber-500 font-bold'
+                  : 'bg-primary/10 text-primary border-primary/20 font-bold';
+
+              return (
+                <span className={`px-2.5 py-0.5 text-xs rounded-lg uppercase tracking-wide border shadow-2xs ${badgeClass}`}>
+                  {ticket.status || ticket.state}
+                </span>
+              );
+            })()}
           </div>
 
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-gray-500">Priority:</span>
             <span
-              className={`px-2 py-0.5 text-xs font-bold rounded-lg uppercase ${
+              className={`px-2.5 py-0.5 text-xs font-bold rounded-lg uppercase tracking-wide shadow-2xs ${
                 ticket.priority === 'urgent'
-                  ? 'bg-brand-red text-white'
+                  ? 'bg-brand-red text-white border border-brand-red ring-1 ring-brand-red/30'
                   : ticket.priority === 'high'
                   ? 'bg-amber-500 text-white'
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
@@ -1885,7 +1901,17 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 <select
                   value={editState}
                   onChange={(e) => setEditState(e.target.value as TicketState)}
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-semibold"
+                  className={`w-full px-3 py-2 text-sm rounded-xl border font-semibold ${
+                    editState === 'done'
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-500'
+                      : editState === 'blocked'
+                      ? 'border-rose-500 bg-rose-50 text-rose-900 dark:bg-rose-950/50 dark:text-rose-200 dark:border-rose-500'
+                      : editState === 'in-progress'
+                      ? 'border-primary/40 bg-primary/5 text-primary dark:border-primary/60 dark:bg-primary/20 dark:text-sky-300'
+                      : editState === 'on-hold'
+                      ? 'border-amber-400 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-600'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
+                  }`}
                 >
                   <option value="new">New</option>
                   <option value="verified">Verified</option>
@@ -1905,7 +1931,13 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 <select
                   value={editPriority}
                   onChange={(e) => setEditPriority(e.target.value as TicketPriority)}
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
+                  className={`w-full px-3 py-2 text-sm rounded-xl border font-semibold ${
+                    editPriority === 'urgent'
+                      ? 'border-brand-red bg-rose-50 text-brand-red dark:bg-rose-950/50 dark:text-rose-200 dark:border-brand-red font-bold'
+                      : editPriority === 'high'
+                      ? 'border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-500'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
+                  }`}
                 >
                   <option value="urgent">Urgent</option>
                   <option value="high">High</option>
@@ -2068,7 +2100,17 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 <select
                   value={childState}
                   onChange={(e) => setChildState(e.target.value as TicketState)}
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
+                  className={`w-full px-3 py-2 text-sm rounded-xl border font-semibold ${
+                    childState === 'done'
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-500'
+                      : childState === 'blocked'
+                      ? 'border-rose-500 bg-rose-50 text-rose-900 dark:bg-rose-950/50 dark:text-rose-200 dark:border-rose-500'
+                      : childState === 'in-progress'
+                      ? 'border-primary/40 bg-primary/5 text-primary dark:border-primary/60 dark:bg-primary/20 dark:text-sky-300'
+                      : childState === 'on-hold'
+                      ? 'border-amber-400 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-600'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
+                  }`}
                 >
                   <option value="new">New</option>
                   <option value="verified">Verified</option>
@@ -2084,7 +2126,13 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 <select
                   value={childPriority}
                   onChange={(e) => setChildPriority(e.target.value as TicketPriority)}
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
+                  className={`w-full px-3 py-2 text-sm rounded-xl border font-semibold ${
+                    childPriority === 'urgent'
+                      ? 'border-brand-red bg-rose-50 text-brand-red dark:bg-rose-950/50 dark:text-rose-200 dark:border-brand-red font-bold'
+                      : childPriority === 'high'
+                      ? 'border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-500'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
+                  }`}
                 >
                   <option value="urgent">Urgent</option>
                   <option value="high">High</option>

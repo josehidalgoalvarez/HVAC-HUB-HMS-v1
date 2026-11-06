@@ -179,7 +179,7 @@ export const PartsView: React.FC<PartsViewProps> = ({
               <span className="material-symbols-outlined">arrow_back</span>
             </button>
           )}
-          <div>
+          <div className="border-l-4 border-primary pl-2.5 py-0.5">
             <h1 className="text-xl font-bold flex items-center gap-1.5">
               <span className="material-symbols-outlined text-primary text-2xl">precision_manufacturing</span>
               Parts & Stockpiles
