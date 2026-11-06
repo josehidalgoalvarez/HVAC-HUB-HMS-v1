@@ -470,6 +470,14 @@ export class ApiClient {
     return this.post<TicketPart>(`/api/ticket-parts/${partId}/unarrive`, { actor, reason });
   }
 
+  public async pruneTicketToHistory(
+    ticketId: string | number,
+    actor: string = 'Jose (Tech)',
+    reason: string = 'Manual prune'
+  ): Promise<Ticket> {
+    return this.post<Ticket>(`/api/tickets/${ticketId}/prune`, { actor, reason });
+  }
+
   public async getUnitVisits(unitId: string | number): Promise<UnitFailedVisitsSummary> {
     return this.get<UnitFailedVisitsSummary>(`/api/units/${unitId}/visits`);
   }

@@ -46,7 +46,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(initialSelectedTicketId);
   const [isIntakeOpen, setIsIntakeOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'safety' | 'closable' | 'blocked' | 'unassigned'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'safety' | 'closable' | 'blocked' | 'archived' | 'unassigned'>('all');
 
   useEffect(() => {
     if (initialSelectedTicketId) {
@@ -70,6 +70,9 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
 
   const filteredTickets = useMemo(() => {
     return tickets.filter((t) => {
+      const s = t.status || t.state;
+      const isArchived = s === 'archived-blocked';
+
       // Search query filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
@@ -80,36 +83,48 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
         if (!matchesWo && !matchesTitle && !matchesScope && !matchesUnit) {
           return false;
         }
+        // When searching, let user see archived tickets if matched
+        if (activeFilter !== 'archived' && isArchived && !searchQuery.trim()) {
+          return false;
+        }
       }
 
       // Category filter pills
       if (activeFilter === 'safety') {
-        return t.priority === 'urgent';
+        return !isArchived && t.priority === 'urgent';
       }
       if (activeFilter === 'closable') {
-        const s = t.status || t.state;
-        return (s === 'in-progress' || s === 'in_progress' || s === 'verified') && t.priority !== 'urgent';
+        return !isArchived && (s === 'in-progress' || s === 'in_progress' || s === 'verified') && t.priority !== 'urgent';
       }
       if (activeFilter === 'blocked') {
-        const s = t.status || t.state;
         return s === 'blocked';
       }
+      if (activeFilter === 'archived') {
+        return isArchived;
+      }
       if (activeFilter === 'unassigned') {
-        return !t.wo_number;
+        return !isArchived && !t.wo_number;
+      }
+
+      // Default 'all' tab: Active tickets only (exclude archived-blocked tickets unless searching)
+      if (isArchived && !searchQuery.trim()) {
+        return false;
       }
 
       return true;
     });
   }, [tickets, searchQuery, activeFilter]);
 
-  // Section breakdown counts
-  const safetyCount = tickets.filter((t) => t.priority === 'urgent').length;
+  // Section breakdown counts (archived-blocked tickets are excluded from active counts)
+  const activeTicketsCount = tickets.filter((t) => (t.status || t.state) !== 'archived-blocked').length;
+  const safetyCount = tickets.filter((t) => (t.status || t.state) !== 'archived-blocked' && t.priority === 'urgent').length;
   const closableCount = tickets.filter((t) => {
     const s = t.status || t.state;
-    return (s === 'in-progress' || s === 'in_progress' || s === 'verified') && t.priority !== 'urgent';
+    return s !== 'archived-blocked' && (s === 'in-progress' || s === 'in_progress' || s === 'verified') && t.priority !== 'urgent';
   }).length;
   const blockedCount = tickets.filter((t) => (t.status || t.state) === 'blocked').length;
-  const unassignedCount = tickets.filter((t) => !t.wo_number).length;
+  const archivedCount = tickets.filter((t) => (t.status || t.state) === 'archived-blocked').length;
+  const unassignedCount = tickets.filter((t) => (t.status || t.state) !== 'archived-blocked' && !t.wo_number).length;
 
   if (selectedTicketId) {
     return (
@@ -247,7 +262,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
               : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
             }`}
         >
-          All ({tickets.length})
+          All ({activeTicketsCount})
         </button>
 
         <button
@@ -282,6 +297,19 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           <span className={`material-symbols-outlined text-xs ${activeFilter === 'blocked' ? 'text-white' : 'text-rose-500'}`}>block</span>
           Blocked ({blockedCount})
         </button>
+
+        {archivedCount > 0 && (
+          <button
+            onClick={() => setActiveFilter('archived')}
+            className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'archived'
+                ? 'bg-gray-600 text-white shadow-2xs border border-gray-600'
+                : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
+              }`}
+          >
+            <span className={`material-symbols-outlined text-xs ${activeFilter === 'archived' ? 'text-white' : 'text-gray-400'}`}>inventory_2</span>
+            Archived ({archivedCount})
+          </button>
+        )}
 
         <button
           onClick={() => setActiveFilter('unassigned')}

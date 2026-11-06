@@ -23,6 +23,7 @@ class Ticket
     public const STATE_VERIFIED = 'verified';
     public const STATE_IN_PROGRESS = 'in-progress';
     public const STATE_BLOCKED = 'blocked';
+    public const STATE_ARCHIVED_BLOCKED = 'archived-blocked';
     public const STATE_ON_HOLD = 'on-hold';
     public const STATE_DONE = 'done';
     public const STATE_CLOSED = 'closed';
@@ -56,6 +57,10 @@ class Ticket
         if (!empty($filters['status'])) {
             $where[] = 't.status = ?';
             $params[] = $filters['status'];
+        } elseif (empty($filters['include_archived'])) {
+            // By default, exclude archived-blocked tickets from active listings
+            $where[] = 't.status != ?';
+            $params[] = self::STATE_ARCHIVED_BLOCKED;
         }
 
         if (!empty($filters['since'])) {
@@ -281,10 +286,12 @@ class Ticket
         $sql = 'INSERT INTO ticket (
                     wo_number, parent_ticket_id, building_id, unit_id, 
                     title, description, verbatim_text, verified_scope, photo_url,
-                    status, priority, blocker_reason, blocked_reason, last_seen_in_yardi,
+                    status, priority, blocker_reason, blocked_reason, blocked_at, last_seen_in_yardi,
                     created_by_user_id, assigned_tech_id, exterior_work, work_exposure, weather_note,
                     notice_needed, notice_sent_at, notice_confirmed_by, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
+
+        $blockedAt = ($status === self::STATE_BLOCKED) ? gmdate('Y-m-d H:i:s') : null;
 
         Db::execute($sql, [
             $woNumber,
@@ -300,6 +307,7 @@ class Ticket
             $priority,
             $blockerReason,
             $blockerReason,
+            $blockedAt,
             $lastSeenInYardi,
             $createdByUserId,
             $assignedTechId,
@@ -402,6 +410,15 @@ class Ticket
             );
         }
 
+        // Clock handling:
+        // - Entering 'blocked' -> stamp blocked_at = now
+        // - Leaving 'blocked' -> clear blocked_at = null (clock reset)
+        if ($oldStatus !== self::STATE_BLOCKED && $targetStatus === self::STATE_BLOCKED) {
+            $data['blocked_at'] = gmdate('Y-m-d H:i:s');
+        } elseif ($oldStatus === self::STATE_BLOCKED && $targetStatus !== self::STATE_BLOCKED) {
+            $data['blocked_at'] = null;
+        }
+
         $updatableFields = [
             'wo_number',
             'parent_ticket_id',
@@ -416,6 +433,7 @@ class Ticket
             'priority',
             'blocker_reason',
             'blocked_reason',
+            'blocked_at',
             'last_seen_in_yardi',
             'assigned_tech_id',
             'work_exposure',
@@ -496,6 +514,200 @@ class Ticket
         }
 
         return self::findById($id) ?? [];
+    }
+
+    /**
+     * Prune a blocked ticket to unit history and transition to archived-blocked status.
+     * Can be invoked manually or via automatic 30-day aging evaluation.
+     *
+     * Rules:
+     * - Only blocked tickets can be pruned.
+     * - Idempotent: already archived tickets are returned without duplicate timeline/history entry.
+     * - In-flight safety: if parts are in 'arrived' state (undo window open), pruning is blocked until verified/installed.
+     * - Additive copy: copies blocked reason, blocked date range, WO#, what was tried, parts used/ordered, notes.
+     * - Ticket row and details are preserved in database; status moves to 'archived-blocked'.
+     */
+    public static function pruneToUnitHistory(int|string $id, string $actor = 'Jose (Tech)', ?int $userId = null, string $reason = 'Manual prune'): array
+    {
+        $ticket = self::findById($id);
+        if ($ticket === null) {
+            throw new RuntimeException("Ticket #{$id} not found");
+        }
+
+        // Idempotency: if already archived, return safely
+        if ($ticket['status'] === self::STATE_ARCHIVED_BLOCKED) {
+            return $ticket;
+        }
+
+        if ($ticket['status'] !== self::STATE_BLOCKED) {
+            throw new RuntimeException("Cannot prune ticket #{$id}: ticket status is '{$ticket['status']}', not 'blocked'");
+        }
+
+        // In-flight safety check: check for any ticket_part in 'arrived' state (open undo window)
+        $arrivedParts = Db::fetchAll(
+            "SELECT id, part_name FROM ticket_part WHERE ticket_id = ? AND status = 'arrived'",
+            [(int) $id]
+        );
+        if (!empty($arrivedParts)) {
+            $names = implode(', ', array_column($arrivedParts, 'part_name'));
+            throw new RuntimeException("Cannot prune ticket #{$id}: in-flight part arrival undo window is open for: {$names}");
+        }
+
+        $now = gmdate('Y-m-d H:i:s');
+        $blockedAt = $ticket['blocked_at'] ?: $ticket['updated_at'] ?: $ticket['created_at'] ?: $now;
+        $blockedReason = $ticket['blocked_reason'] ?: $ticket['blocker_reason'] ?: 'No blocked reason specified';
+        $woNumber = $ticket['wo_number'] ?: 'Unnumbered';
+        $unitNumber = $ticket['unit_number'] ?: ($ticket['unit_id'] ? "Unit #{$ticket['unit_id']}" : 'Building Level');
+
+        // Gather "what was tried" from timeline and notes
+        $timeline = Db::fetchAll(
+            'SELECT event_type, actor, note, created_at FROM ticket_timeline WHERE ticket_id = ? ORDER BY id ASC',
+            [(int) $id]
+        );
+        $whatWasTried = [];
+        foreach ($timeline as $evt) {
+            if (!empty($evt['note'])) {
+                $whatWasTried[] = "[{$evt['created_at']}] {$evt['actor']} ({$evt['event_type']}): {$evt['note']}";
+            }
+        }
+        if (!empty($ticket['verified_scope'])) {
+            $whatWasTried[] = "[Scope] " . $ticket['verified_scope'];
+        }
+        if (!empty($ticket['verbatim_text'])) {
+            $whatWasTried[] = "[Verbatim Request] " . $ticket['verbatim_text'];
+        }
+
+        // Gather parts used / ordered
+        $ticketParts = Db::fetchAll(
+            'SELECT part_name, part_number, supplier, quantity, status FROM ticket_part WHERE ticket_id = ?',
+            [(int) $id]
+        );
+        $partsSummary = [];
+        foreach ($ticketParts as $tp) {
+            $partsSummary[] = "{$tp['quantity']}x {$tp['part_name']} ({$tp['status']}, supplier: {$tp['supplier']})";
+        }
+
+        // Unit visit failures if applicable
+        $unitVisits = [];
+        if (!empty($ticket['unit_id'])) {
+            $visits = Db::fetchAll(
+                'SELECT outcome, failure_reason, visited_at FROM ticket_visit WHERE ticket_id = ? OR unit_id = ? ORDER BY id DESC LIMIT 5',
+                [(int) $id, (int) $ticket['unit_id']]
+            );
+            foreach ($visits as $v) {
+                $unitVisits[] = "[Visit {$v['visited_at']}] {$v['outcome']}: " . ($v['failure_reason'] ?: 'No notes');
+            }
+        }
+
+        $structuredPruneData = [
+            'ticket_id' => (int) $id,
+            'wo_number' => $woNumber,
+            'unit_id' => $ticket['unit_id'],
+            'unit_number' => $unitNumber,
+            'building_id' => $ticket['building_id'],
+            'blocked_reason' => $blockedReason,
+            'blocked_since' => $blockedAt,
+            'pruned_at' => $now,
+            'date_range' => "{$blockedAt} → {$now}",
+            'what_was_tried' => $whatWasTried,
+            'parts_summary' => $partsSummary,
+            'unit_visits' => $unitVisits,
+            'prune_type' => $reason,
+        ];
+
+        // Format permanent unit history note
+        $historyNote = "PRUNED TO UNIT HISTORY: WO {$woNumber} (Blocked: {$blockedReason})\n"
+                     . "Dates: {$blockedAt} to {$now}\n"
+                     . "What was tried: " . (!empty($whatWasTried) ? implode("; ", $whatWasTried) : 'None documented') . "\n"
+                     . "Parts: " . (!empty($partsSummary) ? implode("; ", $partsSummary) : 'None') . "\n"
+                     . "Ticket link: /tickets/{$id}";
+
+        // Write permanent history entry to ticket timeline using EVENT_PRUNED_TO_HISTORY
+        TicketTimeline::append(
+            (int) $id,
+            TicketTimeline::EVENT_PRUNED_TO_HISTORY,
+            $actor,
+            $historyNote,
+            $structuredPruneData
+        );
+
+        // Record audit correction for the prune action
+        Correction::record(
+            'ticket',
+            (int) $id,
+            'status',
+            self::STATE_BLOCKED,
+            self::STATE_ARCHIVED_BLOCKED,
+            $userId,
+            "{$reason} - pruned to unit history"
+        );
+
+        // Transition ticket status to archived-blocked
+        Db::execute(
+            "UPDATE ticket SET status = ?, updated_at = ? WHERE id = ?",
+            [self::STATE_ARCHIVED_BLOCKED, $now, (int) $id]
+        );
+
+        return self::findById($id) ?? [];
+    }
+
+    /**
+     * Evaluate all blocked tickets for automatic 30-day aging.
+     * Evaluates blocked tickets whose blocked_at is >= 30 days old.
+     * Idempotent and safe to run on each ticket list load.
+     */
+    public static function evaluateAgingBlockedTickets(?int $simulatedDays = null): array
+    {
+        // 30 days in seconds
+        $thresholdSeconds = 30 * 86400;
+
+        $blockedTickets = Db::fetchAll(
+            "SELECT id, blocked_at, created_at, updated_at FROM ticket WHERE status = ?",
+            [self::STATE_BLOCKED]
+        );
+
+        $pruned = [];
+        $skipped = [];
+        $now = time();
+
+        foreach ($blockedTickets as $bt) {
+            $stampStr = $bt['blocked_at'] ?: $bt['created_at'];
+            $stamp = $stampStr ? strtotime($stampStr) : $now;
+            $ageSeconds = $now - $stamp;
+
+            if ($simulatedDays !== null) {
+                $ageSeconds += ($simulatedDays * 86400);
+            }
+
+            if ($ageSeconds >= $thresholdSeconds) {
+                try {
+                    $res = self::pruneToUnitHistory(
+                        (int) $bt['id'],
+                        'System (30-day aging)',
+                        null,
+                        'Automatic 30-day aging prune'
+                    );
+                    $pruned[] = (int) $bt['id'];
+                } catch (Throwable $e) {
+                    $skipped[] = [
+                        'ticket_id' => (int) $bt['id'],
+                        'reason' => $e->getMessage(),
+                    ];
+                }
+            } else {
+                $skipped[] = [
+                    'ticket_id' => (int) $bt['id'],
+                    'days_blocked' => round($ageSeconds / 86400, 1),
+                ];
+            }
+        }
+
+        return [
+            'evaluated_count' => count($blockedTickets),
+            'pruned_count' => count($pruned),
+            'pruned_ticket_ids' => $pruned,
+            'skipped' => $skipped,
+        ];
     }
 
     /**

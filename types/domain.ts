@@ -271,6 +271,7 @@ export type TicketState =
   | 'verified'
   | 'in-progress'
   | 'blocked'
+  | 'archived-blocked'
   | 'on-hold'
   | 'on_hold'
   | 'done'
@@ -316,6 +317,7 @@ export interface Ticket {
   priority: TicketPriority;
   blocker_reason?: string | null;
   blocked_reason?: string | null;
+  blocked_at?: string | null;
   last_seen_in_yardi?: string | null; // null = not yet verified in Yardi; >=7d = stale warning
   is_stale_yardi?: boolean;
   yardi_warning?: string | null;

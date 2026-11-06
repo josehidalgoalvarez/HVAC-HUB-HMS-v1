@@ -26,6 +26,9 @@ class TicketController
     {
         $params = $request->getQueryParams();
         try {
+            // Lazy evaluation: trigger 30-day aging evaluation on ticket fetch
+            Ticket::evaluateAgingBlockedTickets();
+
             $tickets = Ticket::findAll($params);
             return Auth::jsonSuccess($tickets);
         } catch (Throwable $e) {
@@ -173,6 +176,31 @@ class TicketController
             return Auth::jsonSuccess($result);
         } catch (Throwable $e) {
             return Auth::jsonError('sighting_failed', 'Failed to record Yardi sighting: ' . $e->getMessage(), 400);
+        }
+    }
+
+    /**
+     * POST /api/tickets/{id}/prune
+     * Prunes a blocked ticket to unit history and moves it to archived-blocked status.
+     */
+    public function prune(Request $request, Response $response, array $args): Response
+    {
+        $id = $args['id'] ?? null;
+        if (!$id) {
+            return Auth::jsonError('bad_request', 'Missing ticket ID', 400);
+        }
+
+        $body = (array) ($request->getParsedBody() ?? []);
+        $actor = trim((string) ($body['actor'] ?? 'Jose (Tech)'));
+        $reason = trim((string) ($body['reason'] ?? 'Manual prune to unit history'));
+        $user = $request->getAttribute('user');
+        $userId = isset($user['id']) ? (int) $user['id'] : null;
+
+        try {
+            $ticket = Ticket::pruneToUnitHistory($id, $actor, $userId, $reason);
+            return Auth::jsonSuccess($ticket);
+        } catch (Throwable $e) {
+            return Auth::jsonError('prune_failed', $e->getMessage(), 400);
         }
     }
 }

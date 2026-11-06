@@ -168,14 +168,25 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
   // Unit Access History & Failed Visits
   const [unitVisitsSummary, setUnitVisitsSummary] = useState<UnitFailedVisitsSummary | null>(null);
+  const [unitTickets, setUnitTickets] = useState<any[]>([]);
 
   React.useEffect(() => {
     if (selectedUnitId) {
       apiClient.getUnitVisits(selectedUnitId)
         .then(res => setUnitVisitsSummary(res))
         .catch(() => setUnitVisitsSummary(null));
+
+      apiClient.getTickets()
+        .then(res => {
+          if (Array.isArray(res)) {
+            const matched = res.filter((t: any) => String(t.unitId || t.unit_id) === String(selectedUnitId));
+            setUnitTickets(matched);
+          }
+        })
+        .catch(() => setUnitTickets([]));
     } else {
       setUnitVisitsSummary(null);
+      setUnitTickets([]);
     }
   }, [selectedUnitId]);
 
@@ -1699,6 +1710,42 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               <div>{formatDate(v.visited_at)}</div>
                               <div>{v.tech_name}</div>
                             </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Pruned Work Orders / Archived Unit History */}
+                  {unitTickets.some(t => t.status === 'archived-blocked' || t.state === 'archived-blocked') && (
+                    <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[15px] text-gray-500">history_edu</span>
+                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                          Pruned Blocked History ({unitTickets.filter(t => t.status === 'archived-blocked' || t.state === 'archived-blocked').length})
+                        </h4>
+                      </div>
+                      <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                        {unitTickets.filter(t => t.status === 'archived-blocked' || t.state === 'archived-blocked').map(t => (
+                          <div
+                            key={t.id}
+                            className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-200 dark:border-gray-700 text-xs space-y-1"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-bold text-brand-black dark:text-white">
+                                {t.wo_number ? `WO ${t.wo_number}` : `Ticket #${t.id}`} · {t.title}
+                              </span>
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 uppercase">
+                                Archived
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-rose-700 dark:text-rose-400 font-medium">
+                              Blocked Reason: {t.blocked_reason || t.blocker_reason}
+                            </p>
+                            {t.blocked_at && (
+                              <p className="text-[10px] text-gray-400 font-mono">
+                                Blocked since: {formatDate(t.blocked_at)}
+                              </p>
+                            )}
                           </div>
                         ))}
                       </div>

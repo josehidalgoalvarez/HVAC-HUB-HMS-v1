@@ -23,6 +23,7 @@ class TicketTimeline
     public const EVENT_RETURN_VISIT = 'return_visit';
     public const EVENT_COMPLETED = 'completed';
     public const EVENT_SOP_RUN_COMPLETED = 'sop_run_completed';
+    public const EVENT_PRUNED_TO_HISTORY = 'pruned_to_history';
     public const EVENT_NOTE = 'note';
 
     /**

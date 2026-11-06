@@ -155,6 +155,9 @@ class Routes
             // POST /api/tickets/{id}/sighting (stamps yardi_sightings, updates last_seen_in_yardi)
             $group->post('/tickets/{id}/sighting', [TicketController::class, 'sighting']);
 
+            // POST /api/tickets/{id}/prune (prunes blocked ticket to unit history, archives ticket)
+            $group->post('/tickets/{id}/prune', [TicketController::class, 'prune']);
+
             // --- Ticket Timeline Endpoints (Append-Only) ---
             $group->get('/tickets/{id}/timeline', function (Request $request, Response $response, array $args): Response {
                 $id = (int) ($args['id'] ?? 0);

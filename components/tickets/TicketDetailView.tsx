@@ -435,6 +435,29 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     setIsEditModalOpen(true);
   };
 
+  const [isPruning, setIsPruning] = useState(false);
+
+  const handleManualPrune = async () => {
+    if (!ticket) return;
+    const woLabel = ticket.wo_number ? `WO #${ticket.wo_number}` : `Ticket #${ticket.id}`;
+    const confirmed = window.confirm(
+      `Prune "${ticket.title}" (${woLabel}) to unit history now and move to archive?\n\nThis will record a permanent history entry on the unit and remove the ticket from active lists.`
+    );
+    if (!confirmed) return;
+
+    try {
+      setIsPruning(true);
+      const updated = await apiClient.pruneTicketToHistory(ticket.id, 'Jose (Tech)', 'Manual prune to unit history');
+      setTicket(updated);
+      await loadTicketData();
+      alert('Ticket successfully pruned to unit history and archived.');
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to prune ticket');
+    } finally {
+      setIsPruning(false);
+    }
+  };
+
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!ticket) return;
@@ -633,6 +656,60 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           Edit
         </button>
       </div>
+
+      {/* Blocked Status Card with Aging Clock & Manual Prune Action */}
+      {(ticket.status === 'blocked' || ticket.state === 'blocked') && (
+        <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 space-y-3 shadow-xs">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start gap-2.5">
+              <span className="material-symbols-outlined text-rose-600 text-xl shrink-0 mt-0.5">block</span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-extrabold uppercase tracking-wide text-rose-900 dark:text-rose-200">
+                    Work Order Blocked
+                  </span>
+                  {ticket.blocked_at && (
+                    <span className="px-2 py-0.5 text-[10px] font-mono font-bold rounded-md bg-rose-200 text-rose-900 dark:bg-rose-900 dark:text-rose-100">
+                      Clock started: {formatDate(ticket.blocked_at)}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs font-semibold text-rose-800 dark:text-rose-300 mt-1">
+                  Reason: {ticket.blocked_reason || ticket.blocker_reason}
+                </p>
+                <p className="text-[11px] text-rose-700/80 dark:text-rose-400/80 mt-0.5">
+                  Tickets blocked 30+ days automatically prune into permanent unit history and move to the archive.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleManualPrune}
+              disabled={isPruning}
+              className="min-h-[44px] px-3 py-1.5 text-xs font-bold bg-white dark:bg-neutral-800 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-300 dark:border-rose-700 rounded-xl transition-all shadow-xs flex items-center gap-1.5 shrink-0 active:scale-95"
+              title="Prune to history now before 30 days"
+            >
+              <span className="material-symbols-outlined text-[16px]">history_edu</span>
+              <span>{isPruning ? 'Pruning...' : 'Prune to history now'}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Archived-Blocked Notice Banner */}
+      {(ticket.status === 'archived-blocked' || ticket.state === 'archived-blocked') && (
+        <div className="p-4 rounded-2xl bg-gray-100 dark:bg-neutral-800/80 border border-gray-300 dark:border-gray-700 flex items-start gap-3 shadow-xs">
+          <span className="material-symbols-outlined text-gray-500 text-xl shrink-0 mt-0.5">inventory_2</span>
+          <div className="space-y-1">
+            <span className="text-xs font-extrabold uppercase tracking-wide text-gray-800 dark:text-gray-200">
+              Archived Work Order (Pruned to Unit History)
+            </span>
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              This ticket is archived and preserved permanently. A consolidated copy of its scope, blocked reason, timeline, and parts is permanently recorded in the unit's history.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Repeat Access Problem Warning Banner (Derived >= 2 failed visits) */}
       {hasRepeatAccessProblem && (
@@ -1483,6 +1560,8 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                       return { icon: 'check_circle', bg: 'bg-emerald-600', label: 'Job Completed' };
                     case 'sop_run_completed':
                       return { icon: 'fact_check', bg: 'bg-teal-600', label: 'SOP Run Completed' };
+                    case 'pruned_to_history':
+                      return { icon: 'history_edu', bg: 'bg-rose-700', label: 'Pruned to Unit History (Archived)' };
                     default:
                       return { icon: 'event_note', bg: 'bg-gray-500', label: 'Note / Event' };
                   }
