@@ -1983,9 +1983,6 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   <option value="on-hold">On-Hold</option>
                   <option value="done">Done</option>
                   <option value="closed">Closed</option>
-                  <option value="closed-elsewhere:third-party">Closed — Third party</option>
-                  <option value="closed-elsewhere:contractor">Closed — Contractor</option>
-                  <option value="closed-elsewhere:handoff">Closed — Handoff</option>
                   <option value="closed-elsewhere:coworker">Closed — Coworker</option>
                 </select>
               </div>
