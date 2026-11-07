@@ -25,11 +25,9 @@ interface BuyListViewProps {
 
 export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [selectedTicketIds, setSelectedTicketIds] = useState<number[]>([]);
   const [shoppingList, setShoppingList] = useState<ShoppingListResponse | null>(null);
   const [manualItems, setManualItems] = useState<ManualBuyItem[]>([]);
   const [suppliers, setSuppliers] = useState<SupplierRecord[]>([]);
-  const [loadingTickets, setLoadingTickets] = useState(true);
   const [loadingList, setLoadingList] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -177,32 +175,10 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
     };
   }, []);
 
-  // 2. Fetch open tickets
-  useEffect(() => {
-    const fetchOpenTickets = async () => {
-      try {
-        setLoadingTickets(true);
-        const allTickets = await apiClient.getTickets();
-        const openList = (allTickets || []).filter(
-          t => t.status !== 'done' && t.status !== 'closed'
-        );
-        setTickets(openList);
-
-        // Pre-select tickets
-        const initialSelected = openList.map(t => Number(t.id));
-        setSelectedTicketIds(initialSelected.slice(0, 5));
-      } catch (err: unknown) {
-        console.warn('Could not fetch open tickets for buy list:', err);
-      } finally {
-        setLoadingTickets(false);
-      }
-    };
-
-    fetchOpenTickets();
-  }, []);
-
-  // 3. Fetch auto-derived items from tickets
-  const handleGenerate = async (ticketIds: number[]) => {
+  // 2. Fetch open tickets & generate buy list
+  const handleGenerate = async (ticketList?: Ticket[]) => {
+    const listToUse = ticketList || tickets;
+    const ticketIds = listToUse.map(t => Number(t.id));
     if (ticketIds.length === 0) {
       setShoppingList(null);
       return;
@@ -221,27 +197,21 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
   };
 
   useEffect(() => {
-    if (selectedTicketIds.length > 0) {
-      handleGenerate(selectedTicketIds);
-    } else {
-      setShoppingList(null);
-    }
-  }, [selectedTicketIds]);
+    const fetchOpenTickets = async () => {
+      try {
+        const allTickets = await apiClient.getTickets();
+        const openList = (allTickets || []).filter(
+          t => t.status !== 'done' && t.status !== 'closed'
+        );
+        setTickets(openList);
+        handleGenerate(openList);
+      } catch (err: unknown) {
+        console.warn('Could not fetch open tickets for buy list:', err);
+      }
+    };
 
-  const toggleTicket = (id: number) => {
-    setSelectedTicketIds(prev =>
-      prev.includes(id) ? prev.filter(tid => tid !== id) : [...prev, id]
-    );
-  };
-
-  const selectAll = () => {
-    setSelectedTicketIds(tickets.map(t => Number(t.id)));
-  };
-
-  const clearAll = () => {
-    setSelectedTicketIds([]);
-    setShoppingList(null);
-  };
+    fetchOpenTickets();
+  }, []);
 
   // 4. Save manual add
   const handleAddManualItem = async (e: React.FormEvent) => {
@@ -789,58 +759,6 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
         </form>
       )}
 
-      {/* Ticket Selector Strip */}
-      <div className="p-3.5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-card-dark shadow-xs space-y-2.5">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-brand-black dark:text-white flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-primary text-sm">filter_alt</span>
-            Filter Tickets ({selectedTicketIds.length} of {tickets.length} active)
-          </span>
-          <div className="flex gap-1.5">
-            <button
-              onClick={selectAll}
-              className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200"
-            >
-              Select All
-            </button>
-            <button
-              onClick={clearAll}
-              className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200"
-            >
-              Clear
-            </button>
-          </div>
-        </div>
-
-        {loadingTickets ? (
-          <p className="text-xs text-gray-400">Loading open work orders...</p>
-        ) : (
-          <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto no-scrollbar pt-1">
-            {tickets.map(t => {
-              const isSelected = selectedTicketIds.includes(Number(t.id));
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => toggleTicket(Number(t.id))}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1 transition-all ${
-                    isSelected
-                      ? 'bg-primary text-white shadow-xs'
-                      : 'bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-400'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[13px]">
-                    {isSelected ? 'check_box' : 'check_box_outline_blank'}
-                  </span>
-                  <span>
-                    {t.wo_number || `WO #${t.id}`}: {t.title.slice(0, 18)}...
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
       {/* Summary Metrics Bar */}
       <div className="p-3 bg-primary/5 dark:bg-card-dark border border-primary/20 rounded-2xl flex items-center justify-between text-xs font-semibold text-gray-600 dark:text-gray-300">
         <span>
@@ -858,7 +776,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       </div>
 
       {/* Groups List */}
-      <PullToRefresh onRefresh={() => handleGenerate(selectedTicketIds)}>
+      <PullToRefresh onRefresh={() => handleGenerate()}>
         {loadingList ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-400">
             <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
@@ -871,7 +789,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
               No buy list items currently queued
             </p>
             <p className="text-xs text-text-sub-light dark:text-text-sub-dark max-w-sm mx-auto">
-              Select tickets above to auto-derive parts or add an item manually using the button above.
+              Auto-derived work order parts or manually added items will appear here.
             </p>
             <Button
               variant="primary"
