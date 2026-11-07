@@ -9,21 +9,10 @@ interface JobCloseoutModalProps {
   onJobClosed: (updatedJob: Job) => void;
 }
 
-const COMMON_PARTS_PRESETS = [
-  'Dual Run Capacitor 45/5',
-  'Defrost Contactor 30A',
-  'Air Filter 16x25x1 MERV 8',
-  'Drain Line Gallon Flush',
-  'Condensate Float Switch',
-  'Blower Motor Run Capacitor 10uF',
-];
-
 const COMMON_NOTES_PRESETS = [
-  'Replaced capacitor and verified compressor amps normal.',
-  'Cleared clogged condensate trap and flushed with cleaner.',
-  'Inspected contactor points and replaced pitted assembly.',
+  'Equipment operating within spec.',
+  'Replaced parts and verified operation.',
   'Checked refrigerant operating pressures and temperature split.',
-  'Cleaned condenser coil and replaced air filter.',
 ];
 
 export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
@@ -259,21 +248,6 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
                 ))}
               </div>
             )}
-
-            {/* Quick part presets */}
-            <div className="flex flex-wrap gap-1.5">
-              {COMMON_PARTS_PRESETS.map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  onClick={() => handleAddPart(preset)}
-                  className="px-2.5 py-1 rounded-lg text-[11px] bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 font-medium flex items-center gap-1"
-                >
-                  <span className="material-symbols-outlined text-[13px]">add</span>
-                  {preset}
-                </button>
-              ))}
-            </div>
 
             {/* Custom part input */}
             <div className="flex items-center gap-2 pt-1">

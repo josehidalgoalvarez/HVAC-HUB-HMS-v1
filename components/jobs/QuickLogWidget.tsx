@@ -14,18 +14,7 @@ interface QuickLogWidgetProps {
 const COMMON_OBSERVATIONS = [
   'Arrived on site, access verified',
   'Equipment operating within spec',
-  'Dirty air filter replaced',
-  'Condensate drain flushed clean',
-  'Capacitor within ±5% tolerance',
   'Thermostat communication verified',
-];
-
-const COMMON_PARTS = [
-  'Filter 16x25x1',
-  'Dual Run Cap 45/5',
-  'Contactor 30A',
-  'Drain Cleaner (1 qt)',
-  'Float Switch',
 ];
 
 export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
@@ -37,6 +26,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
   const [activeJob, setActiveJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [noteInput, setNoteInput] = useState<string>('');
+  const [partInput, setPartInput] = useState<string>('');
   const [showCloseModal, setShowCloseModal] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
   const [lastAction, setLastAction] = useState<{
@@ -189,8 +179,11 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
     }
   };
 
-  const handleAddPartChip = async (partName: string) => {
+  const handleAddPart = async (nameToAdd?: string) => {
     if (!activeJob) return;
+    const partName = (nameToAdd || partInput).trim();
+    if (!partName) return;
+
     const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
 
     if (!isOnline) {
@@ -216,6 +209,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
         description: partName,
         outboxId: queuedItem?.id,
       });
+      setPartInput('');
       flashMessage(`Part ${partName} queued in outbox`, 'info');
       return;
     }
@@ -235,9 +229,40 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
         id: added.id,
         description: partName,
       });
+      setPartInput('');
       flashMessage(`Part recorded: ${partName}`, 'success');
     } catch (e: any) {
       flashMessage(e.message || 'Error recording part', 'error');
+    }
+  };
+
+  const handleRemovePart = async (partId: number | string | undefined, partName: string) => {
+    if (!activeJob) return;
+    if (activeJob.status === 'completed') {
+      flashMessage('Cannot remove part: job is already completed', 'error');
+      return;
+    }
+
+    const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+
+    try {
+      if (isOnline && partId) {
+        await apiClient.deleteJobPartUsed(activeJob.id, partId);
+      }
+      setActiveJob((prev) =>
+        prev
+          ? {
+              ...prev,
+              parts_used: (prev.parts_used || []).filter((p) => String(p.id) !== String(partId)),
+            }
+          : prev
+      );
+      if (lastAction?.type === 'part' && String(lastAction.id) === String(partId)) {
+        setLastAction(null);
+      }
+      flashMessage(`Removed part: ${partName}`, 'info');
+    } catch (e: any) {
+      flashMessage(e.message || 'Failed to remove part', 'error');
     }
   };
 
@@ -514,18 +539,29 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
           </span>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {COMMON_PARTS.map((part) => (
-            <button
-              key={part}
-              type="button"
-              onClick={() => handleAddPartChip(part)}
-              className="px-3.5 py-2.5 rounded-2xl bg-gray-100 dark:bg-card-dark hover:bg-gray-200 dark:hover:bg-neutral-800 text-text-main-light dark:text-text-main-dark border border-gray-200 dark:border-gray-700 text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all"
-            >
-              <span className="material-symbols-outlined text-[16px]">add</span>
-              {part}
-            </button>
-          ))}
+        {/* Custom Part Input */}
+        <div className="flex items-center gap-2 pt-1">
+          <input
+            type="text"
+            placeholder="Add part name..."
+            value={partInput}
+            onChange={(e) => setPartInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddPart();
+              }
+            }}
+            className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-xs"
+          />
+          <button
+            type="button"
+            onClick={() => handleAddPart()}
+            disabled={!partInput.trim()}
+            className="h-11 px-4 bg-primary text-white text-xs font-bold rounded-2xl disabled:opacity-40 active:scale-95 transition-all flex items-center justify-center"
+          >
+            Add
+          </button>
         </div>
 
         {activeJob?.parts_used && activeJob.parts_used.length > 0 && (
@@ -533,12 +569,20 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             {activeJob.parts_used.map((p, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between px-3 py-1.5 bg-gray-50 dark:bg-gray-800/40 rounded-xl text-xs"
+                className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-800/60 rounded-xl text-xs border border-gray-100 dark:border-gray-800"
               >
-                <span className="font-medium text-brand-black dark:text-white">
+                <span className="font-semibold text-brand-black dark:text-white">
                   {p.quantity} {p.unit || 'pcs'} • {p.part_name}
                 </span>
-                <span className="material-symbols-outlined text-emerald-500 text-[16px]">check</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemovePart(p.id, p.part_name)}
+                  className="text-red-500 hover:text-red-700 w-6 h-6 flex items-center justify-center active:scale-95 transition-all"
+                  title="Remove part"
+                  aria-label="Remove part"
+                >
+                  <span className="material-symbols-outlined text-sm">delete</span>
+                </button>
               </div>
             ))}
           </div>
