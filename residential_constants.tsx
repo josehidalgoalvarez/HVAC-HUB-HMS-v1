@@ -300,6 +300,25 @@ export const DEFAULT_APPLIANCE_SETS: ApplianceDefaultSet[] = [
         notes: 'Princess Street multi-unit apartment default specification.'
     },
     {
+        id: 'set-princess-565-standard',
+        complexSlug: 'frontenac-alfred',
+        complexId: 'frontenac-alfred',
+        name: '565 Princess St (Standard)',
+        unitType: 'apartment',
+        isDefault: true,
+        bedrooms: 2,
+        bathrooms: 1,
+        stories: 1,
+        hasUnitWaterHeater: false,
+        appliances: [
+            { category: 'Kitchen', label: 'Fridge (default)', name: 'Fridge (default)', type: 'Refrigerator', isDefault: true, brand: 'Midea', model: 'MRT18D3BST', specs: { brand: 'Midea', model: 'MRT18D3BST', type: 'top freezer', capacity: '18 cu ft', volts: '115', amps: '1.2', defrostPower: '215W', refrigerant: 'R600a 2.29 oz (65 g)', notes: 'Date code 26W14, made in Thailand' } },
+            { category: 'Kitchen', label: 'Dishwasher (default)', name: 'Dishwasher (default)', type: 'Dishwasher', isDefault: true, brand: 'Midea', model: 'MDF24P2BST', specs: { brand: 'Midea', model: 'MDF24P2BST', volts: '120', amps: '7.84', motorAmps: '0.84', heaterAmps: '7', notes: 'Manufacture date 0626 (June 2026), made in China' } },
+            { category: 'Kitchen', label: 'Microwave (default)', name: 'Microwave (default)', type: 'Microwave', isDefault: true, brand: 'Midea', model: 'MMO17S12ASTC', specs: { brand: 'Midea', model: 'MMO17S12ASTC', volts: '120', inputPower: '1500W', outputPower: '1000W', frequency: '2450 MHz', notes: 'Manufacture date May 2026, made in Shunde, China' } },
+            { category: 'Kitchen', label: 'Range (electric coil)', name: 'Range (electric coil) (default)', type: 'Range', isDefault: true, brand: 'Midea', model: 'MER30B1A4STC', specs: { brand: 'Midea', model: 'MER30B1A4STC', volts: '120/240', power: '9.64 kW', power208: '7.24 kW', frequency: '60Hz', notes: 'Manufacture date May 2026, made in Vietnam, Factory ID 67' } }
+        ],
+        notes: '565 Princess St building default specification. Midea rating plate verified Nov 6, 2026.'
+    },
+    {
         id: 'set-skyfall-sante-uniform',
         complexSlug: 'armstrong-skyfall',
         complexId: 'armstrong-skyfall',
@@ -2085,7 +2104,7 @@ export function generateUnitRoster(building: Building): Unit[] {
                 unitNumber: u.unitNumber,
                 floor: u.floor,
                 unitType: u.unitType || 'apartment',
-                defaultSetId: 'set-princess-apt',
+                defaultSetId: bId === 'prop-princess-565' ? 'set-princess-565-standard' : 'set-princess-apt',
                 bedrooms: 2,
                 bathrooms: 1,
                 stories: 1,
