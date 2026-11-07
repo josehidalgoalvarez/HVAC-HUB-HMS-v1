@@ -46,7 +46,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(initialSelectedTicketId);
   const [isIntakeOpen, setIsIntakeOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'safety' | 'closable' | 'blocked' | 'archived' | 'unassigned'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'safety' | 'closable' | 'blocked' | 'completed' | 'archived' | 'unassigned'>('all');
 
   useEffect(() => {
     if (initialSelectedTicketId) {
@@ -106,6 +106,9 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
       if (activeFilter === 'blocked') {
         return s === 'blocked';
       }
+      if (activeFilter === 'completed') {
+        return !isArchived && (s === 'done' || s === 'closed' || s === 'closed-elsewhere');
+      }
       if (activeFilter === 'archived') {
         return isArchived;
       }
@@ -130,6 +133,10 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
     return s !== 'archived-blocked' && (s === 'in-progress' || s === 'in_progress' || s === 'verified') && t.priority !== 'urgent';
   }).length;
   const blockedCount = tickets.filter((t) => (t.status || t.state) === 'blocked').length;
+  const completedCount = tickets.filter((t) => {
+    const s = t.status || t.state;
+    return s !== 'archived-blocked' && (s === 'done' || s === 'closed' || s === 'closed-elsewhere');
+  }).length;
   const archivedCount = tickets.filter((t) => (t.status || t.state) === 'archived-blocked').length;
   const unassignedCount = tickets.filter((t) => (t.status || t.state) !== 'archived-blocked' && !t.wo_number).length;
 
@@ -261,10 +268,10 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar w-full min-w-0">
+      <div className="flex flex-wrap items-center gap-1.5 pb-1 text-xs w-full min-w-0">
         <button
           onClick={() => setActiveFilter('all')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all shrink-0 uppercase tracking-wider ${activeFilter === 'all'
+          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all uppercase tracking-wider ${activeFilter === 'all'
               ? 'bg-primary text-white shadow-2xs border border-primary'
               : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
             }`}
@@ -274,7 +281,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
 
         <button
           onClick={() => setActiveFilter('safety')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'safety'
+          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'safety'
               ? 'bg-brand-red text-white shadow-2xs border border-brand-red'
               : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
             }`}
@@ -285,7 +292,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
 
         <button
           onClick={() => setActiveFilter('closable')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'closable'
+          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'closable'
               ? 'bg-primary text-white shadow-2xs border border-primary'
               : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
             }`}
@@ -296,7 +303,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
 
         <button
           onClick={() => setActiveFilter('blocked')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'blocked'
+          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'blocked'
               ? 'bg-rose-600 text-white shadow-2xs border border-rose-600'
               : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
             }`}
@@ -305,10 +312,21 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           Blocked ({blockedCount})
         </button>
 
+        <button
+          onClick={() => setActiveFilter('completed')}
+          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'completed'
+              ? 'bg-emerald-600 text-white shadow-2xs border border-emerald-600'
+              : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
+            }`}
+        >
+          <span className={`material-symbols-outlined text-xs ${activeFilter === 'completed' ? 'text-white' : 'text-emerald-500'}`}>check_circle</span>
+          Completed ({completedCount})
+        </button>
+
         {archivedCount > 0 && (
           <button
             onClick={() => setActiveFilter('archived')}
-            className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all shrink-0 flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'archived'
+            className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'archived'
                 ? 'bg-gray-600 text-white shadow-2xs border border-gray-600'
                 : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
               }`}
@@ -320,7 +338,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
 
         <button
           onClick={() => setActiveFilter('unassigned')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all shrink-0 uppercase tracking-wider ${activeFilter === 'unassigned'
+          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all uppercase tracking-wider ${activeFilter === 'unassigned'
               ? 'bg-primary text-white shadow-2xs border border-primary'
               : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
             }`}
