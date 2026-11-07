@@ -101,7 +101,15 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
         return !isArchived && t.priority === 'urgent';
       }
       if (activeFilter === 'closable') {
-        return !isArchived && (s === 'in-progress' || s === 'in_progress' || s === 'verified') && t.priority !== 'urgent';
+        return (
+          !isArchived &&
+          (s === 'new' ||
+            s === 'in-progress' ||
+            s === 'in_progress' ||
+            s === 'on-hold' ||
+            s === 'pending_parts' ||
+            s === 'verified')
+        );
       }
       if (activeFilter === 'blocked') {
         return s === 'blocked';
@@ -130,7 +138,15 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   const safetyCount = tickets.filter((t) => (t.status || t.state) !== 'archived-blocked' && t.priority === 'urgent').length;
   const closableCount = tickets.filter((t) => {
     const s = t.status || t.state;
-    return s !== 'archived-blocked' && (s === 'in-progress' || s === 'in_progress' || s === 'verified') && t.priority !== 'urgent';
+    return (
+      s !== 'archived-blocked' &&
+      (s === 'new' ||
+        s === 'in-progress' ||
+        s === 'in_progress' ||
+        s === 'on-hold' ||
+        s === 'pending_parts' ||
+        s === 'verified')
+    );
   }).length;
   const blockedCount = tickets.filter((t) => (t.status || t.state) === 'blocked').length;
   const completedCount = tickets.filter((t) => {
