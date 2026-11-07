@@ -1348,20 +1348,32 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     </div>
                   )}
 
-                  {/* Main Title Row with Back Navigation (link buttons removed per Jose's direction) */}
+                  {/* Main Title Row with Back Navigation and Tappable Title Opening Building Profile */}
                   <div className="flex items-center gap-3">
                     <button
+                      type="button"
                       onClick={() => handleNavComplex(selectedComplexId || 'ungrouped')}
-                      className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+                      className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors shrink-0"
+                      title="Back to Complex"
                     >
                       <span className="material-symbols-outlined text-[18px]">arrow_back</span>
                     </button>
-                    <div>
-                      <h2 className="text-base font-bold text-brand-black dark:text-white">
-                        {activeBuilding.name}
-                      </h2>
-                      <p className="text-xs text-text-sub-light dark:text-text-sub-dark">{activeBuilding.address}</p>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onPropertyClick(String(activeBuilding.id))}
+                      className="flex-1 flex items-center justify-between text-left group p-1 -m-1 rounded-xl hover:bg-gray-50 dark:hover:bg-neutral-800/50 transition-colors"
+                      title="View Building Profile & Details"
+                    >
+                      <div className="min-w-0 pr-2">
+                        <h2 className="text-base font-bold text-brand-black dark:text-white truncate">
+                          {activeBuilding.name}
+                        </h2>
+                        <p className="text-xs text-text-sub-light dark:text-text-sub-dark truncate">{activeBuilding.address}</p>
+                      </div>
+                      <span className="material-symbols-outlined text-gray-400 group-hover:text-primary transition-colors text-xl shrink-0">
+                        chevron_right
+                      </span>
+                    </button>
                   </div>
                 </div>
 
