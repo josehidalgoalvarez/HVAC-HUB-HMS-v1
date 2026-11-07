@@ -411,6 +411,23 @@ class PastWoImporter
             }
         }
 
+        // Match via external_id alias (e.g. '563-101' for building 59 or 60)
+        $cleanLabel = trim($unitLabel);
+        $candidates = [$cleanLabel];
+        if (!str_contains($cleanLabel, '-')) {
+            $candidates[] = "563-{$cleanLabel}";
+            $candidates[] = "565-{$cleanLabel}";
+            $candidates[] = "567-{$cleanLabel}";
+        }
+        foreach ($candidates as $cand) {
+            $stmt = $this->pdo->prepare('SELECT id, unit_number FROM unit WHERE (building_id = ? OR building_id IN (59, 60, 61)) AND external_id = ? LIMIT 1');
+            $stmt->execute([$buildingId, $cand]);
+            $u = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($u) {
+                return $u;
+            }
+        }
+
         return null;
     }
 }

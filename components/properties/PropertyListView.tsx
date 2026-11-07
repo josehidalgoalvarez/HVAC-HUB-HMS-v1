@@ -327,12 +327,14 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
       str === '59' || str === '60' || str === '61';
   };
 
-  const getPrincessOriginPrefix = (bId?: string | number | null): string => {
+  const getPrincessOriginPrefix = (bId?: string | number | null, unitNum?: string | number): string => {
     if (!bId) return '';
     const str = String(bId);
-    if (str === 'prop-princess-563' || str === '59') return '563-';
-    if (str === 'prop-princess-565' || str === '60') return '565-';
-    if (str === 'prop-princess-567' || str === '61') return '567-';
+    // House unit 1 under 563 is the single commercial storefront
+    if ((str === 'prop-princess-563' || str === '59') && String(unitNum) === '1') return '563-';
+    // All apartment units as built are 565-
+    if (str === 'prop-princess-563' || str === '59' || str === 'prop-princess-565' || str === '60') return '565-';
+    if (str === 'prop-princess-567' || str === '61') return '565-';
     return '';
   };
 
@@ -875,7 +877,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
             <>
               <span className="text-gray-300 dark:text-gray-600">/</span>
               <span className="font-bold px-2.5 py-1 rounded-lg bg-primary/10 text-primary dark:bg-primary/20">
-                Unit {isPrincessTrioBuildingId(activeUnit.buildingId) ? `${getPrincessOriginPrefix(activeUnit.buildingId)}${activeUnit.unitNumber}` : activeUnit.unitNumber}
+                Unit {isPrincessTrioBuildingId(activeUnit.buildingId) ? `${getPrincessOriginPrefix(activeUnit.buildingId, activeUnit.unitNumber)}${activeUnit.unitNumber}` : activeUnit.unitNumber}
               </span>
             </>
           )}
@@ -1307,7 +1309,27 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
             {/* LEVEL 2: BUILDING LEVEL (UNITS IN BUILDING) */}
             {navLevel === 'building' && activeBuilding && !showMcKayMenu && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
+                {/* Reorganized Building Header */}
+                <div className="pb-3 border-b border-gray-100 dark:border-gray-800 space-y-2.5">
+                  {/* Top Row: "Why here?" moved to the very top */}
+                  {isTrioMergedGroup && (
+                    <div className="flex items-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMoveSheetEntries(MOVED_BUILDING_REFERENCES);
+                          setIsMoveSheetOpen(true);
+                        }}
+                        className="min-h-[44px] text-xs font-semibold px-3 py-2 rounded-xl bg-gray-100 dark:bg-neutral-800 text-primary hover:text-primary-hover hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors flex items-center gap-1.5 border border-gray-200/80 dark:border-gray-700 shadow-2xs"
+                        title="Why here? (Location reference)"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">help</span>
+                        <span>Why here?</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Main Title Row with Back Navigation (link buttons removed per Jose's direction) */}
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleNavComplex(selectedComplexId || 'ungrouped')}
@@ -1321,36 +1343,6 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       </h2>
                       <p className="text-xs text-text-sub-light dark:text-text-sub-dark">{activeBuilding.address}</p>
                     </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {isTrioMergedGroup && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMoveSheetEntries(MOVED_BUILDING_REFERENCES);
-                          setIsMoveSheetOpen(true);
-                        }}
-                        className="min-h-[44px] text-xs font-semibold px-3 py-2 rounded-xl bg-gray-100 dark:bg-neutral-800 text-primary hover:text-primary-hover hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors flex items-center gap-1.5 border border-gray-200/80 dark:border-gray-700 shadow-2xs"
-                        title="Why here? (Location reference)"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">help</span>
-                        <span>Why here?</span>
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleNavDefaults(activeBuilding.complexId ? String(activeBuilding.complexId) : (selectedComplexId || undefined))}
-                      className="min-h-[44px] text-xs font-semibold px-3 py-2 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors flex items-center gap-1.5"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">tune</span>
-                      <span>Complex Appliances</span>
-                    </button>
-                    <button
-                      onClick={() => onPropertyClick(activeBuilding.id)}
-                      className="min-h-[44px] text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-800 text-text-main-light dark:text-white hover:border-primary/40 hover:text-primary transition-colors flex items-center"
-                    >
-                      Building Details
-                    </button>
                   </div>
                 </div>
 
@@ -1545,7 +1537,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         const overrideCount = Object.keys(unit.applianceOverrides || {}).length;
                         const isExternal = unit.ownership === 'external';
                         const wdState = unit.washerDryerState;
-                        const originPrefix = getPrincessOriginPrefix(unit.buildingId);
+                        const originPrefix = getPrincessOriginPrefix(unit.buildingId, unit.unitNumber);
                         const unitLabel = `${originPrefix}${unit.unitNumber}`;
 
                         return (
@@ -1806,7 +1798,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     </button>
                     <div>
                       <h2 className="text-base font-bold text-brand-black dark:text-white">
-                        Unit {isPrincessTrioBuildingId(activeUnit.buildingId) ? `${getPrincessOriginPrefix(activeUnit.buildingId)}${activeUnit.unitNumber}` : activeUnit.unitNumber}
+                        Unit {isPrincessTrioBuildingId(activeUnit.buildingId) ? `${getPrincessOriginPrefix(activeUnit.buildingId, activeUnit.unitNumber)}${activeUnit.unitNumber}` : activeUnit.unitNumber}
                       </h2>
                       <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
                         {activeBuilding?.name} · {activeUnit.bedrooms ?? activeDefaultSet?.bedrooms ?? 2} Bed / {activeUnit.washrooms ?? activeUnit.bathrooms ?? activeDefaultSet?.bathrooms ?? 1} Bath{activeUnit.storeys || activeUnit.stories ? ` · ${activeUnit.storeys || activeUnit.stories} Storey${(activeUnit.storeys || activeUnit.stories) > 1 ? 's' : ''}` : ''}

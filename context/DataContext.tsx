@@ -70,7 +70,7 @@ interface ActionContextType {
 
 export const ActionContext = createContext<ActionContextType | undefined>(undefined);
 
-const PORTFOLIO_VERSION = '2.15.0';
+const PORTFOLIO_VERSION = '2.16.0';
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Feature flag: default to false (localStorage). When true, reads through API client.
@@ -217,7 +217,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setAppliances(res.appliances);
         }
         if (res?.complexes && res.complexes.length > 0) {
-          setComplexes(res.complexes);
+          // Filter out standalone empty 'frontenac' complex menu (redundant with Frontenac–Alfred Quadrant)
+          const filteredComplexes = res.complexes.filter(c => c.slug !== 'frontenac' && c.id !== 'frontenac' && String(c.id) !== '7');
+          setComplexes(filteredComplexes);
         }
         if (res?.defaultSets && res.defaultSets.length > 0) {
           setDefaultSets(res.defaultSets);

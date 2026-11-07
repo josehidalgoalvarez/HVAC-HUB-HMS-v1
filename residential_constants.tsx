@@ -55,7 +55,7 @@ export const MOVED_BUILDING_REFERENCES: BuildingMoveReference[] = [
         movedFrom: 'Princess complex',
         movedTo: 'Frontenac–Alfred Quadrant',
         date: 'Oct 2026',
-        reason: 'proximity — it sits in the Frontenac / Alfred / Princess corner cluster.',
+        reason: 'proximity — it sits in the Frontenac / Alfred / Princess corner cluster. In Yardi these units may be ticketed as 563.',
         jumpTarget: {
             complexId: 'princess',
             label: 'View Princess complex',
@@ -68,7 +68,7 @@ export const MOVED_BUILDING_REFERENCES: BuildingMoveReference[] = [
         movedFrom: 'Princess complex',
         movedTo: '565 Princess St',
         date: 'Nov 2026',
-        reason: 'one site — 565 + 567 are one apartment building and 563 is a separate commercial unit on the same site.',
+        reason: 'one site — 565 + 567 are one apartment building and 563 is a separate commercial unit on the same site. 567 does not exist as built anymore — absorbed by 565.',
         jumpTarget: {
             complexId: 'princess',
             label: 'View Princess complex',
