@@ -309,12 +309,53 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     return complexes.find(c => c.id === selectedComplexId || c.slug === selectedComplexId) || null;
   }, [selectedComplexId, complexes]);
 
+  const isPrincessTrioBuildingId = (bId?: string | number | null): boolean => {
+    if (!bId) return false;
+    const str = String(bId);
+    return str === 'prop-princess-563' || str === 'prop-princess-565' || str === 'prop-princess-567' ||
+      str === '59' || str === '60' || str === '61';
+  };
+
+  const getPrincessOriginPrefix = (bId?: string | number | null): string => {
+    if (!bId) return '';
+    const str = String(bId);
+    if (str === 'prop-princess-563' || str === '59') return '563-';
+    if (str === 'prop-princess-565' || str === '60') return '565-';
+    if (str === 'prop-princess-567' || str === '61') return '567-';
+    return '';
+  };
+
   const activeComplexProperties = useMemo(() => {
     if (!selectedComplexId) return [];
     if (selectedComplexId === 'ungrouped') return ungroupedProperties;
     const match = complexes.find(c => c.id === selectedComplexId || c.slug === selectedComplexId);
     if (!match) return [];
-    return properties.filter(p => !p.name.includes('Pool') && (p.complexId === match.id || p.complexId === match.slug));
+
+    const isFA = match.id === 'frontenac-alfred' || match.slug === 'frontenac-alfred' || String(match.id) === '9';
+    const isPrincess = match.id === 'princess' || match.slug === 'princess' || String(match.id) === '4';
+
+    const raw = properties.filter(p => !p.name.includes('Pool') && (p.complexId === match.id || p.complexId === match.slug));
+
+    if (isFA) {
+      // 565 Princess St represents the merged Princess Trio in Frontenac-Alfred
+      // Ensure 565 Princess is present, and 563/567 do not appear as separate cards
+      return raw.filter(p => {
+        const str = String(p.id);
+        return str !== 'prop-princess-563' && str !== 'prop-princess-567' && str !== '59' && str !== '61';
+      });
+    }
+
+    if (isPrincess) {
+      // 563 & 567 are merged into 565 Princess St in Frontenac-Alfred, so they leave Princess complex display
+      return raw.filter(p => {
+        const str = String(p.id);
+        return str !== 'prop-princess-563' && str !== 'prop-princess-565' && str !== 'prop-princess-567' &&
+          str !== '59' && str !== '60' && str !== '61' &&
+          !p.name.includes('563 Princess') && !p.name.includes('565 Princess') && !p.name.includes('567 Princess');
+      });
+    }
+
+    return raw;
   }, [selectedComplexId, ungroupedProperties, complexes, properties]);
 
   const activeBuilding = useMemo(() => {
@@ -322,8 +363,16 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     return properties.find(p => p.id === selectedBuildingId) || null;
   }, [selectedBuildingId, properties]);
 
+  const isTrioMergedGroup = useMemo(() => {
+    return isPrincessTrioBuildingId(selectedBuildingId);
+  }, [selectedBuildingId]);
+
   const activeBuildingUnits = useMemo(() => {
     if (!selectedBuildingId) return [];
+    if (isPrincessTrioBuildingId(selectedBuildingId)) {
+      // Return all units across the 563, 565, and 567 Princess trio
+      return units.filter(u => isPrincessTrioBuildingId(u.buildingId));
+    }
     return units.filter(u => u.buildingId === selectedBuildingId);
   }, [selectedBuildingId, units]);
 
@@ -815,7 +864,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
             <>
               <span className="text-gray-300 dark:text-gray-600">/</span>
               <span className="font-bold px-2.5 py-1 rounded-lg bg-primary/10 text-primary dark:bg-primary/20">
-                Unit {activeUnit.unitNumber}
+                Unit {isPrincessTrioBuildingId(activeUnit.buildingId) ? `${getPrincessOriginPrefix(activeUnit.buildingId)}${activeUnit.unitNumber}` : activeUnit.unitNumber}
               </span>
             </>
           )}
@@ -1075,12 +1124,17 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 {/* Whole-Box Building Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {activeComplexProperties.map(bld => {
-                    const bldUnits = units.filter(u => u.buildingId === bld.id);
+                    const isTrioCard = isPrincessTrioBuildingId(bld.id);
+                    const bldUnits = isTrioCard
+                      ? units.filter(u => isPrincessTrioBuildingId(u.buildingId))
+                      : units.filter(u => u.buildingId === bld.id);
                     const hasSpecialRole = bld.role && bld.role !== 'standard';
                     const isExternal = bld.responsibility === 'external';
 
                     const bRes = resolveBuildingStockpile(bld, stockpilesList);
                     const canOpenStorage = (bRes.isMcKay && bRes.mckayStockpiles.length > 0) || Boolean(bRes.targetStockpileId && onOpenStockpileInventory);
+
+                    const displayName = isTrioCard ? '565 Princess St (Merged Trio)' : bld.name;
 
                     return (
                       <div
@@ -1096,8 +1150,13 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       >
                         <div>
                           <div className="flex items-start justify-between gap-2 mb-1 flex-wrap">
-                            <h3 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
-                              {bld.name}
+                            <h3 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors flex items-center gap-1.5 flex-wrap">
+                              <span>{displayName}</span>
+                              {isTrioCard && (
+                                <span className="text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                  563 + 565 + 567
+                                </span>
+                              )}
                             </h3>
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {hasSpecialRole && (
@@ -1113,11 +1172,11 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             </div>
                           </div>
                           <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">
-                            {bld.address}
+                            {isTrioCard ? '563, 565 & 567 Princess St, Kingston, ON' : bld.address}
                           </p>
                           {bld.comments && (
                             <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2">
-                              {bld.comments}
+                              {isTrioCard ? 'One merged site group: 565 & 567 apartment building + 563 separate commercial unit.' : bld.comments}
                             </p>
                           )}
                         </div>
@@ -1392,21 +1451,25 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
 
                 {/* Whole-Box Unit Cards */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
-                      Units ({activeBuildingUnits.length})
-                    </h3>
-                  </div>
+                <div className="space-y-6">
+                  {isTrioMergedGroup ? (
+                    // Sectioned display for merged 565 Princess St Trio
+                    (() => {
+                      const isComm = (u: Unit) => {
+                        const b = String(u.buildingId);
+                        return (b === 'prop-princess-563' || b === '59') && String(u.unitNumber) === '1';
+                      };
 
-                  {activeBuildingUnits.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {activeBuildingUnits.map(unit => {
+                      const aptUnits = activeBuildingUnits.filter(u => !isComm(u));
+                      const commUnits = activeBuildingUnits.filter(u => isComm(u));
+
+                      const renderUnitCard = (unit: Unit, isCommercialSub = false) => {
                         const unitApps = getUnitAppliances(unit);
                         const overrideCount = Object.keys(unit.applianceOverrides || {}).length;
-
                         const isExternal = unit.ownership === 'external';
                         const wdState = unit.washerDryerState;
+                        const originPrefix = getPrincessOriginPrefix(unit.buildingId);
+                        const unitLabel = `${originPrefix}${unit.unitNumber}`;
 
                         return (
                           <div
@@ -1415,12 +1478,19 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             className={`group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${
                               isExternal
                                 ? 'opacity-65 bg-gray-50/80 dark:bg-card-dark/40 border border-dashed border-gray-300 dark:border-gray-700'
+                                : isCommercialSub
+                                ? 'bg-amber-500/5 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-700/60 hover:border-amber-500'
                                 : 'bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:border-primary/40'
                             }`}
                           >
                             <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                               <span className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors flex items-center gap-2">
-                                Unit {unit.unitNumber}
+                                <span>Unit {unitLabel}</span>
+                                {isCommercialSub && (
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/40 uppercase tracking-wider">
+                                    Commercial Unit
+                                  </span>
+                                )}
                                 {isExternal && (
                                   <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                                     External
@@ -1465,7 +1535,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               return (
                                 <>
                                   <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">
-                                    {unit.unitType?.toUpperCase() || 'APARTMENT'} · {bedCount} Bed · {bathCount} Bath{storeyCount ? ` · ${storeyCount} Storey${storeyCount > 1 ? 's' : ''}` : ''}
+                                    {isCommercialSub ? 'COMMERCIAL STOREFRONT' : (unit.unitType?.toUpperCase() || 'APARTMENT')} · {bedCount} Bed · {bathCount} Bath{storeyCount ? ` · ${storeyCount} Storey${storeyCount > 1 ? 's' : ''}` : ''}
                                   </p>
                                   {(() => {
                                     const ctxChips = getUnitContextChips(unit);
@@ -1493,12 +1563,153 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             </div>
                           </div>
                         );
-                      })}
-                    </div>
+                      };
+
+                      return (
+                        <div className="space-y-6">
+                          {/* Apartments Section (565 + 567 + 563 upper units) */}
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between pb-1 border-b border-gray-100 dark:border-gray-800">
+                              <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5">
+                                <span className="material-symbols-outlined text-[16px] text-primary">apartment</span>
+                                <span>Apartment Building Units ({aptUnits.length})</span>
+                              </h3>
+                              <span className="text-[11px] text-gray-400">565 + 567 + 563 Apartments</span>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {aptUnits.map(unit => renderUnitCard(unit, false))}
+                            </div>
+                          </div>
+
+                          {/* Commercial Section (563 Unit 1) */}
+                          {commUnits.length > 0 && (
+                            <div className="space-y-3 pt-2">
+                              <div className="flex items-center justify-between pb-1 border-b border-amber-200 dark:border-amber-800/60">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+                                  <span className="material-symbols-outlined text-[16px] text-amber-600">storefront</span>
+                                  <span>Separate Commercial Unit ({commUnits.length})</span>
+                                </h3>
+                                <span className="text-[11px] text-amber-700/80 dark:text-amber-300/80">563 Commercial Unit</span>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {commUnits.map(unit => renderUnitCard(unit, true))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()
                   ) : (
-                    <div className="p-12 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-card-dark/50">
-                      <span className="material-symbols-outlined text-3xl text-gray-400 mb-1">door_front</span>
-                      <p className="text-sm font-bold text-brand-black dark:text-white">No units configured for this building yet.</p>
+                    // Standard building unit list
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
+                          Units ({activeBuildingUnits.length})
+                        </h3>
+                      </div>
+
+                      {activeBuildingUnits.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {activeBuildingUnits.map(unit => {
+                            const unitApps = getUnitAppliances(unit);
+                            const overrideCount = Object.keys(unit.applianceOverrides || {}).length;
+
+                            const isExternal = unit.ownership === 'external';
+                            const wdState = unit.washerDryerState;
+
+                            return (
+                              <div
+                                key={unit.id}
+                                onClick={() => handleNavUnit(unit.id)}
+                                className={`group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${
+                                  isExternal
+                                    ? 'opacity-65 bg-gray-50/80 dark:bg-card-dark/40 border border-dashed border-gray-300 dark:border-gray-700'
+                                    : 'bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:border-primary/40'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
+                                  <span className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors flex items-center gap-2">
+                                    Unit {unit.unitNumber}
+                                    {isExternal && (
+                                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                        External
+                                      </span>
+                                    )}
+                                  </span>
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    {Boolean(unit.has_repeat_access_problem || unit.repeat_access_problem || ((unit.failedVisitsCount ?? 0) >= 2) || ((unit.failed_visits_count ?? 0) >= 2)) && (
+                                      <span data-testid="unit-repeat-access-problem-flag" className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700">
+                                        <span className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+                                        Repeat access problem
+                                      </span>
+                                    )}
+                                    {wdState && (
+                                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                                        wdState === 'building_installed'
+                                          ? 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20'
+                                          : wdState === 'tenant_owned'
+                                          ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20'
+                                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700'
+                                      }`}>
+                                        {wdState === 'building_installed' ? 'W/D: Installed' : wdState === 'tenant_owned' ? 'W/D: Tenant' : 'W/D: None'}
+                                      </span>
+                                    )}
+                                    {overrideCount > 0 ? (
+                                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                        {overrideCount} Override{overrideCount > 1 ? 's' : ''}
+                                      </span>
+                                    ) : (
+                                      <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                                        Default Set
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {(() => {
+                                  const unitDs = defaultSets.find(s => s.id === unit.defaultSetId);
+                                  const bedCount = unit.bedrooms ?? unitDs?.bedrooms ?? 2;
+                                  const bathCount = unit.washrooms ?? unit.bathrooms ?? unitDs?.bathrooms ?? 1;
+                                  const storeyCount = unit.storeys ?? unit.stories ?? unitDs?.stories;
+                                  return (
+                                    <>
+                                      <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">
+                                        {unit.unitType?.toUpperCase() || 'APARTMENT'} · {bedCount} Bed · {bathCount} Bath{storeyCount ? ` · ${storeyCount} Storey${storeyCount > 1 ? 's' : ''}` : ''}
+                                      </p>
+                                      {(() => {
+                                        const ctxChips = getUnitContextChips(unit);
+                                        if (ctxChips.length === 0) return null;
+                                        return (
+                                          <div className="flex items-center gap-1.5 flex-wrap mb-2.5">
+                                            {ctxChips.map(c => (
+                                              <span key={c.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md ${c.className}`}>
+                                                <span className="material-symbols-outlined text-[12px] leading-none">{c.icon}</span>
+                                                {c.label}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        );
+                                      })()}
+                                    </>
+                                  );
+                                })()}
+
+                                <div className="pt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub-light dark:text-text-sub-dark">
+                                  <span>{unitApps.length} Appliances</span>
+                                  <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
+                                    chevron_right
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="p-12 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-card-dark/50">
+                          <span className="material-symbols-outlined text-3xl text-gray-400 mb-1">door_front</span>
+                          <p className="text-sm font-bold text-brand-black dark:text-white">No units configured for this building yet.</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1518,7 +1729,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     </button>
                     <div>
                       <h2 className="text-base font-bold text-brand-black dark:text-white">
-                        Unit {activeUnit.unitNumber}
+                        Unit {isPrincessTrioBuildingId(activeUnit.buildingId) ? `${getPrincessOriginPrefix(activeUnit.buildingId)}${activeUnit.unitNumber}` : activeUnit.unitNumber}
                       </h2>
                       <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
                         {activeBuilding?.name} · {activeUnit.bedrooms ?? activeDefaultSet?.bedrooms ?? 2} Bed / {activeUnit.washrooms ?? activeUnit.bathrooms ?? activeDefaultSet?.bathrooms ?? 1} Bath{activeUnit.storeys || activeUnit.stories ? ` · ${activeUnit.storeys || activeUnit.stories} Storey${(activeUnit.storeys || activeUnit.stories) > 1 ? 's' : ''}` : ''}
