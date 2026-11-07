@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { PartRecord, Stockpile, HarvestCandidate } from '../../types/domain';
 
 interface PartSearchSectionProps {
@@ -83,6 +83,30 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
   const [isLocationsExpanded, setIsLocationsExpanded] = useState<boolean>(false);
   const [expandedPriceHistoryId, setExpandedPriceHistoryId] = useState<number | null>(null);
 
+  // Status row scroll cue state
+  const statusRowRef = useRef<HTMLDivElement>(null);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = statusRowRef.current;
+    if (!el) return;
+    // Buffer of 2px to account for fractional pixel rounding
+    const hasMoreRight = el.scrollWidth > el.clientWidth && el.scrollLeft + el.clientWidth < el.scrollWidth - 2;
+    setCanScrollRight(hasMoreRight);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    const el = statusRowRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', checkScroll, { passive: true });
+    window.addEventListener('resize', checkScroll);
+    return () => {
+      el.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [checkScroll, parts.length, harvestCandidates.length]);
+
   const filteredHarvestCandidates = harvestCandidates.filter(c => {
     if (filter === 'reorder') return false;
     if (selectedStockpileId !== 'all') return false; // Stockpile depot filter applies to warehouse parts
@@ -155,54 +179,72 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
         )}
       </div>
 
-      {/* Filter Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-        <button
-          onClick={() => setFilter('all')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-            filter === 'all'
-              ? 'bg-primary text-white shadow-xs'
-              : 'bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300'
-          }`}
+      {/* Filter Chips Row with Scroll Cue */}
+      <div className="relative w-full min-w-0">
+        <div
+          ref={statusRowRef}
+          className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar w-full min-w-0"
         >
-          All ({parts.length + harvestCandidates.length})
-        </button>
+          <button
+            onClick={() => setFilter('all')}
+            className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+              filter === 'all'
+                ? 'bg-primary text-white shadow-xs'
+                : 'bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300'
+            }`}
+          >
+            All ({parts.length + harvestCandidates.length})
+          </button>
 
-        <button
-          onClick={() => setFilter('reorder')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all ${
-            filter === 'reorder'
-              ? 'bg-primary text-white shadow-xs'
-              : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
-          }`}
-        >
-          <span className={`material-symbols-outlined text-[16px] ${filter === 'reorder' ? 'text-white' : 'text-amber-500'}`}>warning</span>
-          Low Stock ({parts.filter(p => p.is_reorder || p.quantity_on_hand <= p.reorder_point).length})
-        </button>
+          <button
+            onClick={() => setFilter('reorder')}
+            className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all ${
+              filter === 'reorder'
+                ? 'bg-primary text-white shadow-xs'
+                : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
+            }`}
+          >
+            <span className={`material-symbols-outlined text-[16px] ${filter === 'reorder' ? 'text-white' : 'text-amber-500'}`}>warning</span>
+            Low Stock ({parts.filter(p => p.is_reorder || p.quantity_on_hand <= p.reorder_point).length})
+          </button>
 
-        <button
-          onClick={() => setFilter('available')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all ${
-            filter === 'available'
-              ? 'bg-primary text-white shadow-xs'
-              : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
-          }`}
-        >
-          <span className={`material-symbols-outlined text-[16px] ${filter === 'available' ? 'text-white' : 'text-emerald-500'}`}>check_circle</span>
-          In Stock ({parts.filter(p => p.quantity_on_hand > 0).length})
-        </button>
+          <button
+            onClick={() => setFilter('available')}
+            className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all ${
+              filter === 'available'
+                ? 'bg-primary text-white shadow-xs'
+                : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
+            }`}
+          >
+            <span className={`material-symbols-outlined text-[16px] ${filter === 'available' ? 'text-white' : 'text-emerald-500'}`}>check_circle</span>
+            In Stock ({parts.filter(p => p.quantity_on_hand > 0).length})
+          </button>
 
-        <button
-          onClick={() => setFilter('harvest')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all ${
-            filter === 'harvest'
-              ? 'bg-emerald-600 text-white shadow-xs'
-              : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 border border-emerald-200 dark:border-emerald-800'
-          }`}
-        >
-          <span className={`material-symbols-outlined text-[16px] ${filter === 'harvest' ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`}>swap_horiz</span>
-          Vacant Unit Harvest ({harvestCandidates.length})
-        </button>
+          <button
+            onClick={() => setFilter('harvest')}
+            className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all ${
+              filter === 'harvest'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 border border-emerald-200 dark:border-emerald-800'
+            }`}
+          >
+            <span className={`material-symbols-outlined text-[16px] ${filter === 'harvest' ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`}>swap_horiz</span>
+            Vacant Unit Harvest ({harvestCandidates.length})
+          </button>
+        </div>
+
+        {/* Right edge scroll cue gradient fade (pointer-events-none, reactive to overflow & scroll position) */}
+        {canScrollRight && (
+          <div
+            data-testid="parts-status-scroll-cue"
+            className="absolute right-0 top-0 bottom-1 w-12 pointer-events-none transition-opacity duration-200 bg-gradient-to-l from-background-light dark:from-background-dark to-transparent flex items-center justify-end pr-1"
+            aria-hidden="true"
+          >
+            <span className="material-symbols-outlined text-gray-400/60 dark:text-gray-500/60 text-sm">
+              chevron_right
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Storage Location Filter Chips & Location Filter Input */}
