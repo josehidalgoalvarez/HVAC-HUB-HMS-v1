@@ -100,36 +100,36 @@ export const UpdateBanner: React.FC<UpdateBannerProps> = ({
     setIsReloading(true);
 
     try {
+      // 1. Clear CacheStorage so obsolete precached index.html and assets are flushed
+      if ('caches' in window) {
+        try {
+          const cacheKeys = await caches.keys();
+          await Promise.all(cacheKeys.map(k => caches.delete(k)));
+        } catch (cacheErr) {
+          console.warn('[UpdateBanner] Cache cleanup error:', cacheErr);
+        }
+      }
+
+      // 2. Unregister or update Service Worker registrations
       if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.getRegistration();
-        if (registration) {
-          // (a) Call registration.update()
-          await registration.update().catch(() => {});
-
-          // (b) If a waiting worker exists, post SKIP_WAITING and WAIT for controllerchange
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          // If a waiting worker exists, tell it to take over
           if (registration.waiting) {
-            const waitingWorker = registration.waiting;
-            const controllerChanged = new Promise<void>((resolve) => {
-              const onChange = () => {
-                navigator.serviceWorker.removeEventListener('controllerchange', onChange);
-                resolve();
-              };
-              navigator.serviceWorker.addEventListener('controllerchange', onChange);
-              // Timeout fallback (~3s) in case controllerchange doesn't fire
-              setTimeout(resolve, 3000);
-            });
-
-            waitingWorker.postMessage({ type: 'SKIP_WAITING' });
-            await controllerChanged;
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
           }
+          // Unregister so navigation request is guaranteed to fetch fresh index.html directly from network
+          await registration.unregister().catch(() => {});
         }
       }
     } catch (e) {
-      console.warn('[UpdateBanner] SW activation error:', e);
+      console.warn('[UpdateBanner] SW activation/cleanup error:', e);
     }
 
-    // Force reload from server
-    window.location.reload();
+    // 3. Force clean hard navigation with cache-busting timestamp
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.set('_v', Date.now().toString());
+    window.location.replace(cleanUrl.toString());
   };
 
   const handleDismiss = () => {

@@ -32,3 +32,20 @@ RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.html [L]
+
+# 5. Cache-Control & PWA Update Policy
+<IfModule mod_headers.c>
+    # HTML documents and version manifest must never be cached by CDN or browser
+    <FilesMatch "\.(html|json)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+
+    # Service Worker script and registration script must never be cached
+    <FilesMatch "(sw\.js|registerSW\.js)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
