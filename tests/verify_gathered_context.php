@@ -61,9 +61,9 @@ $p567 = $db->query("SELECT complex_id FROM building WHERE id = 61")->fetch(PDO::
 assertTest(($p563['complex_id'] ?? '') == '4', "563 Princess stays in Princess complex", $passes, $failures);
 assertTest(($p567['complex_id'] ?? '') == '4', "567 Princess stays in Princess complex", $passes, $failures);
 
-// 630 Princess stands alone (complex_id IS NULL)
+// 630 Princess moved to Princess complex Nov 2026 (complex_id = 4)
 $p630 = $db->query("SELECT complex_id FROM building WHERE id = 62")->fetch(PDO::FETCH_ASSOC);
-assertTest(empty($p630['complex_id']), "630 Princess is standalone (complex_id is NULL)", $passes, $failures);
+assertTest(($p630['complex_id'] ?? '') == '4', "630 Princess is in Princess complex (complex_id = 4)", $passes, $failures);
 
 // Armstrong / Skyfall complex
 $asComplex = $db->query("SELECT id, name, slug FROM complexes WHERE slug = 'armstrong-skyfall'")->fetch(PDO::FETCH_ASSOC);

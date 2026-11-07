@@ -1174,6 +1174,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {activeComplexProperties.map(bld => {
                       const isTrioCard = isPrincessTrioBuildingId(bld.id);
+                      const is630Princess = String(bld.id) === 'prop-princess-630' || String(bld.id) === '62' || bld.name?.includes('630 Princess');
                       const bldUnits = isTrioCard
                         ? units.filter(u => isPrincessTrioBuildingId(u.buildingId))
                         : units.filter(u => u.buildingId === bld.id);
@@ -1210,7 +1211,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                       type="button"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        setMoveSheetEntries(MOVED_BUILDING_REFERENCES);
+                                        setMoveSheetEntries(MOVED_BUILDING_REFERENCES.filter(r => r.targetId === 'prop-princess-565'));
                                         setIsMoveSheetOpen(true);
                                       }}
                                       className="min-h-[30px] px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-primary hover:text-primary-hover text-[11px] font-bold flex items-center gap-1 transition-colors border border-gray-200/80 dark:border-gray-700 active:scale-95 shadow-2xs"
@@ -1220,6 +1221,21 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                       <span>Why here?</span>
                                     </button>
                                   </>
+                                )}
+                                {is630Princess && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setMoveSheetEntries(MOVED_BUILDING_REFERENCES.filter(r => r.id === '630-princess-ungrouped'));
+                                      setIsMoveSheetOpen(true);
+                                    }}
+                                    className="min-h-[30px] px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-primary hover:text-primary-hover text-[11px] font-bold flex items-center gap-1 transition-colors border border-gray-200/80 dark:border-gray-700 active:scale-95 shadow-2xs"
+                                    title="Why here? (Location reference)"
+                                  >
+                                    <span className="material-symbols-outlined text-[14px]">help</span>
+                                    <span>Why here?</span>
+                                  </button>
                                 )}
                               </h3>
                               <div className="flex items-center gap-1.5 flex-wrap">
@@ -1312,12 +1328,15 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 {/* Reorganized Building Header */}
                 <div className="pb-3 border-b border-gray-100 dark:border-gray-800 space-y-2.5">
                   {/* Top Row: "Why here?" moved to the very top */}
-                  {isTrioMergedGroup && (
+                  {(isTrioMergedGroup || String(activeBuilding.id) === 'prop-princess-630' || String(activeBuilding.id) === '62' || activeBuilding.name?.includes('630 Princess')) && (
                     <div className="flex items-center">
                       <button
                         type="button"
                         onClick={() => {
-                          setMoveSheetEntries(MOVED_BUILDING_REFERENCES);
+                          const targetRefs = (String(activeBuilding.id) === 'prop-princess-630' || String(activeBuilding.id) === '62' || activeBuilding.name?.includes('630 Princess'))
+                            ? MOVED_BUILDING_REFERENCES.filter(r => r.id === '630-princess-ungrouped')
+                            : MOVED_BUILDING_REFERENCES.filter(r => r.targetId === 'prop-princess-565');
+                          setMoveSheetEntries(targetRefs);
                           setIsMoveSheetOpen(true);
                         }}
                         className="min-h-[44px] text-xs font-semibold px-3 py-2 rounded-xl bg-gray-100 dark:bg-neutral-800 text-primary hover:text-primary-hover hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors flex items-center gap-1.5 border border-gray-200/80 dark:border-gray-700 shadow-2xs"

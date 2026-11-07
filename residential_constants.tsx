@@ -74,6 +74,16 @@ export const MOVED_BUILDING_REFERENCES: BuildingMoveReference[] = [
             label: 'View Princess complex',
         },
     },
+    {
+        id: '630-princess-ungrouped',
+        targetId: 'prop-princess-630',
+        title: '630 Princess St',
+        movedFrom: 'Ungrouped',
+        movedTo: 'Princess complex',
+        date: 'Nov 2026',
+        reason: 'Princess Street address — grouped with the Princess complex.',
+        jumpTarget: null,
+    },
 ];
 
 export const EMPTY_COMPLEX_REFERENCES: EmptyComplexReference[] = [
@@ -937,8 +947,8 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
     },
     {
         id: 'prop-princess-630',
-        complexId: undefined,
-        complexName: undefined,
+        complexId: 'princess',
+        complexName: 'Princess',
         code: '630 Princess St',
         name: '630 Princess St',
         address: '630 Princess St, Kingston, ON',

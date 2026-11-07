@@ -40,7 +40,7 @@ $expectedComplexes = [
     'bd' => ['id' => 1, 'name' => 'BD — Bath & Days', 'expected_buildings' => 12],
     'elm-colborne' => ['id' => 2, 'name' => 'Elm + Colborne', 'expected_buildings' => 3],
     'amherst' => ['id' => 3, 'name' => 'Amherst', 'expected_buildings' => 44],
-    'princess' => ['id' => 4, 'name' => 'Princess', 'expected_buildings' => 6], // 565 Princess moved to frontenac-alfred, 630 standalone, 2274 moved to armstrong-skyfall
+    'princess' => ['id' => 4, 'name' => 'Princess', 'expected_buildings' => 7], // 565 Princess moved to frontenac-alfred, 630 moved to princess Nov 2026, 2274 moved to armstrong-skyfall
     'victoria' => ['id' => 5, 'name' => 'Victoria', 'expected_buildings' => 4],
     'alfred' => ['id' => 6, 'name' => 'Alfred', 'expected_buildings' => 0], // Re-clustered into frontenac-alfred
     'frontenac' => ['id' => 7, 'name' => 'Frontenac', 'expected_buildings' => 0], // Re-clustered into frontenac-alfred
@@ -58,12 +58,12 @@ foreach ($expectedComplexes as $slug => $info) {
 
 // Check ungrouped count
 $ungroupedCount = (int)$db->query("SELECT COUNT(*) FROM building WHERE complex_id IS NULL")->fetchColumn();
-assertTest($ungroupedCount === 11, "1.4 Exactly 11 buildings remain ungrouped (singles, 181 Hillendale storage + 630 Princess standalone + McKay office) (got {$ungroupedCount})", $passes, $failures);
+assertTest($ungroupedCount === 10, "1.4 Exactly 10 buildings remain ungrouped (singles, 181 Hillendale storage + McKay office) (got {$ungroupedCount})", $passes, $failures);
 
 $totalBldgCount = (int)$db->query("SELECT COUNT(*) FROM building")->fetchColumn();
-assertTest($totalBldgCount === 96, "1.5 Total building count is 96 (85 in complexes + 11 Ungrouped) (got {$totalBldgCount})", $passes, $failures);
+assertTest($totalBldgCount === 96, "1.5 Total building count is 96 (86 in complexes + 10 Ungrouped) (got {$totalBldgCount})", $passes, $failures);
 
-// Verify Ungrouped names (includes 181 Hillendale Ave storage and 630 Princess St standalone from migration 027)
+// Verify Ungrouped names (includes 181 Hillendale Ave storage from migration 027; 630 Princess moved to Princess Nov 2026)
 $ungroupedNames = $db->query("SELECT name FROM building WHERE complex_id IS NULL ORDER BY name")->fetchAll(\PDO::FETCH_COLUMN);
 $expectedSingles = [
     '176 Railway Street',
@@ -72,13 +72,12 @@ $expectedSingles = [
     '36 Durham Street',
     '415 Albert Street',
     '55 Ontario Street',
-    '630 Princess St',
     '698 McKay Street (Office)',
     '810 Blackburn Mews',
     '847 Development',
     '85 Park Street'
 ];
-assertTest($ungroupedNames === $expectedSingles, "1.6 Ungrouped list matches exactly the singles, storage and standalone buildings", $passes, $failures);
+assertTest($ungroupedNames === $expectedSingles, "1.6 Ungrouped list matches exactly the singles and storage buildings", $passes, $failures);
 
 // -------------------------------------------------------------
 // 2. 505 Days Pool Removal & Safety Check

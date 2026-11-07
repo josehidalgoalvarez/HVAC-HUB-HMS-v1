@@ -737,7 +737,7 @@ export const BUILDING_PROFILES: Record<string, BuildingProfile> = {
     notes: 'Tracked units: 1. Single-unit house. Duplicate Yardi codes exist for 378 and 394 — one building each, both codes recorded as external IDs; do not split 378 into two buildings and do not merge it with 394. Field note (Oct 30, 2026, three separate jobs, NOT one job): Olsen boiler leak, Giant electric water heater leak, white top-load washer leak — leak source per appliance NOT confirmed, tenant/WO still pending at the time of that note. Do NOT promise a fix, do NOT close any of the three, and do NOT model any of them as an appliance row in this prompt. A tank-body leak at that age would be a replacement ticket to management, not a same-visit repair promise — but that is a triage rule, not a confirmed diagnosis here, because the leak source per appliance is unknown.'
   },
 
-  // 630 Princess St — Princess, standalone, under construction
+  // 630 Princess St — Princess, under construction
   '630 princess st': {
     totalUnitsOverride: null,
     floors: null,
@@ -750,7 +750,7 @@ export const BUILDING_PROFILES: Record<string, BuildingProfile> = {
     pumps: null,
     solarPanels: null,
     storageNote: null,
-    notes: 'Tracked units: 26. Standalone (far, under construction) — do not assert occupancy or completion; report the UI-computed total as found alongside the under-construction note. Do not move 630 Princess to any other complex here.'
+    notes: 'Tracked units: 26. Moved to the Princess complex Nov 2026, Jose\'s call; under construction — do not assert occupancy or completion; report the UI-computed total as found alongside the under-construction note.'
   },
 
   // 800 Princess St — Princess, "The 800" (big record)
