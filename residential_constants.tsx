@@ -20,6 +20,78 @@ import {
 // 1. COMPLEXES (Task 1: BD + Elm/Colborne; rest Ungrouped)
 // ==========================================
 
+export interface BuildingMoveReference {
+    id: string;
+    targetId: string; // buildingId or complexId
+    title: string;
+    movedFrom: string;
+    movedTo: string;
+    date: string;
+    reason: string;
+    jumpTarget?: {
+        complexId: string;
+        label: string;
+    } | null;
+}
+
+export interface EmptyComplexReference {
+    complexId: string; // matches complex id or slug (e.g. 'alfred', 'frontenac', 'complex-alfred', 'complex-frontenac', '6', '7')
+    note: string;
+    jumpTarget?: {
+        complexId: string;
+        label: string;
+    } | null;
+}
+
+/**
+ * Historical move references and empty complex guidance.
+ * Verbatim reasons as specified Nov 7, 2026.
+ */
+export const MOVED_BUILDING_REFERENCES: BuildingMoveReference[] = [
+    {
+        id: '565-princess-quadrant',
+        targetId: 'prop-princess-565',
+        title: '565 Princess St (Merged Trio)',
+        movedFrom: 'Princess complex',
+        movedTo: 'Frontenac–Alfred Quadrant',
+        date: 'Oct 2026',
+        reason: 'proximity — it sits in the Frontenac / Alfred / Princess corner cluster.',
+        jumpTarget: {
+            complexId: 'princess',
+            label: 'View Princess complex',
+        },
+    },
+    {
+        id: '563-567-princess-merge',
+        targetId: 'prop-princess-565',
+        title: '563 + 567 Princess St',
+        movedFrom: 'Princess complex',
+        movedTo: '565 Princess St',
+        date: 'Nov 2026',
+        reason: 'one site — 565 + 567 are one apartment building and 563 is a separate commercial unit on the same site.',
+        jumpTarget: {
+            complexId: 'princess',
+            label: 'View Princess complex',
+        },
+    },
+];
+
+export const EMPTY_COMPLEX_REFERENCES: EmptyComplexReference[] = [
+    {
+        complexId: 'alfred',
+        note: 'No buildings here — the Alfred Street buildings (353 and 394 Alfred St) sit in the Frontenac–Alfred Quadrant, grouped by proximity (same street cluster).',
+        jumpTarget: {
+            complexId: 'frontenac-alfred',
+            label: 'View Frontenac–Alfred Quadrant',
+        },
+    },
+    {
+        complexId: 'frontenac',
+        note: 'No buildings assigned yet — 501 and 520 Frontenac have no roster on file, so nothing is listed here yet.',
+        jumpTarget: null,
+    },
+];
+
 export const COMPLEXES: Complex[] = [
     {
         id: 'bd',

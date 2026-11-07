@@ -9,6 +9,11 @@ import type { Stockpile } from '../../types/domain';
 import { McKayStorageMenuView } from '../parts/McKayStorageMenuView';
 import { normalizeMatchString, resolveBuildingStockpile } from '../../utils/stockpileMatching';
 import { getBuildingProfile } from '../../utils/buildingProfiles';
+import {
+  MOVED_BUILDING_REFERENCES,
+  BuildingMoveReference
+} from '../../residential_constants';
+import { BuildingMoveReferenceSheet } from './BuildingMoveReferenceSheet';
 
 interface PropertyDetailViewProps {
   propertyId: string;
@@ -16,6 +21,7 @@ interface PropertyDetailViewProps {
   onApplianceClick: (id: string) => void;
   isEditMode: boolean;
   onOpenStockpileInventory?: (stockpileId: number | string) => void;
+  onNavigateComplex?: (complexId: string) => void;
 }
 
 const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
@@ -24,6 +30,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
   onApplianceClick,
   isEditMode,
   onOpenStockpileInventory,
+  onNavigateComplex,
 }) => {
   const { getProperty, appliances, updateProperty, units } = useData();
   const property = getProperty(propertyId);
@@ -34,7 +41,14 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [stockpilesList, setStockpilesList] = useState<Stockpile[]>([]);
   const [showMcKayMenu, setShowMcKayMenu] = useState(false);
+  const [isMoveSheetOpen, setIsMoveSheetOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isPrincessTrio = React.useMemo(() => {
+    const pId = String(property?.id || '');
+    return pId === 'prop-princess-563' || pId === 'prop-princess-565' || pId === 'prop-princess-567' ||
+      pId === '59' || pId === '60' || pId === '61' || property?.name?.includes('Princess');
+  }, [property]);
 
   React.useEffect(() => {
     apiClient.getStockpiles()
@@ -121,7 +135,20 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
           </div>
           <div className="flex-1">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-brand-black dark:text-white">{property.name}</h2>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-lg font-bold text-brand-black dark:text-white">{property.name}</h2>
+                {isPrincessTrio && (
+                  <button
+                    type="button"
+                    onClick={() => setIsMoveSheetOpen(true)}
+                    className="min-h-[30px] px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-primary hover:text-primary-hover text-[11px] font-bold flex items-center gap-1 transition-colors border border-gray-200/80 dark:border-gray-700 active:scale-95 shadow-2xs"
+                    title="Why here? (Location reference)"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">help</span>
+                    <span>Why here?</span>
+                  </button>
+                )}
+              </div>
               {isEditMode && (
                 <button
                   onClick={() => setIsEditingImage(true)}
@@ -591,6 +618,21 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Building Move Reference Sheet */}
+      <BuildingMoveReferenceSheet
+        isOpen={isMoveSheetOpen}
+        onClose={() => setIsMoveSheetOpen(false)}
+        entries={MOVED_BUILDING_REFERENCES}
+        onNavigateComplex={(complexId) => {
+          setIsMoveSheetOpen(false);
+          if (onNavigateComplex) {
+            onNavigateComplex(complexId);
+          } else {
+            onBack();
+          }
+        }}
+      />
     </div>
   );
 };

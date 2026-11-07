@@ -231,6 +231,15 @@ const Router: React.FC<RouterProps> = ({
           onApplianceClick={handleApplianceClick}
           isEditMode={isEditMode}
           onOpenStockpileInventory={handleOpenStockpileInventory}
+          onNavigateComplex={(complexId) => {
+            handleUpdatePropertiesNav({
+              navLevel: 'complex',
+              selectedComplexId: complexId,
+              selectedBuildingId: null,
+              selectedUnitId: null,
+            });
+            setActiveView(ViewType.PROPERTIES);
+          }}
         />
       );
 

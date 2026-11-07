@@ -22,6 +22,13 @@ import {
   computeInventorySearchResults,
   InventorySearchResultsPanel
 } from './InventorySearchSection';
+import {
+  MOVED_BUILDING_REFERENCES,
+  EMPTY_COMPLEX_REFERENCES,
+  BuildingMoveReference,
+  EmptyComplexReference
+} from '../../residential_constants';
+import { BuildingMoveReferenceSheet } from './BuildingMoveReferenceSheet';
 
 interface PropertyListViewProps {
   onPropertyClick: (id: string) => void;
@@ -79,6 +86,10 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
   const [selectedComplexId, setSelectedComplexIdState] = useState<string | null>(initialComplexId ?? null);
   const [selectedBuildingId, setSelectedBuildingIdState] = useState<string | null>(initialBuildingId ?? null);
   const [selectedUnitId, setSelectedUnitIdState] = useState<string | null>(initialUnitId ?? null);
+
+  // Move Reference Sheet State
+  const [isMoveSheetOpen, setIsMoveSheetOpen] = useState(false);
+  const [moveSheetEntries, setMoveSheetEntries] = useState<BuildingMoveReference[]>([]);
 
   // Sync state transitions to parent Router callback
   const updateNav = (
@@ -1121,99 +1132,151 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   )}
                 </div>
 
-                {/* Whole-Box Building Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {activeComplexProperties.map(bld => {
-                    const isTrioCard = isPrincessTrioBuildingId(bld.id);
-                    const bldUnits = isTrioCard
-                      ? units.filter(u => isPrincessTrioBuildingId(u.buildingId))
-                      : units.filter(u => u.buildingId === bld.id);
-                    const hasSpecialRole = bld.role && bld.role !== 'standard';
-                    const isExternal = bld.responsibility === 'external';
-
-                    const bRes = resolveBuildingStockpile(bld, stockpilesList);
-                    const canOpenStorage = (bRes.isMcKay && bRes.mckayStockpiles.length > 0) || Boolean(bRes.targetStockpileId && onOpenStockpileInventory);
-
-                    const displayName = isTrioCard ? '565 Princess St (Merged Trio)' : bld.name;
+                {/* Whole-Box Building Cards or Empty State */}
+                {activeComplexProperties.length === 0 ? (
+                  (() => {
+                    const normComplexId = (activeComplex.slug || activeComplex.id || '')
+                      .toLowerCase()
+                      .replace('complex-', '');
+                    const emptyRef = EMPTY_COMPLEX_REFERENCES.find(
+                      (r) =>
+                        r.complexId === normComplexId ||
+                        r.complexId === activeComplex.id ||
+                        r.complexId === activeComplex.slug
+                    );
 
                     return (
-                      <div
-                        key={bld.id}
-                        onClick={() => handleNavBuilding(bld.id)}
-                        className={`group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between ${
-                          isExternal
-                            ? 'opacity-65 bg-gray-50/80 dark:bg-card-dark/40 border border-dashed border-gray-300 dark:border-gray-700'
-                            : hasSpecialRole
-                            ? 'border-2 border-amber-400/80 bg-amber-500/5 dark:bg-amber-500/10 hover:border-amber-500 shadow-sm shadow-amber-500/5'
-                            : 'bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:border-primary/40'
-                        }`}
-                      >
-                        <div>
-                          <div className="flex items-start justify-between gap-2 mb-1 flex-wrap">
-                            <h3 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors flex items-center gap-1.5 flex-wrap">
-                              <span>{displayName}</span>
-                              {isTrioCard && (
-                                <span className="text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full whitespace-nowrap">
-                                  563 + 565 + 567
-                                </span>
-                              )}
-                            </h3>
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              {hasSpecialRole && (
-                                <span className="text-[11px] font-semibold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full capitalize whitespace-nowrap">
-                                  {bld.role === 'storage' ? (bld.id === 'prop-days-511' || bld.id === '15' || bld.name?.includes('511 Days') ? 'Storage Node (Central)' : 'Storage Node') : bld.role === 'mechanical' ? 'Mechanical Hub' : bld.role === 'office' ? 'Office' : bld.role}
-                                </span>
-                              )}
-                              {isExternal && (
-                                <span className="text-[11px] font-semibold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full whitespace-nowrap">
-                                  External Super (Not Jose)
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">
-                            {isTrioCard ? '563, 565 & 567 Princess St, Kingston, ON' : bld.address}
-                          </p>
-                          {bld.comments && (
-                            <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2">
-                              {isTrioCard ? 'One merged site group: 565 & 567 apartment building + 563 separate commercial unit.' : bld.comments}
-                            </p>
-                          )}
+                      <div className="p-6 rounded-2xl bg-white dark:bg-card-dark border border-dashed border-gray-200 dark:border-gray-800 text-center space-y-3.5 shadow-xs">
+                        <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center mx-auto text-primary">
+                          <span className="material-symbols-outlined text-2xl">domain_disabled</span>
                         </div>
-
-                        <div className="pt-3 mt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2 text-xs text-text-sub-light dark:text-text-sub-dark">
-                          <span>{bldUnits.length} Units</span>
-                          <div className="flex items-center gap-2">
-                            {canOpenStorage && (
-                              <button
-                                type="button"
-                                data-testid="building-list-stock-menu-button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (bRes.isMcKay) {
-                                    handleNavBuilding(bld.id);
-                                    setShowMcKayMenu(true);
-                                  } else if (bRes.targetStockpileId && onOpenStockpileInventory) {
-                                    onOpenStockpileInventory(bRes.targetStockpileId);
-                                  }
-                                }}
-                                className="min-h-[44px] px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 active:scale-[0.98] text-amber-900 dark:text-amber-200 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
-                              >
-                                <span className="material-symbols-outlined text-[18px] text-amber-700 dark:text-amber-300">
-                                  inventory_2
-                                </span>
-                                <span>Stock Menu</span>
-                              </button>
-                            )}
-                            <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
-                              chevron_right
-                            </span>
+                        <p className="text-xs text-brand-black dark:text-white max-w-md mx-auto leading-relaxed font-medium">
+                          {emptyRef ? emptyRef.note : 'No buildings in this complex yet.'}
+                        </p>
+                        {emptyRef?.jumpTarget && (
+                          <div className="pt-1">
+                            <button
+                              type="button"
+                              onClick={() => handleNavComplex(emptyRef.jumpTarget!.complexId)}
+                              className="min-h-[44px] px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary-hover text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-2xs"
+                            >
+                              <span>{emptyRef.jumpTarget.label}</span>
+                              <span className="material-symbols-outlined text-sm">open_in_new</span>
+                            </button>
                           </div>
-                        </div>
+                        )}
                       </div>
                     );
-                  })}
-                </div>
+                  })()
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {activeComplexProperties.map(bld => {
+                      const isTrioCard = isPrincessTrioBuildingId(bld.id);
+                      const bldUnits = isTrioCard
+                        ? units.filter(u => isPrincessTrioBuildingId(u.buildingId))
+                        : units.filter(u => u.buildingId === bld.id);
+                      const hasSpecialRole = bld.role && bld.role !== 'standard';
+                      const isExternal = bld.responsibility === 'external';
+
+                      const bRes = resolveBuildingStockpile(bld, stockpilesList);
+                      const canOpenStorage = (bRes.isMcKay && bRes.mckayStockpiles.length > 0) || Boolean(bRes.targetStockpileId && onOpenStockpileInventory);
+
+                      const displayName = isTrioCard ? '565 Princess St (Merged Trio)' : bld.name;
+
+                      return (
+                        <div
+                          key={bld.id}
+                          onClick={() => handleNavBuilding(bld.id)}
+                          className={`group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between ${
+                            isExternal
+                              ? 'opacity-65 bg-gray-50/80 dark:bg-card-dark/40 border border-dashed border-gray-300 dark:border-gray-700'
+                              : hasSpecialRole
+                              ? 'border-2 border-amber-400/80 bg-amber-500/5 dark:bg-amber-500/10 hover:border-amber-500 shadow-sm shadow-amber-500/5'
+                              : 'bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:border-primary/40'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-start justify-between gap-2 mb-1 flex-wrap">
+                              <h3 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors flex items-center gap-1.5 flex-wrap">
+                                <span>{displayName}</span>
+                                {isTrioCard && (
+                                  <>
+                                    <span className="text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                      563 + 565 + 567
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setMoveSheetEntries(MOVED_BUILDING_REFERENCES);
+                                        setIsMoveSheetOpen(true);
+                                      }}
+                                      className="min-h-[30px] px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-primary hover:text-primary-hover text-[11px] font-bold flex items-center gap-1 transition-colors border border-gray-200/80 dark:border-gray-700 active:scale-95 shadow-2xs"
+                                      title="Why here? (Location reference)"
+                                    >
+                                      <span className="material-symbols-outlined text-[14px]">help</span>
+                                      <span>Why here?</span>
+                                    </button>
+                                  </>
+                                )}
+                              </h3>
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                {hasSpecialRole && (
+                                  <span className="text-[11px] font-semibold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full capitalize whitespace-nowrap">
+                                    {bld.role === 'storage' ? (bld.id === 'prop-days-511' || bld.id === '15' || bld.name?.includes('511 Days') ? 'Storage Node (Central)' : 'Storage Node') : bld.role === 'mechanical' ? 'Mechanical Hub' : bld.role === 'office' ? 'Office' : bld.role}
+                                  </span>
+                                )}
+                                {isExternal && (
+                                  <span className="text-[11px] font-semibold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                    External Super (Not Jose)
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">
+                              {isTrioCard ? '563, 565 & 567 Princess St, Kingston, ON' : bld.address}
+                            </p>
+                            {bld.comments && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2">
+                                {isTrioCard ? 'One merged site group: 565 & 567 apartment building + 563 separate commercial unit.' : bld.comments}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="pt-3 mt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2 text-xs text-text-sub-light dark:text-text-sub-dark">
+                            <span>{bldUnits.length} Units</span>
+                            <div className="flex items-center gap-2">
+                              {canOpenStorage && (
+                                <button
+                                  type="button"
+                                  data-testid="building-list-stock-menu-button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (bRes.isMcKay) {
+                                      handleNavBuilding(bld.id);
+                                      setShowMcKayMenu(true);
+                                    } else if (bRes.targetStockpileId && onOpenStockpileInventory) {
+                                      onOpenStockpileInventory(bRes.targetStockpileId);
+                                    }
+                                  }}
+                                  className="min-h-[44px] px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 active:scale-[0.98] text-amber-900 dark:text-amber-200 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+                                >
+                                  <span className="material-symbols-outlined text-[18px] text-amber-700 dark:text-amber-300">
+                                    inventory_2
+                                  </span>
+                                  <span>Stock Menu</span>
+                                </button>
+                              )}
+                              <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
+                                chevron_right
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
@@ -1261,6 +1324,20 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2">
+                    {isTrioMergedGroup && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMoveSheetEntries(MOVED_BUILDING_REFERENCES);
+                          setIsMoveSheetOpen(true);
+                        }}
+                        className="min-h-[44px] text-xs font-semibold px-3 py-2 rounded-xl bg-gray-100 dark:bg-neutral-800 text-primary hover:text-primary-hover hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors flex items-center gap-1.5 border border-gray-200/80 dark:border-gray-700 shadow-2xs"
+                        title="Why here? (Location reference)"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">help</span>
+                        <span>Why here?</span>
+                      </button>
+                    )}
                     <button
                       onClick={() => handleNavDefaults(activeBuilding.complexId ? String(activeBuilding.complexId) : (selectedComplexId || undefined))}
                       className="min-h-[44px] text-xs font-semibold px-3 py-2 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors flex items-center gap-1.5"
@@ -3489,6 +3566,25 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Building Move / Merged Reference Sheet */}
+      <BuildingMoveReferenceSheet
+        isOpen={isMoveSheetOpen}
+        onClose={() => setIsMoveSheetOpen(false)}
+        entries={moveSheetEntries}
+        onNavigateComplex={(complexSlug) => {
+          setIsMoveSheetOpen(false);
+          // If viewing building details, go back to complex list first
+          if (viewMode === 'building') {
+            setViewMode('complex');
+          }
+          if (onSelectComplex) {
+            onSelectComplex(complexSlug);
+          } else {
+            setSelectedComplex(complexSlug);
+          }
+        }}
+      />
     </div>
   );
 };
