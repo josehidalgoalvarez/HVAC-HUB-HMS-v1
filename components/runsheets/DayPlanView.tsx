@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { apiClient } from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
@@ -38,6 +38,19 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
   const [isDeletingShell, setIsDeletingShell] = useState(false);
   const [showClearPlanModal, setShowClearPlanModal] = useState(false);
   const [isClearingPlan, setIsClearingPlan] = useState(false);
+
+  // Date picker ref
+  const datePickerInputRef = useRef<HTMLInputElement>(null);
+
+  const handleOpenDatePicker = () => {
+    if (datePickerInputRef.current) {
+      if (typeof datePickerInputRef.current.showPicker === 'function') {
+        datePickerInputRef.current.showPicker();
+      } else {
+        datePickerInputRef.current.focus();
+      }
+    }
+  };
 
   const loadDayPlan = async (date: string) => {
     const cacheKey = `runsheet_${date}`;
@@ -270,26 +283,51 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
       </div>
 
       {/* Date Navigation Strip */}
-      <div className="p-3 bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center justify-between shadow-xs">
+      <div className="p-3 bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center justify-between shadow-xs relative">
         <button
           onClick={() => changeDate(-1)}
-          className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200"
+          aria-label="Previous day"
+          className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200 shrink-0"
         >
           <span className="material-symbols-outlined text-sm">chevron_left</span>
         </button>
 
-        <div className="text-center">
-          <span className="text-[10px] uppercase font-bold text-gray-400 block">
+        <button
+          type="button"
+          onClick={handleOpenDatePicker}
+          aria-label="Choose date"
+          className="text-center group px-3 py-1 -my-1 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/60 active:scale-95 transition-all flex flex-col items-center cursor-pointer min-h-[44px] justify-center"
+        >
+          <span className="text-[10px] uppercase font-bold text-gray-400 group-hover:text-primary transition-colors block">
             {new Date(currentDate + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long' })}
           </span>
-          <span className="text-sm font-extrabold text-brand-black dark:text-white font-mono">
+          <span className="text-sm font-extrabold text-brand-black dark:text-white font-mono flex items-center gap-1.5 group-hover:text-primary transition-colors">
+            <span className="material-symbols-outlined text-[16px] text-gray-400 group-hover:text-primary transition-colors">
+              calendar_month
+            </span>
             {currentDate}
           </span>
-        </div>
+        </button>
+
+        {/* Hidden native date input for OS date picker */}
+        <input
+          ref={datePickerInputRef}
+          type="date"
+          value={currentDate}
+          onChange={(e) => {
+            if (e.target.value) {
+              setCurrentDate(e.target.value);
+            }
+          }}
+          className="sr-only"
+          tabIndex={-1}
+          aria-hidden="true"
+        />
 
         <button
           onClick={() => changeDate(1)}
-          className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200"
+          aria-label="Next day"
+          className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200 shrink-0"
         >
           <span className="material-symbols-outlined text-sm">chevron_right</span>
         </button>
