@@ -299,7 +299,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           onClick={() => setActiveFilter('safety')}
           className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'safety'
               ? 'bg-brand-red text-white shadow-2xs border border-brand-red'
-              : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
+              : 'bg-red-500/10 dark:bg-red-500/20 text-red-700 dark:text-red-300 border border-red-300/40 dark:border-red-500/30 hover:bg-red-500/20 dark:hover:bg-red-500/30'
             }`}
         >
           <span className={`material-symbols-outlined text-xs ${activeFilter === 'safety' ? 'text-white' : 'text-brand-red'}`}>emergency</span>
@@ -310,7 +310,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           onClick={() => setActiveFilter('closable')}
           className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'closable'
               ? 'bg-primary text-white shadow-2xs border border-primary'
-              : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
+              : 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-sky-300 border border-primary/30 dark:border-primary/40 hover:bg-primary/20 dark:hover:bg-primary/30'
             }`}
         >
           <span className={`material-symbols-outlined text-xs ${activeFilter === 'closable' ? 'text-white' : 'text-primary'}`}>timer</span>
@@ -321,7 +321,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           onClick={() => setActiveFilter('blocked')}
           className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'blocked'
               ? 'bg-rose-600 text-white shadow-2xs border border-rose-600'
-              : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
+              : 'bg-rose-500/10 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-300/40 dark:border-rose-500/30 hover:bg-rose-500/20 dark:hover:bg-rose-500/30'
             }`}
         >
           <span className={`material-symbols-outlined text-xs ${activeFilter === 'blocked' ? 'text-white' : 'text-rose-500'}`}>block</span>
@@ -332,7 +332,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           onClick={() => setActiveFilter('completed')}
           className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'completed'
               ? 'bg-emerald-600 text-white shadow-2xs border border-emerald-600'
-              : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
+              : 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300/40 dark:border-emerald-500/30 hover:bg-emerald-500/20 dark:hover:bg-emerald-500/30'
             }`}
         >
           <span className={`material-symbols-outlined text-xs ${activeFilter === 'completed' ? 'text-white' : 'text-emerald-500'}`}>check_circle</span>
@@ -356,7 +356,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           onClick={() => setActiveFilter('unassigned')}
           className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all uppercase tracking-wider ${activeFilter === 'unassigned'
               ? 'bg-primary text-white shadow-2xs border border-primary'
-              : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
+              : 'bg-slate-500/10 dark:bg-slate-500/20 text-slate-700 dark:text-slate-300 border border-slate-300/40 dark:border-slate-500/30 hover:bg-slate-500/20 dark:hover:bg-slate-500/30'
             }`}
         >
           No WO ({unassignedCount})
