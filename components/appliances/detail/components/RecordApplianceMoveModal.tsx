@@ -18,10 +18,11 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
   onClose,
   onSuccess,
 }) => {
-  // Dispositions: 'installed' | 'stored' | 'harvested' | 'disposed'
-  const [disposition, setDisposition] = useState<'installed' | 'stored' | 'harvested' | 'disposed'>('installed');
+  // Dispositions: 'installed' | 'staged' | 'stored' | 'harvested' | 'disposed'
+  const [disposition, setDisposition] = useState<'installed' | 'staged' | 'stored' | 'harvested' | 'disposed'>('installed');
 
   // Form Fields
+  const [moveDate, setMoveDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
   const [selectedUnitId, setSelectedUnitId] = useState<string>('');
   const [selectedStockpileId, setSelectedStockpileId] = useState<string>('');
   const [selectedTicketId, setSelectedTicketId] = useState<string>('');
@@ -116,12 +117,27 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
 
   // Form Validation Rule Check
   const validate = (): string | null => {
+    // Validate moveDate: must not be in the future
+    if (moveDate) {
+      const today = new Date().toISOString().split('T')[0];
+      if (moveDate > today) {
+        return `Future move date rejected: cannot record moves in the future (${moveDate}).`;
+      }
+    }
+
     if (disposition === 'installed') {
       if (!selectedUnitId) {
         return 'Installed disposition requires selecting a destination unit.';
       }
       if (selectedStockpileId) {
         return 'Invalid selection: installed disposition cannot have a stockpile destination.';
+      }
+    } else if (disposition === 'staged') {
+      if (!selectedUnitId) {
+        return 'Staged disposition requires selecting a destination unit.';
+      }
+      if (selectedStockpileId) {
+        return 'Invalid selection: staged disposition cannot have a stockpile destination.';
       }
     } else if (disposition === 'stored') {
       if (!selectedStockpileId) {
@@ -164,11 +180,12 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
     try {
       const payload: Record<string, any> = {
         disposition,
+        movement_date: moveDate || undefined,
         moved_by: movedBy.trim() || 'Tech',
         notes: notes.trim(),
       };
 
-      if (disposition === 'installed') {
+      if (disposition === 'installed' || disposition === 'staged') {
         payload.to_unit_id = Number(selectedUnitId);
       } else if (disposition === 'stored') {
         payload.to_stockpile_id = Number(selectedStockpileId);
@@ -192,6 +209,12 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
         updatedUnitNumber = matchedUnit ? matchedUnit.unitNumber : appliance.unitNumber;
         updatedStockpileId = null;
         updatedLocation = matchedUnit ? matchedUnit.label : `Unit ${selectedUnitId}`;
+      } else if (disposition === 'staged') {
+        updatedStatus = 'staged';
+        const matchedUnit = unitsList.find((u) => String(u.id) === String(selectedUnitId));
+        updatedUnitNumber = matchedUnit ? matchedUnit.unitNumber : appliance.unitNumber;
+        updatedStockpileId = null;
+        updatedLocation = matchedUnit ? `Staged at ${matchedUnit.label}` : `Staged at Unit ${selectedUnitId}`;
       } else if (disposition === 'stored') {
         updatedStatus = 'stored';
         updatedUnitNumber = undefined;
@@ -231,7 +254,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
               <h3 className="text-base font-bold text-brand-black dark:text-white">Record Appliance Move</h3>
             </div>
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-primary">
-              Recorded today
+              {moveDate === new Date().toISOString().split('T')[0] ? 'Move date: Today' : `Move date: ${moveDate}`}
             </span>
           </div>
 
@@ -241,6 +264,26 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
               <span>{errorMessage}</span>
             </div>
           )}
+
+          {/* Move Date Field (Backdating support) */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider">
+                Move Date <span className="text-red-500">*</span>
+              </label>
+              <span className="text-[11px] text-gray-400">
+                Defaults to today; past dates accepted.
+              </span>
+            </div>
+            <input
+              type="date"
+              max={new Date().toISOString().split('T')[0]}
+              value={moveDate}
+              onChange={(e) => setMoveDate(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-xs text-brand-black dark:text-white outline-none focus:border-primary font-medium"
+              required
+            />
+          </div>
 
           {/* Current Location (Read-Only Confirmation) */}
           <div className="bg-gray-50 dark:bg-gray-800/40 p-3 rounded-xl border border-gray-100 dark:border-gray-800">
@@ -258,7 +301,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
             <label className="block text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-1.5">
               Movement Disposition
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => {
@@ -273,6 +316,22 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
               >
                 <span className="material-symbols-outlined text-sm">home</span>
                 Installed (To Unit)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setDisposition('staged');
+                  setSelectedStockpileId('');
+                }}
+                className={`py-2 px-3 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 transition-colors ${
+                  disposition === 'staged'
+                    ? 'bg-indigo-600 text-white border-indigo-600'
+                    : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark border-gray-200 dark:border-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <span className="material-symbols-outlined text-sm">pending_actions</span>
+                Staged at Unit
               </button>
 
               <button
@@ -327,11 +386,11 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
             </div>
           </div>
 
-          {/* Destination: Unit Picker (when Installed) */}
-          {disposition === 'installed' && (
+          {/* Destination: Unit Picker (when Installed or Staged) */}
+          {(disposition === 'installed' || disposition === 'staged') && (
             <div>
               <label className="block text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-1.5">
-                Destination Unit <span className="text-red-500">*</span>
+                {disposition === 'staged' ? 'Staged Destination Unit' : 'Destination Unit'} <span className="text-red-500">*</span>
               </label>
               <select
                 value={selectedUnitId}
@@ -346,6 +405,12 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
                   </option>
                 ))}
               </select>
+              {disposition === 'staged' && (
+                <p className="mt-1 text-[11px] text-indigo-700 dark:text-indigo-300 font-medium flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[13px]">info</span>
+                  Appliance will be recorded at this unit with status 'Staged' (placed at unit, not installed).
+                </p>
+              )}
             </div>
           )}
 

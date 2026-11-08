@@ -260,11 +260,37 @@ class Stockpile
         $toStockpileId = isset($data['to_stockpile_id']) && $data['to_stockpile_id'] !== '' ? (int) $data['to_stockpile_id'] : null;
         $toUnitId = isset($data['to_unit_id']) && $data['to_unit_id'] !== '' ? (int) $data['to_unit_id'] : null;
         $toBuildingId = isset($data['to_building_id']) && $data['to_building_id'] !== '' ? (int) $data['to_building_id'] : null;
-        $disposition = trim((string) ($data['disposition'] ?? 'installed')); // 'stored', 'installed', 'harvested', 'disposed'
+        $disposition = trim((string) ($data['disposition'] ?? 'installed')); // 'stored', 'installed', 'staged', 'harvested', 'disposed'
         $movedBy = trim((string) ($data['moved_by'] ?? 'Tech'));
         $ticketId = isset($data['ticket_id']) && $data['ticket_id'] !== '' ? (int) $data['ticket_id'] : null;
         $notes = trim((string) ($data['notes'] ?? ''));
         $now = gmdate('Y-m-d H:i:s');
+        $todayDate = gmdate('Y-m-d');
+
+        // Parse & validate move date (backdating support)
+        $movementDate = $now;
+        $isBackdated = false;
+        if (!empty($data['movement_date'])) {
+            $rawDate = trim((string) $data['movement_date']);
+            // Allow Y-m-d or Y-m-d H:i:s
+            $dObj = \DateTimeImmutable::createFromFormat('Y-m-d', substr($rawDate, 0, 10));
+            if (!$dObj) {
+                throw new \RuntimeException("Invalid move date format: '{$rawDate}'. Expected YYYY-MM-DD.");
+            }
+            $inputDateStr = $dObj->format('Y-m-d');
+            if ($inputDateStr > $todayDate) {
+                throw new \RuntimeException("Future move date rejected: cannot record moves in the future ({$inputDateStr}).");
+            }
+            if ($inputDateStr < $todayDate) {
+                $isBackdated = true;
+            }
+            // If only date was passed, append midday/current time or keep date string
+            if (strlen($rawDate) === 10) {
+                $movementDate = $inputDateStr . ' ' . gmdate('H:i:s');
+            } else {
+                $movementDate = $rawDate;
+            }
+        }
 
         // Execute inside transaction if not already in one
         $pdo = Db::get();
@@ -279,7 +305,7 @@ class Stockpile
             Db::execute(
                 "INSERT INTO appliance_movement (appliance_id, from_stockpile_id, from_unit_id, to_stockpile_id, to_unit_id, disposition, movement_date, ticket_id, moved_by, notes, created_at)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                [$applianceId, $fromStockpileId, $fromUnitId, $toStockpileId, $toUnitId, $disposition, $now, $ticketId, $movedBy, $notes, $now]
+                [$applianceId, $fromStockpileId, $fromUnitId, $toStockpileId, $toUnitId, $disposition, $movementDate, $ticketId, $movedBy, $notes, $now]
             );
             $movementId = (int) Db::lastInsertId();
 
@@ -295,6 +321,18 @@ class Stockpile
                      SET stockpile_id = NULL, unit_id = ?, building_id = ?, status = 'operational', location = ?, updated_at = ?
                      WHERE id = ?",
                     [$toUnitId, $toBuildingId, "Unit {$toUnitId}", $now, $applianceId]
+                );
+            } elseif ($disposition === 'staged' && $toUnitId) {
+                // Staged at unit (placed at unit, NOT installed)
+                if (!$toBuildingId) {
+                    $uRow = Db::fetchOne("SELECT building_id FROM unit WHERE id = ?", [$toUnitId]);
+                    $toBuildingId = $uRow ? (int) $uRow['building_id'] : $appliance['building_id'];
+                }
+                Db::execute(
+                    "UPDATE appliance
+                     SET stockpile_id = NULL, unit_id = ?, building_id = ?, status = 'staged', location = ?, updated_at = ?
+                     WHERE id = ?",
+                    [$toUnitId, $toBuildingId, "Staged at Unit {$toUnitId}", $now, $applianceId]
                 );
             } elseif ($disposition === 'stored') {
                 Db::execute(
@@ -320,14 +358,23 @@ class Stockpile
             }
 
             // 3. Append-only correction audit
+            $moveDateDisplay = substr($movementDate, 0, 10);
+            $loggedDateDisplay = substr($now, 0, 10);
+            $dateNote = $isBackdated
+                ? " (actual move date: {$moveDateDisplay}, logged: {$loggedDateDisplay})"
+                : "";
+
+            $targetDesc = $toStockpileId ? "Stockpile #{$toStockpileId}" : ($toUnitId ? ($disposition === 'staged' ? "Staged at Unit #{$toUnitId}" : "Unit #{$toUnitId}") : $disposition);
+            $sourceDesc = $fromStockpileId ? "Stockpile #{$fromStockpileId}" : ($fromUnitId ? "Unit #{$fromUnitId}" : 'Unknown');
+
             \App\Models\Correction::record(
                 'appliance',
                 $applianceId,
                 'location',
-                $fromStockpileId ? "Stockpile #{$fromStockpileId}" : ($fromUnitId ? "Unit #{$fromUnitId}" : 'Unknown'),
-                $toStockpileId ? "Stockpile #{$toStockpileId}" : ($toUnitId ? "Unit #{$toUnitId}" : $disposition),
+                $sourceDesc,
+                $targetDesc,
                 $userId,
-                "Appliance movement ({$disposition}): {$notes}"
+                "Appliance movement ({$disposition}){$dateNote}: {$notes}"
             );
 
             if ($mustCommit) {
@@ -341,7 +388,8 @@ class Stockpile
                 'from_stockpile_id' => $fromStockpileId,
                 'to_stockpile_id' => $toStockpileId,
                 'to_unit_id' => $toUnitId,
-                'movement_date' => $now,
+                'movement_date' => $movementDate,
+                'is_backdated' => $isBackdated,
             ];
         } catch (\Throwable $e) {
             if ($mustCommit && $pdo->inTransaction()) {

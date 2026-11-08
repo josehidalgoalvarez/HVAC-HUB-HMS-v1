@@ -210,7 +210,7 @@ export interface Appliance {
   propertyId?: string;
   stockpileId?: number | string | null;
   stockpile_id?: number | string | null;
-  status: 'operational' | 'needs_service' | 'error' | 'idle' | 'connected' | 'donor' | 'valved_off' | 'disconnected' | 'stored' | 'harvested' | 'disposed' | 'installed';
+  status: 'operational' | 'needs_service' | 'error' | 'idle' | 'connected' | 'donor' | 'valved_off' | 'disconnected' | 'stored' | 'staged' | 'harvested' | 'disposed' | 'installed';
   lastService: string;
   type: string;
   category?: string;

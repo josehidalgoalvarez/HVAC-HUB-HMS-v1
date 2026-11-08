@@ -2345,15 +2345,23 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             </div>
                           </div>
 
-                          {app.isOverride ? (
-                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                              Override
-                            </span>
-                          ) : (
-                            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-                              Default
-                            </span>
-                          )}
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {app.status === 'staged' && (
+                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[13px]">pending_actions</span>
+                                <span>Staged</span>
+                              </span>
+                            )}
+                            {app.isOverride ? (
+                              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                Override
+                              </span>
+                            ) : (
+                              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                                Default
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         {/* Specs & Info */}
