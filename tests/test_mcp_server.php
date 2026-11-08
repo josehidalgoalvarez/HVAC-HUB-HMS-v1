@@ -81,9 +81,17 @@ $resInit = dispatchJsonRpc($app, $validToken, [
     ],
 ]);
 assertMcp($resInit['status'] === 200, '2.1 initialize returns HTTP 200', $passes, $failures);
-$initData = $resInit['body']['data'] ?? $resInit['body'];
-$serverInfo = $initData['result']['serverInfo'] ?? [];
-assertMcp($serverInfo['name'] === 'hvachome-mcp-server', '2.2 initialize returns server name hvachome-mcp-server', $passes, $failures);
+
+// Assert RAW top-level JSON-RPC wire shape (no {data: ...} envelope)
+assertMcp(
+    isset($resInit['body']['jsonrpc']) && $resInit['body']['jsonrpc'] === '2.0' && !array_key_exists('data', $resInit['body']),
+    '2.2 initialize returns raw JSON-RPC wire format without data wrapper',
+    $passes,
+    $failures
+);
+
+$serverInfo = $resInit['body']['result']['serverInfo'] ?? [];
+assertMcp($serverInfo['name'] === 'hvachome-mcp-server', '2.3 initialize returns server name hvachome-mcp-server', $passes, $failures);
 
 // 4. Protocol Tests: ping
 $resPing = dispatchJsonRpc($app, $validToken, [
@@ -91,7 +99,7 @@ $resPing = dispatchJsonRpc($app, $validToken, [
     'id' => 'ping-1',
     'method' => 'ping',
 ]);
-assertMcp($resPing['status'] === 200, '2.3 ping returns HTTP 200', $passes, $failures);
+assertMcp($resPing['status'] === 200, '2.4 ping returns HTTP 200', $passes, $failures);
 
 // 5. Tools List: returns exactly the 7 tools
 $resList = dispatchJsonRpc($app, $validToken, [
@@ -100,8 +108,7 @@ $resList = dispatchJsonRpc($app, $validToken, [
     'method' => 'tools/list',
 ]);
 assertMcp($resList['status'] === 200, '3.1 tools/list returns HTTP 200', $passes, $failures);
-$listData = $resList['body']['data'] ?? $resList['body'];
-$tools = $listData['result']['tools'] ?? [];
+$tools = $resList['body']['result']['tools'] ?? [];
 assertMcp(count($tools) === 7, '3.2 tools/list returns exactly 7 tools (got ' . count($tools) . ')', $passes, $failures);
 
 $expectedToolNames = [
@@ -129,8 +136,7 @@ $resCounts = dispatchJsonRpc($app, $validToken, [
     ],
 ]);
 assertMcp($resCounts['status'] === 200, '4.1 tools/call get_counts returns HTTP 200', $passes, $failures);
-$countsData = $resCounts['body']['data'] ?? $resCounts['body'];
-$countsContent = json_decode($countsData['result']['content'][0]['text'] ?? '{}', true);
+$countsContent = json_decode($resCounts['body']['result']['content'][0]['text'] ?? '{}', true);
 $expectedKeys = [
     'tickets', 'timeline', 'corrections', 'parts', 'allocations',
     'equipment', 'appliances', 'movements', 'stockpiles', 'units',
@@ -156,7 +162,7 @@ $resTickets = dispatchJsonRpc($app, $validToken, [
         'arguments' => ['limit' => 5],
     ],
 ]);
-$tContent = json_decode(($resTickets['body']['data'] ?? $resTickets['body'])['result']['content'][0]['text'] ?? '[]', true);
+$tContent = json_decode($resTickets['body']['result']['content'][0]['text'] ?? '[]', true);
 assertMcp(is_array($tContent) && count($tContent) > 0, '5.1 tools/call list_tickets returns array of tickets', $passes, $failures);
 
 // 8. Tool Call: get_unit_appliances by label
@@ -172,7 +178,7 @@ $resUnitApp = dispatchJsonRpc($app, $validToken, [
         ],
     ],
 ]);
-$unitAppData = json_decode(($resUnitApp['body']['data'] ?? $resUnitApp['body'])['result']['content'][0]['text'] ?? '{}', true);
+$unitAppData = json_decode($resUnitApp['body']['result']['content'][0]['text'] ?? '{}', true);
 assertMcp(!empty($unitAppData['unit']['unit_number']), '6.1 get_unit_appliances resolves unit 266 by label', $passes, $failures);
 
 // 9. Tool Call: search_parts (exact model matching)
@@ -187,7 +193,7 @@ $resParts = dispatchJsonRpc($app, $validToken, [
         ],
     ],
 ]);
-$partsData = json_decode(($resParts['body']['data'] ?? $resParts['body'])['result']['content'][0]['text'] ?? '{}', true);
+$partsData = json_decode($resParts['body']['result']['content'][0]['text'] ?? '{}', true);
 assertMcp(isset($partsData['verified_parts']) && isset($partsData['tbd_templates']), '7.1 search_parts returns verified_parts and tbd_templates', $passes, $failures);
 
 // 10. Unknown tool name -> JSON-RPC error -32602
@@ -200,8 +206,7 @@ $resUnknown = dispatchJsonRpc($app, $validToken, [
         'arguments' => new \stdClass(),
     ],
 ]);
-$unkData = $resUnknown['body']['data'] ?? $resUnknown['body'];
-$errorCode = $unkData['error']['code'] ?? null;
+$errorCode = $resUnknown['body']['error']['code'] ?? null;
 assertMcp($errorCode === -32602, '8.1 Unknown tool name returns JSON-RPC error -32602', $passes, $failures);
 
 // 11. Write-shaped tool rejection (no write tools exist)
@@ -214,8 +219,7 @@ $resWrite = dispatchJsonRpc($app, $validToken, [
         'arguments' => ['title' => 'Sneak write'],
     ],
 ]);
-$writeData = $resWrite['body']['data'] ?? $resWrite['body'];
-assertMcp(($writeData['error']['code'] ?? null) === -32602, '8.2 Write-shaped tool call (create_ticket) is rejected with -32602', $passes, $failures);
+assertMcp(($resWrite['body']['error']['code'] ?? null) === -32602, '8.2 Write-shaped tool call (create_ticket) is rejected with -32602', $passes, $failures);
 
 echo "\n=========================================\n";
 echo "MCP Test Results: {$passes} Passed, {$failures} Failed\n";

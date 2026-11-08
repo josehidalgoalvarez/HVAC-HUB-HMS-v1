@@ -19,7 +19,7 @@ use Throwable;
  *
  * Implements HVACHome MCP Server v1 (Read-Only).
  * Transport: Streamable HTTP over JSON-RPC 2.0.
- * Protocol specification: 2024-11-05 (latest standard).
+ * Protocol specification: 2024-11-05.
  *
  * Protected endpoint mounted at POST /api/mcp.
  * Guarded by Auth::requireRole() (Bearer token).
@@ -664,6 +664,8 @@ class McpController
 
     /**
      * Build JSON-RPC success response.
+     * Emits raw JSON-RPC 2.0 object ({jsonrpc: '2.0', id, result}) directly
+     * to satisfy strict MCP wire format specification (bypassing {data: ...} envelope).
      */
     private function jsonRpcResult(mixed $id, mixed $result): Response
     {
@@ -673,7 +675,9 @@ class McpController
             'result' => $result,
         ];
 
-        return Auth::jsonSuccess($payload);
+        $response = new \Slim\Psr7\Response();
+        $response->getBody()->write(json_encode($payload, JSON_UNESCAPED_SLASHES));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
 
     /**
