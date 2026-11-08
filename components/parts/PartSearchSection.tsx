@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { PartRecord, Stockpile, HarvestCandidate } from '../../types/domain';
+import { isVerifiedPart } from '../../utils/modelParts';
 
 interface PartSearchSectionProps {
   parts: PartRecord[];
@@ -494,6 +495,12 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                       <span className="px-2.5 py-1 text-sm font-mono font-black rounded-lg bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 tracking-wider">
                         {part.part_number || 'NO-PART-#'}
                       </span>
+                      {isVerifiedPart(part.part_number) && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800" title="Fitment-verified part: Part number and compatible model are locked">
+                          <span className="material-symbols-outlined text-[13px]">lock</span>
+                          <span>Verified part</span>
+                        </span>
+                      )}
                       {part.category && (
                         <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
                           {part.category}
@@ -530,9 +537,17 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                 {/* Compatible Models Badges */}
                 {part.compatible_models && part.compatible_models.length > 0 && (
                   <div className="space-y-1.5 pt-1">
-                    <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 block">
-                      Compatible Models ({part.compatible_models.length})
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 block">
+                        Compatible Models ({part.compatible_models.length})
+                      </span>
+                      {isVerifiedPart(part.part_number) && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                          <span className="material-symbols-outlined text-[13px]">lock</span>
+                          <span>Model locked</span>
+                        </span>
+                      )}
+                    </div>
                     <div className="flex flex-wrap gap-1.5">
                       {part.compatible_models.map((model, idx) => (
                         <span

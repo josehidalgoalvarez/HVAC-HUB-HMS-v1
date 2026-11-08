@@ -168,8 +168,12 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
                         {part.statusLabel}
                       </span>
                     </div>
-                    <div className="mt-1 text-xs font-mono text-primary font-bold">
-                      Part #: {part.partNumber}
+                    <div className="mt-1 text-xs font-mono text-primary font-bold flex items-center gap-1.5 flex-wrap">
+                      <span>Part #: {part.partNumber}</span>
+                      <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                        <span className="material-symbols-outlined text-[12px]">lock</span>
+                        <span>Locked</span>
+                      </span>
                     </div>
                     <div className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
                       Supplier: <span className="font-medium">{part.supplier}</span>

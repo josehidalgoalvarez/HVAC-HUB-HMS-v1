@@ -16,6 +16,39 @@ use Throwable;
 class Part
 {
     /**
+     * Verified parts whose part number and compatible model are fitment-verified
+     * and strictly locked against in-app modifications:
+     * 1. Askoll M376 drain pump (A16944601) -> FFCD2418US3A
+     * 2. Crisper drawer (240337103) -> FFHT1826LS9
+     * 3. Door shelf / door bin (240338101) -> FFHT1826LS9
+     * 4. Bimetal (JRQ-0062 / TCRGQ-02) -> HD663FWS
+     * 5. Bake element (WS01F11296) -> JCBS250SM1SS
+     */
+    public const VERIFIED_PART_NUMBERS = [
+        'A16944601',
+        '240337103',
+        '240338101',
+        'JRQ-0062 / TCRGQ-02',
+        'WS01F11296'
+    ];
+
+    /**
+     * Check if a part record or part number is fitment-verified.
+     */
+    public static function isVerifiedPart(?string $partNumber): bool
+    {
+        if ($partNumber === null) {
+            return false;
+        }
+        $trimmed = trim($partNumber);
+        foreach (self::VERIFIED_PART_NUMBERS as $vpn) {
+            if (strcasecmp($trimmed, $vpn) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
      * Find all parts with optional search query (by part number, model, name, or description).
      */
     public static function findAll(array $filters = []): array
@@ -204,6 +237,40 @@ class Part
         $current = self::findById($id);
         if ($current === null) {
             throw new RuntimeException("Part #{$id} not found");
+        }
+
+        // Lock enforcement on fitment-verified parts:
+        // part_number and compatible_models are strictly read-only on verified parts.
+        // Quantities, notes (description), and other fields remain fully editable.
+        $currentPartNumber = $current['part_number'] ?? null;
+        if (self::isVerifiedPart($currentPartNumber)) {
+            if (array_key_exists('part_number', $data)) {
+                $newPn = trim((string) $data['part_number']);
+                if (strcasecmp((string) $currentPartNumber, $newPn) !== 0) {
+                    throw new RuntimeException("Part number is locked on verified part #{$id} ({$currentPartNumber}).");
+                }
+            }
+
+            if (array_key_exists('compatible_models', $data)) {
+                $newModels = $data['compatible_models'];
+                if (is_string($newModels)) {
+                    $decoded = json_decode($newModels, true);
+                    $newModels = is_array($decoded) ? $decoded : [$newModels];
+                }
+                $currentModels = $current['compatible_models'] ?? [];
+                if (is_string($currentModels)) {
+                    $decoded = json_decode($currentModels, true);
+                    $currentModels = is_array($decoded) ? $decoded : [$currentModels];
+                }
+                $normalizeModels = function (array $m): array {
+                    $cleaned = array_map(fn($x) => strtolower(trim((string)$x)), $m);
+                    sort($cleaned);
+                    return array_values($cleaned);
+                };
+                if ($normalizeModels($newModels) !== $normalizeModels($currentModels)) {
+                    throw new RuntimeException("Compatible model is locked on verified part #{$id} ({$currentPartNumber}).");
+                }
+            }
         }
 
         $allowedFields = [

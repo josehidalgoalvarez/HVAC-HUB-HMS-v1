@@ -16,6 +16,28 @@
 import { Appliance } from '../types';
 import type { Part, StockpileAllocation } from '../types/domain';
 
+/**
+ * 5 fitment-verified parts whose part number + compatible model are proven:
+ * 1. Askoll M376 drain pump A16944601 -> FFCD2418US3A
+ * 2. Crisper drawer 240337103 -> FFHT1826LS9
+ * 3. Door shelf/bin 240338101 -> FFHT1826LS9
+ * 4. Bimetal JRQ-0062 / TCRGQ-02 -> HD663FWS
+ * 5. Bake element WS01F11296 -> JCBS250SM1SS
+ */
+export const VERIFIED_PART_NUMBERS = [
+  'A16944601',
+  '240337103',
+  '240338101',
+  'JRQ-0062 / TCRGQ-02',
+  'WS01F11296'
+] as const;
+
+export function isVerifiedPart(partNumber?: string | null): boolean {
+  if (!partNumber) return false;
+  const trimmed = partNumber.trim().toLowerCase();
+  return VERIFIED_PART_NUMBERS.some(vpn => vpn.toLowerCase() === trimmed);
+}
+
 export interface ModelPartStockAllocation {
   stockpileId: number;
   stockpileName: string;

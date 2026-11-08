@@ -3,6 +3,7 @@ import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { apiClient } from '../../src/api/client';
 import type { PartRecord, Stockpile } from '../../types/domain';
+import { isVerifiedPart } from '../../utils/modelParts';
 
 interface AddPartModalProps {
   isOpen: boolean;
@@ -135,9 +136,17 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
           {/* Part Number & Category */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-                Part Number / SKU
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                  Part Number / SKU
+                </label>
+                {isVerifiedPart(partNumber) && (
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                    <span className="material-symbols-outlined text-[12px]">lock</span>
+                    <span>Verified Part</span>
+                  </span>
+                )}
+              </div>
               <input
                 type="text"
                 value={partNumber}
@@ -145,6 +154,12 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
                 placeholder="e.g. WB24T10025"
                 className="w-full min-h-[44px] px-3 py-2 text-sm font-mono rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:border-primary"
               />
+              {isVerifiedPart(partNumber) && (
+                <p className="mt-1 text-[11px] text-amber-700 dark:text-amber-400 flex items-center gap-1 font-medium">
+                  <span className="material-symbols-outlined text-[13px]">info</span>
+                  Fitment-verified part. Part number and model will be locked against changes; stash quantities and notes stay editable.
+                </p>
+              )}
             </div>
 
             <div>
@@ -250,9 +265,17 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
 
           {/* Compatible Models */}
           <div>
-            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-              Compatible Models (comma-separated)
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                Compatible Models (comma-separated)
+              </label>
+              {isVerifiedPart(partNumber) && (
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                  <span className="material-symbols-outlined text-[12px]">lock</span>
+                  <span>Model Locked</span>
+                </span>
+              )}
+            </div>
             <input
               type="text"
               value={compatibleModels}
