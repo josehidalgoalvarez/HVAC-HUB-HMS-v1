@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Job, RunSheetBlock, Ticket } from '../../types/domain';
+import { useData } from '../../hooks/useData';
 import apiClient from '../../src/api/client';
 import { outbox } from '../../src/offline/outbox';
 import { JobCloseoutModal } from './JobCloseoutModal';
@@ -45,6 +46,37 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
   const blockId = block?.id || null;
   const buildingId = block?.building_id || ticket?.building_id || 1;
   const unitId = block?.unit_id || ticket?.unit_id || null;
+
+  const { units, getUnitAppliances } = useData();
+
+  // Selected appliance for this session/ticket
+  const [selectedApplianceId, setSelectedApplianceId] = useState<string | number | null>(
+    (ticket as any)?.appliance_id || null
+  );
+
+  const matchedUnit = useMemo(() => {
+    if (!unitId) return null;
+    return units.find(u => String(u.id) === String(unitId)) || null;
+  }, [units, unitId]);
+
+  const unitAppliances = useMemo(() => {
+    if (!matchedUnit) return [];
+    return getUnitAppliances(matchedUnit);
+  }, [matchedUnit, getUnitAppliances]);
+
+  const handleSelectAppliance = async (appId: string | number | null) => {
+    setSelectedApplianceId(appId);
+    if (ticketId) {
+      try {
+        await apiClient.updateTicket(ticketId, {
+          appliance_id: appId,
+          reason: appId ? `Linked appliance #${appId} to ticket` : 'Unlinked appliance from ticket'
+        });
+      } catch (err) {
+        console.warn('Could not update ticket appliance link:', err);
+      }
+    }
+  };
 
   useEffect(() => {
     initJobSession();
@@ -473,6 +505,54 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             Est {activeJob?.estimated_minutes || 45}m
           </span>
         </div>
+
+        {/* Appliance Picker: which appliance was this work on? */}
+        {unitAppliances.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800/80 space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <label className="font-bold text-text-sub-light dark:text-text-sub-dark flex items-center gap-1">
+                <span className="material-symbols-outlined text-sm text-primary">kitchen</span>
+                Which appliance was this work on?
+              </label>
+              {selectedApplianceId && (
+                <button
+                  type="button"
+                  onClick={() => handleSelectAppliance(null)}
+                  className="text-[11px] text-gray-400 hover:text-brand-red font-medium"
+                >
+                  Clear link
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {unitAppliances.map((app) => {
+                const isSelected = String(selectedApplianceId) === String(app.id);
+                return (
+                  <button
+                    key={app.id}
+                    type="button"
+                    onClick={() => handleSelectAppliance(isSelected ? null : app.id)}
+                    className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 border ${
+                      isSelected
+                        ? 'bg-primary text-white border-primary shadow-xs'
+                        : 'bg-gray-100 dark:bg-gray-800/80 hover:bg-gray-200 dark:hover:bg-gray-700 text-brand-black dark:text-gray-200 border-gray-200 dark:border-gray-700'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[14px]">
+                      {isSelected ? 'check_circle' : 'radio_button_unchecked'}
+                    </span>
+                    <span>{app.name || app.type}</span>
+                    {app.modelNumber && (
+                      <span className={`text-[10px] font-mono ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>
+                        ({app.modelNumber})
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 1. Quick Notes Section */}

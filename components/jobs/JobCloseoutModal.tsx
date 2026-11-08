@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Job, JobCloseoutPayload } from '../../types/domain';
+import { useData } from '../../hooks/useData';
 import apiClient from '../../src/api/client';
 import { outbox } from '../../src/offline/outbox';
 
@@ -34,6 +35,22 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
   const [newPartName, setNewPartName] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { units, getUnitAppliances } = useData();
+
+  const [selectedApplianceId, setSelectedApplianceId] = useState<string | number | null>(
+    job.appliance_id || null
+  );
+
+  const matchedUnit = useMemo(() => {
+    if (!job.unit_id) return null;
+    return units.find(u => String(u.id) === String(job.unit_id)) || null;
+  }, [units, job.unit_id]);
+
+  const unitAppliances = useMemo(() => {
+    if (!matchedUnit) return [];
+    return getUnitAppliances(matchedUnit);
+  }, [matchedUnit, getUnitAppliances]);
 
   const variance = actualMinutes - initialEst;
 
@@ -103,6 +120,12 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
 
     // Direct online API close
     try {
+      if (job.ticket_id && selectedApplianceId !== (job.appliance_id || null)) {
+        await apiClient.updateTicket(job.ticket_id, {
+          appliance_id: selectedApplianceId,
+          reason: selectedApplianceId ? `Linked appliance #${selectedApplianceId} at job closeout` : 'Unlinked appliance at closeout'
+        }).catch(() => {});
+      }
       const closed = await apiClient.closeJob(job.id, payload);
       onJobClosed(closed);
       onClose();
@@ -146,6 +169,54 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
             <div className="p-3 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 text-xs rounded-xl border border-red-200 dark:border-red-800 flex items-center gap-2">
               <span className="material-symbols-outlined text-sm">error</span>
               <span>{error}</span>
+            </div>
+          )}
+
+          {/* Appliance Picker: which appliance was this work on? */}
+          {unitAppliances.length > 0 && (
+            <div className="space-y-1.5 p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+              <div className="flex items-center justify-between text-xs">
+                <label className="font-bold text-text-sub-light dark:text-text-sub-dark flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[16px] text-primary">kitchen</span>
+                  Which appliance was this work on?
+                </label>
+                {selectedApplianceId && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedApplianceId(null)}
+                    className="text-[11px] text-gray-400 hover:text-brand-red font-medium"
+                  >
+                    Clear link
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {unitAppliances.map((app) => {
+                  const isSelected = String(selectedApplianceId) === String(app.id);
+                  return (
+                    <button
+                      key={app.id}
+                      type="button"
+                      onClick={() => setSelectedApplianceId(isSelected ? null : app.id)}
+                      className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 border ${
+                        isSelected
+                          ? 'bg-primary text-white border-primary shadow-xs'
+                          : 'bg-white dark:bg-gray-700/60 hover:bg-gray-100 dark:hover:bg-gray-700 text-brand-black dark:text-gray-200 border-gray-200 dark:border-gray-750'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[14px]">
+                        {isSelected ? 'check_circle' : 'radio_button_unchecked'}
+                      </span>
+                      <span>{app.name || app.type}</span>
+                      {app.modelNumber && (
+                        <span className={`text-[10px] font-mono ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>
+                          ({app.modelNumber})
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 

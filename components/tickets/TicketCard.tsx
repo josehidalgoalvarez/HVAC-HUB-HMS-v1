@@ -243,6 +243,15 @@ export const TicketCard: React.FC<TicketCardProps> = ({
             {ticket.title}
           </p>
         )}
+        {(ticket.appliance_name || ticket.applianceName) && (
+          <div className="pt-0.5 flex items-center gap-1.5 text-xs text-primary dark:text-sky-400 font-semibold">
+            <span className="material-symbols-outlined text-[15px] leading-none">kitchen</span>
+            <span>
+              {ticket.appliance_name || ticket.applianceName}
+              {(ticket.appliance_model || ticket.applianceModel) ? ` (${ticket.appliance_model || ticket.applianceModel})` : ''}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* 3. ISSUE SUMMARY IN 2-3 LINES WITH ONE-TAP EXPAND */}

@@ -48,6 +48,7 @@ class IntakeController
         $verifiedScope = !empty($body['verified_scope']) ? trim((string) $body['verified_scope']) : null;
         $woNumber = !empty($body['wo_number']) ? trim((string) $body['wo_number']) : null;
         $unitId = !empty($body['unit_id']) ? (int) $body['unit_id'] : null;
+        $applianceId = !empty($body['appliance_id']) ? (int) $body['appliance_id'] : null;
         $priority = !empty($body['priority']) ? (string) $body['priority'] : 'medium';
 
         // Auto-resolve building from text/aliases if not explicitly provided or defaulted
@@ -94,6 +95,7 @@ class IntakeController
             'parent_ticket_id' => !empty($body['parent_ticket_id']) ? (int) $body['parent_ticket_id'] : null,
             'building_id' => $buildingId,
             'unit_id' => $unitId,
+            'appliance_id' => $applianceId,
             'title' => $title,
             'description' => $body['description'] ?? $verbatimText,
             'verbatim_text' => $verbatimText,

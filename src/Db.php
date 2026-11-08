@@ -111,6 +111,7 @@ class Db
                 parent_ticket_id INTEGER NULL,
                 building_id INTEGER NOT NULL,
                 unit_id INTEGER NULL,
+                appliance_id INTEGER NULL,
                 title TEXT NOT NULL,
                 description TEXT NULL,
                 verbatim_text TEXT NULL,
@@ -622,6 +623,7 @@ class Db
         try { $pdo->exec("ALTER TABLE unit ADD COLUMN external_id TEXT NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE appliance ADD COLUMN external_id TEXT NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE ticket ADD COLUMN closed_by_party TEXT NULL"); } catch (\Throwable) {}
+        try { $pdo->exec("ALTER TABLE ticket ADD COLUMN appliance_id INTEGER NULL"); } catch (\Throwable) {}
         try { $pdo->exec("ALTER TABLE part_stockpile ADD COLUMN minimum INTEGER NOT NULL DEFAULT 1"); } catch (\Throwable) {}
 
         $pdo->exec("

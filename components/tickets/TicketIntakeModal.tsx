@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
+import { useData } from '../../hooks/useData';
 import { apiClient } from '../../src/api/client';
 import { compressImageToBlob } from '../../utils/imageUtils';
 import type { Ticket, TicketPriority } from '../../types/domain';
@@ -26,8 +27,21 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
   const [priority, setPriority] = useState<TicketPriority>('medium');
   const [buildingId, setBuildingId] = useState(defaultBuildingId);
   const [unitId, setUnitId] = useState(defaultUnitId);
+  const [applianceId, setApplianceId] = useState<string | number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { units, getUnitAppliances } = useData();
+
+  const matchedUnit = useMemo(() => {
+    if (!unitId) return null;
+    return units.find(u => String(u.id) === String(unitId)) || null;
+  }, [units, unitId]);
+
+  const unitAppliances = useMemo(() => {
+    if (!matchedUnit) return [];
+    return getUnitAppliances(matchedUnit);
+  }, [matchedUnit, getUnitAppliances]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -71,6 +85,9 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
       formData.append('building_id', buildingId || '1');
       if (unitId.trim()) {
         formData.append('unit_id', unitId.trim());
+      }
+      if (applianceId) {
+        formData.append('appliance_id', String(applianceId));
       }
 
       const created = await apiClient.intakeTicket(formData);
@@ -215,6 +232,54 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
             </select>
           </div>
         </div>
+
+        {/* Appliance Picker (if unit selected and has appliances) */}
+        {unitAppliances.length > 0 && (
+          <div className="space-y-1.5 p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+            <div className="flex items-center justify-between text-xs">
+              <label className="font-bold text-text-sub-light dark:text-text-sub-dark flex items-center gap-1">
+                <span className="material-symbols-outlined text-[16px] text-primary">kitchen</span>
+                Which appliance was this work on? (Optional)
+              </label>
+              {applianceId && (
+                <button
+                  type="button"
+                  onClick={() => setApplianceId(null)}
+                  className="text-[11px] text-gray-400 hover:text-brand-red font-medium"
+                >
+                  Clear link
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {unitAppliances.map((app) => {
+                const isSelected = String(applianceId) === String(app.id);
+                return (
+                  <button
+                    key={app.id}
+                    type="button"
+                    onClick={() => setApplianceId(isSelected ? null : app.id)}
+                    className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 border ${
+                      isSelected
+                        ? 'bg-primary text-white border-primary shadow-xs'
+                        : 'bg-white dark:bg-gray-700/60 hover:bg-gray-100 dark:hover:bg-gray-700 text-brand-black dark:text-gray-200 border-gray-200 dark:border-gray-750'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[14px]">
+                      {isSelected ? 'check_circle' : 'radio_button_unchecked'}
+                    </span>
+                    <span>{app.name || app.type}</span>
+                    {app.modelNumber && (
+                      <span className={`text-[10px] font-mono ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>
+                        ({app.modelNumber})
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">

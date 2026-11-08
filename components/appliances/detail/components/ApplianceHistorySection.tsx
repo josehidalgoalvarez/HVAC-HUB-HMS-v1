@@ -30,7 +30,7 @@ export interface ApplianceMovementRecord {
 
 export interface UnifiedApplianceHistoryEntry {
   id: string;
-  sourceLabel: 'Service Record' | 'Movement';
+  sourceLabel: 'Service Record' | 'Movement' | 'Ticket';
   dateDisplay: string;
   sortTime: number | null;
   title: string;
@@ -272,6 +272,42 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
       });
     });
 
+    // 3. Explicitly linked tickets (appliance_id matches this appliance)
+    if (numericApplianceId !== null) {
+      ticketsMap.forEach((t) => {
+        if (t.appliance_id !== undefined && t.appliance_id !== null && Number(t.appliance_id) === numericApplianceId) {
+          const rawDate = (t.created_at || '').trim();
+          const parsed = rawDate ? parseDate(rawDate) : null;
+          const dateStr = rawDate ? rawDate.slice(0, 10) : '';
+
+          const woPart = t.wo_number ? `WO #${t.wo_number}` : `Ticket #${t.id}`;
+          const title = `${woPart}: ${t.title || 'Work Order'}`;
+
+          const notesParts: string[] = [];
+          if (t.status) {
+            notesParts.push(`Status: ${t.status}`);
+          }
+          if (t.verified_scope && t.verified_scope.trim()) {
+            notesParts.push(t.verified_scope.trim());
+          } else if (t.description && t.description.trim()) {
+            notesParts.push(t.description.trim());
+          }
+
+          all.push({
+            id: `ticket-${t.id}`,
+            sourceLabel: 'Ticket',
+            dateDisplay: dateStr || rawDate,
+            sortTime: parsed ? parsed.getTime() : null,
+            title,
+            notes: notesParts.join(' — ') || 'Ticket logged for this appliance.',
+            actor: t.assigned_tech || undefined,
+            ticketId: Number(t.id),
+            ticketLabel: woPart,
+          });
+        }
+      });
+    }
+
     const dated = all
       .filter((e) => e.sortTime !== null && e.dateDisplay !== '')
       .sort((a, b) => (b.sortTime || 0) - (a.sortTime || 0));
@@ -279,7 +315,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
     const undated = all.filter((e) => e.sortTime === null || e.dateDisplay === '');
 
     return { datedEntries: dated, undatedEntries: undated };
-  }, [explicitMaintenanceRecords, movements, ticketsMap]);
+  }, [explicitMaintenanceRecords, movements, ticketsMap, numericApplianceId]);
 
   const hasAnyHistory = datedEntries.length > 0 || undatedEntries.length > 0;
 

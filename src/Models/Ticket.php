@@ -82,11 +82,15 @@ class Ticket
                        u.vacant_since AS unit_vacant_since,
                        (SELECT COUNT(*) FROM ticket_visit tv WHERE tv.unit_id = t.unit_id AND tv.outcome = 'failed_access') AS unit_failed_visits_count,
                        tech.name AS assigned_tech_name,
-                       (SELECT COUNT(*) FROM ticket c WHERE c.parent_ticket_id = t.id) AS children_count
+                       (SELECT COUNT(*) FROM ticket c WHERE c.parent_ticket_id = t.id) AS children_count,
+                       app.name AS appliance_name,
+                       app.brand AS appliance_brand,
+                       app.model_number AS appliance_model
                 FROM ticket t
                 LEFT JOIN building b ON t.building_id = b.id
                 LEFT JOIN unit u ON t.unit_id = u.id
                 LEFT JOIN users tech ON t.assigned_tech_id = tech.id
+                LEFT JOIN appliance app ON t.appliance_id = app.id
                 {$whereClause}
                 ORDER BY 
                     CASE 
@@ -131,11 +135,15 @@ class Ticket
                        u.occupancy_status AS unit_occupancy_status,
                        u.vacant_since AS unit_vacant_since,
                        (SELECT COUNT(*) FROM ticket_visit tv WHERE tv.unit_id = t.unit_id AND tv.outcome = 'failed_access') AS unit_failed_visits_count,
-                       tech.name AS assigned_tech_name
+                       tech.name AS assigned_tech_name,
+                       app.name AS appliance_name,
+                       app.brand AS appliance_brand,
+                       app.model_number AS appliance_model
                 FROM ticket t
                 LEFT JOIN building b ON t.building_id = b.id
                 LEFT JOIN unit u ON t.unit_id = u.id
                 LEFT JOIN users tech ON t.assigned_tech_id = tech.id
+                LEFT JOIN appliance app ON t.appliance_id = app.id
                 WHERE t.id = ?
                 LIMIT 1";
 
@@ -243,6 +251,13 @@ class Ticket
         $parentTicketId = !empty($data['parent_ticket_id']) ? (int) $data['parent_ticket_id'] : null;
         $buildingId = (int) ($data['building_id'] ?? 1);
         $unitId = !empty($data['unit_id']) ? (int) $data['unit_id'] : null;
+        $applianceId = !empty($data['appliance_id']) ? (int) $data['appliance_id'] : null;
+        if ($applianceId !== null) {
+            $appRow = Db::fetchOne('SELECT id, building_id, unit_id FROM appliance WHERE id = ?', [$applianceId]);
+            if (!$appRow) {
+                throw new RuntimeException("Appliance #{$applianceId} not found");
+            }
+        }
         $title = trim((string) ($data['title'] ?? 'Untitled Work Order'));
         $description = isset($data['description']) ? (string) $data['description'] : null;
         $verbatimText = isset($data['verbatim_text']) ? (string) $data['verbatim_text'] : null;
@@ -285,12 +300,12 @@ class Ticket
         $closedByParty = !empty($data['closed_by_party']) ? trim((string) $data['closed_by_party']) : null;
 
         $sql = 'INSERT INTO ticket (
-                    wo_number, parent_ticket_id, building_id, unit_id, 
+                    wo_number, parent_ticket_id, building_id, unit_id, appliance_id,
                     title, description, verbatim_text, verified_scope, photo_url,
                     status, priority, blocker_reason, blocked_reason, blocked_at, closed_by_party, last_seen_in_yardi,
                     created_by_user_id, assigned_tech_id, exterior_work, work_exposure, weather_note,
                     notice_needed, notice_sent_at, notice_confirmed_by, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
 
         $blockedAt = ($status === self::STATE_BLOCKED) ? gmdate('Y-m-d H:i:s') : null;
 
@@ -299,6 +314,7 @@ class Ticket
             $parentTicketId,
             $buildingId,
             $unitId,
+            $applianceId,
             $title,
             $description,
             $verbatimText,
@@ -432,6 +448,7 @@ class Ticket
             'parent_ticket_id',
             'building_id',
             'unit_id',
+            'appliance_id',
             'title',
             'description',
             'verbatim_text',
@@ -468,6 +485,17 @@ class Ticket
             // Normalize nulls and empty strings for string fields
             if ($field === 'wo_number' && $newVal === '') {
                 $newVal = null;
+            }
+            if ($field === 'appliance_id') {
+                if ($newVal === '' || $newVal === null || $newVal === 0 || $newVal === '0') {
+                    $newVal = null;
+                } else {
+                    $appRow = Db::fetchOne('SELECT id FROM appliance WHERE id = ?', [(int) $newVal]);
+                    if (!$appRow) {
+                        throw new RuntimeException("Appliance #{$newVal} not found");
+                    }
+                    $newVal = (int) $newVal;
+                }
             }
             if ($field === 'weather_note' && $newVal === '') {
                 $newVal = null;

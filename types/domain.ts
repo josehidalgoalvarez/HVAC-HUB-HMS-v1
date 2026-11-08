@@ -303,6 +303,14 @@ export interface Ticket {
   propertyId?: string | number;
   unitId?: string | null;
   unit_id?: string | number | null;
+  applianceId?: string | null;
+  appliance_id?: string | number | null;
+  applianceName?: string;
+  appliance_name?: string;
+  applianceBrand?: string;
+  appliance_brand?: string;
+  applianceModel?: string;
+  appliance_model?: string;
   buildingName?: string;
   building_name?: string;
   propertyName?: string;
@@ -373,6 +381,7 @@ export interface RunSheetBlock {
   building_address?: string | null;
   unit_id?: string | number | null;
   unit_number?: string | null;
+  appliance_id?: string | number | null;
   sort_order: number;
   status: BlockStatus;
   start_time?: string | null;
@@ -728,6 +737,9 @@ export interface Job {
   run_sheet_block_id?: number | null;
   building_id?: number | null;
   unit_id?: number | null;
+  appliance_id?: number | null;
+  appliance_name?: string | null;
+  appliance_model?: string | null;
   tech_id?: number | null;
   title: string;
   status: JobStatus;

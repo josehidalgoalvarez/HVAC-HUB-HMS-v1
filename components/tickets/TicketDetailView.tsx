@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { apiClient } from '../../src/api/client';
+import { useData } from '../../hooks/useData';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import type {
@@ -93,6 +94,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   const [exposureFeedback, setExposureFeedback] = useState<string | null>(null);
 
   // Edit Modal State
+  const { units, getUnitAppliances } = useData();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editWoNumber, setEditWoNumber] = useState('');
@@ -102,6 +104,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   const [editScope, setEditScope] = useState('');
   const [editBlocker, setEditBlocker] = useState('');
   const [editExposure, setEditExposure] = useState<'indoor' | 'exterior' | 'exterior_ladder'>('indoor');
+  const [editApplianceId, setEditApplianceId] = useState<string | number | null>(null);
   const [editReason, setEditReason] = useState('');
   const [editSaving, setEditSaving] = useState(false);
 
@@ -435,6 +438,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     setEditScope(ticket.verified_scope || '');
     setEditBlocker(ticket.blocked_reason || ticket.blocker_reason || '');
     setEditExposure((ticket.work_exposure || (ticket.exterior_work ? 'exterior' : 'indoor')) as 'indoor' | 'exterior' | 'exterior_ladder');
+    setEditApplianceId(ticket.appliance_id ?? null);
     setEditReason('');
     setIsEditModalOpen(true);
   };
@@ -484,6 +488,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         blocked_reason: editState === 'blocked' ? editBlocker.trim() : null,
         work_exposure: editExposure,
         exterior_work: editExposure !== 'indoor',
+        appliance_id: editApplianceId,
         reason: editReason.trim() || 'Updated ticket details',
       };
 
@@ -586,6 +591,28 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     );
   }
 
+  const matchedUnit = useMemo(() => {
+    if (!ticket) return null;
+    const uId = ticket.unit_id || ticket.unitId;
+    if (uId) {
+      const byId = units.find(u => String(u.id) === String(uId));
+      if (byId) return byId;
+    }
+    const bName = ticket.buildingName || ticket.building_name || ticket.propertyName || '';
+    const uNum = ticket.unitNumber || ticket.unit_number;
+    if (bName && uNum) {
+      return units.find(u =>
+        (u.unitNumber?.toLowerCase() === String(uNum).toLowerCase() || u.unit_number?.toLowerCase() === String(uNum).toLowerCase()) &&
+        (u.buildingName?.toLowerCase().includes(bName.toLowerCase()) || bName.toLowerCase().includes(u.buildingName?.toLowerCase() || ''))
+      ) || null;
+    }
+    return null;
+  }, [units, ticket]);
+
+  const unitAppliances = useMemo(() => {
+    if (!matchedUnit) return [];
+    return getUnitAppliances(matchedUnit);
+  }, [matchedUnit, getUnitAppliances]);
   const rollup = ticket.childrenRollup || (ticket as any).rollup;
   const children = ticket.children || [];
   const building = ticket.buildingName || ticket.building_name || ticket.propertyName || '';
@@ -651,6 +678,15 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 )}
               </span>
             ))}
+            {(ticket.appliance_name || ticket.appliance_model || ticket.appliance_id) && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-blue-100 text-blue-900 border border-blue-200 dark:bg-blue-950/80 dark:text-blue-200 dark:border-blue-800">
+                <span className="material-symbols-outlined text-[11px] leading-none text-blue-600 dark:text-blue-400">kitchen</span>
+                <span>
+                  {ticket.appliance_name || 'Appliance'}
+                  {ticket.appliance_model ? ` (${ticket.appliance_model})` : ''}
+                </span>
+              </span>
+            )}
           </div>
           <h1 className="text-base font-bold text-brand-black dark:text-white truncate">
             {ticket.title}
@@ -2085,6 +2121,49 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 </button>
               </div>
             </div>
+
+            {/* Appliance Selector in Edit Modal */}
+            {unitAppliances.length > 0 && (
+              <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 space-y-2">
+                <label className="block text-xs font-bold uppercase text-gray-600 dark:text-gray-300">
+                  Target Appliance
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setEditApplianceId(null)}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                      editApplianceId === null
+                        ? 'bg-brand-black text-white dark:bg-white dark:text-brand-black border-transparent font-bold'
+                        : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-gray-400'
+                    }`}
+                  >
+                    None / General
+                  </button>
+                  {unitAppliances.map((app) => {
+                    const isSelected = editApplianceId !== null && String(editApplianceId) === String(app.id);
+                    return (
+                      <button
+                        key={app.id}
+                        type="button"
+                        onClick={() => setEditApplianceId(isSelected ? null : app.id)}
+                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                          isSelected
+                            ? 'bg-blue-600 text-white border-blue-600 font-bold shadow-xs'
+                            : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-600 hover:border-blue-400'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[13px]">kitchen</span>
+                        <span>{app.name || app.type}</span>
+                        {app.modelNumber && (
+                          <span className="font-mono text-[10px] opacity-80">({app.modelNumber})</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* MANDATORY REASON FOR EDIT */}
             <div className="pt-2 border-t border-gray-100 dark:border-gray-800">

@@ -954,7 +954,7 @@ export const RESIDENTIAL_PROPERTIES: Property[] = [
         address: '630 Princess St, Kingston, ON',
         imageUrl: '/uploads/photo_cdde6e8442e952e7c538.jpg',
         applianceCount: 0,
-        comments: 'Under construction (Oct 2026); standalone property far down Princess; roster as listed in Yardi.',
+        comments: 'Under construction (Oct 2026); Princess complex (moved Nov 2026); roster as listed in Yardi.',
         definedRooms: [],
         floors: ['First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor', 'Fifth Floor'],
         provenance: 'verified' as const
