@@ -121,6 +121,10 @@ class Routes
                 ]);
             })->add(Auth::requireRole());
 
+            // --- MCP Server v1 (Read-Only) ---
+            $group->post('/mcp', [\App\Controllers\McpController::class, 'handle'])
+                ->add(Auth::requireRole());
+
             // --- Ticket Domain Endpoints ---
             // GET /api/tickets (prioritized: safety first -> closable today -> rest)
             $group->get('/tickets', [TicketController::class, 'index']);
