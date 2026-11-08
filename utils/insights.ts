@@ -88,12 +88,12 @@ export interface InsightInput {
 }
 
 /**
- * Identify test fixture tickets (e.g. WO-E2E-101/102/201/301/302, WO-E2E-SW1/SW2/SW3).
+ * Identify test fixture tickets (e.g. WO-E2E-*, WO-INTAKE-202).
  * Test fixtures must never pollute analytical patterns or appear in evidence citations.
  */
 export function isFixtureTicket(t: Ticket): boolean {
   const wo = (t.wo_number ?? (t as any).woNumber ?? '').trim().toUpperCase();
-  return wo.startsWith('WO-E2E');
+  return wo.startsWith('WO-E2E') || wo === 'WO-INTAKE-202';
 }
 
 const ticketCreated = (t: Ticket): string | null =>

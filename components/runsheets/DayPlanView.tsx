@@ -36,6 +36,8 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
   const [isRemoving, setIsRemoving] = useState(false);
   const [showDeleteShellModal, setShowDeleteShellModal] = useState(false);
   const [isDeletingShell, setIsDeletingShell] = useState(false);
+  const [showClearPlanModal, setShowClearPlanModal] = useState(false);
+  const [isClearingPlan, setIsClearingPlan] = useState(false);
 
   const loadDayPlan = async (date: string) => {
     const cacheKey = `runsheet_${date}`;
@@ -128,6 +130,37 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
   };
 
   const isEmptyShell = !!(activeRunSheet && (!activeRunSheet.blocks || activeRunSheet.blocks.length === 0));
+  const hasBlocks = !!(activeRunSheet && activeRunSheet.blocks && activeRunSheet.blocks.length > 0);
+  const blockCount = activeRunSheet?.blocks?.length || 0;
+
+  const handleConfirmClearPlan = async () => {
+    if (!activeRunSheet || !activeRunSheet.blocks || activeRunSheet.blocks.length === 0) return;
+    setIsClearingPlan(true);
+    setError(null);
+
+    try {
+      const runSheetId = activeRunSheet.id;
+      // Delete all blocks sequentially
+      for (const block of activeRunSheet.blocks) {
+        await apiClient.deleteRunSheetBlock(runSheetId, block.id);
+      }
+
+      const cacheKey = `runsheet_${currentDate}`;
+      const detailed = await apiClient.getRunSheet(runSheetId);
+      setActiveRunSheet(detailed);
+      await appCache.set(cacheKey, detailed);
+
+      setShowClearPlanModal(false);
+      setFeedbackMessage(`Cleared all jobs from ${currentDate} plan`);
+      setTimeout(() => setFeedbackMessage(null), 3000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to clear day plan';
+      setError(msg);
+      setShowClearPlanModal(false);
+    } finally {
+      setIsClearingPlan(false);
+    }
+  };
 
   const handleConfirmDeleteShell = async () => {
     if (!activeRunSheet || !isEmptyShell) return;
@@ -205,6 +238,16 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {hasBlocks && (
+            <Button
+              variant="danger"
+              onClick={() => setShowClearPlanModal(true)}
+              className="py-2 px-3 text-xs shadow-xs shrink-0 flex items-center gap-1 min-h-[44px]"
+              icon="clear_all"
+            >
+              Clear Plan
+            </Button>
+          )}
           {isEmptyShell && (
             <Button
               variant="danger"
@@ -426,19 +469,19 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
 
                   {/* Row 2: Title & Ticket Link */}
                   <div className="mt-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       {block.ticket_id ? (
                         <button
                           onClick={() => onOpenTicket?.(String(block.ticket_id))}
-                          className="px-2 py-0.5 text-xs font-mono font-bold bg-primary/10 text-primary rounded-lg border border-primary/20 hover:bg-primary/20 flex items-center gap-1"
+                          className="px-2 py-0.5 text-xs font-mono font-bold bg-primary/10 text-primary rounded-lg border border-primary/20 hover:bg-primary/20 flex items-center gap-1 shrink-0"
                         >
                           <span className="material-symbols-outlined text-[12px]">link</span>
                           {block.wo_number || `WO #${block.ticket_id}`}
                         </button>
                       ) : (
-                        <span className="text-xs text-gray-400 font-mono">Site Task</span>
+                        <span className="text-xs text-gray-400 font-mono shrink-0">Site Task</span>
                       )}
-                      <h3 className="text-sm font-bold text-brand-black dark:text-white truncate">
+                      <h3 className="text-sm font-bold text-brand-black dark:text-white truncate flex-1 min-w-[140px]">
                         {block.title}
                       </h3>
                     </div>
@@ -585,6 +628,48 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
           onClose={() => setClosingBlock(null)}
           onSuccess={handleBlockUpdated}
         />
+      )}
+
+      {/* Clear Whole Plan Confirmation Modal */}
+      {showClearPlanModal && hasBlocks && (
+        <Modal onClose={() => !isClearingPlan && setShowClearPlanModal(false)} className="max-w-sm">
+          <div className="flex flex-col items-center text-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-brand-red mb-1">
+              <span className="material-symbols-outlined text-[32px]">clear_all</span>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-brand-black dark:text-white">
+                Clear all jobs from plan?
+              </h3>
+              <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-2">
+                This will remove all <span className="font-bold text-brand-black dark:text-white">{blockCount} job{blockCount === 1 ? '' : 's'}</span> from the Day Plan for <span className="font-mono font-bold text-brand-black dark:text-white">{currentDate}</span>.
+              </p>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-2">
+                The tickets themselves are untouched — they will remain open and selectable for future plans. Any work logged stays recorded on the tickets.
+              </p>
+            </div>
+            <div className="flex gap-3 w-full mt-2">
+              <Button
+                onClick={() => setShowClearPlanModal(false)}
+                variant="secondary"
+                disabled={isClearingPlan}
+                fullWidth
+                className="min-h-[44px]"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmClearPlan}
+                variant="danger"
+                disabled={isClearingPlan}
+                fullWidth
+                className="min-h-[44px]"
+              >
+                {isClearingPlan ? 'Clearing...' : 'Clear All Jobs'}
+              </Button>
+            </div>
+          </div>
+        </Modal>
       )}
 
       {/* Delete Empty Shell Confirmation Modal */}

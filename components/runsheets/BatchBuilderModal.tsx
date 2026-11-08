@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { apiClient } from '../../src/api/client';
+import { isFixtureTicket } from '../../utils/insights';
 import type { Ticket, RunSheetBlock, BatchSuggestionResult, RunSheet } from '../../types/domain';
 
 interface BatchBuilderModalProps {
@@ -40,9 +41,13 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
       setLoadingTickets(true);
       setError(null);
       const data = await apiClient.getTickets();
-      // Filter to actionable open/verified/in-progress tickets
+      // Filter to actionable open/verified/in-progress tickets and exclude test fixtures
       const actionable = (data || []).filter(
-        (t) => t.status !== 'closed' && t.status !== 'closed-elsewhere' && t.status !== 'done'
+        (t) =>
+          t.status !== 'closed' &&
+          t.status !== 'closed-elsewhere' &&
+          t.status !== 'done' &&
+          !isFixtureTicket(t)
       );
       setTickets(actionable);
       // Pre-select all by default
@@ -233,8 +238,8 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                         className="w-4 h-4 rounded text-primary border-gray-300"
                       />
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-primary">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                          <span className="font-mono text-xs font-bold text-primary shrink-0">
                             {t.wo_number || `WO #${t.id}`}
                           </span>
                           <span className="text-[11px] font-semibold text-gray-500 truncate">

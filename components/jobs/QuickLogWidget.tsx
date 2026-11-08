@@ -37,6 +37,15 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
     outboxId?: string;
   } | null>(null);
 
+  // Correcting modal state
+  const [correctingEntry, setCorrectingEntry] = useState<{
+    type: 'note' | 'part';
+    id: number | string;
+    text: string;
+  } | null>(null);
+  const [correctionInput, setCorrectionInput] = useState<string>('');
+  const [isCorrecting, setIsCorrecting] = useState<boolean>(false);
+
   // Pre-filled context derived from block or ticket
   const siteName = block?.building_name || (ticket as any)?.building_name || 'Active Site';
   const unitNumber = block?.unit_number || (ticket as any)?.unit_number || 'Unit';
@@ -348,6 +357,57 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
     }
   };
 
+  const handleOpenCorrect = (type: 'note' | 'part', id: number | string, currentText: string) => {
+    setCorrectingEntry({ type, id, text: currentText });
+    setCorrectionInput('');
+  };
+
+  const handleApplyCorrection = async () => {
+    if (!correctingEntry || !activeJob || !correctionInput.trim()) return;
+    setIsCorrecting(true);
+
+    const { type, id, text } = correctingEntry;
+    const correctionText = correctionInput.trim();
+
+    if (type === 'note') {
+      const appendedNote = `[CORRECTION to Note #${id} "${text}"]: ${correctionText}`;
+      await handleAddNote(appendedNote);
+      // Mark original note as corrected in local state
+      setActiveJob((prev) => {
+        if (!prev || !prev.notes_list) return prev;
+        return {
+          ...prev,
+          notes_list: prev.notes_list.map((n) =>
+            String(n.id) === String(id)
+              ? { ...n, is_corrected: true, note_text: `${n.note_text} (Superseded by correction)` }
+              : n
+          ),
+        };
+      });
+      flashMessage('Appended superseding correction note', 'success');
+    } else if (type === 'part') {
+      const appendedPart = `Correction for ${text}: ${correctionText}`;
+      await handleAddPart(appendedPart);
+      // Mark original part as corrected in local state
+      setActiveJob((prev) => {
+        if (!prev || !prev.parts_used) return prev;
+        return {
+          ...prev,
+          parts_used: prev.parts_used.map((p) =>
+            String(p.id) === String(id)
+              ? { ...p, is_corrected: true, part_name: `${p.part_name} (Superseded)` }
+              : p
+          ),
+        };
+      });
+      flashMessage('Appended superseding part entry', 'success');
+    }
+
+    setIsCorrecting(false);
+    setCorrectingEntry(null);
+    setCorrectionInput('');
+  };
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !activeJob) return;
@@ -605,6 +665,42 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             Add
           </button>
         </div>
+
+        {/* Logged Notes List with Correct Action */}
+        {activeJob?.notes_list && activeJob.notes_list.length > 0 && (
+          <div className="space-y-1.5 pt-2 border-t border-gray-100 dark:border-gray-800">
+            {activeJob.notes_list.map((n, idx) => (
+              <div
+                key={n.id || idx}
+                className={`flex items-start justify-between gap-2 px-3 py-2 rounded-xl text-xs border ${
+                  (n as any).is_corrected
+                    ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/40 text-gray-500'
+                    : 'bg-gray-50 dark:bg-gray-800/60 border-gray-100 dark:border-gray-800 text-brand-black dark:text-white'
+                }`}
+              >
+                <div className="flex-1 min-w-0">
+                  <span className="font-medium break-words leading-relaxed">{n.note_text}</span>
+                  {n.created_at && (
+                    <span className="text-[10px] text-gray-400 block mt-0.5 font-mono">
+                      {n.created_at.slice(11, 16) || n.created_at}
+                    </span>
+                  )}
+                </div>
+                {!(n as any).is_corrected && (
+                  <button
+                    type="button"
+                    onClick={() => handleOpenCorrect('note', n.id || idx, n.note_text)}
+                    className="px-2 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 rounded-lg shrink-0 flex items-center gap-0.5"
+                    title="Correct this entry"
+                  >
+                    <span className="material-symbols-outlined text-[13px]">edit_note</span>
+                    Correct
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 2. Quick Parts Consumed Section */}
@@ -648,21 +744,38 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
           <div className="space-y-1.5 pt-2 border-t border-gray-100 dark:border-gray-800">
             {activeJob.parts_used.map((p, idx) => (
               <div
-                key={idx}
-                className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-800/60 rounded-xl text-xs border border-gray-100 dark:border-gray-800"
+                key={p.id || idx}
+                className={`flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs border ${
+                  (p as any).is_corrected
+                    ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/40 text-gray-500'
+                    : 'bg-gray-50 dark:bg-gray-800/60 border-gray-100 dark:border-gray-800 text-brand-black dark:text-white'
+                }`}
               >
-                <span className="font-semibold text-brand-black dark:text-white">
+                <span className="font-semibold break-words flex-1 min-w-0">
                   {p.quantity} {p.unit || 'pcs'} • {p.part_name}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => handleRemovePart(p.id, p.part_name)}
-                  className="text-red-500 hover:text-red-700 w-6 h-6 flex items-center justify-center active:scale-95 transition-all"
-                  title="Remove part"
-                  aria-label="Remove part"
-                >
-                  <span className="material-symbols-outlined text-sm">delete</span>
-                </button>
+                <div className="flex items-center gap-1 shrink-0">
+                  {!(p as any).is_corrected && (
+                    <button
+                      type="button"
+                      onClick={() => handleOpenCorrect('part', p.id || idx, p.part_name)}
+                      className="px-2 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 rounded-lg flex items-center gap-0.5"
+                      title="Correct this entry"
+                    >
+                      <span className="material-symbols-outlined text-[13px]">edit_note</span>
+                      Correct
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePart(p.id, p.part_name)}
+                    className="text-red-500 hover:text-red-700 w-6 h-6 flex items-center justify-center active:scale-95 transition-all"
+                    title="Remove part"
+                    aria-label="Remove part"
+                  >
+                    <span className="material-symbols-outlined text-sm">delete</span>
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -734,6 +847,67 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             }, 1000);
           }}
         />
+      )}
+
+      {/* Correcting Entry Modal (Append-Only) */}
+      {correctingEntry && (
+        <Modal onClose={() => !isCorrecting && setCorrectingEntry(null)} className="max-w-sm">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2 text-brand-black dark:text-white">
+              <span className="material-symbols-outlined text-amber-500 text-xl">edit_note</span>
+              <h3 className="text-base font-bold">
+                Correct {correctingEntry.type === 'note' ? 'Field Note' : 'Part Record'}
+              </h3>
+            </div>
+
+            <div className="p-3 bg-gray-50 dark:bg-gray-800/60 rounded-xl text-xs space-y-1 border border-gray-100 dark:border-gray-800">
+              <span className="text-[10px] uppercase font-bold text-gray-400 block">Original Entry</span>
+              <p className="font-medium text-brand-black dark:text-white break-words">
+                "{correctingEntry.text}"
+              </p>
+              <p className="text-[10px] text-gray-400 italic">
+                The original entry is permanently preserved in history. This correction will append a superseding record.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                Correction / Superseding Details
+              </label>
+              <textarea
+                rows={3}
+                required
+                value={correctionInput}
+                onChange={(e) => setCorrectionInput(e.target.value)}
+                placeholder={
+                  correctingEntry.type === 'note'
+                    ? 'e.g. Capacitor tested 42.5 uF, within tolerance; original note was typo.'
+                    : 'e.g. Corrected part quantity: used 2x 3/4in couplings instead of 1x.'
+                }
+                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark focus:border-primary"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <Button
+                variant="secondary"
+                disabled={isCorrecting}
+                onClick={() => setCorrectingEntry(null)}
+                className="flex-1 py-2 text-xs"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                disabled={isCorrecting || !correctionInput.trim()}
+                onClick={handleApplyCorrection}
+                className="flex-1 py-2 text-xs"
+              >
+                {isCorrecting ? 'Appending...' : 'Append Correction'}
+              </Button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   );
