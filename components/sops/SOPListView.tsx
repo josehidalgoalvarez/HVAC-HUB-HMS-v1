@@ -158,22 +158,22 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300">
+                        <span className="px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300">
                           {sop.category}
                         </span>
                         {isShell && (
-                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                          <span className="px-2 py-0.5 text-xs font-bold rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                             TODO-verify Shell
                           </span>
                         )}
                         {sop.two_person && (
-                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 flex items-center gap-1">
+                          <span className="px-2 py-0.5 text-xs font-bold rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 flex items-center gap-1">
                             <span aria-hidden="true" className="material-symbols-outlined text-[13px]">group</span>
                             2-Person
                           </span>
                         )}
                         {sop.weather_exposure && (
-                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 capitalize">
+                          <span className="px-2 py-0.5 text-xs font-bold rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 capitalize">
                             {sop.weather_exposure.replace('_', ' ')}
                           </span>
                         )}
@@ -200,7 +200,7 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
                       {sop.compliance_gates.map((g) => (
                         <span
                           key={g.id}
-                          className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-primary/10 text-primary border border-primary/20 flex items-center gap-1"
+                          className="px-2 py-0.5 text-xs font-bold rounded-md bg-primary/10 text-primary border border-primary/20 flex items-center gap-1"
                           title={`${g.reference}: ${g.requirement}`}
                         >
                           <span aria-hidden="true" className="material-symbols-outlined text-[13px]">verified</span>
@@ -264,7 +264,7 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
                             </span>
                             <div className="flex-1 min-w-0">
                               <p className="text-brand-black dark:text-gray-200 leading-snug">{st.instruction}</p>
-                              <div className="mt-1 flex items-center gap-2 text-[10px] text-gray-400">
+                              <div className="mt-1 flex items-center gap-2 text-xs text-gray-400">
                                 {st.est_minutes ? (
                                   <span>Est: {st.est_minutes} min</span>
                                 ) : (

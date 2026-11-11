@@ -27,13 +27,13 @@ export const ActivityLogSection: React.FC<ActivityLogSectionProps> = ({ logs }) 
                                         <p className="text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase">
                                             {(log.action || '').replace('_', ' ')}
                                         </p>
-                                        <p className="text-[10px] text-gray-400">
+                                        <p className="text-xs text-gray-400">
                                             {formatDateTime(log.timestamp)}
                                         </p>
                                     </div>
                                     <p className="text-sm font-medium text-brand-black dark:text-white truncate">{log.entityName}</p>
                                     <p className="text-xs text-text-sub-light dark:text-text-sub-dark">{log.details}</p>
-                                    <p className="text-[10px] text-gray-400 mt-1">User: {log.user}</p>
+                                    <p className="text-xs text-gray-400 mt-1">User: {log.user}</p>
                                 </div>
                             </div>
                         ))}

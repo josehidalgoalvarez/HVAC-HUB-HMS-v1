@@ -372,7 +372,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
                       <span className="text-xs font-bold text-primary uppercase tracking-wider">
                         {entry.dateDisplay}
                       </span>
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-primary/10 text-primary">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-primary/10 text-primary">
                         {entry.sourceLabel}
                       </span>
                       {entry.ticketId && entry.ticketLabel && onOpenTicket ? (
@@ -428,7 +428,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
                       <span className="text-xs font-bold text-brand-black dark:text-white">
                         {entry.title}
                       </span>
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark">
                         Undated · {entry.sourceLabel}
                       </span>
                     </div>

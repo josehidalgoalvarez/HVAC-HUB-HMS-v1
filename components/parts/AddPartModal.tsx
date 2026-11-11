@@ -141,7 +141,7 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
                   Part Number / SKU
                 </label>
                 {isVerifiedPart(partNumber) && (
-                  <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                  <span className="inline-flex items-center gap-0.5 text-xs font-bold text-amber-600 dark:text-amber-400">
                     <span aria-hidden="true" className="material-symbols-outlined text-[12px]">lock</span>
                     <span>Verified Part</span>
                   </span>
@@ -270,7 +270,7 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
                 Compatible Models (comma-separated)
               </label>
               {isVerifiedPart(partNumber) && (
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                <span className="inline-flex items-center gap-0.5 text-xs font-bold text-amber-600 dark:text-amber-400">
                   <span aria-hidden="true" className="material-symbols-outlined text-[12px]">lock</span>
                   <span>Model Locked</span>
                 </span>

@@ -83,27 +83,27 @@ const PropertyLandingView: React.FC<PropertyLandingViewProps> = ({
 
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-white dark:bg-card-dark rounded-2xl p-3 flex flex-col items-center justify-center shadow-sm border border-gray-100 dark:border-gray-800">
-            <span className="text-[10px] font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-1">Square Feet</span>
+            <span className="text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-1">Square Feet</span>
             <div className="flex items-baseline gap-1">
               <span className={`text-lg font-bold ${property.sqFt ? 'text-brand-black dark:text-white' : 'text-gray-300 dark:text-gray-600'}`}>
                 {property.sqFt || '-'}
               </span>
-              <span className="text-[10px] text-gray-400">sq ft</span>
+              <span className="text-xs text-gray-400">sq ft</span>
             </div>
           </div>
           <div className="bg-white dark:bg-card-dark rounded-2xl p-3 flex flex-col items-center justify-center shadow-sm border border-gray-100 dark:border-gray-800">
-            <span className="text-[10px] font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-1">Year Built</span>
+            <span className="text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-1">Year Built</span>
             <span className={`text-lg font-bold ${property.yearBuilt ? 'text-brand-black dark:text-white' : 'text-gray-300 dark:text-gray-600'}`}>
               {property.yearBuilt || '-'}
             </span>
           </div>
           <div className="bg-white dark:bg-card-dark rounded-2xl p-3 flex flex-col items-center justify-center shadow-sm border border-gray-100 dark:border-gray-800">
-            <span className="text-[10px] font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-1">Lot Size</span>
+            <span className="text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-1">Lot Size</span>
             <div className="flex items-baseline gap-1">
               <span className={`text-lg font-bold ${property.lotSize ? 'text-brand-black dark:text-white' : 'text-gray-300 dark:text-gray-600'}`}>
                 {property.lotSize || '-'}
               </span>
-              <span className="text-[10px] text-gray-400">acres</span>
+              <span className="text-xs text-gray-400">acres</span>
             </div>
           </div>
         </div>

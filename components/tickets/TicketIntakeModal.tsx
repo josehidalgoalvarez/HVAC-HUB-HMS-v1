@@ -158,7 +158,7 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
               <div className="flex flex-col items-center justify-center gap-1 py-3 text-text-sub-light dark:text-text-sub-dark">
                 <span aria-hidden="true" className="material-symbols-outlined text-3xl text-primary">add_a_photo</span>
                 <span className="text-xs font-medium">Tap to snap camera or select screenshot</span>
-                <span className="text-[10px] text-gray-400">JPEG/PNG auto-compressed</span>
+                <span className="text-xs text-gray-400">JPEG/PNG auto-compressed</span>
               </div>
             )}
             <input
@@ -270,7 +270,7 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
                     </span>
                     <span>{app.name || app.type}</span>
                     {app.modelNumber && (
-                      <span className={`text-[10px] font-mono ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>
+                      <span className={`text-xs font-mono ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>
                         ({app.modelNumber})
                       </span>
                     )}

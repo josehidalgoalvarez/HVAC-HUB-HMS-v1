@@ -158,11 +158,11 @@ export const OfflineStatusBadge: React.FC = () => {
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="px-2 py-0.5 rounded font-mono font-bold uppercase text-[10px] bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                        <span className="px-2 py-0.5 rounded font-mono font-bold uppercase text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
                           {item.type}
                         </span>
                         <span
-                          className={`px-2 py-0.5 rounded font-bold uppercase text-[10px] ${
+                          className={`px-2 py-0.5 rounded font-bold uppercase text-xs ${
                             item.status === 'unsupported'
                               ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
                               : item.status === 'failed'
@@ -181,13 +181,13 @@ export const OfflineStatusBadge: React.FC = () => {
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => handleDiscardItem(item.id)}
-                              className="px-2 py-0.5 bg-red-600 text-white rounded text-[10px] font-bold hover:bg-red-700"
+                              className="px-2 py-0.5 bg-red-600 text-white rounded text-xs font-bold hover:bg-red-700"
                             >
                               Confirm
                             </button>
                             <button
                               onClick={() => setConfirmDiscardId(null)}
-                              className="px-1.5 py-0.5 bg-gray-200 text-gray-700 rounded text-[10px] hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300"
+                              className="px-1.5 py-0.5 bg-gray-200 text-gray-700 rounded text-xs hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300"
                             >
                               Cancel
                             </button>

@@ -134,7 +134,7 @@ export const EquipmentMovementSection: React.FC<EquipmentMovementSectionProps> =
             </h4>
           </div>
           <span
-            className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
+            className={`px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider border ${
               statusBadgeClasses[equipment.status] || statusBadgeClasses.unknown
             }`}
             data-testid="equipment-current-status"
@@ -145,7 +145,7 @@ export const EquipmentMovementSection: React.FC<EquipmentMovementSectionProps> =
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
           <div className="p-2.5 rounded-lg bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+            <div className="text-xs font-bold uppercase tracking-wider text-gray-400">
               Current Location
             </div>
             <div
@@ -157,7 +157,7 @@ export const EquipmentMovementSection: React.FC<EquipmentMovementSectionProps> =
           </div>
 
           <div className="p-2.5 rounded-lg bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+            <div className="text-xs font-bold uppercase tracking-wider text-gray-400">
               Category
             </div>
             <div className="text-sm font-bold text-brand-black dark:text-white mt-0.5">
@@ -210,11 +210,11 @@ export const EquipmentMovementSection: React.FC<EquipmentMovementSectionProps> =
                       <span className="text-xs font-bold text-primary uppercase tracking-wider">
                         {entry.dateDisplay}
                       </span>
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-primary/10 text-primary">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-primary/10 text-primary">
                         {entry.sourceLabel}
                       </span>
                       {entry.ticketReference && (
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark">
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark">
                           {entry.ticketReference}
                         </span>
                       )}
@@ -245,7 +245,7 @@ export const EquipmentMovementSection: React.FC<EquipmentMovementSectionProps> =
                     className="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-card-dark space-y-1"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-primary/10 text-primary">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-primary/10 text-primary">
                         {entry.sourceLabel}
                       </span>
                       <h5 className="text-sm font-bold text-brand-black dark:text-white">

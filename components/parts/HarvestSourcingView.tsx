@@ -287,7 +287,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
               Harvest Sourcing View (Read-Only v1)
             </h2>
           </div>
-          <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
+          <span className="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
             Existing Data Only
           </span>
         </div>
@@ -309,7 +309,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
               1. Vacant-Unit Sources
             </h3>
           </div>
-          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+          <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
             {vacantUnitSources.length} Vacant {vacantUnitSources.length === 1 ? 'Unit' : 'Units'}
           </span>
         </div>
@@ -346,14 +346,14 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                       </div>
                     )}
                   </div>
-                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
+                  <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
                     Vacant Unit
                   </span>
                 </div>
 
                 {/* Direct Unit Appliances */}
                 <div className="space-y-1.5">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                  <div className="text-xs font-bold uppercase tracking-wider text-gray-500">
                     Confirmed Direct Unit Appliances ({directAppliances.length})
                   </div>
                   {directAppliances.length === 0 ? (
@@ -377,7 +377,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                               {app.serialNumber ? ` · SN ${app.serialNumber}` : ''})
                             </span>
                           </div>
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 shrink-0">
+                          <span className="px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 shrink-0">
                             Unit record
                           </span>
                         </div>
@@ -389,7 +389,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                 {/* Default-Pattern Appliances (strictly labelled as pattern, not confirmed unit appliance) */}
                 {defaultPatternAppliances.length > 0 && (
                   <div className="space-y-1.5 pt-1 border-t border-gray-200/70 dark:border-gray-700/70">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                    <div className="text-xs font-bold uppercase tracking-wider text-gray-500">
                       Inherited Default Pattern ({defaultPatternAppliances.length})
                     </div>
                     <div className="space-y-1.5">
@@ -408,7 +408,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                               </span>
                             )}
                           </div>
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 shrink-0">
+                          <span className="px-2 py-0.5 rounded text-xs font-bold bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 shrink-0">
                             Default pattern (not a confirmed unit appliance)
                           </span>
                         </div>
@@ -434,7 +434,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
               2. Donor Stored Appliances (Explicit Donor / Parts Sources Only)
             </h3>
           </div>
-          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-400/50">
+          <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-400/50">
             {donorAppliances.length} Explicit {donorAppliances.length === 1 ? 'Donor' : 'Donors'}
           </span>
         </div>
@@ -461,7 +461,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                       <span className="text-xs font-bold text-brand-black dark:text-white">
                         {donor.name}
                       </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-900 dark:text-amber-200 border border-amber-400/50">
+                      <span className="px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-amber-500/15 text-amber-900 dark:text-amber-200 border border-amber-400/50">
                         Status: {donor.status} (Parts Source · Not in Service)
                       </span>
                     </div>
@@ -512,7 +512,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                 <span aria-hidden="true" className="material-symbols-outlined text-[15px]">inventory_2</span>
                 <span>Other Stored Appliances — Status: &apos;stored&apos; (Not Marked as Donor Sources)</span>
               </div>
-              <span className="text-[10px] font-semibold text-gray-500">
+              <span className="text-xs font-semibold text-gray-500">
                 {merelyStoredAppliances.length} stored (excluded from donor count)
               </span>
             </div>
@@ -526,12 +526,12 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                   <div className="space-y-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="font-bold text-brand-black dark:text-white">{item.name}</span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200">
+                      <span className="px-2 py-0.5 rounded text-xs font-bold bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200">
                         Status: {item.status} (Not a donor flag)
                       </span>
                       {item.isToConfirmIdentity && (
                         <span
-                          className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/40"
+                          className="px-2 py-0.5 rounded text-xs font-bold bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/40"
                           data-testid="stored-dishwasher-to-confirm-badge"
                         >
                           TO-CONFIRM (Rating-Plate Confirmation Pending)
@@ -579,7 +579,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
               3. Uncertain Sources (Not Counted Stock · Pending Verification)
             </h3>
           </div>
-          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+          <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
             {uncertainSources.length} Flagged Notes
           </span>
         </div>
@@ -599,7 +599,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                 <div className="text-xs font-bold text-brand-black dark:text-white">
                   {src.locationLabel}
                 </div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-200 dark:bg-neutral-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600">
+                <span className="px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-gray-200 dark:bg-neutral-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600">
                   {src.uncertaintyBadge}
                 </span>
               </div>
@@ -641,7 +641,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
               4. Harvest Events Recorded
             </h3>
           </div>
-          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+          <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
             {recordedHarvestEvents.length} Recorded
           </span>
         </div>

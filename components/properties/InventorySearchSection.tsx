@@ -273,7 +273,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
                 >
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary">
+                      <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary">
                         Building
                       </span>
                       <h4 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
@@ -360,7 +360,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
                 >
                   <div className="space-y-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary">
+                      <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary">
                         Unit
                       </span>
                       <span className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
@@ -375,7 +375,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
                         {ctxChips.map((c) => (
                           <span
                             key={c.key}
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md ${c.className}`}
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold rounded-md ${c.className}`}
                           >
                             <span aria-hidden="true" className="material-symbols-outlined text-[12px] leading-none">{c.icon}</span>
                             {c.label}
@@ -418,7 +418,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
                 >
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary">
+                      <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary">
                         Unit record
                       </span>
                       <h4 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
@@ -467,7 +467,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
               >
                 <div className="space-y-1 min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark border border-gray-200 dark:border-gray-700">
+                    <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark border border-gray-200 dark:border-gray-700">
                       Default pattern (not a unit record)
                     </span>
                   </div>
@@ -511,7 +511,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
               >
                 <div className="space-y-1 min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/30">
+                    <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/30">
                       Storage
                     </span>
                     <h4 className="text-sm font-bold text-brand-black dark:text-white">
@@ -570,7 +570,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
                 >
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary">
+                      <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary">
                         Part
                       </span>
                       <h4 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">

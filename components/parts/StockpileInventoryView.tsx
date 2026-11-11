@@ -750,12 +750,12 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         {item.category && (
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300">
+                          <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300">
                             {item.category}
                           </span>
                         )}
                         <span
-                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                          className={`px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider ${
                             isPlaceholder
                               ? 'bg-purple-50 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800 font-extrabold'
                               : item.status === 'available'
@@ -768,7 +768,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                           {isPlaceholder ? 'Placeholder' : item.status.replace('_', ' ')}
                         </span>
                         {isBelowMin && (
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-500 text-brand-black flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-md text-xs font-black uppercase tracking-wider bg-amber-500 text-brand-black flex items-center gap-1">
                             <span aria-hidden="true" className="material-symbols-outlined text-[13px]">warning</span>
                             Below Min ({item.quantity}/{item.minimum})
                           </span>
@@ -794,7 +794,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                           <div className="text-xl font-black text-gray-400 dark:text-gray-500">
                             TBD
                           </div>
-                          <div className="text-[10px] text-gray-400 font-medium">
+                          <div className="text-xs text-gray-400 font-medium">
                             To Count
                           </div>
                         </>
@@ -880,7 +880,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
             <h2 className="text-base font-bold text-brand-black dark:text-white">
               Stored Appliances
             </h2>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+            <span className="px-2 py-0.5 rounded-full text-xs font-extrabold uppercase tracking-wide bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
               Appliance ({storedAppliances.length})
             </span>
           </div>
@@ -918,13 +918,13 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/30">
+                        <span className="px-2 py-0.5 rounded-md text-xs font-black uppercase tracking-wider bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/30">
                           APPLIANCE
                         </span>
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20">
+                        <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20">
                           {app.type || 'Appliance'}
                         </span>
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+                        <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
                           <ExplainableTerm term={app.status || 'stored'}>{app.status || 'stored'}</ExplainableTerm>
                         </span>
                       </div>
@@ -982,7 +982,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
             <h2 className="text-base font-bold text-brand-black dark:text-white">
               Tools & Equipment
             </h2>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+            <span className="px-2 py-0.5 rounded-full text-xs font-extrabold uppercase tracking-wide bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
               EQUIPMENT ({equipmentList.length})
             </span>
           </div>
@@ -1026,15 +1026,15 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                   {/* Header: Full-width Chips & Title Row */}
                   <div className="space-y-1.5 w-full">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                      <span className="px-2 py-0.5 rounded-md text-xs font-black uppercase tracking-wider bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30">
                         EQUIPMENT
                       </span>
                       {eq.category && (
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+                        <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
                           {eq.category}
                         </span>
                       )}
-                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${statusColors[eq.status] || statusColors.unknown}`}>
+                      <span className={`px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider border ${statusColors[eq.status] || statusColors.unknown}`}>
                         {eq.status}
                       </span>
                     </div>
@@ -1183,7 +1183,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                     placeholder="e.g. 137"
                     className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-800 text-xs text-brand-black dark:text-white"
                   />
-                  <p className="text-[10px] text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 mt-1">
                     Enter the unit database ID to assign and mark as operational.
                   </p>
                 </div>
@@ -1259,12 +1259,12 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
               <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-200/80 dark:border-gray-700/80 flex items-center gap-2">
                 <span aria-hidden="true" className="material-symbols-outlined text-primary text-base">location_on</span>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Storage Location</div>
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Storage Location</div>
                   <div className="text-xs font-bold text-brand-black dark:text-white truncate">
                     {stockpile?.name || 'Current Location'}
                   </div>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
+                <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
                   Fixed
                 </span>
               </div>
@@ -1282,7 +1282,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                   required
                   className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-xs text-brand-black dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary"
                 />
-                <p className="text-[10px] text-gray-400 mt-1">
+                <p className="text-xs text-gray-400 mt-1">
                   Required free-text description of the appliance.
                 </p>
               </div>
@@ -1307,7 +1307,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
               {/* Model Number (Optional) */}
               <div>
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-                  Model Number <span className="text-[10px] font-normal text-gray-400">(Optional — blank stays TBD)</span>
+                  Model Number <span className="text-xs font-normal text-gray-400">(Optional — blank stays TBD)</span>
                 </label>
                 <input
                   type="text"
@@ -1321,7 +1321,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
               {/* Serial Number (Optional) */}
               <div>
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-                  Serial Number <span className="text-[10px] font-normal text-gray-400">(Optional — blank stays TBD)</span>
+                  Serial Number <span className="text-xs font-normal text-gray-400">(Optional — blank stays TBD)</span>
                 </label>
                 <input
                   type="text"
@@ -1335,7 +1335,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
               {/* Notes */}
               <div>
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-                  Notes / Provenance <span className="text-[10px] font-normal text-gray-400">(Optional, e.g. TO CONFIRM flags)</span>
+                  Notes / Provenance <span className="text-xs font-normal text-gray-400">(Optional, e.g. TO CONFIRM flags)</span>
                 </label>
                 <textarea
                   value={applianceNotes}
@@ -1404,12 +1404,12 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
               <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-200/80 dark:border-gray-700/80 flex items-center gap-2">
                 <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-base">location_on</span>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Storage Location</div>
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Storage Location</div>
                   <div className="text-xs font-bold text-brand-black dark:text-white truncate">
                     {stockpile?.name || 'Current Location'}
                   </div>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">
+                <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">
                   Fixed
                 </span>
               </div>
@@ -1426,7 +1426,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                   placeholder="e.g. Miter saw, Shop vac, Zoom Boom telehandler"
                   className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-xs text-brand-black dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary"
                 />
-                <p className="text-[10px] text-gray-400 mt-1">
+                <p className="text-xs text-gray-400 mt-1">
                   Required tool name or equipment title.
                 </p>
               </div>
@@ -1434,7 +1434,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
               {/* Category (Optional) */}
               <div>
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-                  Category <span className="text-[10px] font-normal text-gray-400">(Optional)</span>
+                  Category <span className="text-xs font-normal text-gray-400">(Optional)</span>
                 </label>
                 <input
                   type="text"
@@ -1465,7 +1465,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
               {/* Notes / Specs TBD */}
               <div>
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-                  Notes / Provenance <span className="text-[10px] font-normal text-gray-400">(Optional, e.g. specs TBD text)</span>
+                  Notes / Provenance <span className="text-xs font-normal text-gray-400">(Optional, e.g. specs TBD text)</span>
                 </label>
                 <textarea
                   value={equipmentNotes}
@@ -1592,7 +1592,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                               {isTbd ? 'TBD Placeholder' : 'Recorded'}
                             </span>
                             {item.part_number && (
-                              <span className="text-[10px] text-gray-500 font-mono">
+                              <span className="text-xs text-gray-500 font-mono">
                                 #{item.part_number}
                               </span>
                             )}
@@ -1607,7 +1607,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
 
                         {/* Count input */}
                         <div className="shrink-0 w-28">
-                          <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-0.5 text-right">
+                          <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5 text-right">
                             Counted Qty
                           </label>
                           <input

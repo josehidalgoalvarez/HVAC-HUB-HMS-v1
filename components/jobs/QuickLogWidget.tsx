@@ -603,7 +603,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
                     </span>
                     <span>{app.name || app.type}</span>
                     {app.modelNumber && (
-                      <span className={`text-[10px] font-mono ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>
+                      <span className={`text-xs font-mono ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>
                         ({app.modelNumber})
                       </span>
                     )}
@@ -681,7 +681,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
                 <div className="flex-1 min-w-0">
                   <span className="font-medium break-words leading-relaxed">{n.note_text}</span>
                   {n.created_at && (
-                    <span className="text-[10px] text-gray-400 block mt-0.5 font-mono">
+                    <span className="text-xs text-gray-400 block mt-0.5 font-mono">
                       {n.created_at.slice(11, 16) || n.created_at}
                     </span>
                   )}
@@ -861,11 +861,11 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             </div>
 
             <div className="p-3 bg-gray-50 dark:bg-gray-800/60 rounded-xl text-xs space-y-1 border border-gray-100 dark:border-gray-800">
-              <span className="text-[10px] uppercase font-bold text-gray-400 block">Original Entry</span>
+              <span className="text-xs uppercase font-bold text-gray-400 block">Original Entry</span>
               <p className="font-medium text-brand-black dark:text-white break-words">
                 "{correctingEntry.text}"
               </p>
-              <p className="text-[10px] text-gray-400 italic">
+              <p className="text-xs text-gray-400 italic">
                 The original entry is permanently preserved in history. This correction will append a superseding record.
               </p>
             </div>

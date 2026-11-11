@@ -49,7 +49,7 @@ export const BuildingMoveReferenceSheet: React.FC<BuildingMoveReferenceSheetProp
                 <span className="text-xs font-bold text-brand-black dark:text-white">
                   {entry.title}
                 </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
                   {entry.date}
                 </span>
               </div>

@@ -112,7 +112,7 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
           <p className="text-xs text-gray-400">Loading open work orders...</p>
         ) : (
           <div className="space-y-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-400 block">
               Tickets ({selectedTicketIds.length} of {tickets.length} selected):
             </span>
             <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto no-scrollbar">
@@ -203,7 +203,7 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
                     <span className="text-lg font-mono font-black text-brand-black dark:text-white">
                       x{item.total_needed}
                     </span>
-                    <span className="block text-[10px] uppercase font-bold text-gray-400">Total Qty</span>
+                    <span className="block text-xs uppercase font-bold text-gray-400">Total Qty</span>
                   </div>
                 </div>
 

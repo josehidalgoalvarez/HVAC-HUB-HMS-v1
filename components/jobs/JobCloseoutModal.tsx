@@ -209,7 +209,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
                       </span>
                       <span>{app.name || app.type}</span>
                       {app.modelNumber && (
-                        <span className={`text-[10px] font-mono ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>
+                        <span className={`text-xs font-mono ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>
                           ({app.modelNumber})
                         </span>
                       )}
@@ -368,7 +368,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
                   key={i}
                   type="button"
                   onClick={() => setNotes((prev) => (prev ? `${prev} ${preset}` : preset))}
-                  className="px-2 py-1 rounded-lg text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 text-left line-clamp-1"
+                  className="px-2 py-1 rounded-lg text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 text-left line-clamp-1"
                 >
                   + {preset}
                 </button>

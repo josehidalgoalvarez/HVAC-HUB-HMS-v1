@@ -327,16 +327,16 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
         {/* Title & Metadata Header */}
         <div className="bg-white dark:bg-card-dark rounded-2xl p-4 border border-gray-100 dark:border-gray-800 space-y-2 shadow-xs">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded-md bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300">
+            <span className="px-2 py-0.5 text-xs font-bold uppercase rounded-md bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300">
               {sop.category}
             </span>
             {Boolean(sop.todo_verify) && (
-              <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              <span className="px-2 py-0.5 text-xs font-bold rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                 TODO-verify Shell
               </span>
             )}
             {ticket && (
-              <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-primary/10 text-primary border border-primary/20">
+              <span className="px-2 py-0.5 text-xs font-bold rounded-md bg-primary/10 text-primary border border-primary/20">
                 Ticket #{ticket.id} {ticket.wo_number ? `(${ticket.wo_number})` : ''}
               </span>
             )}
@@ -486,7 +486,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
                         <span className="text-xs font-bold text-brand-black dark:text-white">
                           {gate.label}
                         </span>
-                        <span className="text-[10px] font-mono text-gray-400">
+                        <span className="text-xs font-mono text-gray-400">
                           [{gate.reference}]
                         </span>
                       </div>
@@ -544,7 +544,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
         {/* Header Ticker */}
         <div className="bg-primary text-white rounded-2xl p-4 shadow-sm flex items-center justify-between">
           <div className="space-y-0.5">
-            <span className="text-[10px] uppercase font-bold tracking-wider opacity-80">
+            <span className="text-xs uppercase font-bold tracking-wider opacity-80">
               Total Elapsed Time
             </span>
             <div className="text-2xl font-mono font-bold tracking-wider">
@@ -552,7 +552,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
             </div>
           </div>
           <div className="text-right space-y-0.5">
-            <span className="text-[10px] uppercase font-bold tracking-wider opacity-80">Progress</span>
+            <span className="text-xs uppercase font-bold tracking-wider opacity-80">Progress</span>
             <div className="text-sm font-bold">
               Step {currentStepIdx + 1} of {steps.length}
             </div>
@@ -575,7 +575,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
               {curStep?.instruction}
             </h2>
             {Boolean(curStep?.todo_verify) && (
-              <span className="inline-block px-2 py-0.5 text-[10px] font-bold rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              <span className="inline-block px-2 py-0.5 text-xs font-bold rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                 [TODO-verify placeholder: verify physical condition & standard]
               </span>
             )}
@@ -651,7 +651,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
                     className="w-full min-h-[44px] p-3 flex items-center justify-between gap-3 text-left"
                   >
                     <div className="min-w-0">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                      <p className="text-xs font-bold uppercase tracking-wider text-primary">
                         {shortPhaseLabel(group.label)}
                       </p>
                       <p className="text-xs font-semibold text-brand-black dark:text-white truncate">
@@ -773,14 +773,14 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
 
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div className="p-3 rounded-xl bg-gray-50 dark:bg-neutral-800">
-            <span className="text-gray-400 block text-[10px] uppercase font-bold">Total Duration</span>
+            <span className="text-gray-400 block text-xs uppercase font-bold">Total Duration</span>
             <span className="text-lg font-mono font-bold text-brand-black dark:text-white">
               {formatTime(totalElapsedSeconds)}
             </span>
           </div>
 
           <div className="p-3 rounded-xl bg-gray-50 dark:bg-neutral-800">
-            <span className="text-gray-400 block text-[10px] uppercase font-bold">Technician</span>
+            <span className="text-gray-400 block text-xs uppercase font-bold">Technician</span>
             <span className="text-sm font-bold text-brand-black dark:text-white truncate block">
               {technician}
             </span>
@@ -822,7 +822,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
                           className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs gap-2"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <span className="w-5 h-5 rounded bg-emerald-500/10 text-emerald-600 font-bold text-[10px] flex items-center justify-center shrink-0">
+                            <span className="w-5 h-5 rounded bg-emerald-500/10 text-emerald-600 font-bold text-xs flex items-center justify-center shrink-0">
                               {st.position}
                             </span>
                             <div className="min-w-0">
@@ -830,7 +830,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
                                 {st.instruction}
                               </p>
                               {state?.note && (
-                                <p className="text-[10px] text-gray-500 italic truncate">Note: {state.note}</p>
+                                <p className="text-xs text-gray-500 italic truncate">Note: {state.note}</p>
                               )}
                             </div>
                           </div>

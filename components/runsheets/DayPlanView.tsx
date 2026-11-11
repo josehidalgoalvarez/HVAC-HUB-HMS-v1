@@ -201,14 +201,14 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
     switch (gate) {
       case 'green':
         return (
-          <span className="px-2 py-0.5 text-[10px] font-bold rounded-lg bg-emerald-500 text-white flex items-center gap-1 shadow-xs">
+          <span className="px-2 py-0.5 text-xs font-bold rounded-lg bg-emerald-500 text-white flex items-center gap-1 shadow-xs">
             <span aria-hidden="true" className="material-symbols-outlined text-[13px]">check_circle</span>
             CLEARED
           </span>
         );
       case 'red':
         return (
-          <span className="px-2 py-0.5 text-[10px] font-bold rounded-lg bg-brand-red text-white flex items-center gap-1 shadow-xs animate-pulse">
+          <span className="px-2 py-0.5 text-xs font-bold rounded-lg bg-brand-red text-white flex items-center gap-1 shadow-xs animate-pulse">
             <span aria-hidden="true" className="material-symbols-outlined text-[13px]">gavel</span>
             OVERDUE / BLOCKED
           </span>
@@ -216,7 +216,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
       case 'amber':
       default:
         return (
-          <span className="px-2 py-0.5 text-[10px] font-bold rounded-lg bg-amber-500 text-white flex items-center gap-1 shadow-xs">
+          <span className="px-2 py-0.5 text-xs font-bold rounded-lg bg-amber-500 text-white flex items-center gap-1 shadow-xs">
             <span aria-hidden="true" className="material-symbols-outlined text-[13px]">timer</span>
             PENDING 24H
           </span>
@@ -298,7 +298,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
           aria-label="Choose date"
           className="text-center group px-3 py-1 -my-1 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/60 active:scale-95 transition-all flex flex-col items-center cursor-pointer min-h-[44px] justify-center"
         >
-          <span className="text-[10px] uppercase font-bold text-gray-400 group-hover:text-primary transition-colors block">
+          <span className="text-xs uppercase font-bold text-gray-400 group-hover:text-primary transition-colors block">
             {new Date(currentDate + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long' })}
           </span>
           <span className="text-sm font-extrabold text-brand-black dark:text-white font-mono flex items-center gap-1.5 group-hover:text-primary transition-colors">
@@ -477,17 +477,17 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                     <div className="flex flex-wrap items-center gap-1.5">
                       {/* Work Exposure Chip */}
                       {block.work_exposure === 'exterior_ladder' ? (
-                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800 flex items-center gap-1">
+                        <span className="px-2 py-0.5 text-xs font-bold rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800 flex items-center gap-1">
                           <span aria-hidden="true" className="material-symbols-outlined text-[12px]">stairs</span>
                           Ladder
                         </span>
                       ) : block.work_exposure === 'exterior' ? (
-                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-sky-100 text-sky-800 dark:bg-sky-950/60 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
+                        <span className="px-2 py-0.5 text-xs font-bold rounded-md bg-sky-100 text-sky-800 dark:bg-sky-950/60 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
                           <span aria-hidden="true" className="material-symbols-outlined text-[12px]">wb_sunny</span>
                           Exterior
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1">
+                        <span className="px-2 py-0.5 text-xs font-semibold rounded-md bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1">
                           <span aria-hidden="true" className="material-symbols-outlined text-[12px]">roofing</span>
                           Indoor
                         </span>
@@ -495,7 +495,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
 
                       {/* Rain Badge: ONLY when exterior or ladder AND rain expected */}
                       {(block.work_exposure === 'exterior' || block.work_exposure === 'exterior_ladder') && block.rain_expected && (
-                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-blue-500 text-white flex items-center gap-1 shadow-sm">
+                        <span className="px-2 py-0.5 text-xs font-bold rounded-md bg-blue-500 text-white flex items-center gap-1 shadow-sm">
                           <span>🌧️</span>
                           Rain Expected
                         </span>

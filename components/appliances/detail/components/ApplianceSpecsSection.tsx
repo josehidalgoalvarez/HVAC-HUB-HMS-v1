@@ -76,7 +76,7 @@ export const ApplianceSpecsSection: React.FC<ApplianceSpecsSectionProps> = ({ ap
                 </div>
                 <div>
                     <p className={`font-bold text-sm ${isPresent || isAddMode ? 'text-brand-black dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>{buttonLabel}</p>
-                    <p className="text-[10px] text-text-sub-light dark:text-text-sub-dark">{buttonSub}</p>
+                    <p className="text-xs text-text-sub-light dark:text-text-sub-dark">{buttonSub}</p>
                 </div>
             </button>
         );
@@ -91,7 +91,7 @@ export const ApplianceSpecsSection: React.FC<ApplianceSpecsSectionProps> = ({ ap
                         <span aria-hidden="true" className="material-symbols-outlined text-[20px]">
                             {appliance.specs?.capacity ? 'water_drop' : 'local_fire_department'}
                         </span>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
+                        <span className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
                             {appliance.specs?.capacity ? 'Capacity' : 'Output'}
                         </span>
                     </div>
@@ -103,7 +103,7 @@ export const ApplianceSpecsSection: React.FC<ApplianceSpecsSectionProps> = ({ ap
                 <div className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
                     <div className="flex items-center gap-2 mb-2 text-primary">
                         <span aria-hidden="true" className="material-symbols-outlined text-[20px]">calendar_month</span>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">Install</span>
+                        <span className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">Install</span>
                     </div>
                     <p className={`text-xl font-bold truncate ${appliance.specs?.installDate ? 'text-brand-black dark:text-white' : 'text-gray-300 dark:text-gray-600'}`}>
                         {appliance.specs?.installDate || '-'}
@@ -157,7 +157,7 @@ export const ApplianceSpecsSection: React.FC<ApplianceSpecsSectionProps> = ({ ap
                     {onEdit && isEditMode && (
                         <button
                             onClick={onEdit}
-                            className="text-[10px] font-bold text-primary hover:text-primary/80 flex items-center gap-1 uppercase tracking-tighter"
+                            className="text-xs font-bold text-primary hover:text-primary/80 flex items-center gap-1 uppercase tracking-tighter"
                         >
                             <span aria-hidden="true" className="material-symbols-outlined text-[14px]">edit_note</span> Edit Links
                         </button>

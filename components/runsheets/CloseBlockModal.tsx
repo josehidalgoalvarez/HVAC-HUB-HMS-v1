@@ -84,15 +84,15 @@ export const CloseBlockModal: React.FC<CloseBlockModalProps> = ({
         {/* Estimate vs Actual Summary Box */}
         <div className="p-3 bg-gray-50 dark:bg-gray-900/60 rounded-xl border border-gray-100 dark:border-gray-800 grid grid-cols-3 gap-2 text-center">
           <div>
-            <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Estimated</span>
+            <span className="text-xs uppercase font-bold text-gray-400 block mb-0.5">Estimated</span>
             <span className="text-sm font-bold text-brand-black dark:text-white">{est} min</span>
           </div>
           <div>
-            <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Actual</span>
+            <span className="text-xs uppercase font-bold text-gray-400 block mb-0.5">Actual</span>
             <span className="text-sm font-extrabold text-primary">{actualMinutes} min</span>
           </div>
           <div>
-            <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Variance</span>
+            <span className="text-xs uppercase font-bold text-gray-400 block mb-0.5">Variance</span>
             <span
               className={`text-sm font-bold ${
                 variance > 0 ? 'text-amber-600' : variance < 0 ? 'text-emerald-600' : 'text-gray-500'

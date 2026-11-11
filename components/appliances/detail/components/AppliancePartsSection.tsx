@@ -150,7 +150,7 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
               <span aria-hidden="true" className="material-symbols-outlined text-sm text-primary">verified</span>
               Verified Parts ({verifiedParts.length})
             </h3>
-            <span className="text-[10px] uppercase font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">
+            <span className="text-xs uppercase font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">
               Model Confirmed
             </span>
           </div>
@@ -164,13 +164,13 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
                       <span className="font-bold text-sm text-brand-black dark:text-white">
                         {part.name}
                       </span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      <span className="text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                         {part.statusLabel}
                       </span>
                     </div>
                     <div className="mt-1 text-xs font-mono text-primary font-bold flex items-center gap-1.5 flex-wrap">
                       <span>Part #: {part.partNumber}</span>
-                      <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                      <span className="inline-flex items-center gap-0.5 text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800">
                         <span aria-hidden="true" className="material-symbols-outlined text-[12px]">lock</span>
                         <span>Locked</span>
                       </span>
@@ -246,7 +246,7 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
               <span aria-hidden="true" className="material-symbols-outlined text-sm text-gray-400">list_alt</span>
               Ordering Categories ({tbdTemplates.length})
             </h3>
-            <span className="text-[10px] uppercase font-bold text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
+            <span className="text-xs uppercase font-bold text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
               TBD — Ask Dependable
             </span>
           </div>
@@ -260,7 +260,7 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
                       <span className="font-bold text-sm text-brand-black dark:text-white">
                         {part.name}
                       </span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                      <span className="text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                         {part.statusLabel}
                       </span>
                     </div>

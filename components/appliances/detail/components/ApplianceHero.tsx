@@ -102,7 +102,7 @@ export const ApplianceHero: React.FC<ApplianceHeroProps> = ({ appliance, onStatu
               setShowStatusMenu(!showStatusMenu);
             }
           }}
-          className={`text-[10px] font-bold px-3 py-1.5 rounded-lg border backdrop-blur-md shadow-sm flex items-center gap-1 transition-all ${appliance.status === 'operational' ? 'bg-green-900/90 text-green-400 border-green-700/50' :
+          className={`text-xs font-bold px-3 py-1.5 rounded-lg border backdrop-blur-md shadow-sm flex items-center gap-1 transition-all ${appliance.status === 'operational' ? 'bg-green-900/90 text-green-400 border-green-700/50' :
               appliance.status === 'needs_service' ? 'bg-brand-orange/90 text-white border-brand-orange/50' :
                 'bg-gray-800/90 text-gray-300 border-gray-600/50'
             } ${!isReadOnly ? 'cursor-pointer hover:scale-105' : 'cursor-default'}`}

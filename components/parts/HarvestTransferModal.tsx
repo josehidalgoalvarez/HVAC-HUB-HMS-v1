@@ -101,7 +101,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
             <span className="font-extrabold text-emerald-900 dark:text-emerald-200 text-xs">
               {candidate.name}
             </span>
-            <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">
+            <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">
               {candidate.occupancy_label || 'Vacant unit'}
             </span>
           </div>
@@ -116,7 +116,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
               </span>
             )}
           </div>
-          <p className="text-[10px] text-emerald-700/80 dark:text-emerald-400">
+          <p className="text-xs text-emerald-700/80 dark:text-emerald-400">
             Harvest-first policy: Free high-confidence stock prior to purchasing new parts.
           </p>
         </div>
@@ -164,7 +164,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
         {destType === 'unit' ? (
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
                 Dest Unit ID <span className="text-brand-red">*</span>
               </label>
               <input
@@ -177,7 +177,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
                 Dest Building ID (Opt)
               </label>
               <input
@@ -191,7 +191,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
           </div>
         ) : (
           <div>
-            <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">
+            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
               Select Stockpile Location
             </label>
             <select
@@ -211,7 +211,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
         {/* Ticket ID & Transferred By */}
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">
+            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
               Work Order / Ticket # (Opt)
             </label>
             <input
@@ -223,7 +223,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
             />
           </div>
           <div>
-            <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">
+            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
               Transferred By
             </label>
             <input
@@ -238,7 +238,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
 
         {/* Transfer Notes */}
         <div>
-          <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">
+          <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
             Transfer Notes / Provenance
           </label>
           <textarea

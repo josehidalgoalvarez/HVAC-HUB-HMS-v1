@@ -136,7 +136,7 @@ export const PWAInstallBanner: React.FC = () => {
             /* iOS Safari Step-by-Step Guidance */
             <div className="mt-3 p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/80 border border-gray-200/70 dark:border-gray-700/70 text-xs space-y-1.5 font-medium">
               <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-primary text-white text-[10px] font-extrabold flex items-center justify-center shrink-0">
+                <span className="w-5 h-5 rounded-full bg-primary text-white text-xs font-extrabold flex items-center justify-center shrink-0">
                   1
                 </span>
                 <span>
@@ -145,7 +145,7 @@ export const PWAInstallBanner: React.FC = () => {
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-primary text-white text-[10px] font-extrabold flex items-center justify-center shrink-0">
+                <span className="w-5 h-5 rounded-full bg-primary text-white text-xs font-extrabold flex items-center justify-center shrink-0">
                   2
                 </span>
                 <span>

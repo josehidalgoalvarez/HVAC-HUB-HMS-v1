@@ -1210,7 +1210,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                 <span>{displayName}</span>
                                 {isTrioCard && (
                                   <>
-                                    <span className="text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                    <span className="text-xs font-bold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full whitespace-nowrap">
                                       563 + 565 + 567
                                     </span>
                                     <button
@@ -1430,7 +1430,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           <div className="min-w-0">
                             <div className="font-bold flex items-center gap-1.5 flex-wrap">
                               <span>McKay Storage Depot</span>
-                              <span className="px-2 py-0.2 rounded-md bg-amber-500 text-brand-black text-[10px] font-black uppercase tracking-wider">
+                              <span className="px-2 py-0.2 rounded-md bg-amber-500 text-brand-black text-xs font-black uppercase tracking-wider">
                                 {bRes.mckayStockpiles.length} {bRes.mckayStockpiles.length === 1 ? 'Location' : 'Locations'}
                               </span>
                             </div>
@@ -1483,7 +1483,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           <div className="min-w-0">
                             <div className="font-bold flex items-center gap-1.5 flex-wrap">
                               <span>{isCentral ? 'Central Storage Depot' : 'Storage Node Inventory'}</span>
-                              <span className={`px-2 py-0.2 rounded-md text-[10px] font-black uppercase tracking-wider ${badgeBg}`}>
+                              <span className={`px-2 py-0.2 rounded-md text-xs font-black uppercase tracking-wider ${badgeBg}`}>
                                 View Stock
                               </span>
                             </div>
@@ -1593,25 +1593,25 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               <span className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors flex items-center gap-2">
                                 <span>Unit {unitLabel}</span>
                                 {isCommercialSub && (
-                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/40 uppercase tracking-wider">
+                                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/40 uppercase tracking-wider">
                                     Commercial Unit
                                   </span>
                                 )}
                                 {isExternal && (
-                                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                  <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                                     External
                                   </span>
                                 )}
                               </span>
                               <div className="flex items-center gap-1.5 flex-wrap">
                                 {Boolean(unit.has_repeat_access_problem || unit.repeat_access_problem || ((unit.failedVisitsCount ?? 0) >= 2) || ((unit.failed_visits_count ?? 0) >= 2)) && (
-                                  <span data-testid="unit-repeat-access-problem-flag" className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700">
+                                  <span data-testid="unit-repeat-access-problem-flag" className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold rounded-full bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700">
                                     <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
                                     Repeat access problem
                                   </span>
                                 )}
                                 {wdState && (
-                                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
                                     wdState === 'building_installed'
                                       ? 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20'
                                       : wdState === 'tenant_owned'
@@ -1649,7 +1649,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                     return (
                                       <div className="flex items-center gap-1.5 flex-wrap mb-2.5">
                                         {ctxChips.map(c => (
-                                          <span key={c.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md ${c.className}`}>
+                                          <span key={c.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold rounded-md ${c.className}`}>
                                             <span aria-hidden="true" className="material-symbols-outlined text-[12px] leading-none">{c.icon}</span>
                                             {c.label}
                                           </span>
@@ -1737,20 +1737,20 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                   <span className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors flex items-center gap-2">
                                     Unit {unit.unitNumber}
                                     {isExternal && (
-                                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                      <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                                         External
                                       </span>
                                     )}
                                   </span>
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     {Boolean(unit.has_repeat_access_problem || unit.repeat_access_problem || ((unit.failedVisitsCount ?? 0) >= 2) || ((unit.failed_visits_count ?? 0) >= 2)) && (
-                                      <span data-testid="unit-repeat-access-problem-flag" className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700">
+                                      <span data-testid="unit-repeat-access-problem-flag" className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold rounded-full bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700">
                                         <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
                                         Repeat access problem
                                       </span>
                                     )}
                                     {wdState && (
-                                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
                                         wdState === 'building_installed'
                                           ? 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20'
                                           : wdState === 'tenant_owned'
@@ -1788,7 +1788,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                         return (
                                           <div className="flex items-center gap-1.5 flex-wrap mb-2.5">
                                             {ctxChips.map(c => (
-                                              <span key={c.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md ${c.className}`}>
+                                              <span key={c.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold rounded-md ${c.className}`}>
                                                 <span aria-hidden="true" className="material-symbols-outlined text-[12px] leading-none">{c.icon}</span>
                                                 {c.label}
                                               </span>
@@ -1870,7 +1870,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         {contextChips.length > 0 ? (
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {contextChips.map(chip => (
-                              <span key={chip.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md ${chip.className}`}>
+                              <span key={chip.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold rounded-md ${chip.className}`}>
                                 <span aria-hidden="true" className="material-symbols-outlined text-[12px] leading-none">{chip.icon}</span>
                                 {chip.label}
                               </span>
@@ -2001,7 +2001,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           >
                             <div className="space-y-0.5">
                               <div className="flex items-center gap-2">
-                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                <span className={`px-1.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${
                                   v.outcome === 'failed_access'
                                     ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
                                     : v.outcome === 'partial'
@@ -2023,7 +2023,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               </div>
                               {v.notes && <p className="text-[11px] text-gray-400 italic">{v.notes}</p>}
                             </div>
-                            <div className="text-right shrink-0 text-[10px] text-gray-400 font-mono">
+                            <div className="text-right shrink-0 text-xs text-gray-400 font-mono">
                               <div>{formatDate(v.visited_at)}</div>
                               <div>{v.tech_name}</div>
                             </div>
@@ -2051,7 +2051,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               <span className="font-bold text-brand-black dark:text-white">
                                 {t.wo_number ? `WO ${t.wo_number}` : `Ticket #${t.id}`} · {t.title}
                               </span>
-                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 uppercase">
+                              <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 uppercase">
                                 Archived
                               </span>
                             </div>
@@ -2059,7 +2059,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               Blocked Reason: {t.blocked_reason || t.blocker_reason}
                             </p>
                             {t.blocked_at && (
-                              <p className="text-[10px] text-gray-400 font-mono">
+                              <p className="text-xs text-gray-400 font-mono">
                                 Blocked since: {formatDate(t.blocked_at)}
                               </p>
                             )}
@@ -2388,7 +2388,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               >
                                 <span aria-hidden="true" className="material-symbols-outlined text-[13px]">menu_book</span>
                                 <span>Manufacturer Manual</span>
-                                <span aria-hidden="true" className="material-symbols-outlined text-[10px]">open_in_new</span>
+                                <span aria-hidden="true" className="material-symbols-outlined text-xs">open_in_new</span>
                               </a>
                             </div>
                           )}
@@ -2516,7 +2516,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       >
                         <span aria-hidden="true" className="material-symbols-outlined text-[15px]">{group.icon}</span>
                         <span>{group.title.split(' (')[0]}</span>
-                        <span className="text-[10px] opacity-75">({group.sets.length})</span>
+                        <span className="text-xs opacity-75">({group.sets.length})</span>
                       </button>
                     ))}
                   </div>
@@ -2621,7 +2621,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                               </span>
                                               <span>{app.label || app.name.replace(' (default)', '')}</span>
                                               {(app.model || app.specs?.model) && (
-                                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">
+                                                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-mono">
                                                   ({app.model || app.specs?.model})
                                                 </span>
                                               )}
@@ -2679,19 +2679,19 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                     {/* Layout Summary Grid */}
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs p-3 rounded-xl bg-gray-50/70 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 mt-4">
                                       <div>
-                                        <span className="text-gray-400 block text-[10px] uppercase font-semibold">Bedrooms</span>
-                                        <span className="font-semibold">{set.bedrooms ?? 2} <span className="text-[10px] text-gray-400 font-normal">(overridable per unit)</span></span>
+                                        <span className="text-gray-400 block text-xs uppercase font-semibold">Bedrooms</span>
+                                        <span className="font-semibold">{set.bedrooms ?? 2} <span className="text-xs text-gray-400 font-normal">(overridable per unit)</span></span>
                                       </div>
                                       <div>
-                                        <span className="text-gray-400 block text-[10px] uppercase font-semibold">Washrooms</span>
+                                        <span className="text-gray-400 block text-xs uppercase font-semibold">Washrooms</span>
                                         <span className="font-semibold">{set.washrooms ?? set.bathrooms ?? 1}</span>
                                       </div>
                                       <div>
-                                        <span className="text-gray-400 block text-[10px] uppercase font-semibold">Storeys (Floors)</span>
+                                        <span className="text-gray-400 block text-xs uppercase font-semibold">Storeys (Floors)</span>
                                         <span className="font-semibold">{set.storeys ?? set.stories ?? 1}</span>
                                       </div>
                                       <div>
-                                        <span className="text-gray-400 block text-[10px] uppercase font-semibold">Water Heater Node</span>
+                                        <span className="text-gray-400 block text-xs uppercase font-semibold">Water Heater Node</span>
                                         <span className="font-semibold">{set.hasUnitWaterHeater ? 'In-Unit Tank' : 'Shared / Central'}</span>
                                       </div>
                                     </div>
@@ -2770,7 +2770,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                                       <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 uppercase shrink-0">
                                                         {appItem.category}
                                                       </span>
-                                                      <span className="text-[10px] text-text-sub-light dark:text-text-sub-dark shrink-0">
+                                                      <span className="text-xs text-text-sub-light dark:text-text-sub-dark shrink-0">
                                                         ({appItem.type || 'Standard'})
                                                       </span>
                                                     </div>
@@ -2785,7 +2785,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                                       <span>{appModel}</span>
                                                     </span>
                                                   ) : (
-                                                    <span className="text-[10px] text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800/60 font-medium">
+                                                    <span className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800/60 font-medium">
                                                       Specs Pending
                                                     </span>
                                                   )}
@@ -2802,7 +2802,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                                     >
                                                       <span aria-hidden="true" className="material-symbols-outlined text-[12px]">menu_book</span>
                                                       <span>Manual</span>
-                                                      <span aria-hidden="true" className="material-symbols-outlined text-[10px]">open_in_new</span>
+                                                      <span aria-hidden="true" className="material-symbols-outlined text-xs">open_in_new</span>
                                                     </a>
                                                   )}
 
@@ -2849,7 +2849,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                                           key={field.key}
                                                           className={field.key === 'notes' ? 'col-span-2 sm:col-span-4' : ''}
                                                         >
-                                                          <span className="text-gray-400 block text-[10px] uppercase font-semibold">
+                                                          <span className="text-gray-400 block text-xs uppercase font-semibold">
                                                             {field.label}
                                                           </span>
                                                           {field.isUrl ? (
@@ -3260,7 +3260,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     placeholder="e.g. https://www.carrier.com/residential/en/us/manuals/59TP6B.pdf"
                     className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-brand-black dark:text-white outline-none focus:border-primary font-mono text-xs"
                   />
-                  <p className="text-[10px] text-text-sub-light dark:text-text-sub-dark mt-1">
+                  <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-1">
                     Renders as a direct clickable &quot;Manual&quot; link in view mode for quick field trade reference.
                   </p>
                 </div>
@@ -3478,7 +3478,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             {trade.label}
                           </span>
                         </div>
-                        <span className="text-[10px] text-gray-500 dark:text-gray-400 block line-clamp-1">
+                        <span className="text-xs text-gray-500 dark:text-gray-400 block line-clamp-1">
                           {trade.description}
                         </span>
                       </div>

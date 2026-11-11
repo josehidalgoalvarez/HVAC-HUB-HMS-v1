@@ -253,7 +253,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                     </div>
 
                     <span
-                      className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                      className={`text-xs uppercase font-bold px-2 py-0.5 rounded-full shrink-0 ${
                         t.priority === 'urgent'
                           ? 'bg-brand-red text-white'
                           : t.priority === 'high'
@@ -304,19 +304,19 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
           {suggestion && (
             <div className="p-3 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/20 grid grid-cols-4 gap-2 text-center text-xs">
               <div>
-                <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Tickets</span>
+                <span className="text-xs uppercase font-bold text-gray-400 block mb-0.5">Tickets</span>
                 <span className="text-sm font-extrabold text-primary">{suggestion.total_tickets}</span>
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Sites</span>
+                <span className="text-xs uppercase font-bold text-gray-400 block mb-0.5">Sites</span>
                 <span className="text-sm font-extrabold text-brand-black dark:text-white">{suggestion.total_sites}</span>
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Work Time</span>
+                <span className="text-xs uppercase font-bold text-gray-400 block mb-0.5">Work Time</span>
                 <span className="text-sm font-bold text-brand-black dark:text-white">{suggestion.estimated_work_minutes}m</span>
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Travel Buffer</span>
+                <span className="text-xs uppercase font-bold text-gray-400 block mb-0.5">Travel Buffer</span>
                 <span className="text-sm font-bold text-emerald-600">+{suggestion.estimated_travel_minutes}m</span>
               </div>
             </div>
@@ -376,7 +376,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
 
                       {/* Notice Legal Gate Pill */}
                       <span
-                        className={`px-2 py-0.5 text-[10px] font-bold rounded-lg shrink-0 flex items-center gap-1 ${
+                        className={`px-2 py-0.5 text-xs font-bold rounded-lg shrink-0 flex items-center gap-1 ${
                           gate === 'green'
                             ? 'bg-emerald-500 text-white'
                             : gate === 'red'
@@ -402,7 +402,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                     )}
 
                     {/* Tools and Parts List */}
-                    <div className="mt-2 flex flex-wrap gap-1 text-[10px]">
+                    <div className="mt-2 flex flex-wrap gap-1 text-xs">
                       {block.required_tools_list?.map((tool, i) => (
                         <span
                           key={i}

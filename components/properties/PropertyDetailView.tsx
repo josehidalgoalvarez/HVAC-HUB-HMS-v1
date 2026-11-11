@@ -160,8 +160,8 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
             </div>
             <p className="text-sm text-text-sub-light dark:text-text-sub-dark">{property.address}</p>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 text-[10px] font-bold uppercase">Residential</span>
-              <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 text-[10px] font-bold uppercase">{property.applianceCount} Units</span>
+              <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 text-xs font-bold uppercase">Residential</span>
+              <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 text-xs font-bold uppercase">{property.applianceCount} Units</span>
               {property.role && property.role !== 'standard' && (() => {
                 const badgeLabel = property.role === 'storage'
                   ? (property.id === 'prop-days-511' || property.id === '15' || property.name?.includes('511 Days') ? 'Storage Node (Central)' : 'Storage Node')
@@ -196,13 +196,13 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                 }
 
                 return (
-                  <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-[10px] font-bold uppercase">
+                  <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-xs font-bold uppercase">
                     {badgeLabel}
                   </span>
                 );
               })()}
               {property.responsibility === 'external' && (
-                <span className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-[10px] font-bold uppercase">
+                <span className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold uppercase">
                   External Super (Not Jose)
                 </span>
               )}
@@ -240,7 +240,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                   <div className="min-w-0">
                     <div className="font-bold text-sm flex items-center gap-1.5 flex-wrap">
                       <span>McKay Storage Depot</span>
-                      <span className="px-2 py-0.2 rounded-md bg-amber-500 text-brand-black text-[10px] font-black uppercase tracking-wider">
+                      <span className="px-2 py-0.2 rounded-md bg-amber-500 text-brand-black text-xs font-black uppercase tracking-wider">
                         {resolution.mckayStockpiles.length} {resolution.mckayStockpiles.length === 1 ? 'Location' : 'Locations'}
                       </span>
                     </div>
@@ -297,7 +297,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                   <div className="min-w-0">
                     <div className="font-bold text-sm flex items-center gap-1.5 flex-wrap">
                       <span>{isCentral ? 'Central Storage Depot Stock' : 'Location Stock & Inventory'}</span>
-                      <span className={`px-2 py-0.2 rounded-md text-[10px] font-black uppercase tracking-wider ${badgeBg}`}>
+                      <span className={`px-2 py-0.2 rounded-md text-xs font-black uppercase tracking-wider ${badgeBg}`}>
                         Stock Menu
                       </span>
                     </div>
@@ -356,7 +356,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                 </div>
                 <div className="text-center">
                   <p className="font-bold text-sm text-brand-black dark:text-white">Upload or Capture</p>
-                  <p className="text-[10px] text-text-sub-light dark:text-text-sub-dark mt-1 text-wrap">Select a cover photo for this residence</p>
+                  <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-1 text-wrap">Select a cover photo for this residence</p>
                 </div>
               </div>
 
@@ -582,14 +582,14 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                 <div className="p-4 bg-gray-50/50 dark:bg-gray-800/30">
                   <div className="grid grid-cols-2 gap-y-4 gap-x-2 mb-4">
                     <div>
-                      <p className="text-[10px] text-gray-400 uppercase font-bold">Model Number</p>
+                      <p className="text-xs text-gray-400 uppercase font-bold">Model Number</p>
                       <p className="text-sm font-bold text-brand-black dark:text-white truncate">{app.modelNumber || 'N/A'}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-gray-400 uppercase font-bold">Serial Number</p>
+                      <p className="text-xs text-gray-400 uppercase font-bold">Serial Number</p>
                       <p className="text-sm font-bold text-brand-black dark:text-white truncate">{app.serialNumber || 'N/A'}</p>
                     </div>
-                      <p className="text-[10px] text-gray-400 uppercase font-bold">Location</p>
+                      <p className="text-xs text-gray-400 uppercase font-bold">Location</p>
                       <p className="text-sm font-bold text-brand-black dark:text-white truncate">
                         {[
                           property?.address,
@@ -598,7 +598,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                         ].filter(Boolean).join(' · ')}
                       </p>
                     <div>
-                      <p className="text-[10px] text-gray-400 uppercase font-bold">Install Date</p>
+                      <p className="text-xs text-gray-400 uppercase font-bold">Install Date</p>
                       <p className="text-sm font-bold text-brand-black dark:text-white truncate">{app.specs?.installDate || 'N/A'}</p>
                     </div>
                   </div>

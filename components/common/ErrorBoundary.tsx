@@ -101,7 +101,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                   </button>
 
                   {this.state.showDetails && (
-                    <pre className="mt-2 text-[10px] text-gray-500 dark:text-gray-400 overflow-x-auto max-h-48 whitespace-pre-wrap font-mono">
+                    <pre className="mt-2 text-xs text-gray-500 dark:text-gray-400 overflow-x-auto max-h-48 whitespace-pre-wrap font-mono">
                       {componentStack}
                     </pre>
                   )}

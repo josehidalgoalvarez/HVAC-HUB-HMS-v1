@@ -852,7 +852,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                               {item.partName}
                             </span>
                             {item.sourceType === 'manual' && (
-                              <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                              <span className="px-1.5 py-0.5 text-xs font-bold rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
                                 Manual
                               </span>
                             )}

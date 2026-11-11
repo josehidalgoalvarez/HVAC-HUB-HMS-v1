@@ -20,7 +20,7 @@ export const SensorGrid: React.FC<SensorGridProps> = ({ readings, title = "Speci
             <div className="grid grid-cols-2 gap-y-4 gap-x-8">
                 {readings.map((reading) => (
                     <div key={reading.id} className="flex flex-col">
-                        <span className="text-[10px] font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-1">
+                        <span className="text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-1">
                             {reading.label}
                         </span>
                         <div className="flex items-baseline gap-1">

@@ -127,7 +127,7 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
 
         {/* Part Selection */}
         <div>
-          <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">
+          <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
             Part to Transfer <span className="text-brand-red">*</span>
           </label>
           <select
@@ -147,7 +147,7 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
         {/* Source and Destination Stockpiles */}
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">
+            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
               Source Stockpile <span className="text-brand-red">*</span>
             </label>
             <select
@@ -162,13 +162,13 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
                 </option>
               ))}
             </select>
-            <span className="block mt-1 text-[10px] text-gray-500">
+            <span className="block mt-1 text-xs text-gray-500">
               Avail: <strong className="text-brand-black dark:text-white font-mono">{availableQtyAtSource}</strong>
             </span>
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">
+            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
               Destination Stockpile <span className="text-brand-red">*</span>
             </label>
             <select
@@ -189,7 +189,7 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
         {/* Quantity and Transferred By */}
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">
+            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
               Transfer Qty <span className="text-brand-red">*</span>
             </label>
             <input
@@ -211,7 +211,7 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
             />
           </div>
           <div>
-            <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">
+            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
               Transferred By
             </label>
             <input
@@ -226,7 +226,7 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
 
         {/* Optional Ticket ID */}
         <div>
-          <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">
+          <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
             Work Order / Ticket # (Optional)
           </label>
           <input
@@ -240,7 +240,7 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
 
         {/* Notes */}
         <div>
-          <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">
+          <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
             Transfer Notes / Audit Reason
           </label>
           <textarea

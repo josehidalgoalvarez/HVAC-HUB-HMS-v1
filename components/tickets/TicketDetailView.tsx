@@ -659,7 +659,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             {hasRepeatAccessProblem && (
               <span
                 data-testid="detail-repeat-access-chip"
-                className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700"
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-bold rounded-md bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700"
               >
                 <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
                 Repeat access problem
@@ -668,7 +668,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             {unitContextChips.map(chip => (
               <span
                 key={chip.key}
-                className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md ${chip.className}`}
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-bold rounded-md ${chip.className}`}
               >
                 <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none">{chip.icon}</span>
                 {chip.key === 'renovated' ? (
@@ -679,7 +679,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
               </span>
             ))}
             {(ticket.appliance_name || ticket.appliance_model || ticket.appliance_id) && (
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-blue-100 text-blue-900 border border-blue-200 dark:bg-blue-950/80 dark:text-blue-200 dark:border-blue-800">
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-bold rounded-md bg-blue-100 text-blue-900 border border-blue-200 dark:bg-blue-950/80 dark:text-blue-200 dark:border-blue-800">
                 <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none text-blue-600 dark:text-blue-400">kitchen</span>
                 <span>
                   {ticket.appliance_name || 'Appliance'}
@@ -714,7 +714,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     Work Order Blocked
                   </span>
                   {ticket.blocked_at && (
-                    <span className="px-2 py-0.5 text-[10px] font-mono font-bold rounded-md bg-rose-200 text-rose-900 dark:bg-rose-900 dark:text-rose-100">
+                    <span className="px-2 py-0.5 text-xs font-mono font-bold rounded-md bg-rose-200 text-rose-900 dark:bg-rose-900 dark:text-rose-100">
                       Clock started: {formatDate(ticket.blocked_at)}
                     </span>
                   )}
@@ -769,7 +769,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 Repeat Access Problem Flag (2+ Failed Attempts)
               </span>
               {ticket.unit_failed_visits_count !== undefined && (
-                <span className="px-2 py-0.5 text-[10px] font-mono font-bold rounded-md bg-amber-200/80 text-amber-900 dark:bg-amber-900 dark:text-amber-100">
+                <span className="px-2 py-0.5 text-xs font-mono font-bold rounded-md bg-amber-200/80 text-amber-900 dark:bg-amber-900 dark:text-amber-100">
                   {ticket.unit_failed_visits_count} failed visits
                 </span>
               )}
@@ -1387,11 +1387,11 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                         #{p.part_number}
                       </span>
                     )}
-                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
+                    <span className="px-2 py-0.5 text-xs font-bold rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
                       {p.appliance_type || 'Appliance'}
                     </span>
                     <span
-                      className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider ${
+                      className={`px-2 py-0.5 text-xs font-bold rounded-md uppercase tracking-wider ${
                         p.status === 'arrived'
                           ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
                           : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
@@ -1553,7 +1553,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                           <div className="flex items-start gap-2">
                             <span className="text-xs font-bold text-primary shrink-0">{step.position}.</span>
                             <div className="flex-1 min-w-0 space-y-1">
-                              <p className="text-xs text-brand-black dark:text-white">{step.instruction}</p>
+                              <p className="text-sm text-brand-black dark:text-white">{step.instruction}</p>
                               <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
                                 <span className="inline-flex items-center gap-1">
                                   <span className="material-symbols-outlined text-xs" aria-hidden="true">timer</span>
@@ -1604,7 +1604,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     {run.notes && (
                       <div className="space-y-2">
                         <h3 className="text-xs font-bold text-brand-black dark:text-white uppercase tracking-wider">Overall notes</h3>
-                        <p className="text-xs text-gray-700 dark:text-gray-200 whitespace-pre-wrap">{run.notes}</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-200 whitespace-pre-wrap">{run.notes}</p>
                       </div>
                     )}
                   </div>
@@ -1684,7 +1684,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                           </span>
                           <span className="text-[11px] text-gray-500">by {ev.actor}</span>
                         </div>
-                        <span className="text-[10px] font-mono text-gray-400">
+                        <span className="text-xs font-mono text-gray-400">
                           {formatDateTime(ev.created_at)}
                         </span>
                       </div>
@@ -1719,22 +1719,22 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                             </span>
                           )}
                           {meta.outcome && (
-                            <span className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-mono text-[10px]">
+                            <span className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-mono text-xs">
                               outcome: {meta.outcome}
                             </span>
                           )}
                           {meta.failure_reason && (
-                            <span className="px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-200 font-mono text-[10px]">
+                            <span className="px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-200 font-mono text-xs">
                               reason: {meta.failure_reason}
                             </span>
                           )}
                           {meta.supplier && (
-                            <span className="px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/80 text-sky-800 dark:text-sky-200 text-[10px]">
+                            <span className="px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/80 text-sky-800 dark:text-sky-200 text-xs">
                               Supplier: {meta.supplier}
                             </span>
                           )}
                           {meta.order_ref && (
-                            <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-[10px]">
+                            <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-xs">
                               Ref: {meta.order_ref}
                             </span>
                           )}
@@ -1743,7 +1743,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                               href={meta.photo_url}
                               target="_blank"
                               rel="noreferrer"
-                              className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-[10px] font-bold hover:underline flex items-center gap-0.5"
+                              className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-xs font-bold hover:underline flex items-center gap-0.5"
                             >
                               <span aria-hidden="true" className="material-symbols-outlined text-[12px]">image</span>
                               Photo
@@ -1754,7 +1754,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                               href={meta.rating_plate_url}
                               target="_blank"
                               rel="noreferrer"
-                              className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-[10px] font-bold hover:underline flex items-center gap-0.5"
+                              className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-xs font-bold hover:underline flex items-center gap-0.5"
                             >
                               <span aria-hidden="true" className="material-symbols-outlined text-[12px]">badge</span>
                               Rating Plate
@@ -1765,7 +1765,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                               href={meta.manual_url}
                               target="_blank"
                               rel="noreferrer"
-                              className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-[10px] font-bold hover:underline flex items-center gap-0.5"
+                              className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-xs font-bold hover:underline flex items-center gap-0.5"
                             >
                               <span aria-hidden="true" className="material-symbols-outlined text-[12px]">menu_book</span>
                               Manual Link
@@ -1811,25 +1811,25 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
               <span className="block text-lg font-extrabold text-brand-black dark:text-white">
                 {rollup.total}
               </span>
-              <span className="text-[10px] text-gray-500 uppercase font-semibold">Total</span>
+              <span className="text-xs text-gray-500 uppercase font-semibold">Total</span>
             </div>
             <div>
               <span className="block text-lg font-extrabold text-blue-600 dark:text-blue-400">
                 {rollup.in_progress ?? 0}
               </span>
-              <span className="text-[10px] text-gray-500 uppercase font-semibold">In Progress</span>
+              <span className="text-xs text-gray-500 uppercase font-semibold">In Progress</span>
             </div>
             <div>
               <span className="block text-lg font-extrabold text-rose-600 dark:text-rose-400">
                 {rollup.blocked ?? 0}
               </span>
-              <span className="text-[10px] text-gray-500 uppercase font-semibold">Blocked</span>
+              <span className="text-xs text-gray-500 uppercase font-semibold">Blocked</span>
             </div>
             <div>
               <span className="block text-lg font-extrabold text-emerald-600 dark:text-emerald-400">
                 {rollup.done ?? 0}
               </span>
-              <span className="text-[10px] text-gray-500 uppercase font-semibold">Done</span>
+              <span className="text-xs text-gray-500 uppercase font-semibold">Done</span>
             </div>
           </div>
         )}
@@ -1860,7 +1860,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     </p>
                   )}
                   {child.assigned_tech_name && (
-                    <p className="text-[10px] text-gray-400">
+                    <p className="text-xs text-gray-400">
                       Tech: {child.assigned_tech_name}
                     </p>
                   )}
@@ -1868,7 +1868,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
                 <div className="flex items-center gap-2 shrink-0">
                   <span
-                    className={`px-2 py-0.5 text-[10px] font-bold rounded-lg ${
+                    className={`px-2 py-0.5 text-xs font-bold rounded-lg ${
                       child.status === 'done' || child.status === 'resolved'
                         ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                         : child.status === 'blocked'
@@ -2058,7 +2058,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     placeholder="Why is this blocked? (e.g. Awaiting owner authorization / rent hold)"
                     className="w-full px-3 py-2 text-sm rounded-xl border border-red-300 dark:border-red-800 bg-red-50/50"
                   />
-                  <span className="text-[10px] text-gray-500 mt-0.5 block">
+                  <span className="text-xs text-gray-500 mt-0.5 block">
                     Distinction: on-hold = waiting on next expected step; blocked = outside tech control.
                   </span>
                 </div>
@@ -2156,7 +2156,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                         <span aria-hidden="true" className="material-symbols-outlined text-[13px]">kitchen</span>
                         <span>{app.name || app.type}</span>
                         {app.modelNumber && (
-                          <span className="font-mono text-[10px] opacity-80">({app.modelNumber})</span>
+                          <span className="font-mono text-xs opacity-80">({app.modelNumber})</span>
                         )}
                       </button>
                     );
@@ -2178,7 +2178,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 className="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-card-dark font-medium"
                 required
               />
-              <span className="text-[10px] text-gray-400">
+              <span className="text-xs text-gray-400">
                 Required: every change is permanently logged in the correction audit trail.
               </span>
             </div>

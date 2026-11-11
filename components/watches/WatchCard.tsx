@@ -117,7 +117,7 @@ export const WatchCard: React.FC<WatchCardProps> = ({
             <span>{badge.label}</span>
           </span>
           {watch.quiet_hours_delayed && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
               <span aria-hidden="true" className="material-symbols-outlined text-[12px] leading-none">wb_twilight</span>
               <span>Morning Batch</span>
             </span>
@@ -134,7 +134,7 @@ export const WatchCard: React.FC<WatchCardProps> = ({
       <h3 className="text-base font-semibold text-brand-black dark:text-white mb-1">{watch.title}</h3>
 
       {watch.description && (
-        <p className="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">{watch.description}</p>
+        <p className="text-sm text-text-sub-light dark:text-text-sub-dark mb-2">{watch.description}</p>
       )}
 
       {/* Target Linkage */}

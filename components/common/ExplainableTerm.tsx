@@ -82,7 +82,7 @@ export const ExplainableTerm: React.FC<ExplainableTermProps> = ({
           onClick={(e) => e.stopPropagation()}
           className="absolute z-50 left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 max-w-[85vw] p-2.5 rounded-xl bg-gray-900 text-white dark:bg-neutral-800 dark:text-neutral-100 dark:border dark:border-neutral-700 shadow-xl text-left text-xs font-normal leading-snug animate-fadeIn cursor-default pointer-events-auto"
         >
-          <span className="block font-bold text-primary dark:text-sky-400 mb-1 flex items-center gap-1 uppercase tracking-wider text-[10px]">
+          <span className="block font-bold text-primary dark:text-sky-400 mb-1 flex items-center gap-1 uppercase tracking-wider text-xs">
             <span aria-hidden="true" className="material-symbols-outlined text-[13px]">help_outline</span>
             {entry.label}
           </span>

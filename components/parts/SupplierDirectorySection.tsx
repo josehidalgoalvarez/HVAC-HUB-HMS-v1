@@ -55,7 +55,7 @@ export const SupplierDirectorySection: React.FC<SupplierDirectorySectionProps> =
                 <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-neutral-800/60 p-2 rounded-xl">
                   <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">schedule</span>
                   <div>
-                    <span className="font-semibold block text-[10px] uppercase tracking-wider text-gray-400">Hours</span>
+                    <span className="font-semibold block text-xs uppercase tracking-wider text-gray-400">Hours</span>
                     <span>{supplier.hours || 'Mon–Fri 8:30–5'}</span>
                   </div>
                 </div>
@@ -64,7 +64,7 @@ export const SupplierDirectorySection: React.FC<SupplierDirectorySectionProps> =
                   <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-neutral-800/60 p-2 rounded-xl">
                     <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-gray-400">location_on</span>
                     <div>
-                      <span className="font-semibold block text-[10px] uppercase tracking-wider text-gray-400">Location</span>
+                      <span className="font-semibold block text-xs uppercase tracking-wider text-gray-400">Location</span>
                       <span className="truncate block">{supplier.address}</span>
                     </div>
                   </div>

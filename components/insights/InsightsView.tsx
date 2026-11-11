@@ -144,7 +144,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({ onBack }) => {
             </h1>
             <span
               data-testid="insights-fixtures-excluded-badge"
-              className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 flex items-center gap-1"
+              className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 flex items-center gap-1"
             >
               <span aria-hidden="true" className="material-symbols-outlined text-[12px] text-amber-500">filter_alt</span>
               Test fixtures excluded

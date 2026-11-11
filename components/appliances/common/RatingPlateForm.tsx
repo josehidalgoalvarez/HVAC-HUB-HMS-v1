@@ -222,15 +222,15 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                 <div className="bg-background-light dark:bg-card-dark rounded-xl p-4 mb-6 shrink-0 border border-transparent">
                     <input type="file" ref={fileInputRef} accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} />
 
-                    <div onClick={handleCameraClick} className="flex items-center gap-4 cursor-pointer group mb-3 hover:opacity-80 transition-opacity">
-                        <div className="w-12 h-12 rounded-xl bg-white dark:bg-gray-700 flex items-center justify-center shadow-sm text-brand-black dark:text-white group-hover:text-primary transition-colors border border-gray-100 dark:border-gray-600">
+                    <button type="button" onClick={handleCameraClick} className="w-full text-left flex items-center gap-4 cursor-pointer group mb-3 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-xl p-1 -m-1">
+                        <div className="w-12 h-12 rounded-xl bg-white dark:bg-gray-700 flex items-center justify-center shadow-sm text-brand-black dark:text-white group-hover:text-primary transition-colors border border-gray-100 dark:border-gray-600 shrink-0">
                             <span aria-hidden="true" className="material-symbols-outlined text-[24px]">photo_camera</span>
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                             <p className="font-bold text-brand-black dark:text-white text-base">Rating Plate Image</p>
                             <p className="text-xs text-text-sub-light dark:text-text-sub-dark">Tap to capture or upload</p>
                         </div>
-                    </div>
+                    </button>
 
                     <div className="relative">
                         <input
@@ -251,11 +251,11 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                         <p className="text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-2">Location & Room</p>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Unit Number</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Unit Number</label>
                                 <input value={unitNumber} onChange={(e) => setUnitNumber(e.target.value)} placeholder="e.g. 273 or Common" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-3 px-3 text-brand-black dark:text-white outline-none focus:ring-2 focus:ring-primary/50 text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Room ("Basement", "Roof")</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Room ("Basement", "Roof")</label>
                                 <input list="rooms" value={room} onChange={(e) => setRoom(e.target.value)} placeholder="e.g. Mechanical Room" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-3 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                                 <datalist id="rooms">
                                     <option value="Basement" />
@@ -274,14 +274,14 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                         <p className="text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider mb-2">Identification</p>
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Model Number</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Model Number</label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-3 text-gray-400 font-bold">#</span>
                                     <input type="text" value={modelNumber} onChange={(e) => setModelNumber(e.target.value)} placeholder="1234567" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-3 pl-8 pr-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm font-mono" />
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Serial Number</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Serial Number</label>
                                 <div className="relative">
                                     <span aria-hidden="true" className="absolute left-3 top-3.5 text-gray-400 material-symbols-outlined text-[16px]">123</span>
                                     <input type="text" value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} placeholder="123456" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-3 pl-10 pr-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm font-mono" />
@@ -298,7 +298,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
 
                         {/* Fuel Type Grid */}
                         <div className="mb-4">
-                            <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-2 ml-1">Fuel Type</label>
+                            <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-2 ml-1">Fuel Type</label>
                             <div className="grid grid-cols-2 gap-3">
                                 {FUEL_TYPES.map(type => (
                                     <button
@@ -327,26 +327,26 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Capacity / Size</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Capacity / Size</label>
                                 <input type="text" value={capacity} onChange={(e) => setCapacity(e.target.value)} placeholder="e.g. 50 Gallons / 3 Tons" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-3 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
 
                             {/* BTU Colocation */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="relative">
-                                    <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">BTU Input</label>
+                                    <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">BTU Input</label>
                                     <input type="text" value={btuInput} onChange={(e) => setBtuInput(e.target.value)} placeholder="0" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-3 pl-4 pr-14 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm text-center" />
                                     <span className="absolute right-3 top-9 text-xs font-bold text-gray-400">BTU/h</span>
                                 </div>
                                 <div className="relative">
-                                    <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">BTU Output</label>
+                                    <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">BTU Output</label>
                                     <input type="text" value={btuOutput} onChange={(e) => setBtuOutput(e.target.value)} placeholder="0" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-3 pl-4 pr-14 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm text-center" />
                                     <span className="absolute right-3 top-9 text-xs font-bold text-gray-400">BTU/h</span>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Mfg Date</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Mfg Date</label>
                                 <input type="date" value={mfgDate} onChange={(e) => setMfgDate(e.target.value)} className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-3 px-4 text-brand-black dark:text-white outline-none focus:ring-2 focus:ring-primary/50 text-sm" />
                             </div>
                         </div>
@@ -359,31 +359,31 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                         </p>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Volts</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Volts</label>
                                 <input type="text" value={volts} onChange={(e) => setVolts(e.target.value)} placeholder="240V" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Watts</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Watts</label>
                                 <input type="text" value={watts} onChange={(e) => setWatts(e.target.value)} placeholder="4500W" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Phase</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Phase</label>
                                 <input type="text" value={phase} onChange={(e) => setPhase(e.target.value)} placeholder="1" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Hertz</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Hertz</label>
                                 <input type="text" value={hertz} onChange={(e) => setHertz(e.target.value)} placeholder="60Hz" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Breaker</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Breaker</label>
                                 <input type="text" value={breakerRating} onChange={(e) => setBreakerRating(e.target.value)} placeholder="60A" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Panel Slot</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Panel Slot</label>
                                 <input type="text" value={panelSlot} onChange={(e) => setPanelSlot(e.target.value)} placeholder="14,16" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Max Amps</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Max Amps</label>
                                 <input type="text" value={maxUnitAmp} onChange={(e) => setMaxUnitAmp(e.target.value)} placeholder="30A" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                         </div>
@@ -396,67 +396,67 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                         </p>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Temp Rise</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Temp Rise</label>
                                 <input type="text" value={airTempRise} onChange={(e) => setAirTempRise(e.target.value)} placeholder="45-75°F" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Efficiency (kW)</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Efficiency (kW)</label>
                                 <input type="text" value={kw} onChange={(e) => setKw(e.target.value)} placeholder="15 kW" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Motor HP</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Motor HP</label>
                                 <input type="text" value={motorHp} onChange={(e) => setMotorHp(e.target.value)} placeholder="1/2 HP" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Refrigerant</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Refrigerant</label>
                                 <input type="text" value={refrigerantType} onChange={(e) => setRefrigerantType(e.target.value)} placeholder="R410A" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div className="col-span-2">
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Filter Size</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Filter Size</label>
                                 <input type="text" value={filterSize} onChange={(e) => setFilterSize(e.target.value)} placeholder="16x25x1" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
 
                             {/* Breakdown of Dashboard Specs */}
                             <div className="col-span-2 pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
-                                <p className="text-[10px] font-bold text-gray-400 uppercase">HVAC / Air Handling</p>
+                                <p className="text-xs font-bold text-gray-400 uppercase">HVAC / Air Handling</p>
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Return Temp</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Return Temp</label>
                                 <input type="text" value={returnTemp} onChange={(e) => setReturnTemp(e.target.value)} placeholder="72°F" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Supply Temp</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Supply Temp</label>
                                 <input type="text" value={supplyTemp} onChange={(e) => setSupplyTemp(e.target.value)} placeholder="54°F" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Static Pressure</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Static Pressure</label>
                                 <input type="text" value={staticPressure} onChange={(e) => setStaticPressure(e.target.value)} placeholder="0.5 in.wc" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Fan Speed</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Fan Speed</label>
                                 <input type="text" value={fanSpeed} onChange={(e) => setFanSpeed(e.target.value)} placeholder="1250 RPM" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
 
                             <div className="col-span-2 pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
-                                <p className="text-[10px] font-bold text-gray-400 uppercase">Hydronics / Water</p>
+                                <p className="text-xs font-bold text-gray-400 uppercase">Hydronics / Water</p>
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Water Temp</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Water Temp</label>
                                 <input type="text" value={waterTemp} onChange={(e) => setWaterTemp(e.target.value)} placeholder="120°F" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">System Pressure</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">System Pressure</label>
                                 <input type="text" value={systemPressure} onChange={(e) => setSystemPressure(e.target.value)} placeholder="60 PSI" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Flow Rate</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Flow Rate</label>
                                 <input type="text" value={flowRate} onChange={(e) => setFlowRate(e.target.value)} placeholder="4.5 GPM" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Gas Valve</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Gas Valve</label>
                                 <input type="text" value={gasValve} onChange={(e) => setGasValve(e.target.value)} placeholder="OPEN" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                             </div>
                         </div>
@@ -487,7 +487,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                             </div>
 
                             <div className="relative">
-                                <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Installation Guide</label>
+                                <label className="block text-xs font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Installation Guide</label>
                                 <input type="text" value={installationUrl} onChange={(e) => setInstallationUrl(e.target.value)} placeholder="Installation URL..." className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 pr-10 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
                                 <button onClick={() => installationInputRef.current?.click()} className="absolute right-2 top-8 text-gray-400 hover:text-primary" aria-label="Upload file"><span aria-hidden="true" className="material-symbols-outlined text-[20px]">upload_file</span></button>
                             </div>

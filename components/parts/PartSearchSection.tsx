@@ -380,7 +380,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
               <div className="min-w-0">
                 <div className="text-xs font-bold text-amber-900 dark:text-amber-200 truncate flex items-center gap-1.5">
                   <span>{activeSp.name}</span>
-                  <span className="px-1.5 py-0.2 rounded text-[10px] bg-amber-500 text-brand-black font-black uppercase">
+                  <span className="px-1.5 py-0.2 rounded text-xs bg-amber-500 text-brand-black font-black uppercase">
                     Location Menu
                   </span>
                 </div>
@@ -583,10 +583,10 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                               <span>• {sp.stockpile_name} ({sp.stockpile_location})</span>
                               {sp.location_notes ? <span className="text-gray-400">({sp.location_notes})</span> : null}
                               {typeof sp.minimum === 'number' && (
-                                <span className="text-[10px] text-gray-500 font-mono">min: {sp.minimum}</span>
+                                <span className="text-xs text-gray-500 font-mono">min: {sp.minimum}</span>
                               )}
                               {isLowStock && (
-                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                                   <span aria-hidden="true" className="material-symbols-outlined text-[12px]">warning</span>
                                   Low Stock
                                 </span>
