@@ -29,6 +29,7 @@ import {
   EmptyComplexReference
 } from '../../residential_constants';
 import { BuildingMoveReferenceSheet } from './BuildingMoveReferenceSheet';
+import { SyncStatusIndicator } from '../common/SyncStatusIndicator';
 
 interface PropertyListViewProps {
   onPropertyClick: (id: string) => void;
@@ -828,69 +829,74 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     <div className="flex flex-col min-h-screen bg-gray-50/50 dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-sans pb-32">
       {/* 1. TOP HEADER & BREADCRUMBS */}
       <div className="sticky top-0 z-30 bg-white/95 dark:bg-card-dark/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 px-4 py-3 shadow-xs">
-        {/* Breadcrumb Bar */}
-        <nav className="flex items-center gap-1.5 text-xs overflow-x-auto whitespace-nowrap py-1">
-          <button
-            onClick={handleNavRoot}
-            className={`font-semibold px-2.5 py-1 rounded-lg transition-colors ${
-              navLevel === 'root'
-                ? 'bg-primary/10 text-primary dark:bg-primary/20 font-bold'
-                : 'text-text-sub-light dark:text-text-sub-dark hover:bg-gray-100 dark:hover:bg-neutral-800'
-            }`}
-          >
-            All Complexes
-          </button>
+        {/* Breadcrumb Bar + Sync Indicator */}
+        <div className="flex items-center justify-between gap-2">
+          <nav className="flex items-center gap-1.5 text-xs overflow-x-auto whitespace-nowrap py-1 flex-1 min-w-0">
+            <button
+              onClick={handleNavRoot}
+              className={`font-semibold px-2.5 py-1 rounded-lg transition-colors ${
+                navLevel === 'root'
+                  ? 'bg-primary/10 text-primary dark:bg-primary/20 font-bold'
+                  : 'text-text-sub-light dark:text-text-sub-dark hover:bg-gray-100 dark:hover:bg-neutral-800'
+              }`}
+            >
+              All Complexes
+            </button>
 
-          {activeComplex && navLevel !== 'root' && (
-            <>
-              <span className="text-gray-300 dark:text-gray-600">/</span>
-              <button
-                onClick={() => handleNavComplex(activeComplex.id)}
-                className={`font-semibold px-2.5 py-1 rounded-lg transition-colors ${
-                  navLevel === 'complex'
-                    ? 'bg-primary/10 text-primary dark:bg-primary/20 font-bold'
-                    : 'text-text-sub-light dark:text-text-sub-dark hover:bg-gray-100 dark:hover:bg-neutral-800'
-                }`}
-              >
-                {activeComplex.name}
-              </button>
-            </>
-          )}
+            {activeComplex && navLevel !== 'root' && (
+              <>
+                <span className="text-gray-300 dark:text-gray-600">/</span>
+                <button
+                  onClick={() => handleNavComplex(activeComplex.id)}
+                  className={`font-semibold px-2.5 py-1 rounded-lg transition-colors ${
+                    navLevel === 'complex'
+                      ? 'bg-primary/10 text-primary dark:bg-primary/20 font-bold'
+                      : 'text-text-sub-light dark:text-text-sub-dark hover:bg-gray-100 dark:hover:bg-neutral-800'
+                  }`}
+                >
+                  {activeComplex.name}
+                </button>
+              </>
+            )}
 
-          {activeBuilding && (navLevel === 'building' || navLevel === 'unit') && (
-            <>
-              <span className="text-gray-300 dark:text-gray-600">/</span>
-              <button
-                onClick={() => handleNavBuilding(activeBuilding.id)}
-                className={`font-semibold px-2.5 py-1 rounded-lg transition-colors ${
-                  navLevel === 'building'
-                    ? 'bg-primary/10 text-primary dark:bg-primary/20 font-bold'
-                    : 'text-text-sub-light dark:text-text-sub-dark hover:bg-gray-100 dark:hover:bg-neutral-800'
-                }`}
-              >
-                {activeBuilding.name}
-              </button>
-            </>
-          )}
+            {activeBuilding && (navLevel === 'building' || navLevel === 'unit') && (
+              <>
+                <span className="text-gray-300 dark:text-gray-600">/</span>
+                <button
+                  onClick={() => handleNavBuilding(activeBuilding.id)}
+                  className={`font-semibold px-2.5 py-1 rounded-lg transition-colors ${
+                    navLevel === 'building'
+                      ? 'bg-primary/10 text-primary dark:bg-primary/20 font-bold'
+                      : 'text-text-sub-light dark:text-text-sub-dark hover:bg-gray-100 dark:hover:bg-neutral-800'
+                  }`}
+                >
+                  {activeBuilding.name}
+                </button>
+              </>
+            )}
 
-          {activeUnit && navLevel === 'unit' && (
-            <>
-              <span className="text-gray-300 dark:text-gray-600">/</span>
-              <span className="font-bold px-2.5 py-1 rounded-lg bg-primary/10 text-primary dark:bg-primary/20">
-                Unit {isPrincessTrioBuildingId(activeUnit.buildingId) ? `${getPrincessOriginPrefix(activeUnit.buildingId, activeUnit.unitNumber)}${activeUnit.unitNumber}` : activeUnit.unitNumber}
-              </span>
-            </>
-          )}
+            {activeUnit && navLevel === 'unit' && (
+              <>
+                <span className="text-gray-300 dark:text-gray-600">/</span>
+                <span className="font-bold px-2.5 py-1 rounded-lg bg-primary/10 text-primary dark:bg-primary/20">
+                  Unit {isPrincessTrioBuildingId(activeUnit.buildingId) ? `${getPrincessOriginPrefix(activeUnit.buildingId, activeUnit.unitNumber)}${activeUnit.unitNumber}` : activeUnit.unitNumber}
+                </span>
+              </>
+            )}
 
-          {navLevel === 'defaults' && (
-            <>
-              <span className="text-gray-300 dark:text-gray-600">/</span>
-              <span className="font-bold px-2.5 py-1 rounded-lg bg-primary text-white">
-                Appliance Defaults
-              </span>
-            </>
-          )}
-        </nav>
+            {navLevel === 'defaults' && (
+              <>
+                <span className="text-gray-300 dark:text-gray-600">/</span>
+                <span className="font-bold px-2.5 py-1 rounded-lg bg-primary text-white">
+                  Appliance Defaults
+                </span>
+              </>
+            )}
+          </nav>
+          <div className="shrink-0">
+            <SyncStatusIndicator />
+          </div>
+        </div>
 
         {/* Direct Global Inventory Search Bar */}
         <div className="mt-2.5 relative">

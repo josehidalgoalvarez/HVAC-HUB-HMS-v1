@@ -23,6 +23,8 @@ interface InventoryContextType {
   getUnitAppliances: (unit: Unit) => Appliance[];
   isTutorialActive: boolean;
   tutorialStep: number;
+  isSyncing: boolean;
+  lastSyncedAt: number | null;
 }
 
 export const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
@@ -196,10 +198,22 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   });
 
+  // --- Honest Sync State ---
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [lastSyncedAt, setLastSyncedAt] = useState<number | null>(() => {
+    try {
+      const saved = localStorage.getItem('hvachome_inventory_last_synced_at');
+      return saved ? parseInt(saved, 10) : null;
+    } catch {
+      return null;
+    }
+  });
+
   // --- API Load Effect (when VITE_USE_API=true) ---
   useEffect(() => {
     if (!useApi) return;
     let isMounted = true;
+    setIsSyncing(true);
     apiClient.get<{
       properties: Property[];
       appliances: Appliance[];
@@ -210,26 +224,63 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }>('/api/inventory')
       .then(res => {
         if (!isMounted) return;
+        setIsSyncing(false);
+
+        // Ensure portfolio version key is stamped
+        try {
+          localStorage.setItem('hvachome_portfolio_version', PORTFOLIO_VERSION);
+        } catch {}
+
         if (res?.properties && res.properties.length > 0) {
           setProperties(res.properties);
+          try {
+            localStorage.setItem('hvachome_properties', JSON.stringify(res.properties));
+          } catch {}
         }
         if (res?.appliances && res.appliances.length > 0) {
           setAppliances(res.appliances);
+          try {
+            localStorage.setItem('hvachome_appliances', JSON.stringify(res.appliances));
+          } catch {}
         }
         if (res?.complexes && res.complexes.length > 0) {
           // Filter out standalone empty 'frontenac' complex menu (redundant with Frontenac–Alfred Quadrant)
           const filteredComplexes = res.complexes.filter(c => c.slug !== 'frontenac' && c.id !== 'frontenac' && String(c.id) !== '7');
           setComplexes(filteredComplexes);
+          try {
+            localStorage.setItem('hvachome_complexes', JSON.stringify(filteredComplexes));
+          } catch {}
         }
         if (res?.defaultSets && res.defaultSets.length > 0) {
           setDefaultSets(res.defaultSets);
+          try {
+            localStorage.setItem('hvachome_default_sets', JSON.stringify(res.defaultSets));
+          } catch {}
         }
         if (res?.units && res.units.length > 0) {
           setUnits(res.units);
+          try {
+            localStorage.setItem('hvachome_units', JSON.stringify(res.units));
+          } catch {}
         }
-        if (res?.logs) setLogs(res.logs);
+        if (res?.logs && res.logs.length > 0) {
+          setLogs(res.logs);
+          try {
+            localStorage.setItem('hvachome_logs', JSON.stringify(res.logs));
+          } catch {}
+        }
+
+        // Persist successful sync timestamp
+        const now = Date.now();
+        setLastSyncedAt(now);
+        try {
+          localStorage.setItem('hvachome_inventory_last_synced_at', String(now));
+        } catch {}
       })
       .catch(err => {
+        if (isMounted) {
+          setIsSyncing(false);
+        }
         console.warn('API inventory unavailable, keeping local/cached portfolio:', err);
       });
     return () => { isMounted = false; };
@@ -666,8 +717,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     getDefaultSet,
     getUnitAppliances,
     isTutorialActive,
-    tutorialStep
-  }), [properties, appliances, complexes, defaultSets, units, isTutorialActive, tutorialStep]);
+    tutorialStep,
+    isSyncing,
+    lastSyncedAt
+  }), [properties, appliances, complexes, defaultSets, units, isTutorialActive, tutorialStep, isSyncing, lastSyncedAt]);
 
   const activityValue = useMemo(() => ({
     logs

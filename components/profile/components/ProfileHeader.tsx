@@ -1,5 +1,6 @@
 import React from 'react';
 import { ASSETS } from '../../../utils/assets';
+import { SyncStatusIndicator } from '../../common/SyncStatusIndicator';
 
 interface ProfileHeaderProps {
     isEditMode: boolean;
@@ -15,11 +16,14 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ isEditMode }) => {
                     alt="User"
                 />
             </div>
-            <div className="text-center">
+            <div className="text-center flex flex-col items-center">
                 <h2 className="text-xl font-bold text-brand-black dark:text-white">Patry Maintenance</h2>
                 <p className="text-xs text-text-sub-light dark:text-text-sub-dark font-medium mt-0.5">
                     Field Technician {isEditMode && <span className="text-primary font-bold text-xs ml-2 border border-primary/30 px-2 py-0.5 rounded-full">ADMIN</span>}
                 </p>
+                <div className="mt-2.5">
+                    <SyncStatusIndicator />
+                </div>
             </div>
         </div>
     );
