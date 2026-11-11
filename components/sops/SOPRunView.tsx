@@ -316,8 +316,8 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
             type="button"
             onClick={onBack}
             className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-200 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
-          >
-            <span className="material-symbols-outlined text-xl">arrow_back</span>
+           aria-label="Back">
+            <span aria-hidden="true" className="material-symbols-outlined text-xl">arrow_back</span>
           </button>
           <div className="text-right">
             <span className="text-[11px] font-mono text-gray-400">Step 1 of 3: Pre-Run Readiness</span>
@@ -355,7 +355,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
         {weatherWarnings.length > 0 && (
           <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
             <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold text-xs">
-              <span className="material-symbols-outlined text-base">warning</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-base">warning</span>
               Weather & Environmental Advisory (Non-blocking)
             </div>
             <ul className="space-y-1 pl-5 list-disc text-xs text-amber-800 dark:text-amber-300">
@@ -384,7 +384,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
           {/* Tools */}
           <div className="bg-white dark:bg-card-dark rounded-2xl p-3.5 border border-gray-100 dark:border-gray-800 space-y-1.5 shadow-xs">
             <div className="flex items-center gap-1.5 text-xs font-bold text-brand-black dark:text-white">
-              <span className="material-symbols-outlined text-primary text-base">construction</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-base">construction</span>
               Required Tools
             </div>
             {sop.required_tools.length === 0 ? (
@@ -393,7 +393,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
               <ul className="text-xs space-y-1 text-gray-700 dark:text-gray-300">
                 {sop.required_tools.map((t, idx) => (
                   <li key={idx} className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-xs text-gray-400">check</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-xs text-gray-400">check</span>
                     {t}
                   </li>
                 ))}
@@ -404,7 +404,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
           {/* Parts */}
           <div className="bg-white dark:bg-card-dark rounded-2xl p-3.5 border border-gray-100 dark:border-gray-800 space-y-1.5 shadow-xs">
             <div className="flex items-center gap-1.5 text-xs font-bold text-brand-black dark:text-white">
-              <span className="material-symbols-outlined text-amber-500 text-base">inventory_2</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-amber-500 text-base">inventory_2</span>
               Required Parts
             </div>
             {sop.required_parts.length === 0 ? (
@@ -413,7 +413,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
               <ul className="text-xs space-y-1 text-gray-700 dark:text-gray-300">
                 {sop.required_parts.map((p, idx) => (
                   <li key={idx} className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-xs text-gray-400">check</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-xs text-gray-400">check</span>
                     {p}
                   </li>
                 ))}
@@ -424,7 +424,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
           {/* Access & Crew */}
           <div className="bg-white dark:bg-card-dark rounded-2xl p-3.5 border border-gray-100 dark:border-gray-800 space-y-1.5 shadow-xs">
             <div className="flex items-center gap-1.5 text-xs font-bold text-brand-black dark:text-white">
-              <span className="material-symbols-outlined text-purple-500 text-base">key</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-purple-500 text-base">key</span>
               Access & Crew
             </div>
             <div className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
@@ -445,7 +445,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
         <div className="bg-white dark:bg-card-dark rounded-2xl p-4 border border-gray-100 dark:border-gray-800 space-y-3 shadow-xs">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-lg">verified</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-lg">verified</span>
               <h3 className="text-xs font-bold text-brand-black dark:text-white uppercase tracking-wider">
                 Mandatory Compliance Gates
               </h3>
@@ -512,8 +512,8 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
                 ? 'bg-primary text-white hover:bg-primary/90'
                 : 'bg-gray-200 dark:bg-neutral-800 text-gray-400 cursor-not-allowed'
             }`}
-          >
-            <span className="material-symbols-outlined text-lg">play_arrow</span>
+           aria-label="Start">
+            <span aria-hidden="true" className="material-symbols-outlined text-lg">play_arrow</span>
             {allGatesAcknowledged ? 'Begin Timed Checklist Run' : 'Acknowledge All Gates to Begin'}
           </button>
           {!allGatesAcknowledged && (
@@ -610,8 +610,8 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
               type="button"
               onClick={() => handleCompleteCurrentStep(false)}
               className="flex-1 min-h-[48px] px-4 py-3 bg-primary text-white hover:bg-primary/90 font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all"
-            >
-              <span className="material-symbols-outlined text-lg">check_circle</span>
+             aria-label="Complete">
+              <span aria-hidden="true" className="material-symbols-outlined text-lg">check_circle</span>
               {currentStepIdx + 1 === steps.length ? 'Complete Final Step' : 'Step Complete (Next)'}
             </button>
 
@@ -621,7 +621,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
               className="min-h-[48px] px-3.5 py-3 bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 border border-amber-500/30 font-bold text-xs rounded-xl flex items-center gap-1 transition-all"
               title="Record that this step deviated from standard procedure"
             >
-              <span className="material-symbols-outlined text-base">report_problem</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-base">report_problem</span>
               Deviation
             </button>
           </div>
@@ -698,7 +698,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
                                 }`}
                               >
                                 {isDone ? (
-                                  <span className="material-symbols-outlined text-sm">check</span>
+                                  <span aria-hidden="true" className="material-symbols-outlined text-sm">check</span>
                                 ) : (
                                   st.position
                                 )}
@@ -750,7 +750,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
       {/* Completion Header */}
       <div className="bg-emerald-600 text-white rounded-2xl p-5 shadow-sm space-y-1">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-2xl">task_alt</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-2xl">task_alt</span>
           <h2 className="text-lg font-bold">Checklist Run Completed</h2>
         </div>
         <p className="text-xs opacity-90">
@@ -760,7 +760,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
 
       {submissionError && (
         <div className="p-3 rounded-xl bg-brand-red/10 border border-brand-red/30 text-xs text-brand-red font-semibold flex items-center gap-2">
-          <span className="material-symbols-outlined text-base">error</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-base">error</span>
           {submissionError}
         </div>
       )}
@@ -877,8 +877,8 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
           disabled={isSubmitting}
           onClick={handleSubmitRun}
           className="w-full min-h-[48px] py-3 px-4 text-xs font-bold bg-primary text-white hover:bg-primary/90 rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-        >
-          <span className="material-symbols-outlined text-lg">save</span>
+         aria-label="Save">
+          <span aria-hidden="true" className="material-symbols-outlined text-lg">save</span>
           {isSubmitting ? 'Recording SOP Run...' : 'Save & Append to Timeline'}
         </button>
 

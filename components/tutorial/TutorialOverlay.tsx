@@ -34,8 +34,8 @@ export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ step, onNext, 
             <div className={`absolute ${getPositionClass(step.position)} bg-white dark:bg-card-dark p-6 rounded-2xl shadow-2xl max-w-sm w-full pointer-events-auto border border-gray-100 dark:border-gray-700 animate-fade-in`}>
                 <div className="flex justify-between items-start mb-4">
                     <h3 className="text-xl font-bold text-brand-black dark:text-white">{step.title}</h3>
-                    <button onClick={onExit} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                        <span className="material-symbols-outlined">close</span>
+                    <button onClick={onExit} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" aria-label="Close">
+                        <span aria-hidden="true" className="material-symbols-outlined">close</span>
                     </button>
                 </div>
 

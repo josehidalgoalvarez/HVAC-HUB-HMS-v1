@@ -113,12 +113,12 @@ export const WatchCard: React.FC<WatchCardProps> = ({
           <span
             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${badge.bg}`}
           >
-            <span className="material-symbols-outlined text-[14px] leading-none">{badge.icon}</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[14px] leading-none">{badge.icon}</span>
             <span>{badge.label}</span>
           </span>
           {watch.quiet_hours_delayed && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
-              <span className="material-symbols-outlined text-[12px] leading-none">wb_twilight</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[12px] leading-none">wb_twilight</span>
               <span>Morning Batch</span>
             </span>
           )}
@@ -151,7 +151,7 @@ export const WatchCard: React.FC<WatchCardProps> = ({
       {isTriggered && watch.latest_trigger_reason && (
         <div className="mt-2 mb-3 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-rose-900 dark:text-rose-200">
           <div className="flex items-start gap-2">
-            <span className="material-symbols-outlined text-rose-600 dark:text-rose-400 text-sm leading-none shrink-0 mt-0.5">warning</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-rose-600 dark:text-rose-400 text-sm leading-none shrink-0 mt-0.5">warning</span>
             <div className="flex-1 text-xs">
               <p className="font-medium">{watch.latest_trigger_reason}</p>
             </div>
@@ -162,7 +162,7 @@ export const WatchCard: React.FC<WatchCardProps> = ({
       {/* Snoozed State Info */}
       {isSnoozed && watch.snoozed_until && (
         <div className="mt-2 mb-3 p-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2">
-          <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-sm leading-none">snooze</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-sm leading-none">snooze</span>
           <span>Silenced until: <strong>{formatDateTime(watch.snoozed_until)}</strong></span>
         </div>
       )}
@@ -183,14 +183,14 @@ export const WatchCard: React.FC<WatchCardProps> = ({
               onClick={() => onSnooze(watch)}
               className="flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-brand-black dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm leading-none">snooze</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-sm leading-none">snooze</span>
               <span>Snooze</span>
             </button>
             <button
               onClick={() => onAcknowledge(watch)}
               className="flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-bold bg-primary hover:bg-blue-600 text-white shadow-sm border border-primary active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-sm leading-none">check</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-sm leading-none">check</span>
               <span>Acknowledge</span>
             </button>
           </>
@@ -201,7 +201,7 @@ export const WatchCard: React.FC<WatchCardProps> = ({
             onClick={() => onReactivate(watch)}
             className="flex-1 min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-brand-black dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
           >
-            <span className="material-symbols-outlined text-sm leading-none">notifications_active</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-sm leading-none">notifications_active</span>
             <span>Un-snooze</span>
           </button>
         )}

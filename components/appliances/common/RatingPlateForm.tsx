@@ -210,10 +210,10 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                             className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors"
                             title="Save Changes"
                         >
-                            <span className="material-symbols-outlined">check</span>
+                            <span aria-hidden="true" className="material-symbols-outlined">check</span>
                         </button>
-                        <button onClick={onClose} className="p-2 text-gray-400 hover:text-brand-black dark:hover:text-white transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
-                            <span className="material-symbols-outlined text-[24px]">close</span>
+                        <button onClick={onClose} className="p-2 text-gray-400 hover:text-brand-black dark:hover:text-white transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Close">
+                            <span aria-hidden="true" className="material-symbols-outlined text-[24px]">close</span>
                         </button>
                     </div>
                 </div>
@@ -224,7 +224,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
 
                     <div onClick={handleCameraClick} className="flex items-center gap-4 cursor-pointer group mb-3 hover:opacity-80 transition-opacity">
                         <div className="w-12 h-12 rounded-xl bg-white dark:bg-gray-700 flex items-center justify-center shadow-sm text-brand-black dark:text-white group-hover:text-primary transition-colors border border-gray-100 dark:border-gray-600">
-                            <span className="material-symbols-outlined text-[24px]">photo_camera</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-[24px]">photo_camera</span>
                         </div>
                         <div className="flex-1">
                             <p className="font-bold text-brand-black dark:text-white text-base">Rating Plate Image</p>
@@ -240,7 +240,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                             placeholder="https://..."
                             className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 text-sm text-brand-black dark:text-white placeholder-gray-300 focus:ring-2 focus:ring-primary/50 outline-none"
                         />
-                        {ratingPlateUrl && <span className="absolute right-3 top-2.5 text-green-500 material-symbols-outlined text-[18px]">check_circle</span>}
+                        {ratingPlateUrl && <span aria-hidden="true" className="absolute right-3 top-2.5 text-green-500 material-symbols-outlined text-[18px]">check_circle</span>}
                     </div>
                 </div>
 
@@ -283,7 +283,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                             <div>
                                 <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Serial Number</label>
                                 <div className="relative">
-                                    <span className="absolute left-3 top-3.5 text-gray-400 material-symbols-outlined text-[16px]">123</span>
+                                    <span aria-hidden="true" className="absolute left-3 top-3.5 text-gray-400 material-symbols-outlined text-[16px]">123</span>
                                     <input type="text" value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} placeholder="123456" className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-3 pl-10 pr-4 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm font-mono" />
                                 </div>
                             </div>
@@ -293,7 +293,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                     {/* Primary Ratings Box */}
                     <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
                         <p className="text-xs font-bold text-primary uppercase tracking-wider mb-4 flex items-center gap-1">
-                            <span className="material-symbols-outlined text-sm">local_fire_department</span> Primary Ratings
+                            <span aria-hidden="true" className="material-symbols-outlined text-sm">local_fire_department</span> Primary Ratings
                         </p>
 
                         {/* Fuel Type Grid */}
@@ -308,8 +308,8 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                                             ? 'bg-white dark:bg-card-dark border-primary text-primary shadow-sm'
                                             : 'bg-white/50 dark:bg-card-dark/50 border-transparent text-gray-500 hover:bg-white dark:hover:bg-card-dark'
                                             }`}
-                                    >
-                                        <span className="material-symbols-outlined mb-1">{type.icon}</span>
+                                     aria-label="Icon">
+                                        <span aria-hidden="true" className="material-symbols-outlined mb-1">{type.icon}</span>
                                         <span className="text-xs font-bold">{type.label}</span>
                                     </button>
                                 ))}
@@ -355,7 +355,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                     {/* Electrical Box */}
                     <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
                         <p className="text-xs font-bold text-primary uppercase tracking-wider mb-4 flex items-center gap-1">
-                            <span className="material-symbols-outlined text-sm">bolt</span> Electrical
+                            <span aria-hidden="true" className="material-symbols-outlined text-sm">bolt</span> Electrical
                         </p>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
@@ -392,7 +392,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                     {/* Performance & Diagnostics Box */}
                     <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
                         <p className="text-xs font-bold text-primary uppercase tracking-wider mb-4 flex items-center gap-1">
-                            <span className="material-symbols-outlined text-sm">tune</span> Performance & Diagnostics
+                            <span aria-hidden="true" className="material-symbols-outlined text-sm">tune</span> Performance & Diagnostics
                         </p>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
@@ -467,7 +467,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                     {/* Documentation & Links */}
                     <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
                         <p className="text-xs font-bold text-primary uppercase tracking-wider mb-4 flex items-center gap-1">
-                            <span className="material-symbols-outlined text-sm">folder_open</span> Documentation
+                            <span aria-hidden="true" className="material-symbols-outlined text-sm">folder_open</span> Documentation
                         </p>
 
                         <input type="file" ref={manualInputRef} accept=".pdf,image/*" className="hidden" onChange={(e) => handleDocUpload(e, setManualUrl)} />
@@ -478,25 +478,25 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                             <div className="flex gap-2">
                                 <div className="flex-1 relative">
                                     <input type="text" value={manualUrl} onChange={(e) => setManualUrl(e.target.value)} placeholder="Manual URL..." className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 pl-3 pr-10 text-sm outline-none" />
-                                    <button onClick={() => manualInputRef.current?.click()} className="absolute right-2 top-2 text-gray-400 hover:text-primary"><span className="material-symbols-outlined text-[20px]">upload_file</span></button>
+                                    <button onClick={() => manualInputRef.current?.click()} className="absolute right-2 top-2 text-gray-400 hover:text-primary" aria-label="Upload file"><span aria-hidden="true" className="material-symbols-outlined text-[20px]">upload_file</span></button>
                                 </div>
                                 <div className="flex-1 relative">
                                     <input type="text" value={warrantyUrl} onChange={(e) => setWarrantyUrl(e.target.value)} placeholder="Warranty URL..." className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 pl-3 pr-10 text-sm outline-none" />
-                                    <button onClick={() => warrantyInputRef.current?.click()} className="absolute right-2 top-2 text-gray-400 hover:text-primary"><span className="material-symbols-outlined text-[20px]">upload_file</span></button>
+                                    <button onClick={() => warrantyInputRef.current?.click()} className="absolute right-2 top-2 text-gray-400 hover:text-primary" aria-label="Upload file"><span aria-hidden="true" className="material-symbols-outlined text-[20px]">upload_file</span></button>
                                 </div>
                             </div>
 
                             <div className="relative">
                                 <label className="block text-[10px] font-bold text-brand-black dark:text-white uppercase mb-1 ml-1">Installation Guide</label>
                                 <input type="text" value={installationUrl} onChange={(e) => setInstallationUrl(e.target.value)} placeholder="Installation URL..." className="w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-4 pr-10 text-brand-black dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/50 outline-none text-sm" />
-                                <button onClick={() => installationInputRef.current?.click()} className="absolute right-2 top-8 text-gray-400 hover:text-primary"><span className="material-symbols-outlined text-[20px]">upload_file</span></button>
+                                <button onClick={() => installationInputRef.current?.click()} className="absolute right-2 top-8 text-gray-400 hover:text-primary" aria-label="Upload file"><span aria-hidden="true" className="material-symbols-outlined text-[20px]">upload_file</span></button>
                             </div>
                         </div>
 
                         {/* Notes Section */}
                         <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
                             <p className="text-xs font-bold text-primary uppercase tracking-wider mb-4 flex items-center gap-1">
-                                <span className="material-symbols-outlined text-sm">description</span> Technician Notes
+                                <span aria-hidden="true" className="material-symbols-outlined text-sm">description</span> Technician Notes
                             </p>
                             <textarea
                                 value={notes}
@@ -513,7 +513,7 @@ const RatingPlateForm: React.FC<RatingPlateFormProps> = ({ appliance, onSave, on
                             onClick={handleSave}
                             className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-xl shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                         >
-                            <span className="material-symbols-outlined">check_circle</span>
+                            <span aria-hidden="true" className="material-symbols-outlined">check_circle</span>
                             Save Details
                         </button>
                     </div>

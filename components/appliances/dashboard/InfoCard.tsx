@@ -27,7 +27,7 @@ export const InfoCard: React.FC<InfoCardProps> = ({
         >
             {/* Background Icon Watermark */}
             {icon && (
-                <span className={`material-symbols-outlined absolute -right-2 -bottom-4 text-[60px] ${iconColor} group-hover:scale-110 transition-transform duration-500 select-none pointer-events-none`}>
+                <span aria-hidden="true" className={`material-symbols-outlined absolute -right-2 -bottom-4 text-[60px] ${iconColor} group-hover:scale-110 transition-transform duration-500 select-none pointer-events-none`}>
                     {icon}
                 </span>
             )}
@@ -35,11 +35,11 @@ export const InfoCard: React.FC<InfoCardProps> = ({
             <div className="relative z-10">
                 <div className="flex justify-between items-start">
                     <span className={`text-xs font-bold uppercase tracking-wider ${labelColor}`}>{label}</span>
-                    {icon && <span className={`material-symbols-outlined ${isAlert ? 'text-orange-500' : 'text-gray-400'} text-[20px]`}>{icon}</span>}
+                    {icon && <span aria-hidden="true" className={`material-symbols-outlined ${isAlert ? 'text-orange-500' : 'text-gray-400'} text-[20px]`}>{icon}</span>}
                 </div>
                 <div className="mt-3">
                     <div className={`text-xl font-bold leading-tight ${textColor} flex items-center`}>
-                        {isAlert && <span className="material-symbols-outlined mr-2 text-orange-600 animate-pulse">warning</span>}
+                        {isAlert && <span aria-hidden="true" className="material-symbols-outlined mr-2 text-orange-600 animate-pulse">warning</span>}
                         {value}
                     </div>
                 </div>

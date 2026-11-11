@@ -246,11 +246,11 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
 
   return (
     <>
-      <Modal onClose={onClose} className="max-w-lg">
+      <Modal title="Record Appliance Move" onClose={onClose} className="max-w-lg">
         <form onSubmit={handleFormSubmit} className="space-y-4">
           <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-xl">swap_horiz</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">swap_horiz</span>
               <h3 className="text-base font-bold text-brand-black dark:text-white">Record Appliance Move</h3>
             </div>
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-primary">
@@ -260,7 +260,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
 
           {errorMessage && (
             <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg text-xs text-red-700 dark:text-red-300 flex items-start gap-2">
-              <span className="material-symbols-outlined text-sm mt-0.5 shrink-0">error</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-sm mt-0.5 shrink-0">error</span>
               <span>{errorMessage}</span>
             </div>
           )}
@@ -291,7 +291,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
               Current Location (From)
             </span>
             <p className="text-sm font-semibold text-brand-black dark:text-white flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-sm text-gray-400">location_on</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-sm text-gray-400">location_on</span>
               {currentLocationLabel}
             </p>
           </div>
@@ -314,7 +314,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
                     : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark border-gray-200 dark:border-gray-700 hover:bg-gray-50'
                 }`}
               >
-                <span className="material-symbols-outlined text-sm">home</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm">home</span>
                 Installed (To Unit)
               </button>
 
@@ -330,7 +330,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
                     : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark border-gray-200 dark:border-gray-700 hover:bg-gray-50'
                 }`}
               >
-                <span className="material-symbols-outlined text-sm">pending_actions</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm">pending_actions</span>
                 Staged at Unit
               </button>
 
@@ -346,7 +346,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
                     : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark border-gray-200 dark:border-gray-700 hover:bg-gray-50'
                 }`}
               >
-                <span className="material-symbols-outlined text-sm">warehouse</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm">warehouse</span>
                 Stored (To Stockpile)
               </button>
 
@@ -363,7 +363,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
                     : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark border-gray-200 dark:border-gray-700 hover:bg-gray-50'
                 }`}
               >
-                <span className="material-symbols-outlined text-sm">handyman</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm">handyman</span>
                 Harvested (Donor)
               </button>
 
@@ -380,7 +380,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
                     : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark border-gray-200 dark:border-gray-700 hover:bg-gray-50'
                 }`}
               >
-                <span className="material-symbols-outlined text-sm">delete</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm">delete</span>
                 Disposed (Scrapped)
               </button>
             </div>
@@ -407,7 +407,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
               </select>
               {disposition === 'staged' && (
                 <p className="mt-1 text-[11px] text-indigo-700 dark:text-indigo-300 font-medium flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[13px]">info</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[13px]">info</span>
                   Appliance will be recorded at this unit with status 'Staged' (placed at unit, not installed).
                 </p>
               )}
@@ -498,7 +498,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
 
       {/* Confirmation Modal for Harvested / Disposed */}
       {showConfirmModal && (
-        <Modal onClose={() => setShowConfirmModal(false)} className="max-w-sm">
+        <Modal title="Confirm Appliance Move" onClose={() => setShowConfirmModal(false)} className="max-w-sm">
           <div className="flex flex-col items-center text-center gap-3">
             <div
               className={`w-14 h-14 rounded-full flex items-center justify-center ${
@@ -507,7 +507,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
                   : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600'
               }`}
             >
-              <span className="material-symbols-outlined text-[28px]">
+              <span aria-hidden="true" className="material-symbols-outlined text-[28px]">
                 {disposition === 'disposed' ? 'delete_forever' : 'warning'}
               </span>
             </div>

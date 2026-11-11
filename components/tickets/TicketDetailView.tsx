@@ -572,7 +572,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3 text-gray-500">
-        <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
+        <span aria-hidden="true" className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
         <p className="text-sm font-medium">Loading ticket details & hierarchy...</p>
       </div>
     );
@@ -635,8 +635,8 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         <button
           onClick={onBack}
           className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-brand-black dark:text-white"
-        >
-          <span className="material-symbols-outlined">arrow_back</span>
+         aria-label="Back">
+          <span aria-hidden="true" className="material-symbols-outlined">arrow_back</span>
         </button>
 
         <div className="flex-1 min-w-0">
@@ -661,7 +661,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 data-testid="detail-repeat-access-chip"
                 className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700"
               >
-                <span className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
                 Repeat access problem
               </span>
             )}
@@ -670,7 +670,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 key={chip.key}
                 className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md ${chip.className}`}
               >
-                <span className="material-symbols-outlined text-[11px] leading-none">{chip.icon}</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none">{chip.icon}</span>
                 {chip.key === 'renovated' ? (
                   <ExplainableTerm term="renovated">{chip.label}</ExplainableTerm>
                 ) : (
@@ -680,7 +680,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             ))}
             {(ticket.appliance_name || ticket.appliance_model || ticket.appliance_id) && (
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-blue-100 text-blue-900 border border-blue-200 dark:bg-blue-950/80 dark:text-blue-200 dark:border-blue-800">
-                <span className="material-symbols-outlined text-[11px] leading-none text-blue-600 dark:text-blue-400">kitchen</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none text-blue-600 dark:text-blue-400">kitchen</span>
                 <span>
                   {ticket.appliance_name || 'Appliance'}
                   {ticket.appliance_model ? ` (${ticket.appliance_model})` : ''}
@@ -697,7 +697,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           onClick={openEditModal}
           className="px-3 py-1.5 text-xs font-bold bg-primary/10 text-primary hover:bg-primary/20 rounded-xl flex items-center gap-1 shrink-0"
         >
-          <span className="material-symbols-outlined text-[16px]">edit</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[16px]">edit</span>
           Edit
         </button>
       </div>
@@ -707,7 +707,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 space-y-3 shadow-xs">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-start gap-2.5">
-              <span className="material-symbols-outlined text-rose-600 text-xl shrink-0 mt-0.5">block</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-rose-600 text-xl shrink-0 mt-0.5">block</span>
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-extrabold uppercase tracking-wide text-rose-900 dark:text-rose-200">
@@ -734,7 +734,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
               className="min-h-[44px] px-3 py-1.5 text-xs font-bold bg-white dark:bg-neutral-800 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-300 dark:border-rose-700 rounded-xl transition-all shadow-xs flex items-center gap-1.5 shrink-0 active:scale-95"
               title="Prune to history now before 30 days"
             >
-              <span className="material-symbols-outlined text-[16px]">history_edu</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[16px]">history_edu</span>
               <span>{isPruning ? 'Pruning...' : 'Prune to history now'}</span>
             </button>
           </div>
@@ -744,7 +744,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       {/* Archived-Blocked Notice Banner */}
       {(ticket.status === 'archived-blocked' || ticket.state === 'archived-blocked') && (
         <div className="p-4 rounded-2xl bg-gray-100 dark:bg-neutral-800/80 border border-gray-300 dark:border-gray-700 flex items-start gap-3 shadow-xs">
-          <span className="material-symbols-outlined text-gray-500 text-xl shrink-0 mt-0.5">inventory_2</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-gray-500 text-xl shrink-0 mt-0.5">inventory_2</span>
           <div className="space-y-1">
             <span className="text-xs font-extrabold uppercase tracking-wide text-gray-800 dark:text-gray-200">
               Archived Work Order (Pruned to Unit History)
@@ -762,7 +762,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           data-testid="repeat-access-problem-banner"
           className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 rounded-2xl flex items-start gap-3 shadow-xs animate-fadeIn"
         >
-          <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-xl shrink-0 mt-0.5">warning</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-xl shrink-0 mt-0.5">warning</span>
           <div className="space-y-0.5 flex-1">
             <div className="flex items-center justify-between">
               <span className="text-xs font-extrabold uppercase tracking-wide text-amber-900 dark:text-amber-200">
@@ -785,7 +785,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       <div className="rounded-2xl p-4 border bg-gray-50/80 dark:bg-card-dark border-gray-200 dark:border-gray-800 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-sm text-gray-500">visibility</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-sm text-gray-500">visibility</span>
             <span className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
               Yardi Sighting
             </span>
@@ -795,8 +795,8 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             onClick={handleStampYardiSighting}
             disabled={sightingStamping}
             className="px-2.5 py-1 text-xs font-semibold bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-1"
-          >
-            <span className="material-symbols-outlined text-[14px]">history</span>
+           aria-label="History">
+            <span aria-hidden="true" className="material-symbols-outlined text-[14px]">history</span>
             {sightingStamping ? 'Stamping...' : 'Stamp Sighting'}
           </button>
         </div>
@@ -808,7 +808,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         {/* Warning if unseen >= 7 days */}
         {ticket.is_stale_yardi ? (
           <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 rounded-xl text-xs text-amber-900 dark:text-amber-200 flex items-center gap-2">
-            <span className="material-symbols-outlined text-amber-600 text-lg">warning</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-lg">warning</span>
             <div>
               <span className="font-bold">Unseen in Yardi (7+ days)</span>
               <p className="text-[11px] text-amber-700 dark:text-amber-300">
@@ -897,7 +897,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             {/* Header row: Icon, Title, and Legal Gate Badge */}
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-base text-primary">schedule</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-base text-primary">schedule</span>
                 <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark block">
                     24h Notice of Entry
@@ -951,7 +951,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
             {noticeFeedback && (
               <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary dark:text-sky-300 text-xs flex items-center gap-1.5 animate-fadeIn">
-                <span className="material-symbols-outlined text-sm leading-none">info</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm leading-none">info</span>
                 <span>{noticeFeedback}</span>
               </div>
             )}
@@ -965,7 +965,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     <div className="flex items-start justify-between gap-2">
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 text-xs font-bold text-brand-black dark:text-white">
-                          <span className="material-symbols-outlined text-sm text-emerald-500">check_circle</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-sm text-emerald-500">check_circle</span>
                           <span>
                             Sent — {formatDateTime(noticeSentAt, { dateStyle: 'short', timeStyle: 'short' })} — confirmed by <span className="text-primary">{noticeConfirmedBy || 'Management'}</span>
                           </span>
@@ -1010,7 +1010,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                           }}
                           className="min-h-[44px] px-4 py-2 bg-primary hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-sm flex items-center justify-center gap-1.5 transition-all active:scale-95 shrink-0"
                         >
-                          <span className="material-symbols-outlined text-[16px]">send</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[16px]">send</span>
                           <span>Mark as sent</span>
                         </button>
                       </div>
@@ -1019,15 +1019,15 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                       <form onSubmit={handleSaveMarkSent} className="p-3.5 rounded-xl bg-white dark:bg-neutral-800/90 border border-primary/30 space-y-3 animate-fadeIn">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-brand-black dark:text-white flex items-center gap-1.5">
-                            <span className="material-symbols-outlined text-sm text-primary">mark_email_read</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-sm text-primary">mark_email_read</span>
                             Confirm Notice Sent
                           </span>
                           <button
                             type="button"
                             onClick={() => setIsMarkingSent(false)}
                             className="text-xs text-gray-400 hover:text-gray-600"
-                          >
-                            <span className="material-symbols-outlined text-base">close</span>
+                           aria-label="Close">
+                            <span aria-hidden="true" className="material-symbols-outlined text-base">close</span>
                           </button>
                         </div>
 
@@ -1073,8 +1073,8 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                             type="submit"
                             disabled={noticeSaving}
                             className="flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl bg-primary hover:bg-blue-600 text-white shadow-sm flex items-center justify-center gap-1.5 transition-all"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">check</span>
+                           aria-label="Confirm">
+                            <span aria-hidden="true" className="material-symbols-outlined text-[16px]">check</span>
                             <span>{noticeSaving ? 'Saving...' : 'Confirm Notice Sent'}</span>
                           </button>
                         </div>
@@ -1092,7 +1092,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       <div className="rounded-2xl p-4 border bg-gray-50/80 dark:bg-card-dark border-gray-200 dark:border-gray-800 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-base text-primary">
+            <span aria-hidden="true" className="material-symbols-outlined text-base text-primary">
               {workExposure === 'exterior_ladder' ? 'stairs' : workExposure === 'exterior' ? 'wb_sunny' : 'roofing'}
             </span>
             <div>
@@ -1121,7 +1121,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   : 'text-gray-600 dark:text-gray-400 hover:text-brand-black dark:hover:text-white'
               }`}
             >
-              <span className="material-symbols-outlined text-[15px]">roofing</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[15px]">roofing</span>
               <span>Indoor</span>
             </button>
             <button
@@ -1134,7 +1134,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   : 'text-gray-600 dark:text-gray-400 hover:text-sky-500'
               }`}
             >
-              <span className="material-symbols-outlined text-[15px]">wb_sunny</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[15px]">wb_sunny</span>
               <span>Exterior</span>
             </button>
             <button
@@ -1147,7 +1147,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   : 'text-gray-600 dark:text-gray-400 hover:text-amber-500'
               }`}
             >
-              <span className="material-symbols-outlined text-[15px]">stairs</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[15px]">stairs</span>
               <span>Ladder</span>
             </button>
           </div>
@@ -1155,7 +1155,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
         {exposureFeedback && (
           <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary dark:text-blue-300 text-xs flex items-center gap-1.5 animate-fadeIn">
-            <span className="material-symbols-outlined text-sm leading-none">info</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-sm leading-none">info</span>
             <span>{exposureFeedback}</span>
           </div>
         )}
@@ -1176,7 +1176,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           onClick={() => setIsLogVisitOpen(true)}
           className="flex-1 min-w-[120px] min-h-[44px] px-3 py-2 text-xs font-bold bg-primary text-white hover:bg-primary/90 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all"
         >
-          <span className="material-symbols-outlined text-base">assignment_turned_in</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-base">assignment_turned_in</span>
           Log Visit
         </button>
         <button
@@ -1184,7 +1184,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           onClick={() => setIsOrderPartOpen(true)}
           className="flex-1 min-w-[120px] min-h-[44px] px-3 py-2 text-xs font-bold bg-amber-500 text-white hover:bg-amber-600 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all"
         >
-          <span className="material-symbols-outlined text-base">build</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-base">build</span>
           Order Part
         </button>
         <button
@@ -1192,7 +1192,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           onClick={() => setIsIdentifyOpen(true)}
           className="flex-1 min-w-[120px] min-h-[44px] px-3 py-2 text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all"
         >
-          <span className="material-symbols-outlined text-base">photo_camera</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-base">photo_camera</span>
           Identify Appliance
         </button>
         {onRunSop && (
@@ -1201,7 +1201,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             onClick={() => onRunSop('sop-gas-furnace-service')}
             className="flex-1 min-w-[120px] min-h-[44px] px-3 py-2 text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all"
           >
-            <span className="material-symbols-outlined text-base">fact_check</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-base">fact_check</span>
             Run SOP
           </button>
         )}
@@ -1291,7 +1291,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         {ticket.verified_scope ? (
           <div className="bg-primary/5 dark:bg-primary/10 rounded-xl p-3 border border-primary/20">
             <span className="text-xs font-bold text-primary flex items-center gap-1 mb-1">
-              <span className="material-symbols-outlined text-sm">verified</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-sm">verified</span>
               Verified Scope:
             </span>
             <p className="text-sm font-medium text-brand-black dark:text-white">
@@ -1347,7 +1347,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-amber-500 text-xl">shopping_cart</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-amber-500 text-xl">shopping_cart</span>
             <h2 className="text-sm font-bold text-brand-black dark:text-white uppercase tracking-wider">
               Parts Needed & Ordered
             </h2>
@@ -1361,7 +1361,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             onClick={() => setIsOrderPartOpen(true)}
             className="px-2.5 py-1 text-xs font-bold bg-amber-500 text-white rounded-xl shadow-xs hover:bg-amber-600 flex items-center gap-1"
           >
-            <span className="material-symbols-outlined text-[16px]">add</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px]">add</span>
             Order Part
           </button>
         </div>
@@ -1408,7 +1408,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     {p.ordered_at && <span>Ordered: {formatDate(p.ordered_at)}</span>}
                     {p.watch_id && (
                       <span className="text-primary font-semibold flex items-center gap-0.5">
-                        <span className="material-symbols-outlined text-[13px]">visibility</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[13px]">visibility</span>
                         Watch #{p.watch_id} {p.status === 'arrived' ? '(Resolved)' : '(Active)'}
                       </span>
                     )}
@@ -1423,7 +1423,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     onClick={() => handleMarkPartArrived(p)}
                     className="min-h-[36px] px-3 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs flex items-center justify-center gap-1 shrink-0 transition-colors active:scale-95"
                   >
-                    <span className="material-symbols-outlined text-[16px]">inventory_2</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[16px]">inventory_2</span>
                     Mark Arrived
                   </button>
                 )}
@@ -1435,7 +1435,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     className="min-h-[36px] px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-brand-red border border-gray-200 dark:border-gray-700 hover:border-red-300 rounded-xl transition-colors flex items-center justify-center gap-1 shrink-0 active:scale-95"
                     title="Undo marked as arrived (restore to ordered)"
                   >
-                    <span className="material-symbols-outlined text-[16px]">undo</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[16px]">undo</span>
                     <span>Undo</span>
                   </button>
                 )}
@@ -1449,7 +1449,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       {(sopRunsLoading || sopRunsError || sopRuns.length > 0) && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-xl">fact_check</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">fact_check</span>
             <h2 className="text-sm font-bold text-brand-black dark:text-white uppercase tracking-wider">
               SOP runs
             </h2>
@@ -1619,7 +1619,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-xl">timeline</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">timeline</span>
             <h2 className="text-sm font-bold text-brand-black dark:text-white uppercase tracking-wider">
               Ticket Timeline
             </h2>
@@ -1673,7 +1673,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     <div
                       className={`w-7 h-7 rounded-full ${cfg.bg} text-white flex items-center justify-center shrink-0 shadow-xs ring-4 ring-white dark:ring-card-dark z-10`}
                     >
-                      <span className="material-symbols-outlined text-[15px]">{cfg.icon}</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[15px]">{cfg.icon}</span>
                     </div>
 
                     <div className="flex-1 min-w-0 bg-gray-50/70 dark:bg-neutral-800/50 p-3 rounded-xl border border-gray-100 dark:border-gray-800/80 space-y-1.5">
@@ -1745,7 +1745,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                               rel="noreferrer"
                               className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-[10px] font-bold hover:underline flex items-center gap-0.5"
                             >
-                              <span className="material-symbols-outlined text-[12px]">image</span>
+                              <span aria-hidden="true" className="material-symbols-outlined text-[12px]">image</span>
                               Photo
                             </a>
                           )}
@@ -1756,7 +1756,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                               rel="noreferrer"
                               className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-[10px] font-bold hover:underline flex items-center gap-0.5"
                             >
-                              <span className="material-symbols-outlined text-[12px]">badge</span>
+                              <span aria-hidden="true" className="material-symbols-outlined text-[12px]">badge</span>
                               Rating Plate
                             </a>
                           )}
@@ -1767,7 +1767,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                               rel="noreferrer"
                               className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-[10px] font-bold hover:underline flex items-center gap-0.5"
                             >
-                              <span className="material-symbols-outlined text-[12px]">menu_book</span>
+                              <span aria-hidden="true" className="material-symbols-outlined text-[12px]">menu_book</span>
                               Manual Link
                             </a>
                           )}
@@ -1786,7 +1786,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-xl">account_tree</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">account_tree</span>
             <h2 className="text-sm font-bold text-brand-black dark:text-white uppercase tracking-wider">
               Sub-Jobs
             </h2>
@@ -1799,7 +1799,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             onClick={() => setIsAddChildOpen(true)}
             className="px-2.5 py-1 text-xs font-bold bg-primary text-white rounded-xl shadow-sm hover:bg-primary/90 flex items-center gap-1"
           >
-            <span className="material-symbols-outlined text-[16px]">add</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px]">add</span>
             Add Sub-Job
           </button>
         </div>
@@ -1855,7 +1855,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   </div>
                   {child.blocker_reason && (
                     <p className="text-[11px] text-brand-red truncate flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[13px]">warning</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[13px]">warning</span>
                       Blocker: {child.blocker_reason}
                     </p>
                   )}
@@ -1880,7 +1880,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   >
                     {child.status || child.state}
                   </span>
-                  <span className="material-symbols-outlined text-gray-400 text-sm">
+                  <span aria-hidden="true" className="material-symbols-outlined text-gray-400 text-sm">
                     chevron_right
                   </span>
                 </div>
@@ -1893,7 +1893,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       {/* Append-Only Correction Audit Log Timeline */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary text-xl">history_edu</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">history_edu</span>
           <h2 className="text-sm font-bold text-brand-black dark:text-white uppercase tracking-wider">
             Edit History
           </h2>
@@ -1924,7 +1924,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   <span className="text-red-500 line-through truncate max-w-[140px]">
                     {corr.oldValue ?? (corr as any).old_value ?? 'null'}
                   </span>
-                  <span className="material-symbols-outlined text-xs text-gray-400">arrow_forward</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-xs text-gray-400">arrow_forward</span>
                   <span className="text-emerald-500 font-bold truncate max-w-[140px]">
                     {corr.newValue ?? (corr as any).new_value ?? 'null'}
                   </span>
@@ -1944,14 +1944,14 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
       {/* Edit Field Modal */}
       {isEditModalOpen && (
-        <Modal onClose={() => setIsEditModalOpen(false)} className="max-w-md">
+        <Modal title="Edit Ticket" onClose={() => setIsEditModalOpen(false)} className="max-w-md">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
             <h2 className="text-base font-bold text-brand-black dark:text-white">Edit Ticket</h2>
             <button
               onClick={() => setIsEditModalOpen(false)}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
-            >
-              <span className="material-symbols-outlined">close</span>
+             aria-label="Close">
+              <span aria-hidden="true" className="material-symbols-outlined">close</span>
             </button>
           </div>
 
@@ -2092,7 +2092,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                       : 'border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[14px]">roofing</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[14px]">roofing</span>
                   <span>Indoor</span>
                 </button>
                 <button
@@ -2104,7 +2104,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                       : 'border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[14px]">wb_sunny</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[14px]">wb_sunny</span>
                   <span>Exterior</span>
                 </button>
                 <button
@@ -2116,7 +2116,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                       : 'border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[14px]">stairs</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[14px]">stairs</span>
                   <span>Ladder</span>
                 </button>
               </div>
@@ -2153,7 +2153,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                             : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-600 hover:border-blue-400'
                         }`}
                       >
-                        <span className="material-symbols-outlined text-[13px]">kitchen</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[13px]">kitchen</span>
                         <span>{app.name || app.type}</span>
                         {app.modelNumber && (
                           <span className="font-mono text-[10px] opacity-80">({app.modelNumber})</span>
@@ -2207,7 +2207,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
       {/* Add Child Ticket Modal */}
       {isAddChildOpen && (
-        <Modal onClose={() => setIsAddChildOpen(false)} className="max-w-md">
+        <Modal title="Add Sub-Job" onClose={() => setIsAddChildOpen(false)} className="max-w-md">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
             <div>
               <h2 className="text-base font-bold text-brand-black dark:text-white">Add Sub-Job</h2>
@@ -2216,8 +2216,8 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             <button
               onClick={() => setIsAddChildOpen(false)}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
-            >
-              <span className="material-symbols-outlined">close</span>
+             aria-label="Close">
+              <span aria-hidden="true" className="material-symbols-outlined">close</span>
             </button>
           </div>
 
@@ -2324,17 +2324,17 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
       {/* Log Field Visit Modal */}
       {isLogVisitOpen && (
-        <Modal onClose={() => setIsLogVisitOpen(false)} className="max-w-md">
+        <Modal title="Log Field Visit" onClose={() => setIsLogVisitOpen(false)} className="max-w-md">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-xl">assignment_turned_in</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">assignment_turned_in</span>
               <h2 className="text-base font-bold text-brand-black dark:text-white">Log Field Visit</h2>
             </div>
             <button
               onClick={() => setIsLogVisitOpen(false)}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
-            >
-              <span className="material-symbols-outlined">close</span>
+             aria-label="Close">
+              <span aria-hidden="true" className="material-symbols-outlined">close</span>
             </button>
           </div>
 
@@ -2379,7 +2379,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 {/* Notice State Snapshot and Provenance Check */}
                 {ticket.notice_needed && !ticket.notice_sent_at ? (
                   <div className="p-3 rounded-xl bg-rose-100 text-rose-900 dark:bg-rose-950/80 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-xs flex items-start gap-2">
-                    <span className="material-symbols-outlined text-rose-600 dark:text-rose-400 text-base shrink-0 mt-0.5">error</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-rose-600 dark:text-rose-400 text-base shrink-0 mt-0.5">error</span>
                     <div>
                       <strong className="block uppercase tracking-wider font-extrabold text-[11px]">[OUR MISS — MANAGEMENT/DISPATCH]</strong>
                       <p className="mt-0.5 text-[11px] leading-relaxed">
@@ -2461,17 +2461,17 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
       {/* Order Part Modal (Auto-Creates Part-Wait Watch) */}
       {isOrderPartOpen && (
-        <Modal onClose={() => setIsOrderPartOpen(false)} className="max-w-md">
+        <Modal title="Order Part" onClose={() => setIsOrderPartOpen(false)} className="max-w-md">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-amber-500 text-xl">shopping_cart</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-amber-500 text-xl">shopping_cart</span>
               <h2 className="text-base font-bold text-brand-black dark:text-white">Order Part</h2>
             </div>
             <button
               onClick={() => setIsOrderPartOpen(false)}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
-            >
-              <span className="material-symbols-outlined">close</span>
+             aria-label="Close">
+              <span aria-hidden="true" className="material-symbols-outlined">close</span>
             </button>
           </div>
 
@@ -2648,17 +2648,17 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
       {/* Identify Appliance Modal */}
       {isIdentifyOpen && (
-        <Modal onClose={() => setIsIdentifyOpen(false)} className="max-w-md">
+        <Modal title="Appliance Identified" onClose={() => setIsIdentifyOpen(false)} className="max-w-md">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-indigo-600 text-xl">photo_camera</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-indigo-600 text-xl">photo_camera</span>
               <h2 className="text-base font-bold text-brand-black dark:text-white">Appliance Identified</h2>
             </div>
             <button
               onClick={() => setIsIdentifyOpen(false)}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
-            >
-              <span className="material-symbols-outlined">close</span>
+             aria-label="Close">
+              <span aria-hidden="true" className="material-symbols-outlined">close</span>
             </button>
           </div>
 

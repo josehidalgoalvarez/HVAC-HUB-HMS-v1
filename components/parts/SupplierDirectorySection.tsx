@@ -11,7 +11,7 @@ export const SupplierDirectorySection: React.FC<SupplierDirectorySectionProps> =
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-bold text-brand-black dark:text-white flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">local_shipping</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary">local_shipping</span>
             Suppliers
           </h2>
           <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -53,7 +53,7 @@ export const SupplierDirectorySection: React.FC<SupplierDirectorySectionProps> =
               {/* Hours and Address */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-300">
                 <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-neutral-800/60 p-2 rounded-xl">
-                  <span className="material-symbols-outlined text-[16px] text-primary">schedule</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">schedule</span>
                   <div>
                     <span className="font-semibold block text-[10px] uppercase tracking-wider text-gray-400">Hours</span>
                     <span>{supplier.hours || 'Mon–Fri 8:30–5'}</span>
@@ -62,7 +62,7 @@ export const SupplierDirectorySection: React.FC<SupplierDirectorySectionProps> =
 
                 {supplier.address && (
                   <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-neutral-800/60 p-2 rounded-xl">
-                    <span className="material-symbols-outlined text-[16px] text-gray-400">location_on</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-gray-400">location_on</span>
                     <div>
                       <span className="font-semibold block text-[10px] uppercase tracking-wider text-gray-400">Location</span>
                       <span className="truncate block">{supplier.address}</span>
@@ -78,7 +78,7 @@ export const SupplierDirectorySection: React.FC<SupplierDirectorySectionProps> =
                     href={`tel:${rawPhone}`}
                     className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary dark:text-primary-light font-bold text-xs flex items-center justify-center gap-2 border border-primary/20 active:scale-[0.99] transition-all"
                   >
-                    <span className="material-symbols-outlined text-[18px]">call</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[18px]">call</span>
                     <span>Call {supplier.phone}</span>
                   </a>
                 </div>

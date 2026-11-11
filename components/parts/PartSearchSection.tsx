@@ -159,7 +159,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
     <div className="space-y-4">
       {/* Search Input Bar */}
       <div className="relative">
-        <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xl">
+        <span aria-hidden="true" className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xl">
           search
         </span>
         <input
@@ -174,8 +174,8 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
           <button
             onClick={() => onSearchChange('')}
             className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-full"
-          >
-            <span className="material-symbols-outlined text-[18px]">close</span>
+           aria-label="Close">
+            <span aria-hidden="true" className="material-symbols-outlined text-[18px]">close</span>
           </button>
         )}
       </div>
@@ -205,7 +205,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                 : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
             }`}
           >
-            <span className={`material-symbols-outlined text-[16px] ${filter === 'reorder' ? 'text-white' : 'text-amber-500'}`}>warning</span>
+            <span aria-hidden="true" className={`material-symbols-outlined text-[16px] ${filter === 'reorder' ? 'text-white' : 'text-amber-500'}`}>warning</span>
             Low Stock ({parts.filter(p => p.is_reorder || p.quantity_on_hand <= p.reorder_point).length})
           </button>
 
@@ -217,7 +217,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                 : 'bg-gray-100 dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200/60 dark:border-gray-800'
             }`}
           >
-            <span className={`material-symbols-outlined text-[16px] ${filter === 'available' ? 'text-white' : 'text-emerald-500'}`}>check_circle</span>
+            <span aria-hidden="true" className={`material-symbols-outlined text-[16px] ${filter === 'available' ? 'text-white' : 'text-emerald-500'}`}>check_circle</span>
             In Stock ({parts.filter(p => p.quantity_on_hand > 0).length})
           </button>
 
@@ -229,7 +229,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                 : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 border border-emerald-200 dark:border-emerald-800'
             }`}
           >
-            <span className={`material-symbols-outlined text-[16px] ${filter === 'harvest' ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`}>swap_horiz</span>
+            <span aria-hidden="true" className={`material-symbols-outlined text-[16px] ${filter === 'harvest' ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`}>swap_horiz</span>
             Vacant Unit Harvest ({harvestCandidates.length})
           </button>
         </div>
@@ -241,7 +241,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
             className="absolute right-0 top-0 bottom-1 w-12 pointer-events-none transition-opacity duration-200 bg-gradient-to-l from-background-light dark:from-background-dark to-transparent flex items-center justify-end pr-1"
             aria-hidden="true"
           >
-            <span className="material-symbols-outlined text-gray-400/60 dark:text-gray-500/60 text-sm">
+            <span aria-hidden="true" className="material-symbols-outlined text-gray-400/60 dark:text-gray-500/60 text-sm">
               chevron_right
             </span>
           </div>
@@ -264,7 +264,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
             {/* Location Filter Input Bar */}
             <div className="flex items-center justify-between gap-2">
               <div className="relative flex-1">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-amber-500 text-base">
+                <span aria-hidden="true" className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-amber-500 text-base">
                   warehouse
                 </span>
                 <input
@@ -281,7 +281,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full cursor-pointer"
                     aria-label="Clear location filter"
                   >
-                    <span className="material-symbols-outlined text-[15px]">close</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[15px]">close</span>
                   </button>
                 )}
               </div>
@@ -376,7 +376,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
             }}
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <span className="material-symbols-outlined text-amber-600 text-xl shrink-0">warehouse</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-xl shrink-0">warehouse</span>
               <div className="min-w-0">
                 <div className="text-xs font-bold text-amber-900 dark:text-amber-200 truncate flex items-center gap-1.5">
                   <span>{activeSp.name}</span>
@@ -391,7 +391,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
             </div>
             <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-300 shrink-0">
               <span className="hidden sm:inline">Open Menu</span>
-              <span className="material-symbols-outlined text-lg group-hover:translate-x-0.5 transition-transform">
+              <span aria-hidden="true" className="material-symbols-outlined text-lg group-hover:translate-x-0.5 transition-transform">
                 arrow_forward
               </span>
             </div>
@@ -402,7 +402,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
       {/* Parts & Harvest Candidates List */}
       {totalHits === 0 ? (
         <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3 bg-white/50 dark:bg-card-dark/50">
-          <span className="material-symbols-outlined text-4xl text-gray-300">inventory_2</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-4xl text-gray-300">inventory_2</span>
           <p className="text-base font-bold text-gray-700 dark:text-gray-300">No matching parts or harvest units found</p>
           <p className="text-xs text-gray-400 max-w-xs mx-auto">
             Try searching by part number, appliance type, building or unit, or buy a new replacement part.
@@ -412,7 +412,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
               onClick={onAddPart}
               className="min-h-[44px] px-4 py-2 mt-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
             >
-              <span className="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[16px]">add_shopping_cart</span>
               <span>Buy New / Add Part</span>
             </button>
           )}
@@ -430,7 +430,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="px-2.5 py-0.5 text-xs font-black rounded-lg bg-emerald-600 text-white tracking-wider flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[13px]">home_work</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[13px]">home_work</span>
                       {candidate.occupancy_label || 'Vacant unit'}
                     </span>
                     <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
@@ -452,7 +452,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
 
                 <div className="shrink-0">
                   <span className="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 flex items-center gap-1 border border-emerald-200 dark:border-emerald-700">
-                    <span className="material-symbols-outlined text-[15px]">eco</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[15px]">eco</span>
                     <span>Harvest First (Zero Cost)</span>
                   </span>
                 </div>
@@ -460,7 +460,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
 
               <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-300 pt-1 flex-wrap gap-2">
                 <span className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[16px] text-emerald-600">door_front</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-emerald-600">door_front</span>
                   Location: {candidate.building_name} (Unit {candidate.unit_number}) • Status: {candidate.status || 'operational'}
                 </span>
                 {onHarvestTransfer && (
@@ -468,7 +468,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                     onClick={() => onHarvestTransfer(candidate)}
                     className="min-h-[40px] px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
                   >
-                    <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[16px]">swap_horiz</span>
                     <span>Harvest / Transfer</span>
                   </button>
                 )}
@@ -497,7 +497,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                       </span>
                       {isVerifiedPart(part.part_number) && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800" title="Fitment-verified part: Part number and compatible model are locked">
-                          <span className="material-symbols-outlined text-[13px]">lock</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[13px]">lock</span>
                           <span>Verified part</span>
                         </span>
                       )}
@@ -516,12 +516,12 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                   <div className="shrink-0">
                     {isReorder ? (
                       <span className="px-3 py-1 text-xs font-bold rounded-lg bg-amber-500 text-white flex items-center gap-1.5 shadow-xs">
-                        <span className="material-symbols-outlined text-[16px]">warning</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[16px]">warning</span>
                         <span>Reorder (Qty: {part.quantity_on_hand} ≤ {part.reorder_point})</span>
                       </span>
                     ) : (
                       <span className="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[16px]">check_circle</span>
                         <span>In Stock ({part.quantity_on_hand})</span>
                       </span>
                     )}
@@ -543,7 +543,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                       </span>
                       {isVerifiedPart(part.part_number) && (
                         <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400">
-                          <span className="material-symbols-outlined text-[13px]">lock</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[13px]">lock</span>
                           <span>Model locked</span>
                         </span>
                       )}
@@ -565,7 +565,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                 <div className="bg-gray-50 dark:bg-neutral-800/60 p-3.5 rounded-xl space-y-2.5 text-sm">
                   <div className="flex items-center justify-between font-bold">
                     <span className="flex items-center gap-1.5 text-gray-700 dark:text-gray-200">
-                      <span className="material-symbols-outlined text-[18px] text-primary">warehouse</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-primary">warehouse</span>
                       Stock Breakdown:
                     </span>
                     <span className="font-extrabold text-brand-black dark:text-white">
@@ -587,7 +587,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                               )}
                               {isLowStock && (
                                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-                                  <span className="material-symbols-outlined text-[12px]">warning</span>
+                                  <span aria-hidden="true" className="material-symbols-outlined text-[12px]">warning</span>
                                   Low Stock
                                 </span>
                               )}
@@ -612,10 +612,10 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                       className="w-full min-h-[44px] flex items-center justify-between text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white py-1"
                     >
                       <span className="flex items-center gap-1.5 font-bold text-xs">
-                        <span className="material-symbols-outlined text-[16px]">receipt_long</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[16px]">receipt_long</span>
                         Price & Order History ({part.price_history.length} purchases)
                       </span>
-                      <span className="material-symbols-outlined text-[18px]">
+                      <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
                         {isHistoryExpanded ? 'expand_less' : 'expand_more'}
                       </span>
                     </button>
@@ -646,7 +646,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                       className="min-h-[44px] px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 hover:border-primary text-brand-black dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                       title="Add units of this part to stash"
                     >
-                      <span className="material-symbols-outlined text-[16px] text-primary">add_box</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">add_box</span>
                       <span>+ Restock</span>
                     </button>
 
@@ -654,7 +654,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                       onClick={() => onLogUse(part)}
                       className="min-h-[44px] px-4 py-2.5 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
                     >
-                      <span className="material-symbols-outlined text-[16px]">build</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[16px]">build</span>
                       <span>Log Use</span>
                     </button>
                   </div>

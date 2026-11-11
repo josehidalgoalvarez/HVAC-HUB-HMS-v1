@@ -126,18 +126,18 @@ const ScheduleServiceModal: React.FC<ScheduleServiceModalProps> = ({ property, o
   const isValid = !!date && !!time;
 
   return (
-    <Modal onClose={onClose}>
+    <Modal title="Schedule Service" onClose={onClose}>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-brand-black dark:text-white">Schedule Service</h2>
-        <button onClick={onClose} className="p-2 text-gray-400 hover:text-brand-black dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-          <span className="material-symbols-outlined">close</span>
+        <button onClick={onClose} className="p-2 text-gray-400 hover:text-brand-black dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Close">
+          <span aria-hidden="true" className="material-symbols-outlined">close</span>
         </button>
       </div>
 
       <div className="space-y-4">
         <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/30">
           <div className="w-10 h-10 rounded-full bg-white dark:bg-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-300 shadow-sm">
-            <span className="material-symbols-outlined">engineering</span>
+            <span aria-hidden="true" className="material-symbols-outlined">engineering</span>
           </div>
           <div>
             <p className="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase">Technician</p>
@@ -191,7 +191,7 @@ const ScheduleServiceModal: React.FC<ScheduleServiceModalProps> = ({ property, o
             disabled={!isValid}
             className="flex items-center justify-center gap-2 w-full bg-[#1a9387] hover:bg-[#157a70] text-white font-bold py-3.5 rounded-xl shadow-lg transition-all disabled:opacity-50 active:scale-[0.98]"
           >
-            <span className="material-symbols-outlined">send</span>
+            <span aria-hidden="true" className="material-symbols-outlined">send</span>
             Email Service Request
           </button>
 
@@ -212,7 +212,7 @@ const ScheduleServiceModal: React.FC<ScheduleServiceModalProps> = ({ property, o
               disabled={!isValid}
               className="flex items-center justify-center gap-2 w-full bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-brand-black dark:text-white font-bold py-3.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all disabled:opacity-50 active:scale-[0.98]"
             >
-              <span className="material-symbols-outlined">download</span>
+              <span aria-hidden="true" className="material-symbols-outlined">download</span>
               .ics Invite
             </button>
           </div>

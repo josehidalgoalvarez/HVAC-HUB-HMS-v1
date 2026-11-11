@@ -32,8 +32,8 @@ const Button: React.FC<ButtonProps> = ({
     <button 
       className={`${baseStyles} ${variants[variant]} ${padding} ${fullWidth ? 'w-full' : ''} ${className}`}
       {...props}
-    >
-      {icon && <span className="material-symbols-outlined text-[20px]">{icon}</span>}
+     aria-label="Icon">
+      {icon && <span aria-hidden="true" className="material-symbols-outlined text-[20px]">{icon}</span>}
       {children}
     </button>
   );

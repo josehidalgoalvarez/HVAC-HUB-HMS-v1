@@ -65,14 +65,14 @@ export const ApplianceSpecsSection: React.FC<ApplianceSpecsSectionProps> = ({ ap
                         : 'bg-card-light dark:bg-card-dark border-gray-100 dark:border-gray-800 hover:border-primary/50 cursor-pointer')
                     : 'bg-gray-50 dark:bg-gray-800/50 border-transparent opacity-80 cursor-default'
                     }`}
-            >
+             aria-label="Icon">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${isPresent || isAddMode
                     ? (isAddMode
                         ? 'bg-primary/10 text-primary'
                         : 'bg-gray-100 dark:bg-gray-700 text-brand-black dark:text-white group-hover:bg-primary group-hover:text-white')
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
                     }`}>
-                    <span className="material-symbols-outlined">{icon}</span>
+                    <span aria-hidden="true" className="material-symbols-outlined">{icon}</span>
                 </div>
                 <div>
                     <p className={`font-bold text-sm ${isPresent || isAddMode ? 'text-brand-black dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>{buttonLabel}</p>
@@ -88,7 +88,7 @@ export const ApplianceSpecsSection: React.FC<ApplianceSpecsSectionProps> = ({ ap
             <div className="grid grid-cols-2 gap-4">
                 <div className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
                     <div className="flex items-center gap-2 mb-2 text-primary">
-                        <span className="material-symbols-outlined text-[20px]">
+                        <span aria-hidden="true" className="material-symbols-outlined text-[20px]">
                             {appliance.specs?.capacity ? 'water_drop' : 'local_fire_department'}
                         </span>
                         <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
@@ -102,7 +102,7 @@ export const ApplianceSpecsSection: React.FC<ApplianceSpecsSectionProps> = ({ ap
 
                 <div className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
                     <div className="flex items-center gap-2 mb-2 text-primary">
-                        <span className="material-symbols-outlined text-[20px]">calendar_month</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[20px]">calendar_month</span>
                         <span className="text-[10px] font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">Install</span>
                     </div>
                     <p className={`text-xl font-bold truncate ${appliance.specs?.installDate ? 'text-brand-black dark:text-white' : 'text-gray-300 dark:text-gray-600'}`}>
@@ -159,7 +159,7 @@ export const ApplianceSpecsSection: React.FC<ApplianceSpecsSectionProps> = ({ ap
                             onClick={onEdit}
                             className="text-[10px] font-bold text-primary hover:text-primary/80 flex items-center gap-1 uppercase tracking-tighter"
                         >
-                            <span className="material-symbols-outlined text-[14px]">edit_note</span> Edit Links
+                            <span aria-hidden="true" className="material-symbols-outlined text-[14px]">edit_note</span> Edit Links
                         </button>
                     )}
                 </div>
@@ -224,8 +224,8 @@ export const ApplianceSpecsSection: React.FC<ApplianceSpecsSectionProps> = ({ ap
                         <button
                             onClick={() => setShowPlateModal(false)}
                             className="mt-6 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 backdrop-blur-sm transition-colors"
-                        >
-                            <span className="material-symbols-outlined text-3xl">close</span>
+                         aria-label="Close">
+                            <span aria-hidden="true" className="material-symbols-outlined text-3xl">close</span>
                         </button>
                     </div>
                 </div>
@@ -233,10 +233,10 @@ export const ApplianceSpecsSection: React.FC<ApplianceSpecsSectionProps> = ({ ap
 
             {/* Notes Modal */}
             {showNotesModal && (
-                <Modal onClose={() => setShowNotesModal(false)} className="max-w-md">
+                <Modal title="Technician Notes" onClose={() => setShowNotesModal(false)} className="max-w-md">
                     <div className="p-2">
                         <div className="flex items-center gap-3 mb-4 text-primary">
-                            <span className="material-symbols-outlined text-3xl">description</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-3xl">description</span>
                             <h3 className="text-xl font-bold text-brand-black dark:text-white">Technician Notes</h3>
                         </div>
                         <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700 min-h-[100px]">
@@ -255,10 +255,10 @@ export const ApplianceSpecsSection: React.FC<ApplianceSpecsSectionProps> = ({ ap
 
             {/* Unavailable Item Modal */}
             {unavailableItem && (
-                <Modal onClose={() => setUnavailableItem(null)} className="max-w-sm">
+                <Modal title="Not Available" onClose={() => setUnavailableItem(null)} className="max-w-sm">
                     <div className="flex flex-col items-center text-center p-2">
                         <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                            <span className="material-symbols-outlined text-gray-400 text-3xl">block</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-gray-400 text-3xl">block</span>
                         </div>
                         <h3 className="text-xl font-bold text-brand-black dark:text-white mb-2">
                             Not Available

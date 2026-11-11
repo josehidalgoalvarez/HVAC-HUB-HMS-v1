@@ -90,8 +90,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
           className="overflow-hidden flex items-center justify-center transition-[height] duration-150 ease-out"
         >
           <div className="flex items-center gap-2 px-3 py-1 bg-white dark:bg-card-dark rounded-full shadow-md border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-200">
-            <span
-              className={`material-symbols-outlined text-primary text-[18px] ${
+            <span aria-hidden="true" className={`material-symbols-outlined text-primary text-[18px] ${
                 isRefreshing ? 'animate-spin' : ''
               }`}
               style={{

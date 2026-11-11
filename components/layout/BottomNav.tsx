@@ -16,7 +16,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, onNavigate }) => {
           className={`group flex flex-1 flex-col items-center justify-center gap-1 transition-all ${activeView === ViewType.PROPERTIES ? 'text-primary scale-110' : 'text-text-sub-light dark:text-text-sub-dark'}`}
         >
           <div className="relative">
-            <span className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.PROPERTIES ? 'font-variation-settings-fill' : ''}`}>home</span>
+            <span aria-hidden="true" className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.PROPERTIES ? 'font-variation-settings-fill' : ''}`}>home</span>
           </div>
           <span className="text-[10px] font-bold tracking-wide">Properties</span>
         </button>
@@ -27,7 +27,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, onNavigate }) => {
           className={`group flex flex-1 flex-col items-center justify-center gap-1 transition-all ${activeView === ViewType.TICKETS ? 'text-primary scale-110' : 'text-text-sub-light dark:text-text-sub-dark'}`}
         >
           <div className="relative">
-            <span className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.TICKETS ? 'font-variation-settings-fill' : ''}`}>assignment</span>
+            <span aria-hidden="true" className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.TICKETS ? 'font-variation-settings-fill' : ''}`}>assignment</span>
           </div>
           <span className="text-[10px] font-bold tracking-wide">Tickets</span>
         </button>
@@ -38,7 +38,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, onNavigate }) => {
           className={`group flex flex-1 flex-col items-center justify-center gap-1 transition-all ${activeView === ViewType.RUN_SHEET ? 'text-primary scale-110' : 'text-text-sub-light dark:text-text-sub-dark'}`}
         >
           <div className="relative">
-            <span className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.RUN_SHEET ? 'font-variation-settings-fill' : ''}`}>schedule</span>
+            <span aria-hidden="true" className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.RUN_SHEET ? 'font-variation-settings-fill' : ''}`}>schedule</span>
           </div>
           <span className="text-[10px] font-bold tracking-wide">Day Plan</span>
         </button>
@@ -48,7 +48,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, onNavigate }) => {
           onClick={() => onNavigate(ViewType.PARTS)}
           className={`group flex flex-1 flex-col items-center justify-center gap-1 transition-all ${activeView === ViewType.PARTS ? 'text-primary scale-110' : 'text-text-sub-light dark:text-text-sub-dark'}`}
         >
-          <span className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.PARTS ? 'font-variation-settings-fill' : ''}`}>precision_manufacturing</span>
+          <span aria-hidden="true" className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.PARTS ? 'font-variation-settings-fill' : ''}`}>precision_manufacturing</span>
           <span className="text-[10px] font-medium tracking-wide">Parts</span>
         </button>
 
@@ -57,7 +57,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, onNavigate }) => {
           onClick={() => onNavigate(ViewType.PROFILE)}
           className={`group flex flex-1 flex-col items-center justify-center gap-1 transition-all ${activeView === ViewType.PROFILE ? 'text-primary scale-110' : 'text-text-sub-light dark:text-text-sub-dark'}`}
         >
-          <span className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.PROFILE ? 'font-variation-settings-fill' : ''}`}>person</span>
+          <span aria-hidden="true" className={`material-symbols-outlined text-[28px] transition-transform duration-200 group-active:scale-90 ${activeView === ViewType.PROFILE ? 'font-variation-settings-fill' : ''}`}>person</span>
           <span className="text-[10px] font-medium tracking-wide">Profile</span>
         </button>
       </div>

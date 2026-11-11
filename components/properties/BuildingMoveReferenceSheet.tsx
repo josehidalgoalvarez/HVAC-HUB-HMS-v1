@@ -18,12 +18,12 @@ export const BuildingMoveReferenceSheet: React.FC<BuildingMoveReferenceSheetProp
   if (!isOpen || entries.length === 0) return null;
 
   return (
-    <Modal onClose={onClose} className="max-w-md">
+    <Modal title="Location Reference" onClose={onClose} className="max-w-md">
       <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-xl">info</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">info</span>
             <h2 className="text-sm font-bold text-brand-black dark:text-white uppercase tracking-wider">
               Location Reference
             </h2>
@@ -34,7 +34,7 @@ export const BuildingMoveReferenceSheet: React.FC<BuildingMoveReferenceSheetProp
             className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
             aria-label="Close"
           >
-            <span className="material-symbols-outlined text-lg">close</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-lg">close</span>
           </button>
         </div>
 
@@ -56,7 +56,7 @@ export const BuildingMoveReferenceSheet: React.FC<BuildingMoveReferenceSheetProp
 
               <div className="text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5 flex-wrap">
                 <span>{entry.movedFrom}</span>
-                <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xs">arrow_forward</span>
                 <span className="text-brand-black dark:text-white">{entry.movedTo}</span>
               </div>
 
@@ -73,9 +73,9 @@ export const BuildingMoveReferenceSheet: React.FC<BuildingMoveReferenceSheetProp
                       onNavigateComplex(entry.jumpTarget!.complexId);
                     }}
                     className="w-full min-h-[40px] px-3 py-2 rounded-xl bg-primary text-white hover:bg-primary-hover text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
-                  >
+                   aria-label="Open details">
                     <span>{entry.jumpTarget.label}</span>
-                    <span className="material-symbols-outlined text-sm">open_in_new</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-sm">open_in_new</span>
                   </button>
                 </div>
               )}

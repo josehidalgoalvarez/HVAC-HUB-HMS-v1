@@ -124,7 +124,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
             disabled={busy || !email || !password}
             className="w-full h-12 rounded-lg text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50"
             style={{ backgroundColor: ACCENT }}
-          >
+           aria-label="Sign in">
             <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">login</span>
             {busy ? 'Signing in…' : 'Sign in'}
           </button>

@@ -72,7 +72,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
         <div className="min-h-[50vh] flex flex-col items-center justify-center p-6 text-center animate-fadeIn">
           <div className="max-w-md w-full bg-card-light dark:bg-card-dark rounded-3xl p-6 shadow-2xl border border-red-200 dark:border-red-900/40 text-text-main-light dark:text-text-main-dark">
             <div className="w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto mb-4 ring-8 ring-red-50 dark:ring-red-950/30">
-              <span className="material-symbols-outlined text-[30px]">warning</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[30px]">warning</span>
             </div>
 
             <h2 className="text-xl font-bold text-brand-black dark:text-white mb-2">
@@ -93,9 +93,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                   <button
                     onClick={this.toggleDetails}
                     className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1"
-                  >
+                   aria-label="Icon">
                     <span>{this.state.showDetails ? 'Hide Details' : 'Show Component Trace'}</span>
-                    <span className="material-symbols-outlined text-[14px]">
+                    <span aria-hidden="true" className="material-symbols-outlined text-[14px]">
                       {this.state.showDetails ? 'expand_less' : 'expand_more'}
                     </span>
                   </button>

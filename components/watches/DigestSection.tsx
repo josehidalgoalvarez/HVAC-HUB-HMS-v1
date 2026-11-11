@@ -37,7 +37,7 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
       {/* Quiet Hours Banner */}
       {isQuietHours && (
         <div className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 shadow-xs flex items-start gap-3">
-          <span className="material-symbols-outlined text-gray-500 dark:text-gray-400 text-xl leading-none shrink-0 mt-0.5">bedtime</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-gray-500 dark:text-gray-400 text-xl leading-none shrink-0 mt-0.5">bedtime</span>
           <div className="flex-1 text-xs text-gray-700 dark:text-gray-300">
             <h4 className="font-bold text-sm text-brand-black dark:text-white mb-0.5">Quiet Hours (22:00–07:00)</h4>
             <p className="text-text-sub-light dark:text-text-sub-dark leading-relaxed">
@@ -71,7 +71,7 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
           onClick={onRefresh}
           className="min-h-[40px] px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-card-dark text-gray-700 dark:text-gray-300 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xs transition-all active:scale-[0.98] flex items-center gap-1.5"
         >
-          <span className="material-symbols-outlined text-sm leading-none">refresh</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm leading-none">refresh</span>
           <span>Refresh</span>
         </button>
       </div>
@@ -79,7 +79,7 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
       {/* Active Triggered Watches List */}
       {items.length === 0 ? (
         <div className="py-12 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-card-dark/40 p-6">
-          <span className="material-symbols-outlined text-gray-400 dark:text-gray-600 text-4xl mb-2 block mx-auto">verified_user</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-gray-400 dark:text-gray-600 text-4xl mb-2 block mx-auto">verified_user</span>
           <h3 className="text-sm font-semibold text-brand-black dark:text-white">All Clear</h3>
           <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-1 max-w-sm mx-auto">
             No active alerts right now.
@@ -104,7 +104,7 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
         <div className="mt-8 pt-4 border-t border-gray-200 dark:border-gray-800">
           <div className="mb-3 px-1">
             <h3 className="text-sm font-bold text-brand-black dark:text-white flex items-center gap-2">
-              <span className="material-symbols-outlined text-gray-500 dark:text-gray-400 text-base leading-none">wb_twilight</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-gray-500 dark:text-gray-400 text-base leading-none">wb_twilight</span>
               <span>Morning Queue</span>
               <span className="text-xs text-text-sub-light dark:text-text-sub-dark font-normal">
                 ({morningBatch.length} queued)

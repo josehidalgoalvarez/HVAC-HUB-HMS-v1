@@ -69,12 +69,12 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
                 className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-200 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
                 aria-label="Back"
               >
-                <span className="material-symbols-outlined text-xl">arrow_back</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xl">arrow_back</span>
               </button>
             )}
             <div>
               <h1 className="text-xl font-bold text-brand-black dark:text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-2xl">menu_book</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl">menu_book</span>
                 SOP Library
               </h1>
               <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
@@ -104,7 +104,7 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
         {/* Search & Category Filter */}
         <div className="bg-white dark:bg-card-dark rounded-2xl p-3 border border-gray-100 dark:border-gray-800 space-y-2.5 shadow-xs">
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-lg">search</span>
+            <span aria-hidden="true" className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-lg">search</span>
             <input
               type="text"
               value={searchQuery}
@@ -168,7 +168,7 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
                         )}
                         {sop.two_person && (
                           <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[13px]">group</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-[13px]">group</span>
                             2-Person
                           </span>
                         )}
@@ -188,7 +188,7 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
                       onClick={() => onStartRun(sop.id)}
                       className="min-h-[44px] px-3.5 py-2 text-xs font-bold bg-primary text-white hover:bg-primary/90 rounded-xl shadow-xs shrink-0 flex items-center gap-1.5 transition-all"
                     >
-                      <span className="material-symbols-outlined text-base">play_arrow</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-base">play_arrow</span>
                       Start Run
                     </button>
                   </div>
@@ -203,7 +203,7 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
                           className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-primary/10 text-primary border border-primary/20 flex items-center gap-1"
                           title={`${g.reference}: ${g.requirement}`}
                         >
-                          <span className="material-symbols-outlined text-[13px]">verified</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[13px]">verified</span>
                           {g.label}
                         </span>
                       ))}
@@ -214,12 +214,12 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
                   <div className="pt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub-light dark:text-text-sub-dark flex-wrap gap-2">
                     <div className="flex items-center gap-3">
                       <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-sm text-gray-400">format_list_numbered</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-sm text-gray-400">format_list_numbered</span>
                         {steps.length} {steps.length === 1 ? 'step' : 'steps'}
                       </span>
                       {totalEstMins > 0 ? (
                         <span className="flex items-center gap-1">
-                          <span className="material-symbols-outlined text-sm text-gray-400">schedule</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-sm text-gray-400">schedule</span>
                           ~{totalEstMins} min
                         </span>
                       ) : (
@@ -231,9 +231,9 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
                       type="button"
                       onClick={() => setExpandedSopId(isExpanded ? null : sop.id)}
                       className="text-xs font-bold text-primary hover:underline flex items-center gap-0.5"
-                    >
+                     aria-label="Icon">
                       {isExpanded ? 'Hide Steps' : 'View Steps'}
-                      <span className="material-symbols-outlined text-sm">
+                      <span aria-hidden="true" className="material-symbols-outlined text-sm">
                         {isExpanded ? 'expand_less' : 'expand_more'}
                       </span>
                     </button>

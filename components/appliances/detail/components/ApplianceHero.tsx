@@ -89,7 +89,7 @@ export const ApplianceHero: React.FC<ApplianceHeroProps> = ({ appliance, onStatu
           className="absolute bottom-4 right-4 z-30 w-10 h-10 rounded-full bg-white dark:bg-card-dark text-brand-black dark:text-white shadow-lg flex items-center justify-center hover:bg-primary hover:text-white transition-all border border-gray-100 dark:border-gray-600"
           title="Update Photo"
         >
-          <span className="material-symbols-outlined text-[20px]">photo_camera</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[20px]">photo_camera</span>
         </button>
       )}
 
@@ -106,9 +106,9 @@ export const ApplianceHero: React.FC<ApplianceHeroProps> = ({ appliance, onStatu
               appliance.status === 'needs_service' ? 'bg-brand-orange/90 text-white border-brand-orange/50' :
                 'bg-gray-800/90 text-gray-300 border-gray-600/50'
             } ${!isReadOnly ? 'cursor-pointer hover:scale-105' : 'cursor-default'}`}
-        >
+         aria-label="Expand">
           {(appliance.status || 'operational').toUpperCase().replace('_', ' ')}
-          {!isReadOnly && <span className="material-symbols-outlined text-[12px]">expand_more</span>}
+          {!isReadOnly && <span aria-hidden="true" className="material-symbols-outlined text-[12px]">expand_more</span>}
         </button>
 
         {showStatusMenu && !isReadOnly && (

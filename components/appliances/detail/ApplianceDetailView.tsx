@@ -142,19 +142,19 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
                 onClick={() => { setIsEditing(true); setShowMenu(false); }}
                 className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 text-sm text-brand-black dark:text-white"
               >
-                <span className="material-symbols-outlined text-[18px]">edit</span> Edit Details
+                <span aria-hidden="true" className="material-symbols-outlined text-[18px]">edit</span> Edit Details
               </button>
               <button
                 onClick={() => { onDuplicate(appliance); setShowMenu(false); }}
                 className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 text-sm text-brand-black dark:text-white"
               >
-                <span className="material-symbols-outlined text-[18px]">content_copy</span> Duplicate
+                <span aria-hidden="true" className="material-symbols-outlined text-[18px]">content_copy</span> Duplicate
               </button>
               <button
                 onClick={() => { setShowDeleteConfirm(true); setShowMenu(false); }}
                 className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 text-sm text-brand-red"
               >
-                <span className="material-symbols-outlined text-[18px]">delete</span> Delete
+                <span aria-hidden="true" className="material-symbols-outlined text-[18px]">delete</span> Delete
               </button>
             </div>
           )}
@@ -186,7 +186,7 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
             )}
           </div>
           <div className="mt-2 text-xs font-semibold text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-sm text-primary">location_on</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-sm text-primary">location_on</span>
             <span>
               {[
                 property?.address,
@@ -283,10 +283,10 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
       )}
 
       {showDeleteConfirm && (
-        <Modal onClose={() => setShowDeleteConfirm(false)} className="max-w-sm">
+        <Modal title="Delete Appliance" onClose={() => setShowDeleteConfirm(false)} className="max-w-sm">
           <div className="flex flex-col items-center text-center gap-4">
             <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-brand-red mb-2">
-              <span className="material-symbols-outlined text-[32px]">warning</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[32px]">warning</span>
             </div>
             <div>
               <h3 className="text-xl font-bold text-brand-black dark:text-white">Delete Appliance?</h3>

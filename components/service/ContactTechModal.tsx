@@ -23,11 +23,11 @@ const ContactTechModal: React.FC<ContactTechModalProps> = ({ onClose }) => {
   };
 
   return (
-    <Modal onClose={onClose}>
+    <Modal title="Contact Technician" onClose={onClose}>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-brand-black dark:text-white">Contact Technician</h2>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-brand-black dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-            <span className="material-symbols-outlined">close</span>
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-brand-black dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Close">
+            <span aria-hidden="true" className="material-symbols-outlined">close</span>
           </button>
         </div>
 
@@ -43,7 +43,7 @@ const ContactTechModal: React.FC<ContactTechModalProps> = ({ onClose }) => {
             <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl flex items-center justify-between border border-gray-100 dark:border-gray-700">
                 <div className="flex items-center gap-3 overflow-hidden">
                     <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-                        <span className="material-symbols-outlined">mail</span>
+                        <span aria-hidden="true" className="material-symbols-outlined">mail</span>
                     </div>
                     <div className="min-w-0">
                         <p className="text-xs text-text-sub-light dark:text-text-sub-dark uppercase font-bold">Email</p>
@@ -53,15 +53,15 @@ const ContactTechModal: React.FC<ContactTechModalProps> = ({ onClose }) => {
                 <button 
                     onClick={handleCopyEmail}
                     className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors text-gray-500"
-                >
-                    <span className="material-symbols-outlined text-[20px]">{copied ? 'check' : 'content_copy'}</span>
+                 aria-label="Icon">
+                    <span aria-hidden="true" className="material-symbols-outlined text-[20px]">{copied ? 'check' : 'content_copy'}</span>
                 </button>
             </div>
 
             <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl flex items-center justify-between border border-gray-100 dark:border-gray-700">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0">
-                        <span className="material-symbols-outlined">call</span>
+                        <span aria-hidden="true" className="material-symbols-outlined">call</span>
                     </div>
                     <div>
                         <p className="text-xs text-text-sub-light dark:text-text-sub-dark uppercase font-bold">Phone</p>
@@ -72,7 +72,7 @@ const ContactTechModal: React.FC<ContactTechModalProps> = ({ onClose }) => {
                     href={`tel:${tech.phone}`}
                     className="p-2 bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 hover:bg-gray-50 rounded-lg transition-colors shadow-sm text-brand-black dark:text-white"
                 >
-                    <span className="material-symbols-outlined text-[20px]">call</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[20px]">call</span>
                 </a>
             </div>
         </div>

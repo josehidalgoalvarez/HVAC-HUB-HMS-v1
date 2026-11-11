@@ -20,12 +20,12 @@ export const FieldNotesView: React.FC<FieldNotesViewProps> = ({ onBack }) => {
               className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-200 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
               aria-label="Back"
             >
-              <span className="material-symbols-outlined text-xl">arrow_back</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-xl">arrow_back</span>
             </button>
           )}
           <div>
             <h1 className="text-xl font-bold text-brand-black dark:text-white flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-2xl">sticky_note_2</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl">sticky_note_2</span>
               Field notes
             </h1>
             <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
@@ -51,7 +51,7 @@ export const FieldNotesView: React.FC<FieldNotesViewProps> = ({ onBack }) => {
                 aria-expanded={open}
                 onClick={() => setExpandedId(open ? null : note.id)}
                 className="w-full min-h-[44px] text-left p-4 flex items-start gap-3"
-              >
+               aria-label="Pending">
                 <div className="flex-1 min-w-0 space-y-1.5">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-sm font-bold text-brand-black dark:text-white">{note.title}</h2>

@@ -151,7 +151,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           )}
           <div>
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-2xl leading-none">monitoring</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl leading-none">monitoring</span>
               <h1 className="text-xl md:text-2xl font-bold text-brand-black dark:text-white tracking-tight">
                 Watches & Alerts
               </h1>
@@ -168,8 +168,8 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
             onClick={handleEvaluateNow}
             disabled={isEvaluating}
             className="min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-card-dark text-brand-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 active:scale-[0.98] transition-all flex items-center gap-2 shadow-xs"
-          >
-            <span className={`material-symbols-outlined text-sm leading-none ${isEvaluating ? 'animate-spin' : ''}`}>sync</span>
+           aria-label="Sync">
+            <span aria-hidden="true" className={`material-symbols-outlined text-sm leading-none ${isEvaluating ? 'animate-spin' : ''}`}>sync</span>
             <span>{isEvaluating ? 'Checking...' : 'Check Now'}</span>
           </button>
 
@@ -177,7 +177,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
             onClick={() => setIsCreateModalOpen(true)}
             className="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-primary hover:bg-blue-600 text-white shadow-sm active:scale-[0.98] transition-all flex items-center gap-1.5"
           >
-            <span className="material-symbols-outlined text-sm leading-none font-bold">add</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-sm leading-none font-bold">add</span>
             <span>New Watch</span>
           </button>
         </div>
@@ -186,7 +186,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
       {/* Feedback Toast */}
       {feedbackMessage && (
         <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-200">
-          <span className="material-symbols-outlined text-sm leading-none">check_circle</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm leading-none">check_circle</span>
           <span>{feedbackMessage}</span>
         </div>
       )}
@@ -201,7 +201,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
               : 'text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-card-dark'
           }`}
         >
-          <span className="material-symbols-outlined text-base leading-none">notifications_active</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-base leading-none">notifications_active</span>
           <span>Daily Digest</span>
           {activeAlertCount > 0 && (
             <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-500 text-white">
@@ -218,7 +218,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
               : 'text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-card-dark'
           }`}
         >
-          <span className="material-symbols-outlined text-base leading-none">visibility</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-base leading-none">visibility</span>
           <span>All ({watches.length})</span>
         </button>
       </div>
@@ -264,7 +264,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
             {/* Watches Grid */}
             {filteredWatches.length === 0 ? (
               <div className="py-12 text-center text-text-sub-light dark:text-text-sub-dark border border-dashed border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-card-dark/40 rounded-2xl p-6">
-                <span className="material-symbols-outlined text-gray-400 dark:text-gray-600 text-3xl mb-2 block mx-auto">search</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-gray-400 dark:text-gray-600 text-3xl mb-2 block mx-auto">search</span>
                 <p className="text-sm">No watches match current filter.</p>
               </div>
             ) : (

@@ -508,7 +508,7 @@ const Router: React.FC<RouterProps> = ({
         return (
           <div className="flex flex-col items-center justify-center p-8 text-center min-h-[40vh]">
             <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined text-2xl">explore_off</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-2xl">explore_off</span>
             </div>
             <h3 className="text-lg font-bold text-brand-black dark:text-white">View Not Found</h3>
             <p className="text-sm text-text-sub-light dark:text-text-sub-dark mt-1 max-w-xs">

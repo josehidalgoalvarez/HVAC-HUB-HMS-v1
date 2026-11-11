@@ -218,7 +218,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
       {/* Header Summary */}
       <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary">manage_search</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-primary">manage_search</span>
           <h2 className="text-sm font-bold text-brand-black dark:text-white">
             Inventory Search Results for &quot;{results.query}&quot;
           </h2>
@@ -234,7 +234,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
           className="p-10 text-center rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-card-dark space-y-2"
           data-testid="inventory-search-empty"
         >
-          <span className="material-symbols-outlined text-3xl text-gray-400">search_off</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-3xl text-gray-400">search_off</span>
           <p className="text-sm font-bold text-brand-black dark:text-white">
             No matches for &quot;{results.query}&quot;.
           </p>
@@ -309,13 +309,13 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
                         }}
                         className="min-h-[44px] px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-900 dark:text-amber-200 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 transition-all"
                       >
-                        <span className="material-symbols-outlined text-[18px] text-amber-700 dark:text-amber-300">
+                        <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-amber-700 dark:text-amber-300">
                           inventory_2
                         </span>
                         <span>Stock Menu</span>
                       </button>
                     )}
-                    <span className="material-symbols-outlined text-gray-400 group-hover:text-primary transition-all text-xl">
+                    <span aria-hidden="true" className="material-symbols-outlined text-gray-400 group-hover:text-primary transition-all text-xl">
                       chevron_right
                     </span>
                   </div>
@@ -377,14 +377,14 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
                             key={c.key}
                             className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md ${c.className}`}
                           >
-                            <span className="material-symbols-outlined text-[12px] leading-none">{c.icon}</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-[12px] leading-none">{c.icon}</span>
                             {c.label}
                           </span>
                         ))}
                       </div>
                     )}
                   </div>
-                  <span className="material-symbols-outlined text-gray-400 group-hover:text-primary transition-all text-xl shrink-0">
+                  <span aria-hidden="true" className="material-symbols-outlined text-gray-400 group-hover:text-primary transition-all text-xl shrink-0">
                     chevron_right
                   </span>
                 </div>
@@ -442,7 +442,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
                       <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{app.notes}</p>
                     )}
                   </div>
-                  <span className="material-symbols-outlined text-gray-400 group-hover:text-primary transition-all text-xl shrink-0">
+                  <span aria-hidden="true" className="material-symbols-outlined text-gray-400 group-hover:text-primary transition-all text-xl shrink-0">
                     chevron_right
                   </span>
                 </div>
@@ -487,7 +487,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
                     <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{pat.notes}</p>
                   )}
                 </div>
-                <span className="material-symbols-outlined text-gray-400 group-hover:text-primary transition-all text-xl shrink-0">
+                <span aria-hidden="true" className="material-symbols-outlined text-gray-400 group-hover:text-primary transition-all text-xl shrink-0">
                   chevron_right
                 </span>
               </div>
@@ -528,7 +528,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
                   )}
                 </div>
                 <div className="min-h-[44px] px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 shrink-0">
-                  <span className="material-symbols-outlined text-[18px] text-amber-700 dark:text-amber-300">
+                  <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-amber-700 dark:text-amber-300">
                     inventory_2
                   </span>
                   <span>Open Storage</span>
@@ -590,7 +590,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
                       Storage: {storageLabels}
                     </p>
                   </div>
-                  <span className="material-symbols-outlined text-gray-400 group-hover:text-primary transition-all text-xl shrink-0">
+                  <span aria-hidden="true" className="material-symbols-outlined text-gray-400 group-hover:text-primary transition-all text-xl shrink-0">
                     chevron_right
                   </span>
                 </div>

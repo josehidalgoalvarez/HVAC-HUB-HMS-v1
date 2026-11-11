@@ -94,7 +94,7 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
   if (!hasTemplate && verifiedParts.length === 0) {
     return (
       <div className="bg-white dark:bg-card-dark rounded-xl p-6 border border-gray-100 dark:border-gray-800 text-center space-y-3">
-        <span className="material-symbols-outlined text-3xl text-gray-400">category</span>
+        <span aria-hidden="true" className="material-symbols-outlined text-3xl text-gray-400">category</span>
         <p className="text-sm font-semibold text-text-sub-light dark:text-text-sub-dark">
           No parts template for this type yet.
         </p>
@@ -110,7 +110,7 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
       {/* Informational Header Banners */}
       {isStored && (
         <div className="bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-xs text-text-sub-light dark:text-text-sub-dark flex items-start gap-2">
-          <span className="material-symbols-outlined text-sm text-primary mt-0.5">warehouse</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm text-primary mt-0.5">warehouse</span>
           <span>
             This appliance is currently stored, not active in a residential unit. Parts templates below reflect standard fitments for this equipment type and model.
           </span>
@@ -119,7 +119,7 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
 
       {isModelUnknown && (
         <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-xs text-blue-900 dark:text-blue-200 flex items-start gap-2">
-          <span className="material-symbols-outlined text-sm text-primary mt-0.5">info</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm text-primary mt-0.5">info</span>
           <div>
             <span className="font-bold">Model unknown:</span> These are categories to ask Dependable about for this unit, not model-confirmed fitments.
           </div>
@@ -128,7 +128,7 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
 
       {catalogUnavailable && !loadingCatalog && (
         <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2">
-          <span className="material-symbols-outlined text-sm text-amber-600 mt-0.5">warning</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm text-amber-600 mt-0.5">warning</span>
           <div>
             <span className="font-bold">Notice:</span> Verified parts unavailable — catalog not loaded.
           </div>
@@ -147,7 +147,7 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-black uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-sm text-primary">verified</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-sm text-primary">verified</span>
               Verified Parts ({verifiedParts.length})
             </h3>
             <span className="text-[10px] uppercase font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">
@@ -171,7 +171,7 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
                     <div className="mt-1 text-xs font-mono text-primary font-bold flex items-center gap-1.5 flex-wrap">
                       <span>Part #: {part.partNumber}</span>
                       <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800">
-                        <span className="material-symbols-outlined text-[12px]">lock</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[12px]">lock</span>
                         <span>Locked</span>
                       </span>
                     </div>
@@ -189,17 +189,17 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
                   >
                     {addingId === part.id ? (
                       <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-xs animate-spin">progress_activity</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-xs animate-spin">progress_activity</span>
                         Adding...
                       </span>
                     ) : successId === part.id ? (
                       <span className="flex items-center gap-1 text-green-600">
-                        <span className="material-symbols-outlined text-xs">check</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-xs">check</span>
                         Added
                       </span>
                     ) : (
                       <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-xs">add_shopping_cart</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-xs">add_shopping_cart</span>
                         Add to Buy List
                       </span>
                     )}
@@ -209,7 +209,7 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
                 {/* Stock on Hand / Allocations Section */}
                 <div className="p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/50 space-y-1">
                   <div className="text-xs font-semibold text-brand-black dark:text-white flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-sm text-primary">inventory_2</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-sm text-primary">inventory_2</span>
                     Stock Status:
                   </div>
                   {part.stockAllocations.length > 0 ? (
@@ -243,7 +243,7 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-black uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-sm text-gray-400">list_alt</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-sm text-gray-400">list_alt</span>
               Ordering Categories ({tbdTemplates.length})
             </h3>
             <span className="text-[10px] uppercase font-bold text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
@@ -281,17 +281,17 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
                   >
                     {addingId === part.id ? (
                       <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-xs animate-spin">progress_activity</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-xs animate-spin">progress_activity</span>
                         Adding...
                       </span>
                     ) : successId === part.id ? (
                       <span className="flex items-center gap-1 text-green-600">
-                        <span className="material-symbols-outlined text-xs">check</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-xs">check</span>
                         Added
                       </span>
                     ) : (
                       <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-xs">add_shopping_cart</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-xs">add_shopping_cart</span>
                         Add to Buy List
                       </span>
                     )}

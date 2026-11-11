@@ -51,7 +51,7 @@ const ApplianceListView: React.FC<ApplianceListViewProps> = ({ onApplianceClick 
     <div id="appliance-list" className="flex flex-col gap-4 max-w-lg mx-auto pb-32 relative">
       <div className="flex items-center justify-between px-2 pt-2">
         <h2 className="text-xl font-bold flex items-center gap-2 text-brand-black dark:text-white">
-          <span className="material-symbols-outlined text-primary">inventory_2</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-primary">inventory_2</span>
           Manage Appliances
         </h2>
         <button
@@ -61,7 +61,7 @@ const ApplianceListView: React.FC<ApplianceListViewProps> = ({ onApplianceClick 
             : 'bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-text-sub-light dark:text-text-sub-dark hover:bg-gray-50 dark:hover:bg-gray-800'
             }`}
         >
-          <span className="material-symbols-outlined text-[16px]">filter_list</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[16px]">filter_list</span>
           Filter
         </button>
       </div>
@@ -94,7 +94,7 @@ const ApplianceListView: React.FC<ApplianceListViewProps> = ({ onApplianceClick 
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${app.status === 'operational' ? 'bg-brand-green/30 text-primary' :
                         app.status === 'needs_service' ? 'bg-brand-orange/10 text-brand-orange' : 'bg-brand-red/10 text-brand-red'
                         }`}>
-                        <span className="material-symbols-outlined font-variation-settings-fill">
+                        <span aria-hidden="true" className="material-symbols-outlined font-variation-settings-fill">
                           {app.type === 'Refrigerator' ? 'kitchen' : app.type === 'Dishwasher' ? 'flatware' : 'local_laundry_service'}
                         </span>
                       </div>
@@ -105,7 +105,7 @@ const ApplianceListView: React.FC<ApplianceListViewProps> = ({ onApplianceClick 
                         </p>
                       </div>
                     </div>
-                    <span className="material-symbols-outlined text-gray-300 shrink-0 group-hover:text-primary group-hover:translate-x-1 transition-all">chevron_right</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-gray-300 shrink-0 group-hover:text-primary group-hover:translate-x-1 transition-all">chevron_right</span>
                   </div>
                 ))}
               </div>
@@ -115,7 +115,7 @@ const ApplianceListView: React.FC<ApplianceListViewProps> = ({ onApplianceClick 
 
         {visibleProperties.length === 0 && (
           <div className="text-center py-12 opacity-50">
-            <span className="material-symbols-outlined text-4xl mb-2 text-gray-400">filter_alt_off</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-4xl mb-2 text-gray-400">filter_alt_off</span>
             <p className="text-sm">No properties selected.</p>
             <button onClick={() => setShowFilter(true)} className="mt-2 text-primary font-bold text-sm">Change Filters</button>
           </div>
@@ -123,11 +123,11 @@ const ApplianceListView: React.FC<ApplianceListViewProps> = ({ onApplianceClick 
       </div>
 
       {showFilter && (
-        <Modal onClose={() => setShowFilter(false)} className="max-w-sm">
+        <Modal title="Filter Properties" onClose={() => setShowFilter(false)} className="max-w-sm">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-bold text-brand-black dark:text-white">Filter Properties</h3>
-            <button onClick={() => setShowFilter(false)} className="p-1 text-gray-400 hover:text-brand-black dark:hover:text-white transition-colors">
-              <span className="material-symbols-outlined">close</span>
+            <button onClick={() => setShowFilter(false)} className="p-1 text-gray-400 hover:text-brand-black dark:hover:text-white transition-colors" aria-label="Close">
+              <span aria-hidden="true" className="material-symbols-outlined">close</span>
             </button>
           </div>
 
@@ -142,10 +142,10 @@ const ApplianceListView: React.FC<ApplianceListViewProps> = ({ onApplianceClick 
                     ? 'bg-primary/5 border-primary/30'
                     : 'bg-transparent border-transparent hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
-                >
+                 aria-label="Confirm">
                   <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${isSelected ? 'bg-primary border-primary' : 'border-gray-300 dark:border-gray-600'
                     }`}>
-                    {isSelected && <span className="material-symbols-outlined text-white text-[14px]">check</span>}
+                    {isSelected && <span aria-hidden="true" className="material-symbols-outlined text-white text-[14px]">check</span>}
                   </div>
                   <div className="text-left min-w-0 flex-1">
                     <p className={`text-sm font-bold truncate ${isSelected ? 'text-primary' : 'text-brand-black dark:text-white'}`}>{p.name}</p>

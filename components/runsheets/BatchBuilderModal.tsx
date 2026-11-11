@@ -136,12 +136,12 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
   };
 
   return (
-    <Modal onClose={onClose} className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Modal title="Plan Day Route" onClose={onClose} className="max-w-2xl max-h-[90vh] overflow-y-auto">
       {/* Modal Header */}
       <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800 sticky top-0 bg-white dark:bg-card-dark z-10">
         <div>
           <h2 className="text-base font-bold text-brand-black dark:text-white flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-primary text-xl">route</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">route</span>
             Plan Day Route
           </h2>
           <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
@@ -153,8 +153,8 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
         <button
           onClick={onClose}
           className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"
-        >
-          <span className="material-symbols-outlined">close</span>
+         aria-label="Close">
+          <span aria-hidden="true" className="material-symbols-outlined">close</span>
         </button>
       </div>
 
@@ -209,7 +209,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
 
           {loadingTickets ? (
             <div className="flex flex-col items-center justify-center py-12 gap-2 text-gray-400">
-              <span className="material-symbols-outlined text-3xl animate-spin text-primary">sync</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-3xl animate-spin text-primary">sync</span>
               <p className="text-xs">Loading open tickets...</p>
             </div>
           ) : tickets.length === 0 ? (
@@ -288,7 +288,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                 'Planning...'
               ) : (
                 <>
-                  <span className="material-symbols-outlined text-[16px]">alt_route</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[16px]">alt_route</span>
                   Plan Route ({selectedTicketIds.length})
                 </>
               )}
@@ -328,7 +328,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
               onClick={() => setStep('pick')}
               className="text-primary font-bold hover:underline flex items-center gap-0.5"
             >
-              <span className="material-symbols-outlined text-sm">edit</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-sm">edit</span>
               Edit Selection
             </button>
           </div>
@@ -344,7 +344,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                   {/* Site Transit Header Indicator */}
                   {block.is_site_transition && (
                     <div className="px-3 py-1 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-lg text-[11px] font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5 my-1.5">
-                      <span className="material-symbols-outlined text-[14px]">directions_bike</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[14px]">directions_bike</span>
                       Transit to {block.building_name} (+{block.travel_buffer_before_minutes || 20}m)
                     </div>
                   )}
@@ -384,7 +384,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                             : 'bg-amber-500 text-white'
                         }`}
                       >
-                        <span className="material-symbols-outlined text-[12px]">
+                        <span aria-hidden="true" className="material-symbols-outlined text-[12px]">
                           {gate === 'green' ? 'check_circle' : gate === 'red' ? 'gavel' : 'timer'}
                         </span>
                         {gate === 'green' ? 'CLEARED' : gate === 'red' ? 'OVERDUE' : 'PENDING 24H'}
@@ -394,7 +394,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                     {/* E-Bike Carry Capacity Alert Pill */}
                     {exceedsCarry && (
                       <div className="mt-2 p-2 bg-amber-500/10 border border-amber-400/40 rounded-xl text-[11px] text-amber-900 dark:text-amber-200 flex items-center gap-1.5 font-bold">
-                        <span className="material-symbols-outlined text-amber-600 text-base shrink-0">
+                        <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-base shrink-0">
                           warning
                         </span>
                         <span>{block.carry_warning || 'exceeds carry capacity — split or reschedule'}</span>
@@ -408,7 +408,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                           key={i}
                           className="px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-medium inline-flex items-center gap-1"
                         >
-                          <span className="material-symbols-outlined text-[12px]">build</span> {tool}
+                          <span aria-hidden="true" className="material-symbols-outlined text-[12px]">build</span> {tool}
                         </span>
                       ))}
                       {block.required_parts_list?.map((part, i) => (
@@ -416,7 +416,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                           key={i}
                           className="px-1.5 py-0.5 rounded-md bg-primary/10 text-primary font-medium inline-flex items-center gap-1"
                         >
-                          <span className="material-symbols-outlined text-[12px]">inventory_2</span> {part}
+                          <span aria-hidden="true" className="material-symbols-outlined text-[12px]">inventory_2</span> {part}
                         </span>
                       ))}
                     </div>
@@ -430,16 +430,16 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                           disabled={index === 0}
                           onClick={() => moveBlock(index, 'up')}
                           className="w-7 h-7 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30"
-                        >
-                          <span className="material-symbols-outlined text-sm">arrow_upward</span>
+                         aria-label="Move up">
+                          <span aria-hidden="true" className="material-symbols-outlined text-sm">arrow_upward</span>
                         </button>
                         <button
                           type="button"
                           disabled={index === reorderedBlocks.length - 1}
                           onClick={() => moveBlock(index, 'down')}
                           className="w-7 h-7 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30"
-                        >
-                          <span className="material-symbols-outlined text-sm">arrow_downward</span>
+                         aria-label="Move down">
+                          <span aria-hidden="true" className="material-symbols-outlined text-sm">arrow_downward</span>
                         </button>
                       </div>
                     </div>
@@ -465,7 +465,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                 'Saving Plan...'
               ) : (
                 <>
-                  <span className="material-symbols-outlined text-[16px]">check</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[16px]">check</span>
                   Save Plan ({reorderedBlocks.length} Blocks)
                 </>
               )}

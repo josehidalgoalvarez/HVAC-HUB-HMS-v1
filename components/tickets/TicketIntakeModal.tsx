@@ -101,10 +101,10 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
   };
 
   return (
-    <Modal onClose={onClose} className="max-w-xl">
+    <Modal title="Quick Intake" onClose={onClose} className="max-w-xl">
       <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary text-2xl">bolt</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl">bolt</span>
           <div>
             <h2 className="text-lg font-bold text-brand-black dark:text-white">Quick Intake</h2>
             <p className="text-xs text-text-sub-light dark:text-text-sub-dark">Snap photo or enter work order</p>
@@ -113,14 +113,14 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
         <button
           onClick={onClose}
           className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"
-        >
-          <span className="material-symbols-outlined">close</span>
+         aria-label="Close">
+          <span aria-hidden="true" className="material-symbols-outlined">close</span>
         </button>
       </div>
 
       {error && (
         <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-xs text-brand-red flex items-center gap-2">
-          <span className="material-symbols-outlined text-base">error</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-base">error</span>
           <span>{error}</span>
         </div>
       )}
@@ -150,13 +150,13 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
                     setPhotoPreview(null);
                   }}
                   className="absolute -top-2 -right-2 bg-brand-red text-white w-6 h-6 rounded-full flex items-center justify-center shadow"
-                >
-                  <span className="material-symbols-outlined text-sm">close</span>
+                 aria-label="Close">
+                  <span aria-hidden="true" className="material-symbols-outlined text-sm">close</span>
                 </button>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-1 py-3 text-text-sub-light dark:text-text-sub-dark">
-                <span className="material-symbols-outlined text-3xl text-primary">add_a_photo</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-3xl text-primary">add_a_photo</span>
                 <span className="text-xs font-medium">Tap to snap camera or select screenshot</span>
                 <span className="text-[10px] text-gray-400">JPEG/PNG auto-compressed</span>
               </div>
@@ -189,7 +189,7 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
         {/* Verified Scope Field (Text!) */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-primary mb-1 flex items-center gap-1">
-            <span className="material-symbols-outlined text-sm">verified</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-sm">verified</span>
             Verified Scope (Tech-confirmed job description)
           </label>
           <textarea
@@ -238,7 +238,7 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
           <div className="space-y-1.5 p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
             <div className="flex items-center justify-between text-xs">
               <label className="font-bold text-text-sub-light dark:text-text-sub-dark flex items-center gap-1">
-                <span className="material-symbols-outlined text-[16px] text-primary">kitchen</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">kitchen</span>
                 Which appliance was this work on? (Optional)
               </label>
               {applianceId && (
@@ -265,7 +265,7 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
                         : 'bg-white dark:bg-gray-700/60 hover:bg-gray-100 dark:hover:bg-gray-700 text-brand-black dark:text-gray-200 border-gray-200 dark:border-gray-750'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-[14px]">
+                    <span aria-hidden="true" className="material-symbols-outlined text-[14px]">
                       {isSelected ? 'check_circle' : 'radio_button_unchecked'}
                     </span>
                     <span>{app.name || app.type}</span>

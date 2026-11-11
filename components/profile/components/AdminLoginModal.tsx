@@ -56,10 +56,10 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ onClose, onSuc
     };
 
     return (
-        <Modal onClose={onClose} className="max-w-xs" zIndexClass="z-[80]">
+        <Modal title="Admin Access" onClose={onClose} className="max-w-xs" zIndexClass="z-[80]">
             <div className="flex flex-col items-center mb-6">
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-3">
-                    <span className="material-symbols-outlined text-[24px]">lock</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[24px]">lock</span>
                 </div>
                 <h3 className="text-xl font-bold text-brand-black dark:text-white">Admin Access</h3>
                 <p className="text-sm text-text-sub-light dark:text-text-sub-dark text-center mt-1">

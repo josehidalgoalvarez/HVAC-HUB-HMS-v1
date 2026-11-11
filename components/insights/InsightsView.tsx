@@ -133,20 +133,20 @@ export const InsightsView: React.FC<InsightsViewProps> = ({ onBack }) => {
             className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-200 flex items-center justify-center"
             aria-label="Back"
           >
-            <span className="material-symbols-outlined text-xl">arrow_back</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-xl">arrow_back</span>
           </button>
         )}
         <div className="flex-1">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <h1 className="text-xl font-bold text-brand-black dark:text-white flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-2xl">insights</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl">insights</span>
               Insights
             </h1>
             <span
               data-testid="insights-fixtures-excluded-badge"
               className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 flex items-center gap-1"
             >
-              <span className="material-symbols-outlined text-[12px] text-amber-500">filter_alt</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[12px] text-amber-500">filter_alt</span>
               Test fixtures excluded
             </span>
           </div>

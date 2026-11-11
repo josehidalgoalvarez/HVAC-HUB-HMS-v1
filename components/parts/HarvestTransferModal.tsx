@@ -75,10 +75,10 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
   };
 
   return (
-    <Modal onClose={onClose} className="max-w-md">
+    <Modal title="Harvest from Vacant Unit" onClose={onClose} className="max-w-md">
       <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-emerald-600 text-xl">swap_horiz</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-emerald-600 text-xl">swap_horiz</span>
           <div>
             <h2 className="text-base font-bold text-brand-black dark:text-white">
               Harvest from Vacant Unit
@@ -89,8 +89,8 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
         <button
           onClick={onClose}
           className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
-        >
-          <span className="material-symbols-outlined">close</span>
+         aria-label="Close">
+          <span aria-hidden="true" className="material-symbols-outlined">close</span>
         </button>
       </div>
 
@@ -106,7 +106,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
             </span>
           </div>
           <div className="text-[11px] text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[14px] text-emerald-600">apartment</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[14px] text-emerald-600">apartment</span>
             <span>
               {candidate.building_name} • Unit {candidate.unit_number}
             </span>
@@ -142,7 +142,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
                   : 'bg-gray-50 dark:bg-card-dark border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
               }`}
             >
-              <span className="material-symbols-outlined text-[16px]">warehouse</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[16px]">warehouse</span>
               Stockpile / Depot
             </button>
             <button
@@ -154,7 +154,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
                   : 'bg-gray-50 dark:bg-card-dark border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
               }`}
             >
-              <span className="material-symbols-outlined text-[16px]">door_front</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[16px]">door_front</span>
               Specific Unit
             </button>
           </div>

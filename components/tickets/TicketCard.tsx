@@ -22,7 +22,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
       case 'urgent':
         return (
           <span className="shrink-0 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-brand-red text-white flex items-center gap-1 shadow-2xs">
-            <span className="material-symbols-outlined text-[13px] leading-none">warning</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none">warning</span>
             <ExplainableTerm term="urgent">URGENT</ExplainableTerm>
           </span>
         );
@@ -194,7 +194,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
               data-testid="repeat-access-problem-flag"
               className="shrink-0 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700 flex items-center gap-1"
             >
-              <span className="material-symbols-outlined text-[12px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[12px] leading-none text-amber-600 dark:text-amber-400">warning</span>
               Repeat access problem
             </span>
           )}
@@ -202,7 +202,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
         {ageStr && (
           <span className="shrink-0 text-[11px] font-mono text-text-sub-light dark:text-text-sub-dark flex items-center gap-0.5">
-            <span className="material-symbols-outlined text-[13px] leading-none text-gray-400">schedule</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none text-gray-400">schedule</span>
             {ageStr}
           </span>
         )}
@@ -219,7 +219,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
               <span
                 className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700"
               >
-                <span className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
                 Repeat access problem
               </span>
             )}
@@ -228,7 +228,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
                 key={chip.key}
                 className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold rounded-md ${chip.className}`}
               >
-                <span className="material-symbols-outlined text-[11px] leading-none">{chip.icon}</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none">{chip.icon}</span>
                 {chip.key === 'renovated' ? (
                   <ExplainableTerm term="renovated">{chip.label}</ExplainableTerm>
                 ) : (
@@ -245,7 +245,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
         )}
         {(ticket.appliance_name || ticket.applianceName) && (
           <div className="pt-0.5 flex items-center gap-1.5 text-xs text-primary dark:text-sky-400 font-semibold">
-            <span className="material-symbols-outlined text-[15px] leading-none">kitchen</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[15px] leading-none">kitchen</span>
             <span>
               {ticket.appliance_name || ticket.applianceName}
               {(ticket.appliance_model || ticket.applianceModel) ? ` (${ticket.appliance_model || ticket.applianceModel})` : ''}
@@ -276,9 +276,9 @@ export const TicketCard: React.FC<TicketCardProps> = ({
           }}
           className="mt-1 min-h-[44px] w-full text-left text-[11px] font-bold text-primary dark:text-sky-400 hover:opacity-80 flex items-center justify-between py-1 border-t border-gray-100 dark:border-gray-800/80 uppercase tracking-wider"
           aria-expanded={isExpanded}
-        >
+         aria-label="Icon">
           <span>{isExpanded ? '[COLLAPSE ISSUE]' : '[SHOW FULL ISSUE]'}</span>
-          <span className="material-symbols-outlined text-base leading-none transition-transform duration-200">
+          <span aria-hidden="true" className="material-symbols-outlined text-base leading-none transition-transform duration-200">
             {isExpanded ? 'expand_less' : 'expand_more'}
           </span>
         </button>
@@ -292,7 +292,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
             {ticket.verified_scope && ticket.description && ticket.verified_scope !== ticket.description && (
               <div className="bg-primary/5 dark:bg-primary/10 rounded-xl p-2 border border-primary/20">
                 <span className="font-bold text-primary flex items-center gap-1 mb-0.5">
-                  <span className="material-symbols-outlined text-sm">verified</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-sm">verified</span>
                   Verified Scope:
                 </span>
                 <p className="text-brand-black dark:text-white">{ticket.verified_scope}</p>
@@ -371,17 +371,17 @@ export const TicketCard: React.FC<TicketCardProps> = ({
         {/* Exposure Badge */}
         {isLadder ? (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded-md bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
-            <span className="material-symbols-outlined text-[13px] leading-none">stairs</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none">stairs</span>
             Ladder
           </span>
         ) : isExterior ? (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded-md bg-sky-100 text-sky-900 dark:bg-sky-950/60 dark:text-sky-200 border border-sky-300 dark:border-sky-700">
-            <span className="material-symbols-outlined text-[13px] leading-none">wb_sunny</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none">wb_sunny</span>
             Exterior
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-semibold rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
-            <span className="material-symbols-outlined text-[13px] leading-none text-gray-500">roofing</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none text-gray-500">roofing</span>
             Indoor
           </span>
         )}
@@ -389,7 +389,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
         {/* Rain Badge: ONLY when exterior or ladder AND rain expected - Strictly Material Symbols, NO emoji! */}
         {showRain && (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded-md bg-blue-600 text-white shadow-2xs">
-            <span className="material-symbols-outlined text-[13px] leading-none">rainy</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none">rainy</span>
             Rain Alert
           </span>
         )}
@@ -397,17 +397,17 @@ export const TicketCard: React.FC<TicketCardProps> = ({
         {/* Notice State Badges */}
         {isGateOpen ? (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
-            <span className="material-symbols-outlined text-[13px] leading-none">lock_open</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none">lock_open</span>
             Gate Open
           </span>
         ) : isNoticeSent ? (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-semibold rounded-md bg-blue-50 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-            <span className="material-symbols-outlined text-[13px] leading-none">mark_email_read</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none">mark_email_read</span>
             Notice Sent
           </span>
         ) : isNoticeNeeded ? (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded-md bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
-            <span className="material-symbols-outlined text-[13px] leading-none">notification_important</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none">notification_important</span>
             Notice Needed
           </span>
         ) : null}
@@ -415,17 +415,17 @@ export const TicketCard: React.FC<TicketCardProps> = ({
         {/* Part-wait or reply-waiting indicator */}
         {isPartWait ? (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded-md bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
-            <span className="material-symbols-outlined text-[13px] leading-none">inventory_2</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none">inventory_2</span>
             Part Wait
           </span>
         ) : isReplyWait ? (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-            <span className="material-symbols-outlined text-[13px] leading-none">hourglass_top</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none">hourglass_top</span>
             Reply Waiting
           </span>
         ) : (ticket.blocked_reason || ticket.blocker_reason) ? (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded-md bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
-            <span className="material-symbols-outlined text-[13px] leading-none">block</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none">block</span>
             Blocked: {ticket.blocked_reason || ticket.blocker_reason}
           </span>
         ) : null}
@@ -433,7 +433,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
         {/* Yardi Stale Warning */}
         {ticket.is_stale_yardi && (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded-md bg-amber-500 text-white shadow-2xs">
-            <span className="material-symbols-outlined text-[13px] leading-none">warning</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none">warning</span>
             Yardi 7+d
           </span>
         )}
@@ -441,7 +441,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
         {/* Sub-jobs count */}
         {ticket.childrenCount && ticket.childrenCount > 0 ? (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-semibold rounded-md bg-primary/10 text-primary dark:bg-primary/20 dark:text-sky-300 border border-primary/20">
-            <span className="material-symbols-outlined text-[13px] leading-none">account_tree</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none">account_tree</span>
             {ticket.childrenCount} sub-jobs
           </span>
         ) : null}

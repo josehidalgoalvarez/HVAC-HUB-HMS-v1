@@ -143,7 +143,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
         <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-primary/10">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center">
-              <span className="material-symbols-outlined text-2xl">check_circle</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-2xl">check_circle</span>
             </div>
             <div>
               <h2 className="text-base font-extrabold text-brand-black dark:text-white">
@@ -158,8 +158,8 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
           <button
             onClick={onClose}
             className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"
-          >
-            <span className="material-symbols-outlined">close</span>
+           aria-label="Close">
+            <span aria-hidden="true" className="material-symbols-outlined">close</span>
           </button>
         </div>
 
@@ -167,7 +167,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
         <div className="p-5 space-y-5 overflow-y-auto flex-1 text-brand-black dark:text-white">
           {error && (
             <div className="p-3 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 text-xs rounded-xl border border-red-200 dark:border-red-800 flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">error</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-sm">error</span>
               <span>{error}</span>
             </div>
           )}
@@ -177,7 +177,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
             <div className="space-y-1.5 p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
               <div className="flex items-center justify-between text-xs">
                 <label className="font-bold text-text-sub-light dark:text-text-sub-dark flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[16px] text-primary">kitchen</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">kitchen</span>
                   Which appliance was this work on?
                 </label>
                 {selectedApplianceId && (
@@ -204,7 +204,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
                           : 'bg-white dark:bg-gray-700/60 hover:bg-gray-100 dark:hover:bg-gray-700 text-brand-black dark:text-gray-200 border-gray-200 dark:border-gray-750'
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[14px]">
+                      <span aria-hidden="true" className="material-symbols-outlined text-[14px]">
                         {isSelected ? 'check_circle' : 'radio_button_unchecked'}
                       </span>
                       <span>{app.name || app.type}</span>
@@ -292,7 +292,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1">
-                <span className="material-symbols-outlined text-[16px] text-primary">build</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">build</span>
                 Parts Used
               </label>
               <span className="text-[11px] font-mono text-gray-400">{parts.length} recorded</span>
@@ -312,8 +312,8 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
                       type="button"
                       onClick={() => handleRemovePart(idx)}
                       className="text-red-500 hover:text-red-700 w-6 h-6 flex items-center justify-center"
-                    >
-                      <span className="material-symbols-outlined text-sm">delete</span>
+                     aria-label="Delete">
+                      <span aria-hidden="true" className="material-symbols-outlined text-sm">delete</span>
                     </button>
                   </div>
                 ))}
@@ -349,7 +349,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
           {/* Close-Out Field Notes */}
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1">
-              <span className="material-symbols-outlined text-[16px] text-primary">notes</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">notes</span>
               Job Notes
             </label>
 
@@ -391,8 +391,8 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
             onClick={handleCloseJob}
             disabled={submitting}
             className="flex-[2] h-12 rounded-2xl bg-primary hover:bg-blue-600 active:scale-[0.98] text-white font-extrabold text-sm shadow-lg shadow-primary/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-          >
-            <span className="material-symbols-outlined text-xl">task_alt</span>
+           aria-label="Complete task">
+            <span aria-hidden="true" className="material-symbols-outlined text-xl">task_alt</span>
             <span>{submitting ? 'Saving...' : 'Complete Job'}</span>
           </button>
         </div>

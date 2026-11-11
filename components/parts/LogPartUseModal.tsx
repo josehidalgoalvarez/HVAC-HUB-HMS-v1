@@ -88,12 +88,12 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
     : Math.max(0, part.quantity_on_hand - parsedQty);
 
   return (
-    <Modal onClose={onClose} className="max-w-md">
+    <Modal title="Log Part Use" onClose={onClose} className="max-w-md">
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Header */}
         <div>
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-2xl">
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl">
               {mode === 'restock' ? 'add_box' : 'handyman'}
             </span>
             <h2 className="text-lg font-bold text-brand-black dark:text-white">
@@ -121,7 +121,7 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
                 : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
-            <span className="material-symbols-outlined text-[16px]">build</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px]">build</span>
             Use Part
           </button>
           <button
@@ -136,7 +136,7 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
                 : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
-            <span className="material-symbols-outlined text-[16px]">add_box</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px]">add_box</span>
             Restock
           </button>
         </div>
@@ -166,7 +166,7 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
           </div>
           {willReorder && (
             <div className="pt-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px]">warning</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[14px]">warning</span>
               Usage will trigger reorder flag (Remaining: {newStockPreview} ≤ {part.reorder_point})
             </div>
           )}

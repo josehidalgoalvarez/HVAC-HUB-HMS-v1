@@ -73,7 +73,7 @@ const PropertyLandingView: React.FC<PropertyLandingViewProps> = ({
         <div className="absolute bottom-6 left-6 right-6 text-white z-10">
           <h1 className="text-3xl font-display font-bold tracking-tight mb-1">{property.name}</h1>
           <div className="flex items-center gap-2 text-white/80 font-medium">
-            <span className="material-symbols-outlined text-[18px]">location_on</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[18px]">location_on</span>
             <p className="truncate text-sm">{property.address}</p>
           </div>
         </div>
@@ -115,8 +115,8 @@ const PropertyLandingView: React.FC<PropertyLandingViewProps> = ({
               ? 'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800/30 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-900/20'
               : 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700 text-gray-400 cursor-not-allowed'
             }`}
-        >
-          <span className="material-symbols-outlined">sticky_note_2</span>
+         aria-label="Property notes">
+          <span aria-hidden="true" className="material-symbols-outlined">sticky_note_2</span>
           <span>{hasComments ? 'View Property Notes' : 'No Property Notes'}</span>
         </button>
 
@@ -139,7 +139,7 @@ const PropertyLandingView: React.FC<PropertyLandingViewProps> = ({
                 onClick={onAddAppliance}
                 className="flex items-center gap-1 text-primary text-sm font-bold hover:opacity-80 transition-opacity"
               >
-                <span className="material-symbols-outlined text-[18px]">add_circle</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[18px]">add_circle</span>
                 Add New
               </button>
             )}
@@ -186,14 +186,14 @@ const PropertyLandingView: React.FC<PropertyLandingViewProps> = ({
               onClick={() => setIsScheduling(true)}
               className="bg-[#1a9387] hover:bg-[#157a70] text-white rounded-2xl py-4 px-2 flex flex-col items-center gap-2 shadow-lg shadow-[#1a9387]/20 transition-all active:scale-[0.98]"
             >
-              <span className="material-symbols-outlined text-[28px]">calendar_month</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[28px]">calendar_month</span>
               <span className="font-bold text-sm">Book Service</span>
             </button>
             <button
               onClick={() => setIsContacting(true)}
               className="bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-brand-black dark:text-white rounded-2xl py-4 px-2 flex flex-col items-center gap-2 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-[0.98]"
             >
-              <span className="material-symbols-outlined text-[28px]">help</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[28px]">help</span>
               <span className="font-bold text-sm">Contact Tech</span>
             </button>
           </div>
@@ -218,11 +218,11 @@ const PropertyLandingView: React.FC<PropertyLandingViewProps> = ({
       {isContacting && <ContactTechModal onClose={() => setIsContacting(false)} />}
 
       {showComments && (
-        <Modal onClose={() => setShowComments(false)} className="max-w-sm">
+        <Modal title="Property Notes" onClose={() => setShowComments(false)} className="max-w-sm">
           <div className="flex justify-between items-start mb-4">
             <div className="flex items-center gap-2 text-brand-black dark:text-white">
               <div className="w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 flex items-center justify-center">
-                <span className="material-symbols-outlined">sticky_note_2</span>
+                <span aria-hidden="true" className="material-symbols-outlined">sticky_note_2</span>
               </div>
               <h3 className="text-lg font-bold">Property Notes</h3>
             </div>

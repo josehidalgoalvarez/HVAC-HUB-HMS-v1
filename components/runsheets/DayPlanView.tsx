@@ -202,14 +202,14 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
       case 'green':
         return (
           <span className="px-2 py-0.5 text-[10px] font-bold rounded-lg bg-emerald-500 text-white flex items-center gap-1 shadow-xs">
-            <span className="material-symbols-outlined text-[13px]">check_circle</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px]">check_circle</span>
             CLEARED
           </span>
         );
       case 'red':
         return (
           <span className="px-2 py-0.5 text-[10px] font-bold rounded-lg bg-brand-red text-white flex items-center gap-1 shadow-xs animate-pulse">
-            <span className="material-symbols-outlined text-[13px]">gavel</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px]">gavel</span>
             OVERDUE / BLOCKED
           </span>
         );
@@ -217,7 +217,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
       default:
         return (
           <span className="px-2 py-0.5 text-[10px] font-bold rounded-lg bg-amber-500 text-white flex items-center gap-1 shadow-xs">
-            <span className="material-symbols-outlined text-[13px]">timer</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px]">timer</span>
             PENDING 24H
           </span>
         );
@@ -235,13 +235,13 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
             <button
               onClick={onBack}
               className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-brand-black dark:text-white"
-            >
-              <span className="material-symbols-outlined">arrow_back</span>
+             aria-label="Back">
+              <span aria-hidden="true" className="material-symbols-outlined">arrow_back</span>
             </button>
           )}
           <div className="border-l-4 border-primary pl-2.5 py-0.5">
             <h1 className="text-xl font-extrabold text-brand-black dark:text-white flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-2xl">schedule</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl">schedule</span>
               Day Plan
             </h1>
             <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
@@ -289,7 +289,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
           aria-label="Previous day"
           className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200 shrink-0"
         >
-          <span className="material-symbols-outlined text-sm">chevron_left</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm">chevron_left</span>
         </button>
 
         <button
@@ -302,7 +302,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
             {new Date(currentDate + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long' })}
           </span>
           <span className="text-sm font-extrabold text-brand-black dark:text-white font-mono flex items-center gap-1.5 group-hover:text-primary transition-colors">
-            <span className="material-symbols-outlined text-[16px] text-gray-400 group-hover:text-primary transition-colors">
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-gray-400 group-hover:text-primary transition-colors">
               calendar_month
             </span>
             {currentDate}
@@ -329,7 +329,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
           aria-label="Next day"
           className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200 shrink-0"
         >
-          <span className="material-symbols-outlined text-sm">chevron_right</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-sm">chevron_right</span>
         </button>
       </div>
 
@@ -358,19 +358,19 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
           <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
             {rollup.red_gate_count > 0 && (
               <span className="px-2 py-0.5 rounded-lg bg-red-100 text-brand-red font-bold flex items-center gap-1 border border-red-200">
-                <span className="material-symbols-outlined text-xs">gavel</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xs">gavel</span>
                 {rollup.red_gate_count} Overdue
               </span>
             )}
             {rollup.amber_gate_count > 0 && (
               <span className="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-800 font-bold flex items-center gap-1 border border-amber-200">
-                <span className="material-symbols-outlined text-xs">timer</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xs">timer</span>
                 {rollup.amber_gate_count} Pending
               </span>
             )}
             {rollup.exceeds_capacity_count > 0 && (
               <span className="px-2 py-0.5 rounded-lg bg-amber-500 text-white font-bold flex items-center gap-1">
-                <span className="material-symbols-outlined text-xs">warning</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xs">warning</span>
                 {rollup.exceeds_capacity_count} Overload
               </span>
             )}
@@ -381,7 +381,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
       {/* Subtle background updated indicator */}
       {isUpdated && (
         <div className="fixed top-14 left-1/2 -translate-x-1/2 z-40 px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-full shadow-lg animate-fadeIn flex items-center gap-1.5 pointer-events-none">
-          <span className="material-symbols-outlined text-[14px]">check_circle</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[14px]">check_circle</span>
           <span>Day Plan updated</span>
         </div>
       )}
@@ -389,7 +389,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
       {/* Confirmation feedback toast */}
       {feedbackMessage && (
         <div className="fixed top-14 left-1/2 -translate-x-1/2 z-40 px-3.5 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-full shadow-lg animate-fadeIn flex items-center gap-1.5 pointer-events-none">
-          <span className="material-symbols-outlined text-[14px]">check</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[14px]">check</span>
           <span>{feedbackMessage}</span>
         </div>
       )}
@@ -398,7 +398,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
       {error && (
         <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-2xl text-xs text-brand-red font-semibold flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-base">error</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-base">error</span>
             <span>{error}</span>
           </div>
           <button
@@ -414,12 +414,12 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
       <PullToRefresh onRefresh={() => loadDayPlan(currentDate)}>
         {loading && !activeRunSheet ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
-            <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
             <p className="text-xs font-semibold">Loading day-plan route blocks...</p>
           </div>
         ) : !activeRunSheet || !activeRunSheet.blocks || activeRunSheet.blocks.length === 0 ? (
           <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
-            <span className="material-symbols-outlined text-4xl text-gray-300">event_busy</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-4xl text-gray-300">event_busy</span>
             <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
               No day plan scheduled for {currentDate}
             </p>
@@ -447,7 +447,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                 {/* Site Transition Indicator */}
                 {block.is_site_transition && (
                   <div className="px-3 py-1 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl text-[11px] font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5 my-2">
-                    <span className="material-symbols-outlined text-[15px]">directions_bike</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[15px]">directions_bike</span>
                     Travel transit to {block.building_name} (+{block.travel_buffer_before_minutes || 20}m buffer)
                   </div>
                 )}
@@ -478,17 +478,17 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                       {/* Work Exposure Chip */}
                       {block.work_exposure === 'exterior_ladder' ? (
                         <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[12px]">stairs</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[12px]">stairs</span>
                           Ladder
                         </span>
                       ) : block.work_exposure === 'exterior' ? (
                         <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-sky-100 text-sky-800 dark:bg-sky-950/60 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[12px]">wb_sunny</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[12px]">wb_sunny</span>
                           Exterior
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[12px]">roofing</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[12px]">roofing</span>
                           Indoor
                         </span>
                       )}
@@ -513,7 +513,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                           onClick={() => onOpenTicket?.(String(block.ticket_id))}
                           className="px-2 py-0.5 text-xs font-mono font-bold bg-primary/10 text-primary rounded-lg border border-primary/20 hover:bg-primary/20 flex items-center gap-1 shrink-0"
                         >
-                          <span className="material-symbols-outlined text-[12px]">link</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[12px]">link</span>
                           {block.wo_number || `WO #${block.ticket_id}`}
                         </button>
                       ) : (
@@ -526,7 +526,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
 
                     {/* Site Location */}
                     <div className="mt-1 flex items-center gap-1 text-xs text-text-sub-light dark:text-text-sub-dark">
-                      <span className="material-symbols-outlined text-[15px] text-gray-400">location_on</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[15px] text-gray-400">location_on</span>
                       <span className="font-semibold text-brand-black dark:text-white">
                         {block.building_name || 'Site'}
                       </span>
@@ -538,7 +538,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                   {exceedsCarry && (
                     <div className="mt-2.5 p-2.5 bg-amber-500/10 border border-amber-400/40 rounded-xl text-xs text-amber-900 dark:text-amber-200 space-y-1">
                       <div className="flex items-center gap-1.5 font-bold">
-                        <span className="material-symbols-outlined text-amber-600 text-lg">warning</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-lg">warning</span>
                         <span className="uppercase text-[11px] tracking-wide">
                           {block.carry_warning || 'exceeds carry capacity — split or reschedule'}
                         </span>
@@ -556,7 +556,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                         key={i}
                         className="px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium inline-flex items-center"
                       >
-                        <span className="material-symbols-outlined text-[13px] mr-1 text-gray-500">build</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[13px] mr-1 text-gray-500">build</span>
                         {t}
                       </span>
                     ))}
@@ -565,7 +565,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                         key={i}
                         className="px-2 py-0.5 rounded-lg bg-primary/10 text-primary font-medium inline-flex items-center"
                       >
-                        <span className="material-symbols-outlined text-[13px] mr-1 text-primary">inventory_2</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[13px] mr-1 text-primary">inventory_2</span>
                         {p}
                       </span>
                     ))}
@@ -578,7 +578,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                     {isCompleted ? (
                       <div className="flex items-center gap-2 text-xs">
                         <span className="px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-bold flex items-center gap-1 shadow-2xs">
-                          <span className="material-symbols-outlined text-sm">done_all</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-sm">done_all</span>
                           <ExplainableTerm term="completed">Completed</ExplainableTerm>
                         </span>
                         <span className="font-mono font-bold text-emerald-950 dark:text-emerald-100">
@@ -610,7 +610,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                         title="Remove this job from the Day Plan"
                         aria-label={`Remove ${block.title} from Day Plan`}
                       >
-                        <span className="material-symbols-outlined text-sm">delete</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-sm">delete</span>
                         Remove
                       </button>
 
@@ -620,7 +620,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                           className="py-1.5 px-3 min-h-[44px] text-xs font-bold bg-gray-100 dark:bg-card-dark text-text-main-light dark:text-text-main-dark border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-neutral-800 flex items-center gap-1 active:scale-95 transition-all"
                           title="Open quick field logging session (<60s)"
                         >
-                          <span className="material-symbols-outlined text-sm text-primary">bolt</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-sm text-primary">bolt</span>
                           Quick Log
                         </button>
                       )}
@@ -629,7 +629,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                           onClick={() => setClosingBlock(block)}
                           className="py-1.5 px-3 min-h-[44px] text-xs font-bold bg-primary text-white rounded-xl shadow-xs hover:bg-primary/90 flex items-center gap-1 active:scale-95 transition-all"
                         >
-                          <span className="material-symbols-outlined text-sm">check_circle</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-sm">check_circle</span>
                           Close Block
                         </button>
                       )}
@@ -670,10 +670,10 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
 
       {/* Clear Whole Plan Confirmation Modal */}
       {showClearPlanModal && hasBlocks && (
-        <Modal onClose={() => !isClearingPlan && setShowClearPlanModal(false)} className="max-w-sm">
+        <Modal title="Clear Plan" onClose={() => !isClearingPlan && setShowClearPlanModal(false)} className="max-w-sm">
           <div className="flex flex-col items-center text-center gap-4">
             <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-brand-red mb-1">
-              <span className="material-symbols-outlined text-[32px]">clear_all</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[32px]">clear_all</span>
             </div>
             <div>
               <h3 className="text-lg font-bold text-brand-black dark:text-white">
@@ -712,10 +712,10 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
 
       {/* Delete Empty Shell Confirmation Modal */}
       {showDeleteShellModal && isEmptyShell && (
-        <Modal onClose={() => !isDeletingShell && setShowDeleteShellModal(false)} className="max-w-sm">
+        <Modal title="Delete Empty Plan" onClose={() => !isDeletingShell && setShowDeleteShellModal(false)} className="max-w-sm">
           <div className="flex flex-col items-center text-center gap-4">
             <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-brand-red mb-1">
-              <span className="material-symbols-outlined text-[32px]">delete</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[32px]">delete</span>
             </div>
             <div>
               <h3 className="text-lg font-bold text-brand-black dark:text-white">
@@ -754,10 +754,10 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
 
       {/* Remove Block Confirmation Modal */}
       {removingBlock && (
-        <Modal onClose={() => !isRemoving && setRemovingBlock(null)} className="max-w-sm">
+        <Modal title="Remove Job from Day Plan" onClose={() => !isRemoving && setRemovingBlock(null)} className="max-w-sm">
           <div className="flex flex-col items-center text-center gap-4">
             <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-brand-red mb-1">
-              <span className="material-symbols-outlined text-[32px]">delete</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[32px]">delete</span>
             </div>
             <div>
               <h3 className="text-lg font-bold text-brand-black dark:text-white">

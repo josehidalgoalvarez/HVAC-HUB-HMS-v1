@@ -901,7 +901,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
         {/* Direct Global Inventory Search Bar */}
         <div className="mt-2.5 relative">
           <div className="flex items-center rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-card-dark px-3 shadow-xs focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
-            <span className="material-symbols-outlined text-gray-400 text-[20px]">
+            <span aria-hidden="true" className="material-symbols-outlined text-gray-400 text-[20px]">
               search
             </span>
             <input
@@ -919,7 +919,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 className="p-1 text-gray-400 hover:text-text-main-light dark:hover:text-white"
                 aria-label="Clear search"
               >
-                <span className="material-symbols-outlined text-[18px]">close</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[18px]">close</span>
               </button>
             )}
           </div>
@@ -976,7 +976,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
               <div className="space-y-6">
                 <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
                   <div className="flex items-center gap-2 border-l-4 border-primary pl-2.5 py-0.5">
-                    <span className="material-symbols-outlined text-primary text-xl">domain</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">domain</span>
                     <h1 className="text-sm font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
                       Portfolio ({properties.length} Total Buildings)
                     </h1>
@@ -985,7 +985,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     onClick={() => handleNavDefaults()}
                     className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 text-text-main-light dark:text-white hover:border-primary/40 hover:text-primary shadow-xs transition-colors"
                   >
-                    <span className="material-symbols-outlined text-[16px]">tune</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[16px]">tune</span>
                     Default Sets
                   </button>
                 </div>
@@ -1006,7 +1006,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           <div className="flex items-start justify-between gap-3 mb-2">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                <span className="material-symbols-outlined text-[22px]">apartment</span>
+                                <span aria-hidden="true" className="material-symbols-outlined text-[22px]">apartment</span>
                               </div>
                               <div>
                                 <h2 className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
@@ -1021,7 +1021,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                                 {c.buildings.length} Buildings
                               </span>
-                              <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
+                              <span aria-hidden="true" className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
                                 chevron_right
                               </span>
                             </div>
@@ -1030,14 +1030,14 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           {/* Preserved Note Callouts */}
                           {isBD && (
                             <div className="mt-3 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-xs flex items-center gap-2">
-                              <span className="material-symbols-outlined text-[18px] text-amber-600 shrink-0">inventory_2</span>
+                              <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-amber-600 shrink-0">inventory_2</span>
                               <span className="font-medium">511 Days Rd: Central Storage Building</span>
                             </div>
                           )}
 
                           {isElm && (
                             <div className="mt-3 p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-300 text-xs flex items-center gap-2">
-                              <span className="material-symbols-outlined text-[18px] text-blue-600 shrink-0">tag</span>
+                              <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-blue-600 shrink-0">tag</span>
                               <span className="font-medium">18 Elm base units 101–414 (standard numbering)</span>
                             </div>
                           )}
@@ -1048,7 +1048,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             {c.buildings.reduce((acc, b) => acc + units.filter(u => u.buildingId === b.id).length, 0)} Configured Units
                           </span>
                           <span className="text-primary font-semibold flex items-center gap-0.5 text-xs">
-                            View Complex <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            View Complex <span aria-hidden="true" className="material-symbols-outlined text-[14px]">arrow_forward</span>
                           </span>
                         </div>
                       </div>
@@ -1064,7 +1064,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 flex items-center justify-center shrink-0">
-                            <span className="material-symbols-outlined text-[22px]">home_work</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-[22px]">home_work</span>
                           </div>
                           <div>
                             <h2 className="text-base font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors">
@@ -1079,7 +1079,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                             {ungroupedProperties.length} Properties
                           </span>
-                          <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
+                          <span aria-hidden="true" className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
                             chevron_right
                           </span>
                         </div>
@@ -1089,7 +1089,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     <div className="pt-3 mt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub-light dark:text-text-sub-dark">
                       <span>{ungroupedProperties.length} Properties</span>
                       <span className="text-primary font-semibold flex items-center gap-0.5 text-xs">
-                        Browse Ungrouped <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                        Browse Ungrouped <span aria-hidden="true" className="material-symbols-outlined text-[14px]">arrow_forward</span>
                       </span>
                     </div>
                   </div>
@@ -1101,7 +1101,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     onClick={onAddProperty}
                     className="p-5 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-center hover:border-primary cursor-pointer transition-colors"
                   >
-                    <span className="material-symbols-outlined text-2xl text-primary mb-1">add_location_alt</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-2xl text-primary mb-1">add_location_alt</span>
                     <p className="text-xs font-bold uppercase text-primary">Add New Property to Portfolio</p>
                   </div>
                 )}
@@ -1116,8 +1116,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     <button
                       onClick={handleNavRoot}
                       className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                     aria-label="Back">
+                      <span aria-hidden="true" className="material-symbols-outlined text-[18px]">arrow_back</span>
                     </button>
                     <div>
                       <h2 className="text-base font-bold text-brand-black dark:text-white">
@@ -1134,7 +1134,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       onClick={() => handleNavDefaults(activeComplex.id)}
                       className="min-h-[44px] flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs"
                     >
-                      <span className="material-symbols-outlined text-[16px]">tune</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[16px]">tune</span>
                       <span>{activeComplex.name} Appliances</span>
                     </button>
                   )}
@@ -1156,7 +1156,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     return (
                       <div className="p-6 rounded-2xl bg-white dark:bg-card-dark border border-dashed border-gray-200 dark:border-gray-800 text-center space-y-3.5 shadow-xs">
                         <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center mx-auto text-primary">
-                          <span className="material-symbols-outlined text-2xl">domain_disabled</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-2xl">domain_disabled</span>
                         </div>
                         <p className="text-xs text-brand-black dark:text-white max-w-md mx-auto leading-relaxed font-medium">
                           {emptyRef ? emptyRef.note : 'No buildings in this complex yet.'}
@@ -1167,9 +1167,9 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               type="button"
                               onClick={() => handleNavComplex(emptyRef.jumpTarget!.complexId)}
                               className="min-h-[44px] px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary-hover text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-2xs"
-                            >
+                             aria-label="Open details">
                               <span>{emptyRef.jumpTarget.label}</span>
-                              <span className="material-symbols-outlined text-sm">open_in_new</span>
+                              <span aria-hidden="true" className="material-symbols-outlined text-sm">open_in_new</span>
                             </button>
                           </div>
                         )}
@@ -1223,7 +1223,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                       className="min-h-[30px] px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-primary hover:text-primary-hover text-[11px] font-bold flex items-center gap-1 transition-colors border border-gray-200/80 dark:border-gray-700 active:scale-95 shadow-2xs"
                                       title="Why here? (Location reference)"
                                     >
-                                      <span className="material-symbols-outlined text-[14px]">help</span>
+                                      <span aria-hidden="true" className="material-symbols-outlined text-[14px]">help</span>
                                       <span>Why here?</span>
                                     </button>
                                   </>
@@ -1239,7 +1239,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                     className="min-h-[30px] px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-primary hover:text-primary-hover text-[11px] font-bold flex items-center gap-1 transition-colors border border-gray-200/80 dark:border-gray-700 active:scale-95 shadow-2xs"
                                     title="Why here? (Location reference)"
                                   >
-                                    <span className="material-symbols-outlined text-[14px]">help</span>
+                                    <span aria-hidden="true" className="material-symbols-outlined text-[14px]">help</span>
                                     <span>Why here?</span>
                                   </button>
                                 )}
@@ -1285,13 +1285,13 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                   }}
                                   className="min-h-[44px] px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 active:scale-[0.98] text-amber-900 dark:text-amber-200 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
                                 >
-                                  <span className="material-symbols-outlined text-[18px] text-amber-700 dark:text-amber-300">
+                                  <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-amber-700 dark:text-amber-300">
                                     inventory_2
                                   </span>
                                   <span>Stock Menu</span>
                                 </button>
                               )}
-                              <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
+                              <span aria-hidden="true" className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
                                 chevron_right
                               </span>
                             </div>
@@ -1348,7 +1348,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         className="min-h-[44px] text-xs font-semibold px-3 py-2 rounded-xl bg-gray-100 dark:bg-neutral-800 text-primary hover:text-primary-hover hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors flex items-center gap-1.5 border border-gray-200/80 dark:border-gray-700 shadow-2xs"
                         title="Why here? (Location reference)"
                       >
-                        <span className="material-symbols-outlined text-[16px]">help</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[16px]">help</span>
                         <span>Why here?</span>
                       </button>
                     </div>
@@ -1362,7 +1362,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors shrink-0"
                       title="Back to Complex"
                     >
-                      <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[18px]">arrow_back</span>
                     </button>
                     <button
                       type="button"
@@ -1376,7 +1376,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         </h2>
                         <p className="text-xs text-text-sub-light dark:text-text-sub-dark truncate">{activeBuilding.address}</p>
                       </div>
-                      <span className="material-symbols-outlined text-gray-400 group-hover:text-primary transition-colors text-xl shrink-0">
+                      <span aria-hidden="true" className="material-symbols-outlined text-gray-400 group-hover:text-primary transition-colors text-xl shrink-0">
                         chevron_right
                       </span>
                     </button>
@@ -1390,7 +1390,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-xs text-amber-900 dark:text-amber-200 flex items-center justify-between shadow-2xs"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-amber-600 text-lg">door_front</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-lg">door_front</span>
                       <span>
                         <strong>Building Access History:</strong> Failed entry attempts recorded on units in this building.
                       </span>
@@ -1424,7 +1424,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         }}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="material-symbols-outlined text-amber-600 text-2xl shrink-0 group-hover:scale-105 transition-transform">
+                          <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-2xl shrink-0 group-hover:scale-105 transition-transform">
                             warehouse
                           </span>
                           <div className="min-w-0">
@@ -1439,7 +1439,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             </p>
                           </div>
                         </div>
-                        <span className="material-symbols-outlined text-amber-600 text-xl shrink-0 group-hover:translate-x-0.5 transition-transform">
+                        <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-xl shrink-0 group-hover:translate-x-0.5 transition-transform">
                           chevron_right
                         </span>
                       </div>
@@ -1477,7 +1477,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         }}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <span className={`material-symbols-outlined text-2xl shrink-0 group-hover:scale-105 transition-transform ${iconBg}`}>
+                          <span aria-hidden="true" className={`material-symbols-outlined text-2xl shrink-0 group-hover:scale-105 transition-transform ${iconBg}`}>
                             inventory_2
                           </span>
                           <div className="min-w-0">
@@ -1492,7 +1492,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             </p>
                           </div>
                         </div>
-                        <span className={`material-symbols-outlined text-xl shrink-0 group-hover:translate-x-0.5 transition-transform ${chevronColor}`}>
+                        <span aria-hidden="true" className={`material-symbols-outlined text-xl shrink-0 group-hover:translate-x-0.5 transition-transform ${chevronColor}`}>
                           chevron_right
                         </span>
                       </div>
@@ -1503,7 +1503,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   if (activeBuilding.role === 'storage' || activeBuilding.role === 'mechanical') {
                     return (
                       <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2.5 min-h-[44px]">
-                        <span className="material-symbols-outlined text-amber-600 text-xl">
+                        <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-xl">
                           {activeBuilding.role === 'mechanical' ? 'settings_suggest' : 'inventory_2'}
                         </span>
                         <div>
@@ -1525,7 +1525,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 {/* External Responsibility Callout */}
                 {activeBuilding.responsibility === 'external' && (
                   <div className="p-3.5 rounded-2xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs flex items-center gap-2.5">
-                    <span className="material-symbols-outlined text-gray-500 text-xl">engineering</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-gray-500 text-xl">engineering</span>
                     <div>
                       <strong>External Superintendent:</strong> Routine maintenance is handled by an external superintendent (not Jose).
                     </div>
@@ -1535,7 +1535,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 {/* Address Aliases Callout */}
                 {activeBuilding.addressAliases && activeBuilding.addressAliases.length > 0 && (
                   <div className="p-3 rounded-2xl bg-blue-500/5 border border-blue-500/15 text-blue-900 dark:text-blue-200 text-xs flex items-center gap-2">
-                    <span className="material-symbols-outlined text-blue-600 text-lg">alternate_email</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-blue-600 text-lg">alternate_email</span>
                     <div>
                       <span className="font-semibold">Known Address Aliases: </span>
                       <span className="text-text-sub-light dark:text-text-sub-dark">
@@ -1548,7 +1548,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 {/* Building Spaces Callout (103 Amherst UTILITY room) */}
                 {activeBuilding.id === 'prop-amherst-103' && (
                   <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-900 dark:text-blue-200 text-xs flex items-center gap-2.5">
-                    <span className="material-symbols-outlined text-blue-600 text-xl">room_preferences</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-blue-600 text-xl">room_preferences</span>
                     <div>
                       <strong>Building Space:</strong> UTILITY space (utility room — building space, not a rentable unit).
                     </div>
@@ -1606,7 +1606,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               <div className="flex items-center gap-1.5 flex-wrap">
                                 {Boolean(unit.has_repeat_access_problem || unit.repeat_access_problem || ((unit.failedVisitsCount ?? 0) >= 2) || ((unit.failed_visits_count ?? 0) >= 2)) && (
                                   <span data-testid="unit-repeat-access-problem-flag" className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700">
-                                    <span className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+                                    <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
                                     Repeat access problem
                                   </span>
                                 )}
@@ -1650,7 +1650,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                       <div className="flex items-center gap-1.5 flex-wrap mb-2.5">
                                         {ctxChips.map(c => (
                                           <span key={c.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md ${c.className}`}>
-                                            <span className="material-symbols-outlined text-[12px] leading-none">{c.icon}</span>
+                                            <span aria-hidden="true" className="material-symbols-outlined text-[12px] leading-none">{c.icon}</span>
                                             {c.label}
                                           </span>
                                         ))}
@@ -1663,7 +1663,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
                             <div className="pt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub-light dark:text-text-sub-dark">
                               <span>{unitApps.length} Appliances</span>
-                              <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
+                              <span aria-hidden="true" className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
                                 chevron_right
                               </span>
                             </div>
@@ -1677,7 +1677,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           <div className="space-y-3">
                             <div className="flex items-center justify-between pb-1 border-b border-gray-100 dark:border-gray-800">
                               <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5">
-                                <span className="material-symbols-outlined text-[16px] text-primary">apartment</span>
+                                <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">apartment</span>
                                 <span>Apartment Building Units ({aptUnits.length})</span>
                               </h3>
                               <span className="text-[11px] text-gray-400">565 + 567 + 563 Apartments</span>
@@ -1692,7 +1692,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             <div className="space-y-3 pt-2">
                               <div className="flex items-center justify-between pb-1 border-b border-amber-200 dark:border-amber-800/60">
                                 <h3 className="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
-                                  <span className="material-symbols-outlined text-[16px] text-amber-600">storefront</span>
+                                  <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-amber-600">storefront</span>
                                   <span>Separate Commercial Unit ({commUnits.length})</span>
                                 </h3>
                                 <span className="text-[11px] text-amber-700/80 dark:text-amber-300/80">563 Commercial Unit</span>
@@ -1745,7 +1745,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     {Boolean(unit.has_repeat_access_problem || unit.repeat_access_problem || ((unit.failedVisitsCount ?? 0) >= 2) || ((unit.failed_visits_count ?? 0) >= 2)) && (
                                       <span data-testid="unit-repeat-access-problem-flag" className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700">
-                                        <span className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+                                        <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
                                         Repeat access problem
                                       </span>
                                     )}
@@ -1789,7 +1789,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                           <div className="flex items-center gap-1.5 flex-wrap mb-2.5">
                                             {ctxChips.map(c => (
                                               <span key={c.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md ${c.className}`}>
-                                                <span className="material-symbols-outlined text-[12px] leading-none">{c.icon}</span>
+                                                <span aria-hidden="true" className="material-symbols-outlined text-[12px] leading-none">{c.icon}</span>
                                                 {c.label}
                                               </span>
                                             ))}
@@ -1802,7 +1802,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
 
                                 <div className="pt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-text-sub-light dark:text-text-sub-dark">
                                   <span>{unitApps.length} Appliances</span>
-                                  <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
+                                  <span aria-hidden="true" className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-xl">
                                     chevron_right
                                   </span>
                                 </div>
@@ -1812,7 +1812,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         </div>
                       ) : (
                         <div className="p-12 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-card-dark/50">
-                          <span className="material-symbols-outlined text-3xl text-gray-400 mb-1">door_front</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-3xl text-gray-400 mb-1">door_front</span>
                           <p className="text-sm font-bold text-brand-black dark:text-white">No units configured for this building yet.</p>
                         </div>
                       )}
@@ -1830,8 +1830,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     <button
                       onClick={() => handleNavBuilding(activeUnit.buildingId)}
                       className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                     aria-label="Back">
+                      <span aria-hidden="true" className="material-symbols-outlined text-[18px]">arrow_back</span>
                     </button>
                     <div>
                       <h2 className="text-base font-bold text-brand-black dark:text-white">
@@ -1848,7 +1848,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                       onClick={() => resetUnitToDefault(activeUnit.id)}
                       className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-red-200 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors flex items-center gap-1"
                     >
-                      <span className="material-symbols-outlined text-[15px]">restart_alt</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[15px]">restart_alt</span>
                       Reset to Default
                     </button>
                   )}
@@ -1862,7 +1862,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     <div className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
                       <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
                         <div className="flex items-center gap-2">
-                          <span className="material-symbols-outlined text-primary text-[18px]">verified_user</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-primary text-[18px]">verified_user</span>
                           <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
                             Unit Context
                           </h3>
@@ -1871,7 +1871,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {contextChips.map(chip => (
                               <span key={chip.key} className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md ${chip.className}`}>
-                                <span className="material-symbols-outlined text-[12px] leading-none">{chip.icon}</span>
+                                <span aria-hidden="true" className="material-symbols-outlined text-[12px] leading-none">{chip.icon}</span>
                                 {chip.label}
                               </span>
                             ))}
@@ -1887,7 +1887,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         {/* Renovated Signal */}
                         <div className="p-3 rounded-xl bg-gray-50/70 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800/80">
                           <div className="flex items-center gap-1.5 mb-1 text-text-sub-light dark:text-text-sub-dark">
-                            <span className="material-symbols-outlined text-[15px] text-amber-500">construction</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-[15px] text-amber-500">construction</span>
                             <span className="text-[11px] font-bold uppercase tracking-wider">Renovated</span>
                           </div>
                           <p className="text-xs font-semibold text-brand-black dark:text-white">
@@ -1898,7 +1898,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         {/* Move-In Signal */}
                         <div className="p-3 rounded-xl bg-gray-50/70 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800/80">
                           <div className="flex items-center gap-1.5 mb-1 text-text-sub-light dark:text-text-sub-dark">
-                            <span className="material-symbols-outlined text-[15px] text-emerald-500">person_add</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-[15px] text-emerald-500">person_add</span>
                             <span className="text-[11px] font-bold uppercase tracking-wider">Move-In</span>
                           </div>
                           <p className="text-xs font-semibold text-brand-black dark:text-white">
@@ -1909,7 +1909,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         {/* Occupancy Signal */}
                         <div className="p-3 rounded-xl bg-gray-50/70 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800/80">
                           <div className="flex items-center gap-1.5 mb-1 text-text-sub-light dark:text-text-sub-dark">
-                            <span className="material-symbols-outlined text-[15px] text-purple-500">door_open</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-[15px] text-purple-500">door_open</span>
                             <span className="text-[11px] font-bold uppercase tracking-wider">Occupancy</span>
                           </div>
                           <p className="text-xs font-semibold text-brand-black dark:text-white">
@@ -1925,7 +1925,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 <div className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
                   <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-amber-600 text-[18px]">door_front</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-[18px]">door_front</span>
                       <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
                         Access History & Failed Visits
                       </h3>
@@ -1941,12 +1941,12 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         data-testid="repeat-access-problem-flag"
                         className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-xl bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700"
                       >
-                        <span className="material-symbols-outlined text-[13px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none text-amber-600 dark:text-amber-400">warning</span>
                         Repeat access problem
                       </span>
                     ) : (
                       <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[14px]">check_circle</span>
                         Normal Access
                       </span>
                     )}
@@ -2036,7 +2036,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   {unitTickets.some(t => t.status === 'archived-blocked' || t.state === 'archived-blocked') && (
                     <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-2">
                       <div className="flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-[15px] text-gray-500">history_edu</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[15px] text-gray-500">history_edu</span>
                         <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
                           Pruned Blocked History ({unitTickets.filter(t => t.status === 'archived-blocked' || t.state === 'archived-blocked').length})
                         </h4>
@@ -2074,7 +2074,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 <div className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-4">
                   <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-primary text-[18px]">tune</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-primary text-[18px]">tune</span>
                       <h3 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
                         Unit Attributes & Context
                       </h3>
@@ -2328,7 +2328,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         >
                           <div className="flex items-center gap-2.5">
                             <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 flex items-center justify-center shrink-0 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                              <span className="material-symbols-outlined text-[20px]">
+                              <span aria-hidden="true" className="material-symbols-outlined text-[20px]">
                                 {app.type.includes('FRIDGE')
                                   ? 'kitchen'
                                   : app.type.includes('STOVE') || app.type.includes('RANGE')
@@ -2343,7 +2343,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             <div>
                               <h4 className="text-sm font-bold text-brand-black dark:text-white group-hover:text-primary transition-colors flex items-center gap-1.5">
                                 <span>{app.name || app.type}</span>
-                                <span className="material-symbols-outlined text-[15px] opacity-0 group-hover:opacity-100 transition-opacity text-primary">arrow_forward</span>
+                                <span aria-hidden="true" className="material-symbols-outlined text-[15px] opacity-0 group-hover:opacity-100 transition-opacity text-primary">arrow_forward</span>
                               </h4>
                               <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
                                 {app.category || 'Appliance'} · {app.type}
@@ -2354,7 +2354,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {app.status === 'staged' && (
                               <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 flex items-center gap-1">
-                                <span className="material-symbols-outlined text-[13px]">pending_actions</span>
+                                <span aria-hidden="true" className="material-symbols-outlined text-[13px]">pending_actions</span>
                                 <span>Staged</span>
                               </span>
                             )}
@@ -2386,9 +2386,9 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1 font-semibold text-primary hover:underline text-[11px]"
                               >
-                                <span className="material-symbols-outlined text-[13px]">menu_book</span>
+                                <span aria-hidden="true" className="material-symbols-outlined text-[13px]">menu_book</span>
                                 <span>Manufacturer Manual</span>
-                                <span className="material-symbols-outlined text-[10px]">open_in_new</span>
+                                <span aria-hidden="true" className="material-symbols-outlined text-[10px]">open_in_new</span>
                               </a>
                             </div>
                           )}
@@ -2407,7 +2407,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               onClick={() => setHistoryModalAppliance(app)}
                               className="min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl bg-primary/10 hover:bg-primary/20 text-primary transition-colors flex items-center gap-1.5"
                             >
-                              <span className="material-symbols-outlined text-[16px]">history</span>
+                              <span aria-hidden="true" className="material-symbols-outlined text-[16px]">history</span>
                               <span>History</span>
                             </button>
                             {onApplianceClick && (
@@ -2416,7 +2416,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                 onClick={() => onApplianceClick(app.id)}
                                 className="min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-brand-black dark:text-white transition-colors flex items-center gap-1.5"
                               >
-                                <span className="material-symbols-outlined text-[16px] text-primary">description</span>
+                                <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">description</span>
                                 <span>Specs &amp; Rating Plate</span>
                               </button>
                             )}
@@ -2433,8 +2433,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                               });
                             }}
                             className="min-h-[44px] px-3 py-2 text-xs font-semibold rounded-xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 hover:border-primary text-text-main-light dark:text-white transition-colors flex items-center gap-1 shadow-xs"
-                          >
-                            <span className="material-symbols-outlined text-[14px]">edit</span>
+                           aria-label="Edit">
+                            <span aria-hidden="true" className="material-symbols-outlined text-[14px]">edit</span>
                             {app.isOverride ? 'Edit Override' : 'Override'}
                           </button>
                         </div>
@@ -2456,7 +2456,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
                         title="Back to navigation"
                       >
-                        <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[18px]">arrow_back</span>
                       </button>
                       <div>
                         <h2 className="text-lg font-bold text-brand-black dark:text-white flex items-center gap-2">
@@ -2478,7 +2478,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         className="px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 text-text-sub-light dark:text-text-sub-dark hover:text-primary transition-colors flex items-center gap-1.5"
                         title="Expand all specification sets and appliances"
                       >
-                        <span className="material-symbols-outlined text-[15px]">unfold_more</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[15px]">unfold_more</span>
                         <span>Expand All</span>
                       </button>
                       <button
@@ -2486,7 +2486,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         className="px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-neutral-800 text-text-sub-light dark:text-text-sub-dark hover:text-primary transition-colors flex items-center gap-1.5"
                         title="Collapse all specification sets"
                       >
-                        <span className="material-symbols-outlined text-[15px]">unfold_less</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[15px]">unfold_less</span>
                         <span>Collapse All</span>
                       </button>
                     </div>
@@ -2514,7 +2514,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                             : 'bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 text-text-sub-light dark:text-text-sub-dark hover:text-primary'
                         }`}
                       >
-                        <span className="material-symbols-outlined text-[15px]">{group.icon}</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[15px]">{group.icon}</span>
                         <span>{group.title.split(' (')[0]}</span>
                         <span className="text-[10px] opacity-75">({group.sets.length})</span>
                       </button>
@@ -2531,7 +2531,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         <div className="flex items-center justify-between pb-1 border-b border-gray-200/60 dark:border-gray-800">
                           <div className="flex items-center gap-2.5">
                             <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                              <span className="material-symbols-outlined text-[18px]">{group.icon}</span>
+                              <span aria-hidden="true" className="material-symbols-outlined text-[18px]">{group.icon}</span>
                             </div>
                             <div>
                               <h3 className="text-sm font-bold text-brand-black dark:text-white">
@@ -2570,8 +2570,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                       className="mt-0.5 w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-primary/10 hover:text-primary text-gray-500 flex items-center justify-center shrink-0 transition-transform duration-200"
                                       aria-label={isSetExpanded ? 'Collapse set' : 'Expand set'}
                                     >
-                                      <span
-                                        className={`material-symbols-outlined text-[20px] transition-transform duration-200 ${
+                                      <span aria-hidden="true" className={`material-symbols-outlined text-[20px] transition-transform duration-200 ${
                                           isSetExpanded ? 'rotate-180' : ''
                                         }`}
                                       >
@@ -2617,7 +2616,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                               key={aIdx}
                                               className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-gray-50 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700/60"
                                             >
-                                              <span className="material-symbols-outlined text-[13px] text-primary">
+                                              <span aria-hidden="true" className="material-symbols-outlined text-[13px] text-primary">
                                                 {getApplianceIcon(app.type || app.name)}
                                               </span>
                                               <span>{app.label || app.name.replace(' (default)', '')}</span>
@@ -2644,7 +2643,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                       className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors flex items-center gap-1"
                                       title="Add an appliance to this default set"
                                     >
-                                      <span className="material-symbols-outlined text-[15px]">add</span>
+                                      <span aria-hidden="true" className="material-symbols-outlined text-[15px]">add</span>
                                       <span>Add Appliance</span>
                                     </button>
                                     <button
@@ -2656,7 +2655,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                       className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 hover:border-primary transition-colors flex items-center gap-1.5"
                                       title="Edit set layout metadata"
                                     >
-                                      <span className="material-symbols-outlined text-[15px]">edit</span>
+                                      <span aria-hidden="true" className="material-symbols-outlined text-[15px]">edit</span>
                                       <span className="hidden md:inline">Edit Set</span>
                                     </button>
                                     <button
@@ -2668,7 +2667,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                       className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs flex items-center gap-1.5"
                                       title="Apply this default template to a unit"
                                     >
-                                      <span className="material-symbols-outlined text-[15px]">input</span>
+                                      <span aria-hidden="true" className="material-symbols-outlined text-[15px]">input</span>
                                       <span className="hidden md:inline">Apply to Unit</span>
                                     </button>
                                   </div>
@@ -2707,7 +2706,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                     <div className="space-y-3 pt-2">
                                       <div className="flex items-center justify-between">
                                         <span className="text-xs font-bold text-brand-black dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-                                          <span className="material-symbols-outlined text-primary text-[16px]">tune</span>
+                                          <span aria-hidden="true" className="material-symbols-outlined text-primary text-[16px]">tune</span>
                                           <span>Standard Appliances &amp; Specifications ({set.appliances.length})</span>
                                         </span>
                                         <div className="flex items-center gap-2">
@@ -2716,7 +2715,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                             onClick={() => handleStartAddAppliance(set)}
                                             className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors flex items-center gap-1"
                                           >
-                                            <span className="material-symbols-outlined text-[14px]">add</span>
+                                            <span aria-hidden="true" className="material-symbols-outlined text-[14px]">add</span>
                                             <span>Add Appliance</span>
                                           </button>
                                         </div>
@@ -2751,8 +2750,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                                     className="w-6 h-6 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-500 flex items-center justify-center shrink-0"
                                                     aria-label={isAppExpanded ? 'Collapse specs' : 'Expand specs'}
                                                   >
-                                                    <span
-                                                      className={`material-symbols-outlined text-[16px] transition-transform duration-200 ${
+                                                    <span aria-hidden="true" className={`material-symbols-outlined text-[16px] transition-transform duration-200 ${
                                                         isAppExpanded ? 'rotate-180' : ''
                                                       }`}
                                                     >
@@ -2760,7 +2758,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                                     </span>
                                                   </button>
                                                   <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 text-primary flex items-center justify-center shrink-0">
-                                                    <span className="material-symbols-outlined text-[16px]">
+                                                    <span aria-hidden="true" className="material-symbols-outlined text-[16px]">
                                                       {iconName}
                                                     </span>
                                                   </div>
@@ -2783,7 +2781,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                                   {/* Model Badge */}
                                                   {appModel ? (
                                                     <span className="px-2 py-0.5 text-[11px] font-mono font-bold rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1">
-                                                      <span className="material-symbols-outlined text-[12px]">verified</span>
+                                                      <span aria-hidden="true" className="material-symbols-outlined text-[12px]">verified</span>
                                                       <span>{appModel}</span>
                                                     </span>
                                                   ) : (
@@ -2802,9 +2800,9 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                                       className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 hover:underline"
                                                       title="Open manufacturer manual"
                                                     >
-                                                      <span className="material-symbols-outlined text-[12px]">menu_book</span>
+                                                      <span aria-hidden="true" className="material-symbols-outlined text-[12px]">menu_book</span>
                                                       <span>Manual</span>
-                                                      <span className="material-symbols-outlined text-[10px]">open_in_new</span>
+                                                      <span aria-hidden="true" className="material-symbols-outlined text-[10px]">open_in_new</span>
                                                     </a>
                                                   )}
 
@@ -2818,7 +2816,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                                     className="px-2 py-1 text-xs font-semibold rounded-lg bg-gray-50 hover:bg-primary/10 hover:text-primary dark:bg-gray-800 dark:hover:bg-primary/20 border border-gray-200 dark:border-gray-700 transition-colors flex items-center gap-1"
                                                     title="Edit specification for this default set"
                                                   >
-                                                    <span className="material-symbols-outlined text-[13px]">edit</span>
+                                                    <span aria-hidden="true" className="material-symbols-outlined text-[13px]">edit</span>
                                                     <span>Edit</span>
                                                   </button>
 
@@ -2832,7 +2830,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                                     className="p-1 rounded-lg hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 text-gray-400 transition-colors"
                                                     title="Remove appliance from set"
                                                   >
-                                                    <span className="material-symbols-outlined text-[15px]">delete</span>
+                                                    <span aria-hidden="true" className="material-symbols-outlined text-[15px]">delete</span>
                                                   </button>
                                                 </div>
                                               </div>
@@ -2861,9 +2859,9 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                                                               rel="noopener noreferrer"
                                                               className="inline-flex items-center gap-1 font-semibold text-primary hover:underline mt-0.5"
                                                             >
-                                                              <span className="material-symbols-outlined text-[13px]">menu_book</span>
+                                                              <span aria-hidden="true" className="material-symbols-outlined text-[13px]">menu_book</span>
                                                               <span>Manual Reference</span>
-                                                              <span className="material-symbols-outlined text-[11px]">open_in_new</span>
+                                                              <span aria-hidden="true" className="material-symbols-outlined text-[11px]">open_in_new</span>
                                                             </a>
                                                           ) : (
                                                             <span className="font-medium text-brand-black dark:text-white block mt-0.5">
@@ -2907,8 +2905,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
               <button
                 onClick={() => setOverrideModalAppliance(null)}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-white"
-              >
-                <span className="material-symbols-outlined">close</span>
+               aria-label="Close">
+                <span aria-hidden="true" className="material-symbols-outlined">close</span>
               </button>
             </div>
 
@@ -2991,8 +2989,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
               <button
                 onClick={() => setApplySetModalSet(null)}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-white"
-              >
-                <span className="material-symbols-outlined">close</span>
+               aria-label="Close">
+                <span aria-hidden="true" className="material-symbols-outlined">close</span>
               </button>
             </div>
 
@@ -3041,7 +3039,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <div className="bg-white dark:bg-card-dark rounded-2xl border border-red-500/30 p-6 max-w-md w-full shadow-2xl">
             <div className="flex items-center gap-2 mb-3 text-red-600 dark:text-red-400">
-              <span className="material-symbols-outlined text-2xl">warning</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-2xl">warning</span>
               <h3 className="text-sm font-bold">
                 Existing Overrides Present
               </h3>
@@ -3088,8 +3086,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
               <button
                 onClick={() => setEditSetModalSet(null)}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-white"
-              >
-                <span className="material-symbols-outlined">close</span>
+               aria-label="Close">
+                <span aria-hidden="true" className="material-symbols-outlined">close</span>
               </button>
             </div>
 
@@ -3181,8 +3179,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 <button
                   onClick={() => setEditSpecModalData(null)}
                   className="text-gray-400 hover:text-gray-600 dark:hover:text-white p-1"
-                >
-                  <span className="material-symbols-outlined">close</span>
+                 aria-label="Close">
+                  <span aria-hidden="true" className="material-symbols-outlined">close</span>
                 </button>
               </div>
 
@@ -3250,7 +3248,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
                       >
-                        <span className="material-symbols-outlined text-[13px]">open_in_new</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[13px]">open_in_new</span>
                         <span>Test Link</span>
                       </a>
                     )}
@@ -3384,8 +3382,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                     type="button"
                     onClick={() => setEditSpecForm(prev => ({ ...prev, showAllFields: !prev.showAllFields }))}
                     className="text-[11px] text-primary hover:underline flex items-center gap-1 font-semibold"
-                  >
-                    <span className="material-symbols-outlined text-[14px]">
+                   aria-label="Icon">
+                    <span aria-hidden="true" className="material-symbols-outlined text-[14px]">
                       {editSpecForm.showAllFields ? 'visibility_off' : 'tune'}
                     </span>
                     <span>
@@ -3441,8 +3439,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
               <button
                 onClick={() => setAddApplianceModalSet(null)}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-white p-1"
-              >
-                <span className="material-symbols-outlined">close</span>
+               aria-label="Close">
+                <span aria-hidden="true" className="material-symbols-outlined">close</span>
               </button>
             </div>
 
@@ -3468,11 +3466,11 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                           ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 shadow-xs'
                           : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40 hover:border-gray-300 dark:hover:border-gray-700'
                       }`}
-                    >
+                     aria-label="Icon">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                         isSelected ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-800 text-primary'
                       }`}>
-                        <span className="material-symbols-outlined text-[18px]">{trade.icon}</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[18px]">{trade.icon}</span>
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
@@ -3517,7 +3515,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 onClick={handleConfirmAddAppliance}
                 className="flex-1 py-2.5 text-xs font-bold rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs flex items-center justify-center gap-1.5"
               >
-                <span className="material-symbols-outlined text-[15px]">add</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[15px]">add</span>
                 <span>Add &amp; Configure Specs</span>
               </button>
             </div>
@@ -3567,7 +3565,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                 className="min-w-[44px] min-h-[44px] -mr-2 -mt-2 flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 aria-label="Close history"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span aria-hidden="true" className="material-symbols-outlined">close</span>
               </button>
             </div>
 
@@ -3588,7 +3586,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
                   }}
                   className="min-h-[44px] px-3.5 py-2 text-xs font-semibold rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-brand-black dark:text-white transition-colors flex items-center gap-1.5"
                 >
-                  <span className="material-symbols-outlined text-[16px] text-primary">description</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">description</span>
                   <span>Specs &amp; Rating Plate</span>
                 </button>
               )}

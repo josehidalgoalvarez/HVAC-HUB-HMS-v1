@@ -84,7 +84,7 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-brand-black dark:text-white flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">shopping_cart_checkout</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary">shopping_cart_checkout</span>
               Parts Buy List
             </h2>
             <p className="text-xs text-gray-500">
@@ -128,7 +128,7 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
                         : 'bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-400'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-[14px]">
+                    <span aria-hidden="true" className="material-symbols-outlined text-[14px]">
                       {isSelected ? 'check_box' : 'check_box_outline_blank'}
                     </span>
                     <span>{t.wo_number || `Ticket #${t.id}`}: {t.title.slice(0, 20)}...</span>
@@ -149,12 +149,12 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
       {/* Generated Shopping List Output */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3 text-gray-400">
-          <span className="material-symbols-outlined text-3xl animate-spin text-primary">sync</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-3xl animate-spin text-primary">sync</span>
           <p className="text-xs font-semibold">Building buy list...</p>
         </div>
       ) : !shoppingList || shoppingList.items.length === 0 ? (
         <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-2">
-          <span className="material-symbols-outlined text-4xl text-gray-300">production_quantity_limits</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-4xl text-gray-300">production_quantity_limits</span>
           <p className="text-sm font-bold text-gray-700 dark:text-gray-300">No parts required for selected tickets</p>
           <p className="text-xs text-gray-400">Select open tickets that need parts.</p>
         </div>
@@ -213,7 +213,7 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
                   {item.harvest_tag && (
                     <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/60 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-xl">
+                        <span aria-hidden="true" className="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-xl">
                           recycling
                         </span>
                         <div>
@@ -235,7 +235,7 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
                   {item.buy_quantity > 0 && (
                     <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/60 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-xl">
+                        <span aria-hidden="true" className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-xl">
                           store
                         </span>
                         <div>
@@ -253,7 +253,7 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
                           href={`tel:${item.preferred_supplier.phone.replace(/[^0-9+]/g, '')}`}
                           className="min-h-[44px] px-3 py-1.5 rounded-lg bg-primary text-white font-bold text-xs flex items-center gap-1 active:scale-95 shadow-xs"
                         >
-                          <span className="material-symbols-outlined text-[16px]">call</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[16px]">call</span>
                           <span>Call ({item.preferred_supplier.phone})</span>
                         </a>
                       ) : (

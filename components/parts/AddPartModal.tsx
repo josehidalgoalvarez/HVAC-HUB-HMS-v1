@@ -94,20 +94,20 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
   };
 
   return (
-    <Modal onClose={onClose} className="max-w-lg">
+    <Modal title="Add Part" onClose={onClose} className="max-w-lg">
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-2xl">add_circle</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl">add_circle</span>
             <h2 className="text-lg font-bold text-brand-black dark:text-white">Add Part</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            <span className="material-symbols-outlined text-[20px]">close</span>
+           aria-label="Close">
+            <span aria-hidden="true" className="material-symbols-outlined text-[20px]">close</span>
           </button>
         </div>
 
@@ -142,7 +142,7 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
                 </label>
                 {isVerifiedPart(partNumber) && (
                   <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                    <span className="material-symbols-outlined text-[12px]">lock</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[12px]">lock</span>
                     <span>Verified Part</span>
                   </span>
                 )}
@@ -156,7 +156,7 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
               />
               {isVerifiedPart(partNumber) && (
                 <p className="mt-1 text-[11px] text-amber-700 dark:text-amber-400 flex items-center gap-1 font-medium">
-                  <span className="material-symbols-outlined text-[13px]">info</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[13px]">info</span>
                   Fitment-verified part. Part number and model will be locked against changes; stash quantities and notes stay editable.
                 </p>
               )}
@@ -271,7 +271,7 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
               </label>
               {isVerifiedPart(partNumber) && (
                 <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                  <span className="material-symbols-outlined text-[12px]">lock</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[12px]">lock</span>
                   <span>Model Locked</span>
                 </span>
               )}

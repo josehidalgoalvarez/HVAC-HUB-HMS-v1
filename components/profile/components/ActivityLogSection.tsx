@@ -10,7 +10,7 @@ export const ActivityLogSection: React.FC<ActivityLogSectionProps> = ({ logs }) 
     return (
         <div className="bg-card-light dark:bg-card-dark rounded-2xl shadow-ethereal border border-gray-100 dark:border-gray-800 overflow-hidden">
             <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">history</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-primary">history</span>
                 <h3 className="font-bold text-brand-black dark:text-white">Recent Activity</h3>
             </div>
             <div className="max-h-64 overflow-y-auto">

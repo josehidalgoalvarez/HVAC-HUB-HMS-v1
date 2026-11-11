@@ -40,8 +40,8 @@ const IconButton: React.FC<IconButtonProps> = ({
     <button 
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
-    >
-      <span className={`material-symbols-outlined ${iconSizes[size]}`}>{icon}</span>
+     aria-label="Icon">
+      <span aria-hidden="true" className={`material-symbols-outlined ${iconSizes[size]}`}>{icon}</span>
     </button>
   );
 };

@@ -35,7 +35,7 @@ export const SyncStatusIndicator: React.FC = () => {
         data-testid="sync-status-indicator"
         className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-primary dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-900/50"
       >
-        <span className="material-symbols-outlined text-[13px] animate-spin">
+        <span aria-hidden="true" className="material-symbols-outlined text-[13px] animate-spin">
           progress_activity
         </span>
         <span>Syncing…</span>
@@ -50,7 +50,7 @@ export const SyncStatusIndicator: React.FC = () => {
         data-testid="sync-status-indicator"
         className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50"
       >
-        <span className="material-symbols-outlined text-[13px]">
+        <span aria-hidden="true" className="material-symbols-outlined text-[13px]">
           cloud_off
         </span>
         <span>

@@ -502,11 +502,11 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
             className="w-11 h-11 min-h-[44px] rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors shrink-0"
             aria-label="Back"
           >
-            <span className="material-symbols-outlined text-2xl">arrow_back</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-2xl">arrow_back</span>
           </button>
           <div className="min-w-0">
             <h1 className="text-xl font-bold truncate flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-primary text-2xl shrink-0">warehouse</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl shrink-0">warehouse</span>
               <span className="truncate">{stockpile?.name || `Storage Location #${stockpileId}`}</span>
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
@@ -523,14 +523,14 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
             title="Refresh Inventory"
             aria-label="Refresh Inventory"
           >
-            <span className={`material-symbols-outlined text-[18px] ${loading ? 'animate-spin' : ''}`}>sync</span>
+            <span aria-hidden="true" className={`material-symbols-outlined text-[18px] ${loading ? 'animate-spin' : ''}`}>sync</span>
           </button>
         </div>
       </div>
 
       {/* Role / Node Callout */}
       <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2.5">
-        <span className="material-symbols-outlined text-amber-600 text-xl shrink-0">inventory_2</span>
+        <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-xl shrink-0">inventory_2</span>
         <div className="flex-1 min-w-0">
           {isCentralNode ? (
             <>
@@ -578,7 +578,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       <div className="p-3.5 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/30 border border-indigo-200/70 dark:border-indigo-800/60 text-xs flex items-center justify-between gap-3">
         <div className="space-y-0.5 min-w-0">
           <div className="flex items-center gap-1.5 font-bold text-indigo-950 dark:text-indigo-200">
-            <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-[18px]">verified</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-[18px]">verified</span>
             <span>Inventory Control & Audit</span>
           </div>
           <div className="text-[11px] text-indigo-700 dark:text-indigo-300">
@@ -599,7 +599,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
           disabled={items.length === 0}
           className="min-h-[44px] px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 shrink-0 disabled:opacity-40"
         >
-          <span className="material-symbols-outlined text-[16px]">fact_check</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[16px]">fact_check</span>
           <span>Start Count</span>
         </button>
       </div>
@@ -610,14 +610,14 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
           onClick={() => setIsAddPartOpen(true)}
           className="flex-1 min-h-[44px] px-3.5 py-2.5 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
         >
-          <span className="material-symbols-outlined text-[18px]">add</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[18px]">add</span>
           <span>Add Part Here</span>
         </button>
         <button
           onClick={() => setIsTransferOpen(true)}
           className="flex-1 min-h-[44px] px-3.5 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-brand-black dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-gray-200 dark:border-gray-700 active:scale-95 transition-all"
         >
-          <span className="material-symbols-outlined text-[18px] text-primary">move_down</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-primary">move_down</span>
           <span>Transfer Stock</span>
         </button>
       </div>
@@ -631,7 +631,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
               : 'bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200'
           }`}
         >
-          <span className="material-symbols-outlined text-[18px]">
+          <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
             {flashMsg.type === 'warning' ? 'warning' : 'check_circle'}
           </span>
           <span>{flashMsg.text}</span>
@@ -642,7 +642,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       {items.length > 0 && (
         <div className="space-y-2">
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
+            <span aria-hidden="true" className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
               search
             </span>
             <input
@@ -656,15 +656,15 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
               <button
                 onClick={() => setSearchQuery('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1"
-              >
-                <span className="material-symbols-outlined text-sm">close</span>
+               aria-label="Close">
+                <span aria-hidden="true" className="material-symbols-outlined text-sm">close</span>
               </button>
             )}
           </div>
           {filterBelowMinOnly && (
             <div className="flex items-center justify-between text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-3 py-1.5 rounded-lg border border-amber-200 dark:border-amber-800">
               <span className="flex items-center gap-1 font-semibold">
-                <span className="material-symbols-outlined text-[15px]">filter_alt</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[15px]">filter_alt</span>
                 Filtering: Low stock only ({lowStockCount})
               </span>
               <button
@@ -684,7 +684,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
           /* Honest Empty State for Location */
           <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3 bg-white/50 dark:bg-card-dark/50">
             <div className="w-12 h-12 mx-auto rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-gray-400">
-              <span className="material-symbols-outlined text-3xl">inventory_2</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-3xl">inventory_2</span>
             </div>
             <div>
               <p className="text-base font-bold text-gray-700 dark:text-gray-200">
@@ -699,7 +699,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                 onClick={() => setIsAddPartOpen(true)}
                 className="min-h-[44px] w-full sm:w-auto px-4 py-2.5 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs inline-flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
               >
-                <span className="material-symbols-outlined text-[16px]">add</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[16px]">add</span>
                 <span>Add Part to Location</span>
               </button>
               {allParts.length > 0 && (
@@ -707,7 +707,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                   onClick={() => setIsTransferOpen(true)}
                   className="min-h-[44px] w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 text-brand-black dark:text-white font-bold text-xs inline-flex items-center justify-center gap-1.5 border border-gray-200 dark:border-gray-700 active:scale-95 transition-all"
                 >
-                  <span className="material-symbols-outlined text-[16px] text-primary">move_down</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">move_down</span>
                   <span>Transfer from Another Depot</span>
                 </button>
               )}
@@ -716,7 +716,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
         ) : filteredItems.length === 0 ? (
           /* Filter zero hits */
           <div className="text-center py-10 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-2 bg-white/40 dark:bg-card-dark/40">
-            <span className="material-symbols-outlined text-3xl text-gray-400">search_off</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-3xl text-gray-400">search_off</span>
             <p className="text-sm font-bold text-gray-600 dark:text-gray-300">No parts matching &ldquo;{searchQuery}&rdquo;</p>
             <button
               onClick={() => {
@@ -769,7 +769,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                         </span>
                         {isBelowMin && (
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-500 text-brand-black flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[13px]">warning</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-[13px]">warning</span>
                             Below Min ({item.quantity}/{item.minimum})
                           </span>
                         )}
@@ -781,7 +781,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
 
                       {item.part_number && (
                         <div className="text-xs text-gray-500 font-mono mt-0.5 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[14px]">tag</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[14px]">tag</span>
                           {item.part_number}
                         </div>
                       )}
@@ -816,7 +816,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                     <div className="mt-2 text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-neutral-800/50 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800">
                       {item.location_notes && (
                         <div className="flex items-center gap-1 font-medium">
-                          <span className="material-symbols-outlined text-[14px] text-gray-400">place</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[14px] text-gray-400">place</span>
                           <span>{item.location_notes}</span>
                         </div>
                       )}
@@ -833,7 +833,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                       disabled={item.quantity <= 0}
                       className="flex-1 min-h-[44px] px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-brand-black dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
                     >
-                      <span className="material-symbols-outlined text-[16px] text-amber-600">remove_circle_outline</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-amber-600">remove_circle_outline</span>
                       <span>Use Part</span>
                     </button>
 
@@ -841,7 +841,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                       onClick={() => openModalForPart(item, 'restock')}
                       className="flex-1 min-h-[44px] px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-brand-black dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95"
                     >
-                      <span className="material-symbols-outlined text-[16px] text-emerald-600">add_circle_outline</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-emerald-600">add_circle_outline</span>
                       <span>Restock</span>
                     </button>
 
@@ -853,7 +853,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                       title="Transfer Stock"
                       aria-label="Transfer Stock"
                     >
-                      <span className="material-symbols-outlined text-[16px] text-primary">swap_horiz</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">swap_horiz</span>
                     </button>
 
                     <button
@@ -862,7 +862,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                       title="View Count Audit History"
                       aria-label="View Count Audit History"
                     >
-                      <span className="material-symbols-outlined text-[16px] text-indigo-600 dark:text-indigo-400">history</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-indigo-600 dark:text-indigo-400">history</span>
                     </button>
                   </div>
                 </div>
@@ -876,7 +876,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       <div className="space-y-3 pt-4 border-t border-gray-200/80 dark:border-gray-800">
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-xl">kitchen</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">kitchen</span>
             <h2 className="text-base font-bold text-brand-black dark:text-white">
               Stored Appliances
             </h2>
@@ -896,7 +896,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
             }}
             className="min-h-[44px] px-3.5 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-primary dark:text-blue-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-blue-200/80 dark:border-blue-800/80 transition-all active:scale-95 shadow-xs"
           >
-            <span className="material-symbols-outlined text-[16px]">add_circle</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px]">add_circle</span>
             <span>Add Appliance</span>
           </button>
         </div>
@@ -956,7 +956,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                       }}
                       className="min-h-[44px] px-3 py-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-95 shrink-0"
                     >
-                      <span className="material-symbols-outlined text-[16px]">outbox</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[16px]">outbox</span>
                       <span>Move / Install</span>
                     </button>
                   </div>
@@ -978,7 +978,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       <div className="space-y-3 pt-4 border-t border-gray-200/80 dark:border-gray-800">
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-xl">home_repair_service</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-xl">home_repair_service</span>
             <h2 className="text-base font-bold text-brand-black dark:text-white">
               Tools & Equipment
             </h2>
@@ -997,7 +997,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
             }}
             className="min-h-[44px] px-3.5 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-amber-200/80 dark:border-amber-800/80 transition-all active:scale-95 shadow-xs"
           >
-            <span className="material-symbols-outlined text-[16px]">add_circle</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px]">add_circle</span>
             <span>Add Equipment</span>
           </button>
         </div>
@@ -1056,7 +1056,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                       aria-label={`View movement history for ${eq.name}`}
                       data-testid={`equipment-movement-btn-${eq.id}`}
                     >
-                      <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[16px]">swap_horiz</span>
                       <span>History</span>
                     </button>
 
@@ -1080,7 +1080,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                         title="Delete Equipment"
                         aria-label={`Delete ${eq.name}`}
                       >
-                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[18px]">delete</span>
                       </button>
                     </div>
                   </div>
@@ -1148,8 +1148,8 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                 type="button"
                 onClick={() => setMovingAppliance(null)}
                 className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500"
-              >
-                <span className="material-symbols-outlined text-xl">close</span>
+               aria-label="Close">
+                <span aria-hidden="true" className="material-symbols-outlined text-xl">close</span>
               </button>
             </div>
 
@@ -1230,7 +1230,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
             <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between shrink-0">
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-primary text-xl">kitchen</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">kitchen</span>
                   <h3 className="text-base font-bold text-brand-black dark:text-white truncate">
                     Add Stored Appliance
                   </h3>
@@ -1243,8 +1243,8 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                 type="button"
                 onClick={() => setIsAddApplianceOpen(false)}
                 className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500"
-              >
-                <span className="material-symbols-outlined text-xl">close</span>
+               aria-label="Close">
+                <span aria-hidden="true" className="material-symbols-outlined text-xl">close</span>
               </button>
             </div>
 
@@ -1257,7 +1257,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
 
               {/* Fixed Storage Location */}
               <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-200/80 dark:border-gray-700/80 flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-base">location_on</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-primary text-base">location_on</span>
                 <div className="min-w-0 flex-1">
                   <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Storage Location</div>
                   <div className="text-xs font-bold text-brand-black dark:text-white truncate">
@@ -1375,7 +1375,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
             <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between shrink-0">
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-amber-600 text-xl">home_repair_service</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-xl">home_repair_service</span>
                   <h3 className="text-base font-bold text-brand-black dark:text-white truncate">
                     Add Equipment / Tool
                   </h3>
@@ -1388,8 +1388,8 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                 type="button"
                 onClick={() => setIsAddEquipmentOpen(false)}
                 className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500"
-              >
-                <span className="material-symbols-outlined text-xl">close</span>
+               aria-label="Close">
+                <span aria-hidden="true" className="material-symbols-outlined text-xl">close</span>
               </button>
             </div>
 
@@ -1402,7 +1402,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
 
               {/* Fixed Storage Location */}
               <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-200/80 dark:border-gray-700/80 flex items-center gap-2">
-                <span className="material-symbols-outlined text-amber-600 text-base">location_on</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-base">location_on</span>
                 <div className="min-w-0 flex-1">
                   <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Storage Location</div>
                   <div className="text-xs font-bold text-brand-black dark:text-white truncate">
@@ -1505,7 +1505,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
             <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between shrink-0">
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-xl">fact_check</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-xl">fact_check</span>
                   <h3 className="text-base font-bold text-brand-black dark:text-white truncate">
                     Physical Inventory Count
                   </h3>
@@ -1518,8 +1518,8 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                 type="button"
                 onClick={() => setIsCountModalOpen(false)}
                 className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500 shrink-0"
-              >
-                <span className="material-symbols-outlined text-xl">close</span>
+               aria-label="Close">
+                <span aria-hidden="true" className="material-symbols-outlined text-xl">close</span>
               </button>
             </div>
 
@@ -1689,8 +1689,8 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                 type="button"
                 onClick={() => setSelectedAllocationForHistory(null)}
                 className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500"
-              >
-                <span className="material-symbols-outlined text-xl">close</span>
+               aria-label="Close">
+                <span aria-hidden="true" className="material-symbols-outlined text-xl">close</span>
               </button>
             </div>
 
@@ -1756,7 +1756,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
             <div className="flex items-center justify-between gap-2 pb-2 border-b border-gray-100 dark:border-gray-800 shrink-0">
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-primary text-xl">build</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">build</span>
                   <h3 className="text-base font-bold text-brand-black dark:text-white truncate">
                     {selectedEquipmentForMovement.name}
                   </h3>
@@ -1771,7 +1771,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                 className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500 shrink-0"
                 aria-label="Close equipment movement history"
               >
-                <span className="material-symbols-outlined text-xl">close</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xl">close</span>
               </button>
             </div>
 

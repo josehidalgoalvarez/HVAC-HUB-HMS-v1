@@ -125,15 +125,15 @@ const AddPropertyView: React.FC<AddPropertyViewProps> = ({ onCancel, onSave, ini
             <button
                onClick={onCancel}
                className="absolute top-4 left-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-white/30 transition-all z-20"
-            >
-               <span className="material-symbols-outlined">arrow_back</span>
+             aria-label="Back">
+               <span aria-hidden="true" className="material-symbols-outlined">arrow_back</span>
             </button>
 
             {/* Header Content Overlay */}
             <div className="absolute bottom-10 left-6 right-6 text-white z-10">
                <h1 className="text-3xl font-display font-bold tracking-tight mb-1">{formData.name || (isEditMode ? 'Edit Property' : 'New Property')}</h1>
                <div className="flex items-center gap-2 text-white/80 font-medium">
-                  <span className="material-symbols-outlined text-[20px]">location_on</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[20px]">location_on</span>
                   <p className="truncate">{formData.address ? `${formData.address}, ${formData.city}` : 'Enter property address'}</p>
                </div>
             </div>
@@ -145,7 +145,7 @@ const AddPropertyView: React.FC<AddPropertyViewProps> = ({ onCancel, onSave, ini
             {/* Section: Property Identity */}
             <section className="bg-white dark:bg-card-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
                <div className="flex items-center gap-3 mb-6">
-                  <span className="material-symbols-outlined text-primary text-2xl">domain</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl">domain</span>
                   <h2 className="text-lg font-bold text-brand-black dark:text-white">Property Identity</h2>
                </div>
 
@@ -183,7 +183,7 @@ const AddPropertyView: React.FC<AddPropertyViewProps> = ({ onCancel, onSave, ini
                            className="absolute right-2 top-2 p-1 text-text-sub-light dark:text-text-sub-dark hover:text-primary transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                            title="Upload Image"
                         >
-                           <span className="material-symbols-outlined">image</span>
+                           <span aria-hidden="true" className="material-symbols-outlined">image</span>
                         </button>
                      </div>
                   </div>
@@ -237,7 +237,7 @@ const AddPropertyView: React.FC<AddPropertyViewProps> = ({ onCancel, onSave, ini
             {/* Section: Property Characteristics */}
             <section className="bg-white dark:bg-card-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
                <div className="flex items-center gap-3 mb-6">
-                  <span className="material-symbols-outlined text-primary text-2xl">analytics</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl">analytics</span>
                   <h2 className="text-lg font-bold text-brand-black dark:text-white">Property Characteristics</h2>
                </div>
 
@@ -290,7 +290,7 @@ const AddPropertyView: React.FC<AddPropertyViewProps> = ({ onCancel, onSave, ini
             {/* Section: Comments */}
             <section className="bg-white dark:bg-card-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
                <div className="flex items-center gap-3 mb-6">
-                  <span className="material-symbols-outlined text-primary text-2xl">notes</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl">notes</span>
                   <h2 className="text-lg font-bold text-brand-black dark:text-white">Comments</h2>
                </div>
 
@@ -311,8 +311,8 @@ const AddPropertyView: React.FC<AddPropertyViewProps> = ({ onCancel, onSave, ini
                <button
                   onClick={handleSave}
                   className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-xl shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-lg"
-               >
-                  <span className="material-symbols-outlined">save</span>
+                aria-label="Save">
+                  <span aria-hidden="true" className="material-symbols-outlined">save</span>
                   {isEditMode ? 'Save Changes' : 'Save Property'}
                </button>
             </div>

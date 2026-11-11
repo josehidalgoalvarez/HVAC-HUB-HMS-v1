@@ -255,10 +255,10 @@ const ProfileView: React.FC<ProfileViewProps> = ({
 
       {/* Delete Confirmation Modal (Kept here as it's a high-level alert) */}
       {propertyToDelete && (
-        <Modal onClose={() => setPropertyToDelete(null)} className="max-w-sm" zIndexClass="z-[70]">
+        <Modal title="Delete Property" onClose={() => setPropertyToDelete(null)} className="max-w-sm" zIndexClass="z-[70]">
           <div className="flex flex-col items-center text-center gap-4">
             <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-brand-red mb-2">
-              <span className="material-symbols-outlined text-[32px]">warning</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[32px]">warning</span>
             </div>
             <div>
               <h3 className="text-xl font-bold text-brand-black dark:text-white">Delete Property?</h3>

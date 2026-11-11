@@ -55,11 +55,11 @@ export const CloseBlockModal: React.FC<CloseBlockModalProps> = ({
   const variance = actualMinutes - est;
 
   return (
-    <Modal onClose={onClose} className="max-w-md">
+    <Modal title="Complete Block" onClose={onClose} className="max-w-md">
       <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
         <div>
           <h2 className="text-base font-bold text-brand-black dark:text-white flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-emerald-600">check_circle</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-emerald-600">check_circle</span>
             Complete Block
           </h2>
           <p className="text-xs text-text-sub-light dark:text-text-sub-dark truncate max-w-[280px]">
@@ -69,8 +69,8 @@ export const CloseBlockModal: React.FC<CloseBlockModalProps> = ({
         <button
           onClick={onClose}
           className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"
-        >
-          <span className="material-symbols-outlined">close</span>
+         aria-label="Close">
+          <span aria-hidden="true" className="material-symbols-outlined">close</span>
         </button>
       </div>
 

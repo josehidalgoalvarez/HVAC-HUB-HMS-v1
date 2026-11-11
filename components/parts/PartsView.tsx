@@ -176,12 +176,12 @@ export const PartsView: React.FC<PartsViewProps> = ({
               className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
               aria-label="Back"
             >
-              <span className="material-symbols-outlined">arrow_back</span>
+              <span aria-hidden="true" className="material-symbols-outlined">arrow_back</span>
             </button>
           )}
           <div className="border-l-4 border-primary pl-2.5 py-0.5">
             <h1 className="text-xl font-bold flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-primary text-2xl">precision_manufacturing</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl">precision_manufacturing</span>
               Parts & Stockpiles
             </h1>
             <p className="text-xs text-gray-500">Inventory & suppliers</p>
@@ -196,7 +196,7 @@ export const PartsView: React.FC<PartsViewProps> = ({
               className="flex-1 sm:flex-none min-h-[44px] px-3.5 py-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
               title="Open Buy List Full Screen"
             >
-              <span className="material-symbols-outlined text-[18px]">shopping_cart_checkout</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[18px]">shopping_cart_checkout</span>
               <span>Buy List</span>
             </button>
           )}
@@ -207,7 +207,7 @@ export const PartsView: React.FC<PartsViewProps> = ({
             className="flex-1 sm:flex-none min-h-[44px] px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-brand-black dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-gray-200 dark:border-gray-700 active:scale-95 transition-all"
             title="Transfer Stock Between Stockpiles"
           >
-            <span className="material-symbols-outlined text-[18px] text-primary">move_down</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-primary">move_down</span>
             <span>Transfer</span>
           </button>
 
@@ -217,7 +217,7 @@ export const PartsView: React.FC<PartsViewProps> = ({
             className="flex-1 sm:flex-none min-h-[44px] px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-brand-black dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-gray-200 dark:border-gray-700 active:scale-95 transition-all"
             title="Add Part to Stash"
           >
-            <span className="material-symbols-outlined text-[18px]">add</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[18px]">add</span>
             <span>Add Part</span>
           </button>
 
@@ -227,7 +227,7 @@ export const PartsView: React.FC<PartsViewProps> = ({
             className="w-11 h-11 shrink-0 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
             title="Refresh Catalog"
           >
-            <span className={`material-symbols-outlined text-[18px] ${loading ? 'animate-spin' : ''}`}>sync</span>
+            <span aria-hidden="true" className={`material-symbols-outlined text-[18px] ${loading ? 'animate-spin' : ''}`}>sync</span>
           </button>
         </div>
       </div>
@@ -241,7 +241,7 @@ export const PartsView: React.FC<PartsViewProps> = ({
               : 'bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200'
           }`}
         >
-          <span className="material-symbols-outlined text-[18px]">
+          <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
             {flashMsg.type === 'warning' ? 'warning' : 'check_circle'}
           </span>
           <span>{flashMsg.text}</span>
@@ -259,7 +259,7 @@ export const PartsView: React.FC<PartsViewProps> = ({
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
           }`}
         >
-          <span className="material-symbols-outlined text-[16px]">search</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[16px]">search</span>
           Catalog
         </button>
 
@@ -272,7 +272,7 @@ export const PartsView: React.FC<PartsViewProps> = ({
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
           }`}
         >
-          <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[16px]">swap_horiz</span>
           Harvest Sources
         </button>
 
@@ -282,7 +282,7 @@ export const PartsView: React.FC<PartsViewProps> = ({
             onClick={onOpenBuyList}
             className="flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
           >
-            <span className="material-symbols-outlined text-[16px]">shopping_cart</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px]">shopping_cart</span>
             Buy List
           </button>
         )}
@@ -296,7 +296,7 @@ export const PartsView: React.FC<PartsViewProps> = ({
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
           }`}
         >
-          <span className="material-symbols-outlined text-[16px]">store</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[16px]">store</span>
           Suppliers
         </button>
       </div>

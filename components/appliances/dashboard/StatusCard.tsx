@@ -48,7 +48,7 @@ export const StatusCard: React.FC<StatusCardProps> = ({
         >
             {/* Background Icon Watermark */}
             {icon && (
-                <span className={`material-symbols-outlined absolute -right-4 -bottom-4 text-[80px] ${colors.icon} group-hover:scale-110 transition-transform duration-500 select-none pointer-events-none`}>
+                <span aria-hidden="true" className={`material-symbols-outlined absolute -right-4 -bottom-4 text-[80px] ${colors.icon} group-hover:scale-110 transition-transform duration-500 select-none pointer-events-none`}>
                     {icon}
                 </span>
             )}
@@ -57,7 +57,7 @@ export const StatusCard: React.FC<StatusCardProps> = ({
                 <div className="flex justify-between items-start">
                     <span className={`text-xs font-bold uppercase tracking-wider ${colors.label}`}>{label}</span>
                     {icon && variant !== 'filled' && (
-                        <span className={`material-symbols-outlined text-[20px] opacity-50`}>{icon}</span>
+                        <span aria-hidden="true" className={`material-symbols-outlined text-[20px] opacity-50`}>{icon}</span>
                     )}
                 </div>
                 <div className="mt-2">

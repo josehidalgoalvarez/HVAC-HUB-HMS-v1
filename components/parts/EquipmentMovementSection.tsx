@@ -128,7 +128,7 @@ export const EquipmentMovementSection: React.FC<EquipmentMovementSectionProps> =
       >
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[16px] text-primary">pin_drop</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">pin_drop</span>
             <h4 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
               Current
             </h4>
@@ -174,7 +174,7 @@ export const EquipmentMovementSection: React.FC<EquipmentMovementSectionProps> =
           data-testid="equipment-notes-block"
         >
           <div className="flex items-center gap-1.5 mb-1.5">
-            <span className="material-symbols-outlined text-[16px] text-primary">sticky_note_2</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">sticky_note_2</span>
             <h4 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
               Notes
             </h4>
@@ -188,7 +188,7 @@ export const EquipmentMovementSection: React.FC<EquipmentMovementSectionProps> =
       {/* 3. CHRONOLOGICAL MOVEMENT HISTORY (Read-only v1) */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-[18px] text-primary">swap_horiz</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-primary">swap_horiz</span>
           <h3 className="text-sm font-bold uppercase tracking-wider text-brand-black dark:text-white">
             Movement History
           </h3>

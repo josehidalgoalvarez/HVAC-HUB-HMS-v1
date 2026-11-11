@@ -22,11 +22,11 @@ export const McKayStorageMenuView: React.FC<McKayStorageMenuViewProps> = ({
             className="w-11 h-11 min-h-[44px] rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors shrink-0"
             aria-label="Back to 698 McKay Street"
           >
-            <span className="material-symbols-outlined text-2xl">arrow_back</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-2xl">arrow_back</span>
           </button>
           <div className="min-w-0">
             <h1 className="text-xl font-bold truncate flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-primary text-2xl shrink-0">warehouse</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl shrink-0">warehouse</span>
               <span>McKay Storage Depot</span>
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
@@ -42,7 +42,7 @@ export const McKayStorageMenuView: React.FC<McKayStorageMenuViewProps> = ({
 
       {/* Overview Card */}
       <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-3">
-        <span className="material-symbols-outlined text-amber-600 text-2xl shrink-0">
+        <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-2xl shrink-0">
           inventory_2
         </span>
         <div className="min-w-0">
@@ -57,7 +57,7 @@ export const McKayStorageMenuView: React.FC<McKayStorageMenuViewProps> = ({
       <div className="space-y-3">
         {stockpiles.length === 0 ? (
           <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-2">
-            <span className="material-symbols-outlined text-4xl text-gray-400">inventory</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-4xl text-gray-400">inventory</span>
             <p className="text-sm font-bold text-gray-700 dark:text-gray-300">No stockpiles found for McKay site</p>
             <p className="text-xs text-gray-500">Stockpiles linked to building #89 will appear here automatically.</p>
           </div>
@@ -88,7 +88,7 @@ export const McKayStorageMenuView: React.FC<McKayStorageMenuViewProps> = ({
               >
                 <div className="flex items-center gap-3.5 min-w-0">
                   <div className="w-11 h-11 min-h-[44px] rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center shrink-0 text-primary group-hover:scale-105 transition-transform">
-                    <span className="material-symbols-outlined text-2xl">{iconName}</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-2xl">{iconName}</span>
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-bold text-sm truncate group-hover:text-primary transition-colors">
@@ -116,7 +116,7 @@ export const McKayStorageMenuView: React.FC<McKayStorageMenuViewProps> = ({
                   </div>
                 </div>
 
-                <span className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-2xl shrink-0">
+                <span aria-hidden="true" className="material-symbols-outlined text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-2xl shrink-0">
                   chevron_right
                 </span>
               </div>

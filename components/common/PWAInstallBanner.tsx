@@ -103,7 +103,7 @@ export const PWAInstallBanner: React.FC = () => {
     >
       <div className="flex items-start gap-3">
         <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
-          <span className="material-symbols-outlined text-2xl">install_mobile</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-2xl">install_mobile</span>
         </div>
 
         <div className="flex-1 min-w-0">
@@ -116,7 +116,7 @@ export const PWAInstallBanner: React.FC = () => {
               className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 active:scale-90 transition-transform"
               aria-label="Dismiss install prompt"
             >
-              <span className="material-symbols-outlined text-lg">close</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-lg">close</span>
             </button>
           </div>
 
@@ -141,7 +141,7 @@ export const PWAInstallBanner: React.FC = () => {
                 </span>
                 <span>
                   Tap Safari&apos;s <strong className="text-primary font-bold">Share</strong> button{' '}
-                  <span className="material-symbols-outlined text-sm align-middle text-primary">ios_share</span> in the bottom toolbar.
+                  <span aria-hidden="true" className="material-symbols-outlined text-sm align-middle text-primary">ios_share</span> in the bottom toolbar.
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -150,7 +150,7 @@ export const PWAInstallBanner: React.FC = () => {
                 </span>
                 <span>
                   Scroll down and tap <strong className="font-bold">Add to Home Screen</strong>{' '}
-                  <span className="material-symbols-outlined text-sm align-middle text-primary">add_box</span>.
+                  <span aria-hidden="true" className="material-symbols-outlined text-sm align-middle text-primary">add_box</span>.
                 </span>
               </div>
             </div>
@@ -162,7 +162,7 @@ export const PWAInstallBanner: React.FC = () => {
                 onClick={handleInstallClick}
                 className="flex-1 min-h-[44px] px-4 py-2 bg-primary hover:bg-blue-600 active:scale-[0.98] text-white rounded-xl text-xs font-extrabold shadow-sm flex items-center justify-center gap-1.5 transition-all"
               >
-                <span className="material-symbols-outlined text-base">download</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-base">download</span>
                 <span>Install HVACHome</span>
               </button>
               <button

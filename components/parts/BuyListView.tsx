@@ -533,11 +533,11 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
             className="w-11 h-11 min-h-[44px] rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors shrink-0"
             aria-label="Back"
           >
-            <span className="material-symbols-outlined text-2xl">arrow_back</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-2xl">arrow_back</span>
           </button>
           <div className="min-w-0">
             <h1 className="text-xl font-bold truncate flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-primary text-2xl shrink-0">shopping_cart_checkout</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-2xl shrink-0">shopping_cart_checkout</span>
               <span>Parts Buy List</span>
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
@@ -552,7 +552,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
             className="min-h-[44px] px-3.5 py-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
             title="Add Manual Buy Item"
           >
-            <span className="material-symbols-outlined text-[18px]">add</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[18px]">add</span>
             <span>Add Item</span>
           </button>
         </div>
@@ -562,7 +562,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       {isOfflineView && (
         <div className="p-2.5 rounded-xl text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 flex items-center justify-between gap-2 animate-fadeIn">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-base shrink-0">cloud_off</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-base shrink-0">cloud_off</span>
             <span className="truncate">Offline — showing saved items</span>
           </div>
           <button
@@ -581,7 +581,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
         <div className="p-3.5 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between gap-3 animate-fadeIn">
           <div className="space-y-0.5 min-w-0">
             <div className="flex items-center gap-1.5 text-xs font-bold text-brand-black dark:text-white truncate">
-              <span className="material-symbols-outlined text-sm text-amber-500 shrink-0">delete</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-sm text-amber-500 shrink-0">delete</span>
               <span className="truncate">Deleted "{lastDeletedItem.item.part_name}" (x{lastDeletedItem.item.quantity}{lastDeletedItem.linkedWo ? ` · ${lastDeletedItem.linkedWo}` : ''})</span>
             </div>
             <p className="text-[11px] text-gray-500 dark:text-gray-400">
@@ -595,7 +595,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
             className="min-h-[44px] px-3.5 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200 hover:text-brand-red dark:hover:text-red-400 border border-gray-300 dark:border-gray-600 hover:border-red-300 rounded-xl transition-colors shrink-0 flex items-center gap-1"
             title="Restore deleted item (Undo)"
           >
-            <span className="material-symbols-outlined text-sm">undo</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-sm">undo</span>
             <span>{undoDeleting ? 'Restoring...' : 'Undo'}</span>
           </button>
         </div>
@@ -604,7 +604,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       {/* Flash toast */}
       {flashMsg && (
         <div className="p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200 flex items-center gap-2 animate-fadeIn">
-          <span className="material-symbols-outlined text-[18px]">check_circle</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[18px]">check_circle</span>
           <span>{flashMsg}</span>
         </div>
       )}
@@ -612,7 +612,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       {/* Action / loud error alert (e.g. offline delete or network error) */}
       {actionError && (
         <div className="p-3 text-xs bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-900 rounded-xl flex items-center gap-2 animate-fadeIn">
-          <span className="material-symbols-outlined text-[18px] shrink-0">warning</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[18px] shrink-0">warning</span>
           <span className="font-semibold">{actionError}</span>
         </div>
       )}
@@ -632,7 +632,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
         >
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-brand-black dark:text-white flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-primary text-base">post_add</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-base">post_add</span>
               Add Manual Buy Item
             </h3>
             <button
@@ -779,12 +779,12 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       <PullToRefresh onRefresh={() => handleGenerate()}>
         {loadingList ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-400">
-            <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
             <p className="text-xs font-semibold">Generating buy list by work order...</p>
           </div>
         ) : totalItemsCount === 0 ? (
           <div className="text-center py-16 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
-            <span className="material-symbols-outlined text-5xl text-gray-300">production_quantity_limits</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-5xl text-gray-300">production_quantity_limits</span>
             <p className="text-base font-bold text-gray-700 dark:text-gray-300">
               No buy list items currently queued
             </p>
@@ -815,8 +815,8 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                       <button
                         onClick={() => onOpenTicket?.(String(group.ticketId))}
                         className="px-2 py-0.5 text-xs font-mono font-extrabold rounded-md bg-primary text-white flex items-center gap-1 hover:bg-primary/90"
-                      >
-                        <span className="material-symbols-outlined text-[13px]">assignment</span>
+                       aria-label="View tickets">
+                        <span aria-hidden="true" className="material-symbols-outlined text-[13px]">assignment</span>
                         {group.woNumber}
                       </button>
                       <span className="text-xs font-bold text-brand-black dark:text-white truncate">
@@ -825,7 +825,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                     </div>
                     {group.buildingUnit && (
                       <div className="text-[11px] text-gray-500 flex items-center gap-1 mt-1">
-                        <span className="material-symbols-outlined text-[13px]">location_on</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[13px]">location_on</span>
                         <span>{group.buildingUnit}</span>
                       </div>
                     )}
@@ -879,7 +879,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                               title="Delete manual item"
                               aria-label="Delete manual item"
                             >
-                              <span className="material-symbols-outlined text-[18px]">delete</span>
+                              <span aria-hidden="true" className="material-symbols-outlined text-[18px]">delete</span>
                             </button>
                           )}
                         </div>
@@ -889,7 +889,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                       <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
                         {item.harvestTag && (
                           <span className="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-bold text-[11px] flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[13px]">recycling</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-[13px]">recycling</span>
                             {item.harvestTag}
                           </span>
                         )}
@@ -897,7 +897,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                         {item.supplierName && (
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 font-bold text-[11px] flex items-center gap-1">
-                              <span className="material-symbols-outlined text-[13px]">store</span>
+                              <span aria-hidden="true" className="material-symbols-outlined text-[13px]">store</span>
                               {item.supplierName}
                             </span>
 
@@ -909,7 +909,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                                 title={`Call ${item.supplierName}`}
                                 aria-label={`Call ${item.supplierName} at ${item.supplierPhone}`}
                               >
-                                <span className="material-symbols-outlined text-[14px]">call</span>
+                                <span aria-hidden="true" className="material-symbols-outlined text-[14px]">call</span>
                                 <span>{item.supplierPhone}</span>
                               </a>
                             )}
@@ -928,7 +928,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                 <div className="p-3.5 bg-amber-50/80 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-900/60 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className="px-2 py-0.5 text-xs font-mono font-extrabold rounded-md bg-amber-600 text-white flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[13px]">edit_note</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[13px]">edit_note</span>
                       MANUAL
                     </span>
                     <span className="text-xs font-bold text-brand-black dark:text-white">
@@ -976,7 +976,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                             title="Delete manual item"
                             aria-label="Delete manual item"
                           >
-                            <span className="material-symbols-outlined text-[18px]">delete</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-[18px]">delete</span>
                           </button>
                         </div>
                       </div>
@@ -984,7 +984,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                       {item.supplierName && (
                         <div className="pt-1 flex flex-wrap items-center gap-2">
                           <span className="px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 font-bold text-[11px] inline-flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[13px]">store</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-[13px]">store</span>
                             {item.supplierName}
                           </span>
 
@@ -996,7 +996,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                               title={`Call ${item.supplierName}`}
                               aria-label={`Call ${item.supplierName} at ${item.supplierPhone}`}
                             >
-                              <span className="material-symbols-outlined text-[14px]">call</span>
+                              <span aria-hidden="true" className="material-symbols-outlined text-[14px]">call</span>
                               <span>{item.supplierPhone}</span>
                             </a>
                           )}

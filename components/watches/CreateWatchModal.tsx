@@ -60,14 +60,14 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
       <div className="w-full sm:max-w-lg bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl pb-safe">
         <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-xl leading-none">notifications_active</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl leading-none">notifications_active</span>
             <h2 className="text-lg font-bold text-brand-black dark:text-white">New Watch</h2>
           </div>
           <button
             onClick={onClose}
             className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            <span className="material-symbols-outlined">close</span>
+           aria-label="Close">
+            <span aria-hidden="true" className="material-symbols-outlined">close</span>
           </button>
         </div>
 
@@ -86,7 +86,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                     : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
-                <span className="material-symbols-outlined text-sm leading-none">event_busy</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm leading-none">event_busy</span>
                 <span>Notice Deadline</span>
               </button>
               <button
@@ -97,7 +97,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                     : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
-                <span className="material-symbols-outlined text-sm leading-none">hourglass_top</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm leading-none">hourglass_top</span>
                 <span>Part Wait</span>
               </button>
               <button
@@ -108,7 +108,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                     : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
-                <span className="material-symbols-outlined text-sm leading-none">hourglass_empty</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm leading-none">hourglass_empty</span>
                 <span>Reply Waiting</span>
               </button>
               <button
@@ -119,7 +119,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                     : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
-                <span className="material-symbols-outlined text-sm leading-none">assignment_late</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm leading-none">assignment_late</span>
                 <span>Scheduled Task</span>
               </button>
               <button
@@ -130,7 +130,7 @@ export const CreateWatchModal: React.FC<CreateWatchModalProps> = ({
                     : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
               >
-                <span className="material-symbols-outlined text-sm leading-none text-amber-500">inventory_2</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm leading-none text-amber-500">inventory_2</span>
                 <span>Low Stock Watch</span>
               </button>
             </div>

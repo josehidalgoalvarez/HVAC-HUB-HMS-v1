@@ -160,7 +160,7 @@ export const UpdateBanner: React.FC<UpdateBannerProps> = ({
     >
       <div className="flex items-center gap-2.5 min-w-0">
         <div className="w-9 h-9 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0 border border-primary/30">
-          <span className="material-symbols-outlined text-xl text-primary animate-pulse">
+          <span aria-hidden="true" className="material-symbols-outlined text-xl text-primary animate-pulse">
             system_update
           </span>
         </div>
@@ -181,8 +181,8 @@ export const UpdateBanner: React.FC<UpdateBannerProps> = ({
           disabled={isReloading}
           data-testid="app-update-reload-btn"
           className="px-3 py-1.5 min-h-[38px] rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-bold shadow-sm active:scale-95 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50"
-        >
-          <span className={`material-symbols-outlined text-[15px] ${isReloading ? 'animate-spin' : ''}`}>
+         aria-label="Refresh">
+          <span aria-hidden="true" className={`material-symbols-outlined text-[15px] ${isReloading ? 'animate-spin' : ''}`}>
             refresh
           </span>
           <span>{isReloading ? 'Updating...' : 'Reload'}</span>
@@ -195,7 +195,7 @@ export const UpdateBanner: React.FC<UpdateBannerProps> = ({
           className="w-9 h-9 min-h-[38px] min-w-[38px] rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
           aria-label="Dismiss update notification"
         >
-          <span className="material-symbols-outlined text-base">close</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-base">close</span>
         </button>
       </div>
     </div>

@@ -99,10 +99,10 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
   };
 
   return (
-    <Modal onClose={onClose} className="max-w-md">
+    <Modal title="Stockpile Stock Transfer" onClose={onClose} className="max-w-md">
       <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary text-xl">move_down</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">move_down</span>
           <div>
             <h2 className="text-base font-bold text-brand-black dark:text-white">
               Stockpile Stock Transfer
@@ -113,8 +113,8 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
         <button
           onClick={onClose}
           className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500"
-        >
-          <span className="material-symbols-outlined">close</span>
+         aria-label="Close">
+          <span aria-hidden="true" className="material-symbols-outlined">close</span>
         </button>
       </div>
 

@@ -105,8 +105,8 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
         <button
           onClick={onBack}
           className="w-10 h-10 -ml-2 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-brand-black dark:text-white"
-        >
-          <span className="material-symbols-outlined">arrow_back_ios_new</span>
+         aria-label="Back">
+          <span aria-hidden="true" className="material-symbols-outlined">arrow_back_ios_new</span>
         </button>
         <div className="text-center">
           <h1 className="text-lg font-bold text-brand-black dark:text-white">Property Equipment</h1>
@@ -125,11 +125,11 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
             {property.imageUrl ? (
               <img src={property.imageUrl} alt={property.name} className="w-full h-full object-cover" />
             ) : (
-              <span className="material-symbols-outlined text-4xl text-gray-400">home</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-4xl text-gray-400">home</span>
             )}
             {isEditMode && (
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white">
-                <span className="material-symbols-outlined text-sm">edit</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm">edit</span>
               </div>
             )}
           </div>
@@ -144,7 +144,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                     className="min-h-[30px] px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-primary hover:text-primary-hover text-[11px] font-bold flex items-center gap-1 transition-colors border border-gray-200/80 dark:border-gray-700 active:scale-95 shadow-2xs"
                     title="Why here? (Location reference)"
                   >
-                    <span className="material-symbols-outlined text-[14px]">help</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[14px]">help</span>
                     <span>Why here?</span>
                   </button>
                 )}
@@ -153,8 +153,8 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                 <button
                   onClick={() => setIsEditingImage(true)}
                   className="text-primary hover:text-primary/80 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[18px]">edit</span>
+                 aria-label="Edit">
+                  <span aria-hidden="true" className="material-symbols-outlined text-[18px]">edit</span>
                 </button>
               )}
             </div>
@@ -186,8 +186,8 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                         }
                       }}
                       className="min-h-[44px] px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 active:scale-[0.98] text-amber-800 dark:text-amber-200 border border-amber-500/40 text-[11px] font-bold uppercase flex items-center gap-1.5 transition-all cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-[16px] text-amber-700 dark:text-amber-300">
+                     aria-label="Icon">
+                      <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-amber-700 dark:text-amber-300">
                         {resolution.isMcKay ? 'warehouse' : 'inventory_2'}
                       </span>
                       <span>{badgeLabel}</span>
@@ -233,7 +233,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 text-amber-700 dark:text-amber-300">
-                    <span className="material-symbols-outlined text-2xl group-hover:scale-105 transition-transform">
+                    <span aria-hidden="true" className="material-symbols-outlined text-2xl group-hover:scale-105 transition-transform">
                       warehouse
                     </span>
                   </div>
@@ -249,7 +249,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                     </p>
                   </div>
                 </div>
-                <span className="material-symbols-outlined text-amber-600 text-2xl shrink-0 group-hover:translate-x-0.5 transition-transform">
+                <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-2xl shrink-0 group-hover:translate-x-0.5 transition-transform">
                   chevron_right
                 </span>
               </div>
@@ -290,7 +290,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
-                    <span className="material-symbols-outlined text-2xl group-hover:scale-105 transition-transform">
+                    <span aria-hidden="true" className="material-symbols-outlined text-2xl group-hover:scale-105 transition-transform">
                       inventory_2
                     </span>
                   </div>
@@ -306,7 +306,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                     </p>
                   </div>
                 </div>
-                <span className={`material-symbols-outlined text-2xl shrink-0 group-hover:translate-x-0.5 transition-transform ${chevronColor}`}>
+                <span aria-hidden="true" className={`material-symbols-outlined text-2xl shrink-0 group-hover:translate-x-0.5 transition-transform ${chevronColor}`}>
                   chevron_right
                 </span>
               </div>
@@ -318,7 +318,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
             return (
               <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-3 min-h-[44px]">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 text-amber-700 dark:text-amber-300">
-                  <span className="material-symbols-outlined text-2xl">
+                  <span aria-hidden="true" className="material-symbols-outlined text-2xl">
                     {property.role === 'mechanical' ? 'settings_suggest' : 'inventory_2'}
                   </span>
                 </div>
@@ -351,7 +351,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                   {isProcessing ? (
                     <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                    <span className="material-symbols-outlined text-3xl">photo_camera</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-3xl">photo_camera</span>
                   )}
                 </div>
                 <div className="text-center">
@@ -377,8 +377,8 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                   <button
                     onClick={() => setNewImageUrl('')}
                     className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1 hover:bg-black/70"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">close</span>
+                   aria-label="Close">
+                    <span aria-hidden="true" className="material-symbols-outlined text-[16px]">close</span>
                   </button>
                 </div>
               )}
@@ -478,7 +478,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
           return (
             <div data-testid="building-details-section" className="bg-white dark:bg-card-dark rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 space-y-4">
               <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
-                <span className="material-symbols-outlined text-primary text-xl">apartment</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">apartment</span>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-primary">Building Details</h3>
               </div>
 
@@ -557,7 +557,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                   onClick={() => onApplianceClick(app.id)}
                 >
                   <div className="w-12 h-12 rounded-lg bg-gray-50 dark:bg-gray-700/50 flex items-center justify-center text-primary">
-                    <span className="material-symbols-outlined">{
+                    <span aria-hidden="true" className="material-symbols-outlined">{
                       app.type === 'Furnace' ? 'local_fire_department' :
                         app.type === 'Heater' ? 'water_drop' :
                           app.type === 'AC' ? 'ac_unit' : 'smart_toy'
@@ -575,7 +575,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                       <span className="capitalize">{(app.status || 'operational').replace('_', ' ')}</span>
                     </p>
                   </div>
-                  <span className="material-symbols-outlined text-gray-400">expand_less</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-gray-400">expand_less</span>
                 </div>
 
                 {/* Expanded Details Preview */}
@@ -608,7 +608,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                       onClick={() => onApplianceClick(app.id)}
                       className="w-full py-2.5 bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-600 rounded-lg text-xs font-bold text-brand-black dark:text-white flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
-                      <span className="material-symbols-outlined text-[16px]">photo_camera</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[16px]">photo_camera</span>
                       Rating Plate &amp; Specs
                     </button>
                   </div>

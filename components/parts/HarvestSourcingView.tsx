@@ -282,7 +282,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
       <div className="p-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-800 space-y-1.5">
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-xl">swap_horiz</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">swap_horiz</span>
             <h2 className="text-sm font-bold text-brand-black dark:text-white">
               Harvest Sourcing View (Read-Only v1)
             </h2>
@@ -304,7 +304,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
       >
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-[18px]">door_open</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-[18px]">door_open</span>
             <h3 className="text-xs font-bold uppercase tracking-wider text-brand-black dark:text-white">
               1. Vacant-Unit Sources
             </h3>
@@ -319,7 +319,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
             className="p-4 rounded-xl bg-gray-50 dark:bg-neutral-800/50 border border-gray-200/80 dark:border-gray-800 text-center space-y-1.5"
             data-testid="harvest-vacant-empty-state"
           >
-            <span className="material-symbols-outlined text-gray-400 text-2xl">meeting_room</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-gray-400 text-2xl">meeting_room</span>
             <p className="text-xs font-bold text-brand-black dark:text-white">
               No vacant units marked as harvest sources yet.
             </p>
@@ -429,7 +429,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
       >
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-amber-500 text-[18px]">build_circle</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-amber-500 text-[18px]">build_circle</span>
             <h3 className="text-xs font-bold uppercase tracking-wider text-brand-black dark:text-white">
               2. Donor Stored Appliances (Explicit Donor / Parts Sources Only)
             </h3>
@@ -479,15 +479,15 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                       type="button"
                       onClick={() => onOpenStockpileInventory(donor.stockpileId!)}
                       className="min-h-[38px] px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-400/60 text-xs font-bold flex items-center gap-1.5 transition-colors shrink-0"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">warehouse</span>
+                     aria-label="View warehouse stockpile">
+                      <span aria-hidden="true" className="material-symbols-outlined text-[16px]">warehouse</span>
                       <span>{donor.storageLocationName}</span>
                     </button>
                   )}
                 </div>
 
                 <div className="flex items-center gap-1.5 text-[11px] text-amber-900 dark:text-amber-200">
-                  <span className="material-symbols-outlined text-[15px]">location_on</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[15px]">location_on</span>
                   <span>Storage Location: {donor.storageLocationName}</span>
                 </div>
 
@@ -509,7 +509,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
           >
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <div className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[15px]">inventory_2</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[15px]">inventory_2</span>
                 <span>Other Stored Appliances — Status: &apos;stored&apos; (Not Marked as Donor Sources)</span>
               </div>
               <span className="text-[10px] font-semibold text-gray-500">
@@ -556,7 +556,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                       onClick={() => onOpenStockpileInventory(item.stockpileId!)}
                       className="min-h-[36px] px-2.5 py-1 rounded-lg bg-white dark:bg-card-dark hover:bg-amber-500/10 text-amber-900 dark:text-amber-200 border border-amber-400/60 text-[11px] font-bold flex items-center gap-1 self-start sm:self-center shrink-0"
                     >
-                      <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[14px]">open_in_new</span>
                       <span>View Storage</span>
                     </button>
                   )}
@@ -574,7 +574,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
       >
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-[18px]">help_clinic</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-[18px]">help_clinic</span>
             <h3 className="text-xs font-bold uppercase tracking-wider text-brand-black dark:text-white">
               3. Uncertain Sources (Not Counted Stock · Pending Verification)
             </h3>
@@ -618,8 +618,8 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                     type="button"
                     onClick={() => onOpenStockpileInventory(src.stockpileId!)}
                     className="min-h-[36px] px-3 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-400/60 text-[11px] font-bold inline-flex items-center gap-1.5 transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[15px]">warehouse</span>
+                   aria-label="View warehouse stockpile">
+                    <span aria-hidden="true" className="material-symbols-outlined text-[15px]">warehouse</span>
                     <span>{src.stockpileButtonLabel}</span>
                   </button>
                 </div>
@@ -636,7 +636,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
       >
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-[18px]">history</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-[18px]">history</span>
             <h3 className="text-xs font-bold uppercase tracking-wider text-brand-black dark:text-white">
               4. Harvest Events Recorded
             </h3>
@@ -651,7 +651,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
             className="p-4 rounded-xl bg-gray-50 dark:bg-neutral-800/50 border border-gray-200/80 dark:border-gray-800 text-center space-y-1"
             data-testid="harvest-events-empty-state"
           >
-            <span className="material-symbols-outlined text-gray-400 text-2xl">event_busy</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-gray-400 text-2xl">event_busy</span>
             <p className="text-xs font-bold text-brand-black dark:text-white">
               No harvest events recorded yet.
             </p>

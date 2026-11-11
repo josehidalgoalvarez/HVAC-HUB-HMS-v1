@@ -24,7 +24,7 @@ export const AddMaintenanceRecordForm: React.FC<AddMaintenanceRecordFormProps> =
     };
 
     return (
-        <Modal onClose={onClose}>
+        <Modal title="Add Maintenance Record" onClose={onClose}>
             <h2 className="text-xl font-bold text-brand-black dark:text-white mb-4">Add Maintenance Record</h2>
             <div className="space-y-4">
                 <div>

@@ -90,7 +90,7 @@ export const OfflineStatusBadge: React.FC = () => {
             onClick={() => setIsDetailOpen(true)}
             className="flex items-center gap-1.5 bg-amber-500 text-white px-3 py-1 rounded-full border border-amber-600 shadow-sm cursor-pointer select-none"
           >
-            <span className="material-symbols-outlined text-[16px] animate-pulse">cloud_off</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px] animate-pulse">cloud_off</span>
             <span>Offline Mode</span>
             {pendingCount > 0 && (
               <span className="bg-amber-700/80 text-amber-100 text-[11px] px-1.5 py-0.5 rounded-full font-mono">
@@ -104,7 +104,7 @@ export const OfflineStatusBadge: React.FC = () => {
               onClick={() => setIsDetailOpen(true)}
               className="flex items-center gap-1.5 text-left hover:underline focus:outline-none"
             >
-              <span className="material-symbols-outlined text-[16px]">sync</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-[16px]">sync</span>
               <span>
                 {pendingCount} unsynced {pendingCount === 1 ? 'change' : 'changes'}
               </span>
@@ -127,7 +127,7 @@ export const OfflineStatusBadge: React.FC = () => {
             {/* Header */}
             <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gray-50 dark:bg-gray-900/50">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-xl">sync_saved_locally</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">sync_saved_locally</span>
                 <div>
                   <h3 className="text-sm font-bold text-gray-900 dark:text-white">Offline Outbox Items</h3>
                   <p className="text-xs text-gray-500">
@@ -138,8 +138,8 @@ export const OfflineStatusBadge: React.FC = () => {
               <button
                 onClick={() => setIsDetailOpen(false)}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800"
-              >
-                <span className="material-symbols-outlined text-lg">close</span>
+               aria-label="Close">
+                <span aria-hidden="true" className="material-symbols-outlined text-lg">close</span>
               </button>
             </div>
 
@@ -147,7 +147,7 @@ export const OfflineStatusBadge: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {allItems.length === 0 ? (
                 <div className="text-center py-8 text-gray-400 text-xs">
-                  <span className="material-symbols-outlined text-3xl mb-1 block opacity-40">done_all</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-3xl mb-1 block opacity-40">done_all</span>
                   No unsynced changes. Outbox is clean!
                 </div>
               ) : (
@@ -197,7 +197,7 @@ export const OfflineStatusBadge: React.FC = () => {
                             onClick={() => setConfirmDiscardId(item.id)}
                             className="text-red-500 hover:text-red-700 flex items-center gap-0.5 text-[11px] font-semibold"
                           >
-                            <span className="material-symbols-outlined text-[14px]">delete</span>
+                            <span aria-hidden="true" className="material-symbols-outlined text-[14px]">delete</span>
                             Discard
                           </button>
                         )}
@@ -243,7 +243,7 @@ export const OfflineStatusBadge: React.FC = () => {
                     onClick={() => setConfirmDiscardAll(true)}
                     className="text-red-500 hover:text-red-700 disabled:opacity-40 text-xs font-bold flex items-center gap-1"
                   >
-                    <span className="material-symbols-outlined text-sm">delete_sweep</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-sm">delete_sweep</span>
                     Discard All
                   </button>
                 )}
@@ -254,8 +254,8 @@ export const OfflineStatusBadge: React.FC = () => {
                   onClick={handleSync}
                   disabled={isSyncing || allItems.length === 0 || !isOnline}
                   className="px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-bold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1"
-                >
-                  <span className={`material-symbols-outlined text-sm ${isSyncing ? 'animate-spin' : ''}`}>sync</span>
+                 aria-label="Sync">
+                  <span aria-hidden="true" className={`material-symbols-outlined text-sm ${isSyncing ? 'animate-spin' : ''}`}>sync</span>
                   {isSyncing ? 'Syncing...' : 'Sync Now'}
                 </button>
               </div>

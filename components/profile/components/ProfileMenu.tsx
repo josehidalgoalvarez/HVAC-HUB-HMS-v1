@@ -19,16 +19,16 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({ items }) => {
                     key={idx}
                     onClick={item.action}
                     className="w-full flex items-center justify-between p-4 hover:bg-background-light dark:hover:bg-gray-800/50 rounded-xl transition-all group"
-                >
+                 aria-label="Chevron right">
                     <div className="flex items-center gap-3">
-                        <span className={`material-symbols-outlined ${item.color || 'text-text-sub-light group-hover:text-primary'}`}>
+                        <span aria-hidden="true" className={`material-symbols-outlined ${item.color || 'text-text-sub-light group-hover:text-primary'}`}>
                             {item.icon}
                         </span>
                         <span className={`font-medium ${item.color || 'text-brand-black dark:text-white'}`}>
                             {item.label}
                         </span>
                     </div>
-                    <span className="material-symbols-outlined text-gray-300 group-hover:text-primary group-hover:translate-x-1 transition-all">
+                    <span aria-hidden="true" className="material-symbols-outlined text-gray-300 group-hover:text-primary group-hover:translate-x-1 transition-all">
                         chevron_right
                     </span>
                 </button>

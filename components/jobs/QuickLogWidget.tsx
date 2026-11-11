@@ -459,7 +459,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
   if (loading) {
     return (
       <div className="p-8 text-center text-gray-500 max-w-xl mx-auto">
-        <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
+        <span aria-hidden="true" className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
         <p className="mt-2 text-sm font-bold">Initializing field session...</p>
       </div>
     );
@@ -474,13 +474,13 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             <button
               onClick={onBack}
               className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              <span className="material-symbols-outlined">arrow_back</span>
+             aria-label="Back">
+              <span aria-hidden="true" className="material-symbols-outlined">arrow_back</span>
             </button>
           )}
           <div>
             <h1 className="text-xl font-extrabold flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">bolt</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-primary">bolt</span>
               Quick Log
             </h1>
             <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
@@ -494,7 +494,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             onClick={() => setShowCloseModal(true)}
             className="px-3.5 py-2 rounded-2xl bg-primary hover:bg-blue-600 text-white font-extrabold text-xs shadow-md shadow-primary/30 flex items-center gap-1.5 active:scale-95 transition-all"
           >
-            <span className="material-symbols-outlined text-[18px]">check_circle</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[18px]">check_circle</span>
             Complete
           </button>
         )}
@@ -510,7 +510,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
               : 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-800'
           }`}
         >
-          <span className="material-symbols-outlined text-sm">
+          <span aria-hidden="true" className="material-symbols-outlined text-sm">
             {statusMessage.type === 'success' ? 'check' : statusMessage.type === 'info' ? 'info' : 'warning'}
           </span>
           <span>{statusMessage.text}</span>
@@ -521,7 +521,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
       {lastAction && (
         <div className="p-3 rounded-xl bg-white dark:bg-neutral-800/80 border border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3 text-xs shadow-sm">
           <div className="min-w-0 flex items-center gap-2">
-            <span className="material-symbols-outlined text-sm text-primary">history</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-sm text-primary">history</span>
             <div className="truncate">
               <span className="font-bold text-brand-black dark:text-white">Logged: </span>
               <span className="text-gray-500 dark:text-gray-400">"{lastAction.description}"</span>
@@ -532,7 +532,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             onClick={handleUndoLastAction}
             className="flex-shrink-0 min-h-[36px] px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-brand-red border border-gray-200 dark:border-gray-700 hover:border-red-300 rounded-xl transition-colors flex items-center gap-1 active:scale-95"
           >
-            <span className="material-symbols-outlined text-sm">undo</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-sm">undo</span>
             <span>Undo</span>
           </button>
         </div>
@@ -551,17 +551,17 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
         <h2 className="text-base font-extrabold">{jobTitle}</h2>
         <div className="flex items-center gap-3 text-xs text-text-sub-light dark:text-text-sub-dark pt-1">
           <span className="flex items-center gap-1 font-medium">
-            <span className="material-symbols-outlined text-sm text-gray-400">apartment</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-sm text-gray-400">apartment</span>
             {siteName}
           </span>
           {unitNumber && (
             <span className="flex items-center gap-1 font-mono font-bold text-brand-black dark:text-white">
-              <span className="material-symbols-outlined text-sm text-gray-400">door_front</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-sm text-gray-400">door_front</span>
               Unit {unitNumber}
             </span>
           )}
           <span className="flex items-center gap-1 ml-auto font-mono text-gray-400">
-            <span className="material-symbols-outlined text-sm">timer</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-sm">timer</span>
             Est {activeJob?.estimated_minutes || 45}m
           </span>
         </div>
@@ -571,7 +571,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
           <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800/80 space-y-1.5">
             <div className="flex items-center justify-between text-xs">
               <label className="font-bold text-text-sub-light dark:text-text-sub-dark flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm text-primary">kitchen</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm text-primary">kitchen</span>
                 Which appliance was this work on?
               </label>
               {selectedApplianceId && (
@@ -598,7 +598,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
                         : 'bg-gray-100 dark:bg-gray-800/80 hover:bg-gray-200 dark:hover:bg-gray-700 text-brand-black dark:text-gray-200 border-gray-200 dark:border-gray-700'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-[14px]">
+                    <span aria-hidden="true" className="material-symbols-outlined text-[14px]">
                       {isSelected ? 'check_circle' : 'radio_button_unchecked'}
                     </span>
                     <span>{app.name || app.type}</span>
@@ -619,7 +619,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
       <div className="p-4 rounded-3xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-primary text-[18px]">edit_note</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-[18px]">edit_note</span>
             Job Notes
           </h3>
           <span className="text-[11px] font-mono text-gray-400">
@@ -693,7 +693,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
                     className="px-2 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 rounded-lg shrink-0 flex items-center gap-0.5"
                     title="Correct this entry"
                   >
-                    <span className="material-symbols-outlined text-[13px]">edit_note</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[13px]">edit_note</span>
                     Correct
                   </button>
                 )}
@@ -707,7 +707,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
       <div className="p-4 rounded-3xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-primary text-[18px]">build</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-[18px]">build</span>
             Parts Used
           </h3>
           <span className="text-[11px] font-mono text-gray-400">
@@ -762,7 +762,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
                       className="px-2 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 rounded-lg flex items-center gap-0.5"
                       title="Correct this entry"
                     >
-                      <span className="material-symbols-outlined text-[13px]">edit_note</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[13px]">edit_note</span>
                       Correct
                     </button>
                   )}
@@ -773,7 +773,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
                     title="Remove part"
                     aria-label="Remove part"
                   >
-                    <span className="material-symbols-outlined text-sm">delete</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-sm">delete</span>
                   </button>
                 </div>
               </div>
@@ -786,7 +786,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
       <div className="p-4 rounded-3xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-primary text-[18px]">photo_camera</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-primary text-[18px]">photo_camera</span>
             Photos
           </h3>
           <span className="text-[11px] font-mono text-gray-400">
@@ -795,7 +795,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
         </div>
 
         <label className="w-full h-12 rounded-2xl bg-gray-100 dark:bg-card-dark hover:bg-gray-200 dark:hover:bg-neutral-800 text-text-main-light dark:text-text-main-dark border border-gray-200 dark:border-gray-700 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] transition-all">
-          <span className="material-symbols-outlined text-lg text-primary">add_a_photo</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-lg text-primary">add_a_photo</span>
           <span>Take or Add Photo</span>
           <input
             type="file"
@@ -813,7 +813,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
                 key={idx}
                 className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-[11px] font-mono text-gray-600 dark:text-gray-300 flex items-center gap-1"
               >
-                <span className="material-symbols-outlined text-xs text-primary">image</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xs text-primary">image</span>
                 <span>Photo #{idx + 1}</span>
               </div>
             ))}
@@ -828,7 +828,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
           onClick={() => setShowCloseModal(true)}
           className="w-full h-14 rounded-2xl bg-primary hover:bg-blue-600 active:scale-[0.98] text-white font-extrabold text-sm shadow-xl shadow-primary/30 flex items-center justify-center gap-2 transition-all mt-4"
         >
-          <span className="material-symbols-outlined text-2xl">task_alt</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-2xl">task_alt</span>
           <span>Complete Job</span>
         </button>
       )}
@@ -851,10 +851,10 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
 
       {/* Correcting Entry Modal (Append-Only) */}
       {correctingEntry && (
-        <Modal onClose={() => !isCorrecting && setCorrectingEntry(null)} className="max-w-sm">
+        <Modal title="Correct Entry" onClose={() => !isCorrecting && setCorrectingEntry(null)} className="max-w-sm">
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2 text-brand-black dark:text-white">
-              <span className="material-symbols-outlined text-amber-500 text-xl">edit_note</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-amber-500 text-xl">edit_note</span>
               <h3 className="text-base font-bold">
                 Correct {correctingEntry.type === 'note' ? 'Field Note' : 'Part Record'}
               </h3>

@@ -325,7 +325,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
       {currentNotes && (
         <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-800">
           <div className="flex items-center gap-1.5 mb-1.5">
-            <span className="material-symbols-outlined text-[16px] text-primary">sticky_note_2</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">sticky_note_2</span>
             <h4 className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark">
               Current notes
             </h4>
@@ -339,7 +339,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
       {/* Chronological History Section Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-[18px] text-primary">history</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-primary">history</span>
           <h3 className="text-sm font-bold uppercase tracking-wider text-brand-black dark:text-white">
             Appliance History
           </h3>
@@ -350,7 +350,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
             onClick={() => setShowRecordMoveModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold shadow-sm hover:bg-primary/90 transition-colors"
           >
-            <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px]">swap_horiz</span>
             Record move
           </button>
         )}
@@ -382,13 +382,13 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
                           className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:underline transition-colors"
                           title="Open linked ticket"
                         >
-                          <span className="material-symbols-outlined text-[13px]">confirmation_number</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[13px]">confirmation_number</span>
                           <span>{entry.ticketLabel}</span>
-                          <span className="material-symbols-outlined text-[12px]">open_in_new</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[12px]">open_in_new</span>
                         </button>
                       ) : entry.ticketId && entry.ticketLabel ? (
                         <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-                          <span className="material-symbols-outlined text-[13px]">confirmation_number</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-[13px]">confirmation_number</span>
                           <span>{entry.ticketLabel}</span>
                         </span>
                       ) : null}
@@ -403,7 +403,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
                     )}
                     {entry.actor && (
                       <div className="flex items-center gap-1 text-[11px] text-gray-400 mt-0.5">
-                        <span className="material-symbols-outlined text-[13px]">person</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-[13px]">person</span>
                         <span>{entry.actor}</span>
                       </div>
                     )}
@@ -445,7 +445,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
         </div>
       ) : (
         <div className="p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-800/40 text-center">
-          <span className="material-symbols-outlined text-[24px] text-gray-400 dark:text-gray-500 mb-1 block">
+          <span aria-hidden="true" className="material-symbols-outlined text-[24px] text-gray-400 dark:text-gray-500 mb-1 block">
             history_toggle_off
           </span>
           <p className="text-sm font-medium text-text-sub-light dark:text-text-sub-dark">
