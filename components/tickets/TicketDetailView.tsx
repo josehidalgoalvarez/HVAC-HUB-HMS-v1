@@ -120,7 +120,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   const [sightingStamping, setSightingStamping] = useState(false);
 
   // Related Tickets State
-  const [relatedTickets, setRelatedTickets] = useState<Ticket[]>(() => ticket.related_tickets || []);
+  const [relatedTickets, setRelatedTickets] = useState<Ticket[]>(() => ticket?.related_tickets ?? []);
   const [showRelatedPicker, setShowRelatedPicker] = useState(false);
   const [candidateTickets, setCandidateTickets] = useState<Ticket[]>([]);
   const [loadingCandidates, setLoadingCandidates] = useState(false);
@@ -128,8 +128,8 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   const [relatedError, setRelatedError] = useState<string | null>(null);
 
   useEffect(() => {
-    setRelatedTickets(ticket.related_tickets || []);
-  }, [ticket.id, ticket.related_tickets]);
+    setRelatedTickets(ticket?.related_tickets ?? []);
+  }, [ticket]);
 
   const handleToggleRelatedPicker = async () => {
     const next = !showRelatedPicker;
@@ -449,10 +449,6 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       setIdentifySaving(false);
     }
   };
-
-  useEffect(() => {
-    loadTicketData();
-  }, [ticketId]);
 
   const handleSetExposure = async (newExp: 'indoor' | 'exterior' | 'exterior_ladder') => {
     if (!ticket || newExp === workExposure) return;
