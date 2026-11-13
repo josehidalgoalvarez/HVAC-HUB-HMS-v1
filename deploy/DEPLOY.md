@@ -198,3 +198,11 @@ If any failure occurs, restore the previous state immediately from the pre-deplo
 | **`Class 'App\Db' not found` in runner** | Runner script failed to autoload Composer vendor dependencies. | Include `require __DIR__ . '/../vendor/autoload.php';` and `\App\Config::load();`. |
 | **Unauthenticated API call returns 401** | Attempting to probe protected API routes without Bearer token. | Use `/api/health` for unauthenticated ping, or use a key-gated maintenance runner for protected verification. |
 | **PWA banner update loop on device** | Browser cached obsolete service worker or asset hashes. | Purge browser caches or check cache-busting headers in `.htaccess`. |
+
+---
+
+## 6. Hard Guard: `dist/.htaccess` Must NEVER Be Uploaded
+
+- Vite copies `public/.htaccess` (the plain Slim rewrite) into `dist/.htaccess`.
+- **Before uploading `dist/`**: ALWAYS delete `dist/.htaccess` (`rm -f dist/.htaccess`) or exclude `.htaccess` from the FTP upload.
+- **After every frontend deploy**: Verify `/public_html/.htaccess` matches `deploy/root.htaccess` verbatim (and confirm `GET /` returns `HTTP 200 text/html`).
