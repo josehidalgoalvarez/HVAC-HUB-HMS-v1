@@ -324,6 +324,72 @@ class McpController
                     'required' => ['part_name', 'quantity'],
                 ],
             ],
+            [
+                'name' => 'create_ticket',
+                'description' => 'Create a ticket: title (or scope), building, optional unit/appliance/WO number, status, priority. Validates every reference before creating; writes the creation audit rows.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'title' => [
+                            'type' => 'string',
+                            'description' => 'Ticket title (required unless verified_scope or verbatim_text is given; derived from scope when missing)',
+                        ],
+                        'description' => [
+                            'type' => 'string',
+                            'description' => 'Optional free-text description',
+                        ],
+                        'verified_scope' => [
+                            'type' => 'string',
+                            'description' => 'Optional verified scope of work (also satisfies the title requirement)',
+                        ],
+                        'verbatim_text' => [
+                            'type' => 'string',
+                            'description' => 'Optional verbatim tenant/caller text (also satisfies the title requirement)',
+                        ],
+                        'building_id' => [
+                            'type' => 'integer',
+                            'description' => 'Building ID (required, must exist)',
+                        ],
+                        'unit_id' => [
+                            'type' => 'integer',
+                            'description' => 'Optional unit ID (must exist and belong to building_id when given; NULL = building-level ticket)',
+                        ],
+                        'appliance_id' => [
+                            'type' => 'integer',
+                            'description' => 'Optional appliance ID to link (must exist if given)',
+                        ],
+                        'wo_number' => [
+                            'type' => 'string',
+                            'description' => 'Optional Yardi WO number (must not already have a ticket)',
+                        ],
+                        'parent_ticket_id' => [
+                            'type' => 'integer',
+                            'description' => 'Optional parent ticket ID for a child ticket (must exist if given)',
+                        ],
+                        'status' => [
+                            'type' => 'string',
+                            'description' => 'Optional status: new (default), verified, in-progress, on-hold, blocked. Terminal states cannot be set at creation.',
+                        ],
+                        'priority' => [
+                            'type' => 'string',
+                            'description' => 'Optional priority: low, medium (default), high, critical',
+                        ],
+                        'blocked_reason' => [
+                            'type' => 'string',
+                            'description' => 'Required when status is blocked (non-empty)',
+                        ],
+                        'assigned_tech_id' => [
+                            'type' => 'integer',
+                            'description' => 'Optional tech user ID (must exist if given)',
+                        ],
+                        'work_exposure' => [
+                            'type' => 'string',
+                            'description' => 'Optional: indoor (default), exterior, exterior_ladder',
+                        ],
+                    ],
+                    'required' => ['building_id'],
+                ],
+            ],
         ];
 
         return $this->jsonRpcResult($id, ['tools' => $tools]);
@@ -367,6 +433,9 @@ class McpController
 
             case 'add_to_buy_list':
                 return $this->toolAddToBuyList($id, $arguments);
+
+            case 'create_ticket':
+                return $this->toolCreateTicket($id, $arguments, $request);
 
             default:
                 return $this->jsonRpcError($id, -32602, "Unknown tool: {$name}");
@@ -1024,6 +1093,148 @@ class McpController
             return $this->jsonRpcToolContent($id, $created);
         } catch (\Throwable $e) {
             return $this->jsonRpcError($id, -32603, 'Failed to add item to buy list: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Tool 11: create_ticket (Write tool)
+     * Validates all references and creates a ticket via Ticket::create().
+     */
+    private function toolCreateTicket(mixed $id, array $args, Request $request): Response
+    {
+        // 1. Title / scope rule
+        $title = isset($args['title']) ? trim((string) $args['title']) : '';
+        $verifiedScope = isset($args['verified_scope']) ? trim((string) $args['verified_scope']) : '';
+        $verbatimText = isset($args['verbatim_text']) ? trim((string) $args['verbatim_text']) : '';
+
+        if ($title === '' && $verifiedScope === '' && $verbatimText === '') {
+            return $this->jsonRpcError($id, -32602, 'Title or scope description is required');
+        }
+        if ($title === '') {
+            $sourceText = $verifiedScope !== '' ? $verifiedScope : $verbatimText;
+            $title = mb_strimwidth($sourceText, 0, 80, '...');
+        }
+
+        // 2. building_id (required, must exist)
+        if (!isset($args['building_id']) || !is_numeric($args['building_id']) || (int) $args['building_id'] != $args['building_id'] || (int) $args['building_id'] <= 0) {
+            return $this->jsonRpcError($id, -32602, 'building_id is required and must be a positive integer');
+        }
+        $buildingId = (int) $args['building_id'];
+        $building = Db::fetchOne('SELECT id FROM building WHERE id = ?', [$buildingId]);
+        if (!$building) {
+            return $this->jsonRpcError($id, -32602, "Building #{$buildingId} not found");
+        }
+
+        // 3. unit_id (optional; must exist and belong to building_id)
+        $unitId = null;
+        if (isset($args['unit_id']) && $args['unit_id'] !== '' && $args['unit_id'] !== null) {
+            if (!is_numeric($args['unit_id']) || (int) $args['unit_id'] != $args['unit_id'] || (int) $args['unit_id'] <= 0) {
+                return $this->jsonRpcError($id, -32602, 'unit_id must be a positive integer');
+            }
+            $unitId = (int) $args['unit_id'];
+            $unit = Db::fetchOne('SELECT id, building_id FROM unit WHERE id = ?', [$unitId]);
+            if (!$unit) {
+                return $this->jsonRpcError($id, -32602, "Unit #{$unitId} not found");
+            }
+            if ((int) $unit['building_id'] !== $buildingId) {
+                return $this->jsonRpcError($id, -32602, "Unit #{$unitId} does not belong to building #{$buildingId}");
+            }
+        }
+
+        // 4. appliance_id (optional; must exist)
+        $applianceId = null;
+        if (isset($args['appliance_id']) && $args['appliance_id'] !== '' && $args['appliance_id'] !== null) {
+            if (!is_numeric($args['appliance_id']) || (int) $args['appliance_id'] != $args['appliance_id'] || (int) $args['appliance_id'] <= 0) {
+                return $this->jsonRpcError($id, -32602, 'appliance_id must be a positive integer');
+            }
+            $applianceId = (int) $args['appliance_id'];
+            $appliance = Db::fetchOne('SELECT id FROM appliance WHERE id = ?', [$applianceId]);
+            if (!$appliance) {
+                return $this->jsonRpcError($id, -32602, "Appliance #{$applianceId} not found");
+            }
+        }
+
+        // 5. parent_ticket_id (optional; must exist)
+        $parentTicketId = null;
+        if (isset($args['parent_ticket_id']) && $args['parent_ticket_id'] !== '' && $args['parent_ticket_id'] !== null) {
+            if (!is_numeric($args['parent_ticket_id']) || (int) $args['parent_ticket_id'] != $args['parent_ticket_id'] || (int) $args['parent_ticket_id'] <= 0) {
+                return $this->jsonRpcError($id, -32602, 'parent_ticket_id must be a positive integer');
+            }
+            $parentTicketId = (int) $args['parent_ticket_id'];
+            $parent = Db::fetchOne('SELECT id FROM ticket WHERE id = ?', [$parentTicketId]);
+            if (!$parent) {
+                return $this->jsonRpcError($id, -32602, "Parent ticket #{$parentTicketId} not found");
+            }
+        }
+
+        // 6. assigned_tech_id (optional; must exist)
+        $assignedTechId = null;
+        if (isset($args['assigned_tech_id']) && $args['assigned_tech_id'] !== '' && $args['assigned_tech_id'] !== null) {
+            if (!is_numeric($args['assigned_tech_id']) || (int) $args['assigned_tech_id'] != $args['assigned_tech_id'] || (int) $args['assigned_tech_id'] <= 0) {
+                return $this->jsonRpcError($id, -32602, 'assigned_tech_id must be a positive integer');
+            }
+            $assignedTechId = (int) $args['assigned_tech_id'];
+            $tech = Db::fetchOne('SELECT id FROM users WHERE id = ?', [$assignedTechId]);
+            if (!$tech) {
+                return $this->jsonRpcError($id, -32602, "User #{$assignedTechId} not found");
+            }
+        }
+
+        // 7. wo_number (optional; must not duplicate existing ticket)
+        $woNumber = isset($args['wo_number']) ? trim((string) $args['wo_number']) : '';
+        $woNumber = $woNumber === '' ? null : $woNumber;
+        if ($woNumber !== null) {
+            $existingWo = Db::fetchOne('SELECT id FROM ticket WHERE wo_number = ?', [$woNumber]);
+            if ($existingWo) {
+                return $this->jsonRpcError($id, -32602, "WO {$woNumber} already has ticket #{$existingWo['id']}");
+            }
+        }
+
+        // 8. status (working states only)
+        $allowedStatuses = ['new', 'verified', 'in-progress', 'on-hold', 'blocked'];
+        $status = isset($args['status']) && trim((string) $args['status']) !== '' ? trim((string) $args['status']) : 'new';
+        if (!in_array($status, $allowedStatuses, true)) {
+            return $this->jsonRpcError($id, -32602, "Invalid status '{$status}'. Allowed at creation: " . implode(', ', $allowedStatuses));
+        }
+
+        // 9. blocked_reason required when status === 'blocked'
+        $blockedReason = isset($args['blocked_reason']) ? trim((string) $args['blocked_reason']) : '';
+        if ($status === 'blocked' && $blockedReason === '') {
+            return $this->jsonRpcError($id, -32602, "A non-empty blocked_reason is required when status is 'blocked'");
+        }
+
+        // 10. priority
+        $allowedPriorities = ['low', 'medium', 'high', 'critical'];
+        $priority = isset($args['priority']) && trim((string) $args['priority']) !== '' ? trim((string) $args['priority']) : 'medium';
+        if (!in_array($priority, $allowedPriorities, true)) {
+            return $this->jsonRpcError($id, -32602, "Invalid priority '{$priority}'. Allowed: " . implode(', ', $allowedPriorities));
+        }
+
+        $userId = $request->getAttribute('user_id');
+        $payload = [
+            'title' => $title,
+            'description' => isset($args['description']) ? trim((string) $args['description']) : null,
+            'verified_scope' => $verifiedScope !== '' ? $verifiedScope : null,
+            'verbatim_text' => $verbatimText !== '' ? $verbatimText : null,
+            'building_id' => $buildingId,
+            'unit_id' => $unitId,
+            'appliance_id' => $applianceId,
+            'wo_number' => $woNumber,
+            'parent_ticket_id' => $parentTicketId,
+            'status' => $status,
+            'priority' => $priority,
+            'blocked_reason' => $blockedReason !== '' ? $blockedReason : null,
+            'assigned_tech_id' => $assignedTechId,
+            'work_exposure' => isset($args['work_exposure']) && trim((string) $args['work_exposure']) !== '' ? trim((string) $args['work_exposure']) : 'indoor',
+        ];
+
+        try {
+            $created = \App\Models\Ticket::create($payload, $userId ? (int) $userId : null);
+            return $this->jsonRpcToolContent($id, $created);
+        } catch (\InvalidArgumentException|\RuntimeException $e) {
+            return $this->jsonRpcError($id, -32602, $e->getMessage());
+        } catch (\Throwable $e) {
+            return $this->jsonRpcError($id, -32603, 'Failed to create ticket: ' . $e->getMessage());
         }
     }
 

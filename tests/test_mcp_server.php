@@ -109,7 +109,7 @@ $resList = dispatchJsonRpc($app, $validToken, [
 ]);
 assertMcp($resList['status'] === 200, '3.1 tools/list returns HTTP 200', $passes, $failures);
 $tools = $resList['body']['result']['tools'] ?? [];
-assertMcp(count($tools) === 10, '3.2 tools/list returns exactly 10 tools (got ' . count($tools) . ')', $passes, $failures);
+assertMcp(count($tools) === 11, '3.2 tools/list returns exactly 11 tools (got ' . count($tools) . ')', $passes, $failures);
 
 $expectedToolNames = [
     'list_tickets',
@@ -122,11 +122,12 @@ $expectedToolNames = [
     'record_move',
     'log_part_use',
     'add_to_buy_list',
+    'create_ticket',
 ];
 $toolNames = array_column($tools, 'name');
 sort($expectedToolNames);
 sort($toolNames);
-assertMcp($toolNames === $expectedToolNames, '3.3 All 10 expected tool names match exactly: ' . implode(', ', $expectedToolNames), $passes, $failures);
+assertMcp($toolNames === $expectedToolNames, '3.3 All 11 expected tool names match exactly: ' . implode(', ', $expectedToolNames), $passes, $failures);
 
 // 6. Tool Call: get_counts matches canonical schema
 $resCounts = dispatchJsonRpc($app, $validToken, [
@@ -850,6 +851,185 @@ try {
         $passes,
         $failures
     );
+
+    // 12.x create_ticket (17 tests)
+    $corrBefore = (int) $pdo->query('SELECT COUNT(*) FROM correction')->fetchColumn();
+    $tlBefore = (int) $pdo->query('SELECT COUNT(*) FROM ticket_timeline')->fetchColumn();
+
+    // 12.1 minimal valid create
+    $res12_1 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1201, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'MCP Minimal Ticket', 'building_id' => 1]],
+    ]);
+    $d12_1 = json_decode($res12_1['body']['result']['content'][0]['text'] ?? '{}', true);
+    $corrAfter1 = (int) $pdo->query('SELECT COUNT(*) FROM correction')->fetchColumn();
+    $tlAfter1 = (int) $pdo->query('SELECT COUNT(*) FROM ticket_timeline')->fetchColumn();
+    assertMcp(
+        $res12_1['status'] === 200 && !empty($d12_1['id']) && ($d12_1['status'] ?? '') === 'new' && ($corrAfter1 - $corrBefore) === 1 && ($tlAfter1 - $tlBefore) === 0,
+        '12.1 Minimal create returns ticket with status new, +1 correction, 0 timeline events',
+        $passes, $failures
+    );
+
+    // 12.2 create with wo_number -> +2 corrections
+    $corrBefore2 = (int) $pdo->query('SELECT COUNT(*) FROM correction')->fetchColumn();
+    $res12_2 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1202, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'MCP WO Ticket', 'building_id' => 1, 'wo_number' => 'WO-MCP-1202']],
+    ]);
+    $d12_2 = json_decode($res12_2['body']['result']['content'][0]['text'] ?? '{}', true);
+    $corrAfter2 = (int) $pdo->query('SELECT COUNT(*) FROM correction')->fetchColumn();
+    assertMcp(
+        $res12_2['status'] === 200 && ($d12_2['wo_number'] ?? '') === 'WO-MCP-1202' && ($corrAfter2 - $corrBefore2) === 2,
+        '12.2 Create with wo_number writes +2 correction rows',
+        $passes, $failures
+    );
+
+    // 12.3 create with unit_id + appliance_id + priority + work_exposure
+    $pdo->exec("INSERT INTO unit (id, building_id, unit_number) VALUES (9992, 1, '999B')");
+    $pdo->exec("INSERT INTO appliance (id, property_id, building_id, unit_id, name, brand, type, status) VALUES (9992, 'prop-test-1', 1, 9992, 'Test Heater', 'John Wood', 'Heater', 'operational')");
+    $res12_3 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1203, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => [
+            'title' => 'MCP Full Refs', 'building_id' => 1, 'unit_id' => 9992, 'appliance_id' => 9992,
+            'priority' => 'high', 'work_exposure' => 'exterior',
+        ]],
+    ]);
+    $d12_3 = json_decode($res12_3['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        $res12_3['status'] === 200 && (int) ($d12_3['unit_id'] ?? 0) === 9992 && (int) ($d12_3['appliance_id'] ?? 0) === 9992 && ($d12_3['priority'] ?? '') === 'high' && ($d12_3['work_exposure'] ?? '') === 'exterior',
+        '12.3 Create stores unit_id, appliance_id, priority high, work_exposure exterior',
+        $passes, $failures
+    );
+
+    // 12.4 title derived from verified_scope when missing
+    $longScope = str_repeat('Check condenser fan motor and capacitor ', 4);
+    $res12_4 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1204, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['building_id' => 1, 'verified_scope' => $longScope]],
+    ]);
+    $d12_4 = json_decode($res12_4['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        $res12_4['status'] === 200 && str_ends_with($d12_4['title'] ?? '', '...') && mb_strlen($d12_4['title'] ?? '') <= 80,
+        '12.4 Title derived from verified_scope (<=80 chars with ...)',
+        $passes, $failures
+    );
+
+    // 12.5 no title/scope/verbatim -> -32602
+    $res12_5 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1205, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['building_id' => 1]],
+    ]);
+    assertMcp(($res12_5['body']['error']['code'] ?? 0) === -32602, '12.5 Missing title/scope/verbatim rejected (-32602)', $passes, $failures);
+
+    // 12.6 missing building_id -> -32602
+    $res12_6 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1206, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'No Building']],
+    ]);
+    assertMcp(($res12_6['body']['error']['code'] ?? 0) === -32602, '12.6 Missing building_id rejected (-32602)', $passes, $failures);
+
+    // 12.7 unknown building_id -> -32602
+    $res12_7 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1207, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'Bad Building', 'building_id' => 999999]],
+    ]);
+    assertMcp(($res12_7['body']['error']['code'] ?? 0) === -32602, '12.7 Unknown building_id rejected (-32602)', $passes, $failures);
+
+    // 12.8 unknown unit_id -> -32602
+    $res12_8 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1208, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'Bad Unit', 'building_id' => 1, 'unit_id' => 999999]],
+    ]);
+    assertMcp(($res12_8['body']['error']['code'] ?? 0) === -32602, '12.8 Unknown unit_id rejected (-32602)', $passes, $failures);
+
+    // 12.9 unit belonging to different building -> -32602
+    $pdo->exec("INSERT INTO building (id, name, address) VALUES (9991, 'Other Bldg', '999 Test St')");
+    $pdo->exec("INSERT INTO unit (id, building_id, unit_number) VALUES (9991, 9991, '999A')");
+    $res12_9 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1209, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'Wrong Bldg Unit', 'building_id' => 1, 'unit_id' => 9991]],
+    ]);
+    assertMcp(($res12_9['body']['error']['code'] ?? 0) === -32602, '12.9 Unit from different building rejected (-32602)', $passes, $failures);
+
+    // 12.10 unknown appliance_id -> -32602
+    $res12_10 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1210, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'Bad Appliance', 'building_id' => 1, 'appliance_id' => 999999]],
+    ]);
+    assertMcp(($res12_10['body']['error']['code'] ?? 0) === -32602, '12.10 Unknown appliance_id rejected (-32602)', $passes, $failures);
+
+    // 12.11 duplicate wo_number -> -32602 naming existing ticket
+    $res12_11 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1211, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'Dup WO', 'building_id' => 1, 'wo_number' => 'WO-MCP-1202']],
+    ]);
+    assertMcp(
+        ($res12_11['body']['error']['code'] ?? 0) === -32602 && str_contains($res12_11['body']['error']['message'] ?? '', '#' . $d12_2['id']),
+        '12.11 Duplicate wo_number rejected (-32602) naming existing ticket',
+        $passes, $failures
+    );
+
+    // 12.12 blocked without blocked_reason -> -32602
+    $res12_12 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1212, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'Blocked No Reason', 'building_id' => 1, 'status' => 'blocked']],
+    ]);
+    assertMcp(($res12_12['body']['error']['code'] ?? 0) === -32602, '12.12 Blocked without blocked_reason rejected (-32602)', $passes, $failures);
+
+    // 12.13 blocked WITH reason -> created with blocked_at + both reason columns
+    $res12_13 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1213, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'Blocked With Reason', 'building_id' => 1, 'status' => 'blocked', 'blocked_reason' => 'Waiting on part']],
+    ]);
+    $d12_13 = json_decode($res12_13['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        $res12_13['status'] === 200 && !empty($d12_13['blocked_at']) && ($d12_13['blocked_reason'] ?? '') === 'Waiting on part' && ($d12_13['blocker_reason'] ?? '') === 'Waiting on part',
+        '12.13 Blocked with reason sets blocked_at and both reason columns',
+        $passes, $failures
+    );
+
+    // 12.14 invalid status string -> -32602
+    $res12_14 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1214, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'Bad Status', 'building_id' => 1, 'status' => 'flying']],
+    ]);
+    assertMcp(($res12_14['body']['error']['code'] ?? 0) === -32602, '12.14 Invalid status string rejected (-32602)', $passes, $failures);
+
+    // 12.15 terminal/system status at creation -> -32602
+    $termOk = true;
+    foreach (['done', 'closed', 'archived-blocked'] as $badSt) {
+        $r = dispatchJsonRpc($app, $validToken, [
+            'jsonrpc' => '2.0', 'id' => 1215, 'method' => 'tools/call',
+            'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'Term Status', 'building_id' => 1, 'status' => $badSt]],
+        ]);
+        if (($r['body']['error']['code'] ?? 0) !== -32602) {
+            $termOk = false;
+        }
+    }
+    assertMcp($termOk, '12.15 Terminal/system statuses (done, closed, archived-blocked) rejected (-32602)', $passes, $failures);
+
+    // 12.16 unknown parent_ticket_id -> -32602; valid parent accepted
+    $res12_16_bad = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1216, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'Bad Parent', 'building_id' => 1, 'parent_ticket_id' => 999999]],
+    ]);
+    $res12_16_ok = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 12160, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'Child Ticket', 'building_id' => 1, 'parent_ticket_id' => (int) $d12_1['id']]],
+    ]);
+    $d12_16 = json_decode($res12_16_ok['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        ($res12_16_bad['body']['error']['code'] ?? 0) === -32602 && (int) ($d12_16['parent_ticket_id'] ?? 0) === (int) $d12_1['id'],
+        '12.16 Unknown parent_ticket_id rejected (-32602); valid parent accepted',
+        $passes, $failures
+    );
+
+    // 12.17 unknown assigned_tech_id -> -32602
+    $res12_17 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1217, 'method' => 'tools/call',
+        'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'Bad Tech', 'building_id' => 1, 'assigned_tech_id' => 999999]],
+    ]);
+    assertMcp(($res12_17['body']['error']['code'] ?? 0) === -32602, '12.17 Unknown assigned_tech_id rejected (-32602)', $passes, $failures);
 
 } finally {
     $pdo->rollBack();
