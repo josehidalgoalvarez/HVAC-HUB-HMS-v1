@@ -1,4 +1,4 @@
-import { Property, Appliance, Complex, BuildingCluster, Unit, ApplianceDefaultSet, Ticket } from './types';
+import { Property, Appliance, Complex, BuildingCluster, Unit, ApplianceDefaultSet } from './types';
 import {
     COMPLEXES,
     BUILDING_CLUSTERS,
@@ -6,7 +6,6 @@ import {
     RESIDENTIAL_UNITS,
     RESIDENTIAL_APPLIANCES,
     DEFAULT_APPLIANCE_SETS,
-    RESIDENTIAL_TICKETS
 } from './residential_constants';
 
 // --- Mirrored Kingston Portfolio Data (Task 1 & Task 3) ---
@@ -21,6 +20,5 @@ export const INITIAL_PROPERTIES: Property[] = RESIDENTIAL_PROPERTIES;
 export const INITIAL_UNITS: Unit[] = RESIDENTIAL_UNITS;
 export const INITIAL_APPLIANCES: Appliance[] = RESIDENTIAL_APPLIANCES;
 export const INITIAL_DEFAULT_SETS: ApplianceDefaultSet[] = DEFAULT_APPLIANCE_SETS;
-export const INITIAL_TICKETS: Ticket[] = RESIDENTIAL_TICKETS;
 
 

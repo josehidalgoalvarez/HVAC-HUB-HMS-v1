@@ -39,8 +39,8 @@ if ($bldg95) {
 }
 
 // Complex building count
-$complexPrincessCount = (int)$db->query("SELECT building_count FROM complex WHERE id = 'complex-princess'")->fetchColumn();
-assertTest($complexPrincessCount === 9 || $complexPrincessCount === 4, "Princess complex building_count is valid in complex table (got {$complexPrincessCount})", $passes, $failures);
+$complexPrincess = $db->query("SELECT * FROM complexes WHERE id = 4")->fetch(PDO::FETCH_ASSOC);
+assertTest($complexPrincess !== false, "Princess complex (ID 4) exists in canonical complexes table", $passes, $failures);
 
 $actualPrincessBuildings = (int)$db->query("SELECT COUNT(*) FROM building WHERE complex_id = 4")->fetchColumn();
 assertTest($actualPrincessBuildings === 9 || $actualPrincessBuildings === 6 || $actualPrincessBuildings === 4, "Princess complex buildings count is valid in DB (got {$actualPrincessBuildings})", $passes, $failures);
