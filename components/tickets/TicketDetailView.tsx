@@ -1234,7 +1234,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
               return (
                 <span className={`px-2.5 py-0.5 text-xs rounded-lg uppercase tracking-wide border shadow-2xs ${badgeClass}`}>
-                  <ExplainableTerm term="closed-elsewhere">{displayStatus}</ExplainableTerm>
+                  <ExplainableTerm term={s}>{displayStatus}</ExplainableTerm>
                 </span>
               );
             })()}
