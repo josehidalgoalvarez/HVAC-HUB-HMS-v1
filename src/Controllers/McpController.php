@@ -17,15 +17,14 @@ use Throwable;
 /**
  * McpController
  *
- * Implements HVACHome MCP Server v1 (Read-Only).
+ * Implements HVACHome MCP Server v2.
  * Transport: Streamable HTTP over JSON-RPC 2.0.
  * Protocol specification: 2024-11-05.
  *
  * Protected endpoint mounted at POST /api/mcp.
  * Guarded by Auth::requireRole() (Bearer token).
  *
- * Zero write operations (no INSERT, UPDATE, DELETE).
- * Exactly 7 read-only tools:
+ * Read-only tools (7):
  * - list_tickets
  * - get_ticket
  * - list_buildings
@@ -33,12 +32,15 @@ use Throwable;
  * - search_parts
  * - get_stockpile
  * - get_counts
+ *
+ * Write tools (v2):
+ * - record_move
  */
 class McpController
 {
     public const MCP_PROTOCOL_VERSION = '2024-11-05';
     public const SERVER_NAME = 'hvachome-mcp-server';
-    public const SERVER_VERSION = '1.0.0';
+    public const SERVER_VERSION = '2.0.0';
 
     /**
      * Handle incoming JSON-RPC 2.0 POST requests.
@@ -78,7 +80,7 @@ class McpController
                     return $this->handleToolsList($id);
 
                 case 'tools/call':
-                    return $this->handleToolsCall($id, $params);
+                    return $this->handleToolsCall($id, $params, $request);
 
                 default:
                     return $this->jsonRpcError($id, -32601, "Method not found: {$method}");
@@ -222,6 +224,41 @@ class McpController
                     'properties' => new \stdClass(),
                 ],
             ],
+            [
+                'name' => 'record_move',
+                'description' => "Record an appliance movement (install / store / stage) with the app's proven rules. Enforces existence of appliance and destination, exactly one destination (unit_id or stockpile_id), disallows future movement dates, and records an append-only audit trail.",
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'appliance_id' => [
+                            'type' => 'integer',
+                            'description' => 'Numeric ID of the appliance to move (must exist)',
+                        ],
+                        'unit_id' => [
+                            'type' => 'integer',
+                            'description' => 'Destination unit numeric ID (mutually exclusive with stockpile_id)',
+                        ],
+                        'stockpile_id' => [
+                            'type' => 'integer',
+                            'description' => 'Destination stockpile numeric ID (mutually exclusive with unit_id)',
+                        ],
+                        'movement_date' => [
+                            'type' => 'string',
+                            'description' => 'Move date in YYYY-MM-DD format (defaults to today; future dates are rejected, backdated moves write an audit note)',
+                        ],
+                        'disposition' => [
+                            'type' => 'string',
+                            'enum' => ['installed', 'stored', 'staged'],
+                            'description' => 'Movement disposition: installed | stored | staged (defaults to "stored" for stockpile destination, "installed" for unit destination)',
+                        ],
+                        'notes' => [
+                            'type' => 'string',
+                            'description' => 'Optional contextual notes for the move',
+                        ],
+                    ],
+                    'required' => ['appliance_id'],
+                ],
+            ],
         ];
 
         return $this->jsonRpcResult($id, ['tools' => $tools]);
@@ -230,7 +267,7 @@ class McpController
     /**
      * MCP tools/call router.
      */
-    private function handleToolsCall(mixed $id, array $params): Response
+    private function handleToolsCall(mixed $id, array $params, Request $request): Response
     {
         $name = (string) ($params['name'] ?? '');
         $arguments = (array) ($params['arguments'] ?? []);
@@ -256,6 +293,9 @@ class McpController
 
             case 'get_counts':
                 return $this->toolGetCounts($id, $arguments);
+
+            case 'record_move':
+                return $this->toolRecordMove($id, $arguments, $request);
 
             default:
                 return $this->jsonRpcError($id, -32602, "Unknown tool: {$name}");
@@ -644,6 +684,133 @@ class McpController
         ];
 
         return $this->jsonRpcToolContent($id, $counts);
+    }
+
+    /**
+     * Tool 8: record_move (Write tool)
+     * Records an appliance movement (installed / stored / staged) with model validation.
+     */
+    private function toolRecordMove(mixed $id, array $args, Request $request): Response
+    {
+        // 1. Validate appliance_id
+        if (!isset($args['appliance_id']) || !is_numeric($args['appliance_id'])) {
+            return $this->jsonRpcError($id, -32602, 'appliance_id is required and must be an integer');
+        }
+        $applianceId = (int) $args['appliance_id'];
+        if ($applianceId <= 0) {
+            return $this->jsonRpcError($id, -32602, "Invalid appliance_id: {$applianceId}");
+        }
+
+        // Appliance must exist
+        $appliance = Db::fetchOne('SELECT id, name, type, brand, model_number, status, location, stockpile_id, unit_id, building_id FROM appliance WHERE id = ?', [$applianceId]);
+        if (!$appliance) {
+            return $this->jsonRpcError($id, -32602, "Appliance #{$applianceId} not found");
+        }
+
+        // 2. Validate destination: exactly one of unit_id or stockpile_id
+        $hasUnit = isset($args['unit_id']) && $args['unit_id'] !== '' && $args['unit_id'] !== null;
+        $hasStockpile = isset($args['stockpile_id']) && $args['stockpile_id'] !== '' && $args['stockpile_id'] !== null;
+
+        if (!$hasUnit && !$hasStockpile) {
+            return $this->jsonRpcError($id, -32602, 'Exactly one destination required: provide either unit_id or stockpile_id, neither was provided');
+        }
+        if ($hasUnit && $hasStockpile) {
+            return $this->jsonRpcError($id, -32602, 'Exactly one destination required: provide either unit_id or stockpile_id, not both');
+        }
+
+        $toUnitId = null;
+        $toStockpileId = null;
+
+        if ($hasUnit) {
+            if (!is_numeric($args['unit_id']) || (int) $args['unit_id'] <= 0) {
+                return $this->jsonRpcError($id, -32602, 'unit_id must be a positive integer');
+            }
+            $toUnitId = (int) $args['unit_id'];
+            $unitRow = Db::fetchOne('SELECT id, building_id, unit_number FROM unit WHERE id = ?', [$toUnitId]);
+            if (!$unitRow) {
+                return $this->jsonRpcError($id, -32602, "Destination unit #{$toUnitId} not found");
+            }
+        } else {
+            if (!is_numeric($args['stockpile_id']) || (int) $args['stockpile_id'] <= 0) {
+                return $this->jsonRpcError($id, -32602, 'stockpile_id must be a positive integer');
+            }
+            $toStockpileId = (int) $args['stockpile_id'];
+            $stockpileRow = Db::fetchOne('SELECT id, name, location FROM stockpile WHERE id = ?', [$toStockpileId]);
+            if (!$stockpileRow) {
+                return $this->jsonRpcError($id, -32602, "Destination stockpile #{$toStockpileId} not found");
+            }
+        }
+
+        // 3. Movement date validation: default to today, reject future date
+        $todayDate = gmdate('Y-m-d');
+        $rawDate = isset($args['movement_date']) && trim((string) $args['movement_date']) !== ''
+            ? trim((string) $args['movement_date'])
+            : $todayDate;
+
+        $dObj = \DateTimeImmutable::createFromFormat('Y-m-d', substr($rawDate, 0, 10));
+        if (!$dObj || $dObj->format('Y-m-d') !== substr($rawDate, 0, 10)) {
+            return $this->jsonRpcError($id, -32602, "Invalid movement_date format: '{$rawDate}'. Expected YYYY-MM-DD.");
+        }
+        $moveDateStr = $dObj->format('Y-m-d');
+        if ($moveDateStr > $todayDate) {
+            return $this->jsonRpcError($id, -32602, "Future move date rejected: cannot record moves in the future ({$moveDateStr}).");
+        }
+
+        // 4. Disposition resolution & validation
+        // Defaults: 'stored' if stockpile destination; 'installed' if unit destination
+        $disposition = isset($args['disposition']) && trim((string) $args['disposition']) !== ''
+            ? trim((string) $args['disposition'])
+            : ($hasStockpile ? 'stored' : 'installed');
+
+        if (!in_array($disposition, ['installed', 'stored', 'staged'], true)) {
+            return $this->jsonRpcError($id, -32602, "Invalid disposition: '{$disposition}'. Allowed values: installed, stored, staged");
+        }
+
+        if ($hasStockpile && $disposition !== 'stored') {
+            return $this->jsonRpcError($id, -32602, "Invalid disposition for stockpile destination: must be 'stored' (got '{$disposition}')");
+        }
+        if ($hasUnit && !in_array($disposition, ['installed', 'staged'], true)) {
+            return $this->jsonRpcError($id, -32602, "Invalid disposition for unit destination: must be 'installed' or 'staged' (got '{$disposition}')");
+        }
+
+        // 5. Auth context & moved_by
+        $user = $request->getAttribute('user');
+        $userId = isset($user['id']) ? (int) $user['id'] : null;
+        $userName = isset($user['name']) ? trim((string) $user['name']) : 'Tech';
+        $notes = isset($args['notes']) ? trim((string) $args['notes']) : '';
+
+        // 6. Execute move through Model path (Stockpile::moveAppliance)
+        $payload = [
+            'to_unit_id' => $toUnitId,
+            'to_stockpile_id' => $toStockpileId,
+            'disposition' => $disposition,
+            'movement_date' => $moveDateStr,
+            'moved_by' => $userName !== '' ? $userName : 'Tech',
+            'notes' => $notes,
+        ];
+
+        try {
+            $moveResult = Stockpile::moveAppliance($applianceId, $payload, $userId);
+
+            // Fetch updated appliance location and disposition
+            $updatedAppliance = Db::fetchOne('SELECT id, status, location, stockpile_id, unit_id, building_id FROM appliance WHERE id = ?', [$applianceId]);
+
+            $resultData = [
+                'movement_id' => $moveResult['movement_id'],
+                'appliance_id' => $applianceId,
+                'disposition' => $disposition,
+                'status' => $updatedAppliance['status'] ?? $disposition,
+                'location' => $updatedAppliance['location'] ?? '',
+                'to_unit_id' => $toUnitId,
+                'to_stockpile_id' => $toStockpileId,
+                'movement_date' => substr($moveResult['movement_date'], 0, 10),
+                'is_backdated' => (bool) ($moveResult['is_backdated'] ?? false),
+            ];
+
+            return $this->jsonRpcToolContent($id, $resultData);
+        } catch (Throwable $e) {
+            return $this->jsonRpcError($id, -32603, 'Failed to record appliance movement: ' . $e->getMessage());
+        }
     }
 
     /**

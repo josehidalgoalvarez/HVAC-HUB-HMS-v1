@@ -101,7 +101,7 @@ $resPing = dispatchJsonRpc($app, $validToken, [
 ]);
 assertMcp($resPing['status'] === 200, '2.4 ping returns HTTP 200', $passes, $failures);
 
-// 5. Tools List: returns exactly the 7 tools
+// 5. Tools List: returns the 7 read tools + record_move write tool (8 total)
 $resList = dispatchJsonRpc($app, $validToken, [
     'jsonrpc' => '2.0',
     'id' => 2,
@@ -109,7 +109,7 @@ $resList = dispatchJsonRpc($app, $validToken, [
 ]);
 assertMcp($resList['status'] === 200, '3.1 tools/list returns HTTP 200', $passes, $failures);
 $tools = $resList['body']['result']['tools'] ?? [];
-assertMcp(count($tools) === 7, '3.2 tools/list returns exactly 7 tools (got ' . count($tools) . ')', $passes, $failures);
+assertMcp(count($tools) === 8, '3.2 tools/list returns exactly 8 tools (got ' . count($tools) . ')', $passes, $failures);
 
 $expectedToolNames = [
     'list_tickets',
@@ -119,11 +119,12 @@ $expectedToolNames = [
     'search_parts',
     'get_stockpile',
     'get_counts',
+    'record_move',
 ];
 $toolNames = array_column($tools, 'name');
 sort($expectedToolNames);
 sort($toolNames);
-assertMcp($toolNames === $expectedToolNames, '3.3 All 7 expected tool names match exactly: ' . implode(', ', $expectedToolNames), $passes, $failures);
+assertMcp($toolNames === $expectedToolNames, '3.3 All 8 expected tool names match exactly: ' . implode(', ', $expectedToolNames), $passes, $failures);
 
 // 6. Tool Call: get_counts matches canonical schema
 $resCounts = dispatchJsonRpc($app, $validToken, [
@@ -219,7 +220,228 @@ $resWrite = dispatchJsonRpc($app, $validToken, [
         'arguments' => ['title' => 'Sneak write'],
     ],
 ]);
-assertMcp(($resWrite['body']['error']['code'] ?? null) === -32602, '8.2 Write-shaped tool call (create_ticket) is rejected with -32602', $passes, $failures);
+assertMcp(($resWrite['body']['error']['code'] ?? null) === -32602, '8.2 Unimplemented tool call (create_ticket) is rejected with -32602', $passes, $failures);
+
+// ============================================================================
+// MCP v2 Write Tool Tests: record_move (9 tests)
+// ============================================================================
+
+// Wrap DB changes in transaction so tests leave local fixtures pristine
+$pdo = Db::get();
+$pdo->beginTransaction();
+
+try {
+    // 9.1 Happy path: move an appliance to a stockpile
+    $resMoveStockpile = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'move-1',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'record_move',
+            'arguments' => [
+                'appliance_id' => 1,
+                'stockpile_id' => 1,
+                'movement_date' => date('Y-m-d'),
+                'notes' => 'Happy path move to stockpile',
+            ],
+        ],
+    ]);
+    assertMcp($resMoveStockpile['status'] === 200, '9.1.1 record_move to stockpile returns HTTP 200', $passes, $failures);
+    $dataMove1 = json_decode($resMoveStockpile['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(!empty($dataMove1['movement_id']) && $dataMove1['disposition'] === 'stored' && $dataMove1['status'] === 'stored', '9.1.2 Response carries created movement_id and stored disposition', $passes, $failures);
+    $app1Check = Db::fetchOne('SELECT stockpile_id, unit_id, status, location FROM appliance WHERE id = 1');
+    assertMcp($app1Check['stockpile_id'] === 1 && $app1Check['unit_id'] === null && $app1Check['status'] === 'stored', '9.1.3 Appliance updated to stockpile_id 1, unit_id NULL, status stored', $passes, $failures);
+
+    // 9.2 Move to a unit (installed disposition)
+    $resMoveUnit = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'move-2',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'record_move',
+            'arguments' => [
+                'appliance_id' => 1,
+                'unit_id' => 347,
+                'disposition' => 'installed',
+                'notes' => 'Install appliance into unit 347',
+            ],
+        ],
+    ]);
+    $dataMove2 = json_decode($resMoveUnit['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(!empty($dataMove2['movement_id']) && $dataMove2['disposition'] === 'installed' && $dataMove2['status'] === 'operational', '9.2 Move to unit sets installed disposition and operational status', $passes, $failures);
+
+    // 9.3 Staged move: staged disposition, unit_id set, stockpile_id NULL, location Staged at Unit <id>
+    $resMoveStaged = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'move-3',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'record_move',
+            'arguments' => [
+                'appliance_id' => 1,
+                'unit_id' => 347,
+                'disposition' => 'staged',
+                'notes' => 'Staging at unit 347 for replacement',
+            ],
+        ],
+    ]);
+    $dataMove3 = json_decode($resMoveStaged['body']['result']['content'][0]['text'] ?? '{}', true);
+    $app3Check = Db::fetchOne('SELECT stockpile_id, unit_id, status, location FROM appliance WHERE id = 1');
+    assertMcp(
+        $dataMove3['disposition'] === 'staged' &&
+        $dataMove3['status'] === 'staged' &&
+        $app3Check['stockpile_id'] === null &&
+        $app3Check['unit_id'] === 347 &&
+        $app3Check['location'] === 'Staged at Unit 347',
+        '9.3 Staged move sets staged disposition, unit_id set, stockpile_id NULL, location Staged at Unit <id>',
+        $passes,
+        $failures
+    );
+
+    // 9.4 Future movement_date rejected, no row written
+    $movementsBefore = (int) Db::fetchOne('SELECT COUNT(*) as c FROM appliance_movement')['c'];
+    $resFuture = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'move-4',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'record_move',
+            'arguments' => [
+                'appliance_id' => 1,
+                'stockpile_id' => 1,
+                'movement_date' => '2099-01-01',
+            ],
+        ],
+    ]);
+    $movementsAfterFuture = (int) Db::fetchOne('SELECT COUNT(*) as c FROM appliance_movement')['c'];
+    assertMcp(
+        ($resFuture['body']['error']['code'] ?? null) === -32602 &&
+        str_contains($resFuture['body']['error']['message'] ?? '', 'Future move date rejected') &&
+        $movementsBefore === $movementsAfterFuture,
+        '9.4 Future movement_date rejected (-32602), no movement row written',
+        $passes,
+        $failures
+    );
+
+    // 9.5 Backdated movement_date accepted, audit note written
+    $resBackdated = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'move-5',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'record_move',
+            'arguments' => [
+                'appliance_id' => 1,
+                'stockpile_id' => 1,
+                'movement_date' => '2026-11-01',
+                'notes' => 'Backdated verification move',
+            ],
+        ],
+    ]);
+    $dataMove5 = json_decode($resBackdated['body']['result']['content'][0]['text'] ?? '{}', true);
+    $lastCorrection = Db::fetchOne("SELECT * FROM correction WHERE entity_type = 'appliance' AND entity_id = 1 ORDER BY id DESC LIMIT 1");
+    assertMcp(
+        $dataMove5['is_backdated'] === true &&
+        $dataMove5['movement_date'] === '2026-11-01' &&
+        str_contains($lastCorrection['reason'] ?? '', 'actual move date: 2026-11-01'),
+        '9.5 Backdated movement_date accepted and audit note records actual move date in correction row',
+        $passes,
+        $failures
+    );
+
+    // 9.6 Unknown appliance_id rejected, no row written
+    $resUnknownApp = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'move-6',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'record_move',
+            'arguments' => [
+                'appliance_id' => 999999,
+                'stockpile_id' => 1,
+            ],
+        ],
+    ]);
+    assertMcp(
+        ($resUnknownApp['body']['error']['code'] ?? null) === -32602 &&
+        str_contains($resUnknownApp['body']['error']['message'] ?? '', 'Appliance #999999 not found'),
+        '9.6 Unknown appliance_id rejected (-32602), no row written',
+        $passes,
+        $failures
+    );
+
+    // 9.7 Unknown destination rejected, no row written
+    $resUnknownDest = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'move-7',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'record_move',
+            'arguments' => [
+                'appliance_id' => 1,
+                'stockpile_id' => 888888,
+            ],
+        ],
+    ]);
+    assertMcp(
+        ($resUnknownDest['body']['error']['code'] ?? null) === -32602 &&
+        str_contains($resUnknownDest['body']['error']['message'] ?? '', 'Destination stockpile #888888 not found'),
+        '9.7 Unknown destination rejected (-32602), no row written',
+        $passes,
+        $failures
+    );
+
+    // 9.8 Both or neither destination rejected
+    $resNeither = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'move-8a',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'record_move',
+            'arguments' => [
+                'appliance_id' => 1,
+            ],
+        ],
+    ]);
+    $resBoth = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'move-8b',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'record_move',
+            'arguments' => [
+                'appliance_id' => 1,
+                'unit_id' => 347,
+                'stockpile_id' => 1,
+            ],
+        ],
+    ]);
+    assertMcp(
+        ($resNeither['body']['error']['code'] ?? null) === -32602 &&
+        ($resBoth['body']['error']['code'] ?? null) === -32602,
+        '9.8 Both or neither destination rejected (-32602)',
+        $passes,
+        $failures
+    );
+
+    // 9.9 Unauthenticated call returns 401
+    $resNoAuth = dispatchJsonRpc($app, null, [
+        'jsonrpc' => '2.0',
+        'id' => 'move-9',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'record_move',
+            'arguments' => [
+                'appliance_id' => 1,
+                'stockpile_id' => 1,
+            ],
+        ],
+    ]);
+    assertMcp($resNoAuth['status'] === 401, '9.9 Unauthenticated call to record_move returns HTTP 401', $passes, $failures);
+
+} finally {
+    $pdo->rollBack();
+}
 
 echo "\n=========================================\n";
 echo "MCP Test Results: {$passes} Passed, {$failures} Failed\n";
