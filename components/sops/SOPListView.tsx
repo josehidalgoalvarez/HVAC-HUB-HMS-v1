@@ -196,7 +196,7 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
                   {/* Compliance Gates / Standards Badges */}
                   {sop.compliance_gates.length > 0 && (
                     <div className="pt-1 flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[11px] font-bold text-gray-400">Compliance:</span>
+                      <span className="text-xs font-bold text-gray-400">Compliance:</span>
                       {sop.compliance_gates.map((g) => (
                         <span
                           key={g.id}
@@ -223,7 +223,7 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
                           ~{totalEstMins} min
                         </span>
                       ) : (
-                        <span className="text-gray-400 font-mono text-[11px]">Est. time: TODO-verify</span>
+                        <span className="text-gray-400 font-mono text-xs">Est. time: TODO-verify</span>
                       )}
                     </div>
 
@@ -243,7 +243,7 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
                   {isExpanded && (
                     <div className="pt-3 border-t border-gray-100 dark:border-gray-800 space-y-2">
                       {sop.source_note && (
-                        <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-100 dark:border-gray-800 text-[11px] text-gray-600 dark:text-gray-400">
+                        <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-100 dark:border-gray-800 text-xs text-gray-600 dark:text-gray-400">
                           <span className="font-bold text-brand-black dark:text-gray-200">Note: </span>
                           {sop.source_note}
                         </div>
@@ -259,7 +259,7 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
                             key={st.position}
                             className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800 border border-gray-100 dark:border-gray-800 flex items-start gap-2.5 text-xs"
                           >
-                            <span className="w-5 h-5 rounded-md bg-primary/10 text-primary font-bold text-[11px] flex items-center justify-center shrink-0">
+                            <span className="w-5 h-5 rounded-md bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0">
                               {st.position}
                             </span>
                             <div className="flex-1 min-w-0">

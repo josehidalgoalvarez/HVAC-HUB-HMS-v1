@@ -193,7 +193,7 @@ export const EquipmentMovementSection: React.FC<EquipmentMovementSectionProps> =
             Movement History
           </h3>
         </div>
-        <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark">
+        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark">
           Read-only
         </span>
       </div>

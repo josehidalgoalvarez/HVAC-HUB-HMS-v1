@@ -288,16 +288,30 @@ assert(
   '8.2 RatingPlateForm camera button contains visible text label Rating Plate Image'
 );
 
-// 9. Sub-12px text floor: exactly 0 text-[10px] remain across components
+// 9. Sub-12px text floor: zero text below 12px (no text-[11px], text-[10px], or text-[9px])
 let remainingP10 = 0;
+let remainingP11 = 0;
+let remainingP9 = 0;
 for (const f of allTsx) {
   const fileContent = fs.readFileSync(f, 'utf8');
-  const matches = fileContent.match(/text-\[10px\]/g);
-  if (matches) remainingP10 += matches.length;
+  const m10 = fileContent.match(/text-\[10px\]/g);
+  if (m10) remainingP10 += m10.length;
+  const m11 = fileContent.match(/text-\[11px\]/g);
+  if (m11) remainingP11 += m11.length;
+  const m9 = fileContent.match(/text-\[9px\]/g);
+  if (m9) remainingP9 += m9.length;
 }
 assert(
   remainingP10 === 0,
   `9.1 Zero sub-12px text-[10px] classes remain across components (got ${remainingP10})`
+);
+assert(
+  remainingP11 === 0,
+  `9.2 Zero sub-12px text-[11px] classes remain across components (got ${remainingP11})`
+);
+assert(
+  remainingP9 === 0,
+  `9.3 Zero sub-12px text-[9px] classes remain across components (got ${remainingP9})`
 );
 
 console.log(`\n=========================================`);

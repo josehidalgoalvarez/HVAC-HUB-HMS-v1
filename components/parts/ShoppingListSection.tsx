@@ -220,7 +220,7 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
                           <span className="text-xs font-black text-emerald-800 dark:text-emerald-200 block uppercase tracking-wide">
                             {item.harvest_tag}
                           </span>
-                          <span className="text-[11px] text-emerald-700 dark:text-emerald-300">
+                          <span className="text-xs text-emerald-700 dark:text-emerald-300">
                             {item.harvest_quantity} of {item.total_needed} units available in stockpile
                           </span>
                         </div>
@@ -242,7 +242,7 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
                           <span className="text-xs font-black text-blue-800 dark:text-blue-200 block uppercase tracking-wide">
                             {item.buy_tag || `buy @ ${item.preferred_supplier?.name || 'Dependable Appliances'}`}
                           </span>
-                          <span className="text-[11px] text-blue-700 dark:text-blue-300">
+                          <span className="text-xs text-blue-700 dark:text-blue-300">
                             {item.buy_quantity} remaining to purchase ({item.preferred_supplier?.hours || 'Mon–Fri 8:30–5'})
                           </span>
                         </div>
@@ -267,7 +267,7 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
 
                 {/* Sourced ticket numbers breakdown */}
                 {item.tickets_meta && item.tickets_meta.length > 0 && (
-                  <div className="pt-1 text-[11px] text-gray-500 flex items-center gap-1.5 flex-wrap">
+                  <div className="pt-1 text-xs text-gray-500 flex items-center gap-1.5 flex-wrap">
                     <span className="font-semibold text-gray-400">Linked tickets:</span>
                     {item.tickets_meta.map((tm, tIdx) => (
                       <span

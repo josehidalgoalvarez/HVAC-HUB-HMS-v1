@@ -44,7 +44,7 @@ export const SupplierDirectorySection: React.FC<SupplierDirectorySectionProps> =
                 </div>
 
                 {supplier.account_number && (
-                  <span className="px-2 py-0.5 text-[11px] font-mono font-semibold bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 rounded-md">
+                  <span className="px-2 py-0.5 text-xs font-mono font-semibold bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 rounded-md">
                     Acct: {supplier.account_number}
                   </span>
                 )}

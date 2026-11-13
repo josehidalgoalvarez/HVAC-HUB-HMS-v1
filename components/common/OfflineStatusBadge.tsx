@@ -93,7 +93,7 @@ export const OfflineStatusBadge: React.FC = () => {
             <span aria-hidden="true" className="material-symbols-outlined text-[16px] animate-pulse">cloud_off</span>
             <span>Offline Mode</span>
             {pendingCount > 0 && (
-              <span className="bg-amber-700/80 text-amber-100 text-[11px] px-1.5 py-0.5 rounded-full font-mono">
+              <span className="bg-amber-700/80 text-amber-100 text-xs px-1.5 py-0.5 rounded-full font-mono">
                 {pendingCount} unsynced
               </span>
             )}
@@ -112,7 +112,7 @@ export const OfflineStatusBadge: React.FC = () => {
             <button
               onClick={handleSync}
               disabled={isSyncing}
-              className="ml-1 px-2 py-0.5 bg-white text-primary rounded-full text-[11px] hover:bg-gray-100 font-extrabold uppercase disabled:opacity-50"
+              className="ml-1 px-2 py-0.5 bg-white text-primary rounded-full text-xs hover:bg-gray-100 font-extrabold uppercase disabled:opacity-50"
             >
               {isSyncing ? 'Syncing...' : 'Sync Now'}
             </button>
@@ -172,7 +172,7 @@ export const OfflineStatusBadge: React.FC = () => {
                         >
                           {item.status}
                         </span>
-                        <span className="text-gray-400 text-[11px]">{formatAge(item.createdAt)}</span>
+                        <span className="text-gray-400 text-xs">{formatAge(item.createdAt)}</span>
                       </div>
 
                       {/* Discard Action */}
@@ -195,7 +195,7 @@ export const OfflineStatusBadge: React.FC = () => {
                         ) : (
                           <button
                             onClick={() => setConfirmDiscardId(item.id)}
-                            className="text-red-500 hover:text-red-700 flex items-center gap-0.5 text-[11px] font-semibold"
+                            className="text-red-500 hover:text-red-700 flex items-center gap-0.5 text-xs font-semibold"
                           >
                             <span aria-hidden="true" className="material-symbols-outlined text-[14px]">delete</span>
                             Discard
@@ -204,13 +204,13 @@ export const OfflineStatusBadge: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="text-gray-600 dark:text-gray-400 font-mono text-[11px] break-all">
+                    <div className="text-gray-600 dark:text-gray-400 font-mono text-xs break-all">
                       <span className="font-bold text-gray-800 dark:text-gray-200">{item.method}</span> {item.endpoint}
                       {item.job_id ? ` (job: ${item.job_id})` : ''}
                     </div>
 
                     {item.error && (
-                      <div className="p-2 rounded bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-400 text-[11px]">
+                      <div className="p-2 rounded bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-400 text-xs">
                         <span className="font-bold">Error:</span> {item.error}
                       </div>
                     )}

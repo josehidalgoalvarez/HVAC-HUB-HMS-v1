@@ -245,7 +245,7 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setApplianceId(null)}
-                  className="text-[11px] text-gray-400 hover:text-brand-red font-medium"
+                  className="text-xs text-gray-400 hover:text-brand-red font-medium"
                 >
                   Clear link
                 </button>

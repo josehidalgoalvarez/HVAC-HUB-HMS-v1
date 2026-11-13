@@ -542,7 +542,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
             </>
           )}
           {stockpile?.notes && (
-            <div className="mt-1 text-[11px] text-amber-800 dark:text-amber-300 opacity-90 truncate">
+            <div className="mt-1 text-xs text-amber-800 dark:text-amber-300 opacity-90 truncate">
               {stockpile.notes}
             </div>
           )}
@@ -552,11 +552,11 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       {/* Metric Summary Cards */}
       <div className="grid grid-cols-3 gap-2">
         <div className="p-3 rounded-2xl bg-white dark:bg-card-dark border border-gray-200/80 dark:border-gray-800 shadow-xs text-center">
-          <div className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Parts Types</div>
+          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">Parts Types</div>
           <div className="text-xl font-black text-brand-black dark:text-white mt-0.5">{totalPartsCount}</div>
         </div>
         <div className="p-3 rounded-2xl bg-white dark:bg-card-dark border border-gray-200/80 dark:border-gray-800 shadow-xs text-center">
-          <div className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Total Units</div>
+          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">Total Units</div>
           <div className="text-xl font-black text-primary mt-0.5">{totalQuantityUnits}</div>
         </div>
         <button
@@ -567,7 +567,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
               : 'bg-white dark:bg-card-dark border-gray-200/80 dark:border-gray-800'
           }`}
         >
-          <div className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Low Stock</div>
+          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">Low Stock</div>
           <div className={`text-xl font-black mt-0.5 ${lowStockCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-400'}`}>
             {lowStockCount}
           </div>
@@ -581,7 +581,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
             <span aria-hidden="true" className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-[18px]">verified</span>
             <span>Inventory Control & Audit</span>
           </div>
-          <div className="text-[11px] text-indigo-700 dark:text-indigo-300">
+          <div className="text-xs text-indigo-700 dark:text-indigo-300">
             <span>TBD to Count: <strong>{tbdCount}</strong></span>
             <span className="mx-1.5">•</span>
             <span>Never Counted: <strong>{neverCountedCount}</strong></span>
@@ -803,7 +803,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                           <div className="text-2xl font-black text-brand-black dark:text-white">
                             {item.quantity}
                           </div>
-                          <div className="text-[11px] text-gray-400 font-medium">
+                          <div className="text-xs text-gray-400 font-medium">
                             Min: {item.minimum}
                           </div>
                         </>
@@ -962,7 +962,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                   </div>
 
                   {app.notes && (
-                    <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-100 dark:border-gray-800 text-[11px] text-gray-600 dark:text-gray-300">
+                    <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-100 dark:border-gray-800 text-xs text-gray-600 dark:text-gray-300">
                       <span className="font-semibold text-brand-black dark:text-white">Note: </span>
                       {app.notes}
                     </div>
@@ -1086,7 +1086,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                   </div>
 
                   {eq.notes && (
-                    <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-100 dark:border-gray-800 text-[11px] text-gray-600 dark:text-gray-300">
+                    <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800/60 border border-gray-100 dark:border-gray-800 text-xs text-gray-600 dark:text-gray-300">
                       <span className="font-semibold text-brand-black dark:text-white">Note: </span>
                       {eq.notes}
                     </div>
@@ -1524,7 +1524,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
             </div>
 
             {/* Instruction Banner */}
-            <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200/80 dark:border-amber-900/60 text-[11px] text-amber-900 dark:text-amber-200 shrink-0">
+            <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200/80 dark:border-amber-900/60 text-xs text-amber-900 dark:text-amber-200 shrink-0">
               <strong>Rules:</strong> Enter the quantity counted on the shelf. Empty rows remain uncounted/TBD. A count on a TBD row verifies it into available inventory.
             </div>
 
@@ -1549,7 +1549,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                   let varianceDisplay: React.ReactNode = null;
                   if (!hasCount) {
                     varianceDisplay = (
-                      <span className="text-gray-400 text-[11px] font-medium italic">
+                      <span className="text-gray-400 text-xs font-medium italic">
                         {isTbd ? 'Still to count (TBD)' : 'Unchanged (uncounted)'}
                       </span>
                     );
@@ -1583,7 +1583,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span
-                              className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
+                              className={`px-1.5 py-0.5 rounded text-xs font-black uppercase tracking-wider ${
                                 isTbd
                                   ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
                                   : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
@@ -1600,7 +1600,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                           <h4 className="text-xs font-bold text-brand-black dark:text-white mt-1 truncate">
                             {item.part_name}
                           </h4>
-                          <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                             Recorded on system: <strong>{isTbd ? 'TBD (placeholder)' : `${item.quantity} units`}</strong>
                           </div>
                         </div>
@@ -1642,7 +1642,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                               [item.allocation_id]: { ...entry, notes: val },
                             }));
                           }}
-                          className="w-36 text-right px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-neutral-800 text-[11px] text-gray-700 dark:text-gray-300"
+                          className="w-36 text-right px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-neutral-800 text-xs text-gray-700 dark:text-gray-300"
                         />
                       </div>
                     </div>
@@ -1713,7 +1713,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                     key={`hist-${entry.id}`}
                     className="p-3 rounded-xl bg-gray-50 dark:bg-neutral-800/50 border border-gray-200/70 dark:border-gray-800 text-xs space-y-1"
                   >
-                    <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                       <span>{entry.created_at}</span>
                       <span className="font-semibold">{entry.changed_by_name || 'Tech'}</span>
                     </div>
@@ -1724,7 +1724,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                       <span className="text-indigo-600 dark:text-indigo-400 font-black">{entry.new_value}</span>
                     </div>
                     {entry.reason && (
-                      <div className="text-[11px] text-gray-600 dark:text-gray-300 pt-0.5 border-t border-gray-200/40 dark:border-gray-800/40">
+                      <div className="text-xs text-gray-600 dark:text-gray-300 pt-0.5 border-t border-gray-200/40 dark:border-gray-800/40">
                         {entry.reason}
                       </div>
                     )}

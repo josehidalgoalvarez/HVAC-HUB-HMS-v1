@@ -45,13 +45,13 @@ const InsightCard: React.FC<{
       <div className="flex-1 min-w-0 space-y-1.5">
         <div className="flex items-center gap-2 flex-wrap">
           <h3 className="text-sm font-bold text-brand-black dark:text-white">{headline}</h3>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[11px] font-bold">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-bold">
             <span className="material-symbols-outlined text-xs" aria-hidden="true">science</span>
             Inferred
           </span>
         </div>
         <p className="text-xs text-gray-600 dark:text-gray-300">{detail}</p>
-        <p className="text-[11px] text-gray-500 dark:text-gray-400">{VERIFY_LINE}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">{VERIFY_LINE}</p>
       </div>
       <span className="material-symbols-outlined text-gray-400 shrink-0" aria-hidden="true">
         {expanded ? 'expand_less' : 'expand_more'}
@@ -282,7 +282,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({ onBack }) => {
             })}
           </section>
 
-          <div className="space-y-1 text-[11px] text-gray-500 dark:text-gray-400">
+          <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
             {data.excludedFixtureCount > 0 && (
               <p>Test fixtures excluded: {data.excludedFixtureCount} fixture tickets (WO-E2E) omitted from patterns and evidence.</p>
             )}

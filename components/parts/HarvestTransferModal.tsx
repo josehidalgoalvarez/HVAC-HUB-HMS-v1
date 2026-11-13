@@ -83,7 +83,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
             <h2 className="text-base font-bold text-brand-black dark:text-white">
               Harvest from Vacant Unit
             </h2>
-            <p className="text-[11px] text-gray-500">Record stock transfer & provenance</p>
+            <p className="text-xs text-gray-500">Record stock transfer & provenance</p>
           </div>
         </div>
         <button
@@ -105,7 +105,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
               {candidate.occupancy_label || 'Vacant unit'}
             </span>
           </div>
-          <div className="text-[11px] text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
+          <div className="text-xs text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
             <span aria-hidden="true" className="material-symbols-outlined text-[14px] text-emerald-600">apartment</span>
             <span>
               {candidate.building_name} • Unit {candidate.unit_number}
@@ -129,7 +129,7 @@ export const HarvestTransferModal: React.FC<HarvestTransferModalProps> = ({
 
         {/* Destination Type Selector */}
         <div>
-          <label className="block text-[11px] font-bold uppercase text-gray-500 mb-1.5">
+          <label className="block text-xs font-bold uppercase text-gray-500 mb-1.5">
             Transfer Destination
           </label>
           <div className="grid grid-cols-2 gap-2">

@@ -242,7 +242,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                           <span className="font-mono text-xs font-bold text-primary shrink-0">
                             {t.wo_number || `WO #${t.id}`}
                           </span>
-                          <span className="text-[11px] font-semibold text-gray-500 truncate">
+                          <span className="text-xs font-semibold text-gray-500 truncate">
                             {t.building_name || 'Property'} {t.unitNumber ? `• Unit ${t.unitNumber}` : ''}
                           </span>
                         </div>
@@ -343,7 +343,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                 <div key={block.sort_order} className="space-y-1">
                   {/* Site Transit Header Indicator */}
                   {block.is_site_transition && (
-                    <div className="px-3 py-1 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-lg text-[11px] font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5 my-1.5">
+                    <div className="px-3 py-1 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-lg text-xs font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5 my-1.5">
                       <span aria-hidden="true" className="material-symbols-outlined text-[14px]">directions_bike</span>
                       Transit to {block.building_name} (+{block.travel_buffer_before_minutes || 20}m)
                     </div>
@@ -368,7 +368,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                           <h4 className="text-xs font-bold text-brand-black dark:text-white truncate">
                             {block.title}
                           </h4>
-                          <span className="text-[11px] text-gray-500 block">
+                          <span className="text-xs text-gray-500 block">
                             {block.building_name} {block.unit_number ? `• Unit ${block.unit_number}` : ''}
                           </span>
                         </div>
@@ -393,7 +393,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
 
                     {/* E-Bike Carry Capacity Alert Pill */}
                     {exceedsCarry && (
-                      <div className="mt-2 p-2 bg-amber-500/10 border border-amber-400/40 rounded-xl text-[11px] text-amber-900 dark:text-amber-200 flex items-center gap-1.5 font-bold">
+                      <div className="mt-2 p-2 bg-amber-500/10 border border-amber-400/40 rounded-xl text-xs text-amber-900 dark:text-amber-200 flex items-center gap-1.5 font-bold">
                         <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-base shrink-0">
                           warning
                         </span>
@@ -423,7 +423,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
 
                     {/* Reordering Buttons */}
                     <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between text-xs">
-                      <span className="text-[11px] text-gray-400">Position #{index + 1}</span>
+                      <span className="text-xs text-gray-400">Position #{index + 1}</span>
                       <div className="flex items-center gap-1">
                         <button
                           type="button"

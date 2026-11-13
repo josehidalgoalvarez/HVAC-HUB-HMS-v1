@@ -253,7 +253,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
               <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">swap_horiz</span>
               <h3 className="text-base font-bold text-brand-black dark:text-white">Record Appliance Move</h3>
             </div>
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-primary">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-primary">
               {moveDate === new Date().toISOString().split('T')[0] ? 'Move date: Today' : `Move date: ${moveDate}`}
             </span>
           </div>
@@ -271,7 +271,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
               <label className="block text-xs font-bold text-text-sub-light dark:text-text-sub-dark uppercase tracking-wider">
                 Move Date <span className="text-red-500">*</span>
               </label>
-              <span className="text-[11px] text-gray-400">
+              <span className="text-xs text-gray-400">
                 Defaults to today; past dates accepted.
               </span>
             </div>
@@ -287,7 +287,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
 
           {/* Current Location (Read-Only Confirmation) */}
           <div className="bg-gray-50 dark:bg-gray-800/40 p-3 rounded-xl border border-gray-100 dark:border-gray-800">
-            <span className="block text-[11px] uppercase tracking-wider font-bold text-text-sub-light dark:text-text-sub-dark mb-0.5">
+            <span className="block text-xs uppercase tracking-wider font-bold text-text-sub-light dark:text-text-sub-dark mb-0.5">
               Current Location (From)
             </span>
             <p className="text-sm font-semibold text-brand-black dark:text-white flex items-center gap-1.5">
@@ -406,7 +406,7 @@ export const RecordApplianceMoveModal: React.FC<RecordApplianceMoveModalProps> =
                 ))}
               </select>
               {disposition === 'staged' && (
-                <p className="mt-1 text-[11px] text-indigo-700 dark:text-indigo-300 font-medium flex items-center gap-1">
+                <p className="mt-1 text-xs text-indigo-700 dark:text-indigo-300 font-medium flex items-center gap-1">
                   <span aria-hidden="true" className="material-symbols-outlined text-[13px]">info</span>
                   Appliance will be recorded at this unit with status 'Staged' (placed at unit, not installed).
                 </p>

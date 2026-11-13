@@ -44,7 +44,7 @@ export const DigestSection: React.FC<DigestSectionProps> = ({
               Alerts queued until 07:00.
             </p>
             {morningBatch.length > 0 && (
-              <div className="mt-2 text-[11px] font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-2.5 py-1 rounded inline-block">
+              <div className="mt-2 text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-2.5 py-1 rounded inline-block">
                 {morningBatch.length} {morningBatch.length === 1 ? 'alert' : 'alerts'} held for morning
               </div>
             )}

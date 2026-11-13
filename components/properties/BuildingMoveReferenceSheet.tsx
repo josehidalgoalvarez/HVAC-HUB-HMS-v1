@@ -54,7 +54,7 @@ export const BuildingMoveReferenceSheet: React.FC<BuildingMoveReferenceSheetProp
                 </span>
               </div>
 
-              <div className="text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5 flex-wrap">
+              <div className="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark flex items-center gap-1.5 flex-wrap">
                 <span>{entry.movedFrom}</span>
                 <span aria-hidden="true" className="material-symbols-outlined text-xs">arrow_forward</span>
                 <span className="text-brand-black dark:text-white">{entry.movedTo}</span>

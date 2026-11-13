@@ -141,7 +141,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsMoveSheetOpen(true)}
-                    className="min-h-[30px] px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-primary hover:text-primary-hover text-[11px] font-bold flex items-center gap-1 transition-colors border border-gray-200/80 dark:border-gray-700 active:scale-95 shadow-2xs"
+                    className="min-h-[30px] px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-primary hover:text-primary-hover text-xs font-bold flex items-center gap-1 transition-colors border border-gray-200/80 dark:border-gray-700 active:scale-95 shadow-2xs"
                     title="Why here? (Location reference)"
                   >
                     <span aria-hidden="true" className="material-symbols-outlined text-[14px]">help</span>
@@ -185,7 +185,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                           onOpenStockpileInventory(resolution.targetStockpileId);
                         }
                       }}
-                      className="min-h-[44px] px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 active:scale-[0.98] text-amber-800 dark:text-amber-200 border border-amber-500/40 text-[11px] font-bold uppercase flex items-center gap-1.5 transition-all cursor-pointer"
+                      className="min-h-[44px] px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 active:scale-[0.98] text-amber-800 dark:text-amber-200 border border-amber-500/40 text-xs font-bold uppercase flex items-center gap-1.5 transition-all cursor-pointer"
                      aria-label="Icon">
                       <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-amber-700 dark:text-amber-300">
                         {resolution.isMcKay ? 'warehouse' : 'inventory_2'}

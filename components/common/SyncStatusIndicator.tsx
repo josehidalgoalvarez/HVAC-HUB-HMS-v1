@@ -33,7 +33,7 @@ export const SyncStatusIndicator: React.FC = () => {
     return (
       <div
         data-testid="sync-status-indicator"
-        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-primary dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-900/50"
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-primary dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-900/50"
       >
         <span aria-hidden="true" className="material-symbols-outlined text-[13px] animate-spin">
           progress_activity
@@ -48,7 +48,7 @@ export const SyncStatusIndicator: React.FC = () => {
     return (
       <div
         data-testid="sync-status-indicator"
-        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50"
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50"
       >
         <span aria-hidden="true" className="material-symbols-outlined text-[13px]">
           cloud_off
@@ -67,7 +67,7 @@ export const SyncStatusIndicator: React.FC = () => {
     return (
       <div
         data-testid="sync-status-indicator"
-        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-gray-50 text-text-sub-light dark:bg-neutral-800/60 dark:text-text-sub-dark border border-gray-200/60 dark:border-gray-800"
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-50 text-text-sub-light dark:bg-neutral-800/60 dark:text-text-sub-dark border border-gray-200/60 dark:border-gray-800"
       >
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
         <span>Updated {formatTime(lastSyncedAt)}</span>

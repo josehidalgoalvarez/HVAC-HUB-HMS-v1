@@ -320,7 +320,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
             <span aria-hidden="true" className="material-symbols-outlined text-xl">arrow_back</span>
           </button>
           <div className="text-right">
-            <span className="text-[11px] font-mono text-gray-400">Step 1 of 3: Pre-Run Readiness</span>
+            <span className="text-xs font-mono text-gray-400">Step 1 of 3: Pre-Run Readiness</span>
           </div>
         </div>
 
@@ -388,7 +388,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
               Required Tools
             </div>
             {sop.required_tools.length === 0 ? (
-              <p className="text-[11px] text-gray-400 italic">None specified / TODO-verify</p>
+              <p className="text-xs text-gray-400 italic">None specified / TODO-verify</p>
             ) : (
               <ul className="text-xs space-y-1 text-gray-700 dark:text-gray-300">
                 {sop.required_tools.map((t, idx) => (
@@ -408,7 +408,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
               Required Parts
             </div>
             {sop.required_parts.length === 0 ? (
-              <p className="text-[11px] text-gray-400 italic">None specified / TODO-verify</p>
+              <p className="text-xs text-gray-400 italic">None specified / TODO-verify</p>
             ) : (
               <ul className="text-xs space-y-1 text-gray-700 dark:text-gray-300">
                 {sop.required_parts.map((p, idx) => (
@@ -433,7 +433,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
               {sop.access_requirements.length > 0 && (
                 <div className="pt-1">
                   {sop.access_requirements.map((a, idx) => (
-                    <span key={idx} className="block text-[11px] text-gray-500">• {a}</span>
+                    <span key={idx} className="block text-xs text-gray-500">• {a}</span>
                   ))}
                 </div>
               )}
@@ -450,7 +450,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
                 Mandatory Compliance Gates
               </h3>
             </div>
-            <span className="text-[11px] text-gray-400">
+            <span className="text-xs text-gray-400">
               {Object.values(acknowledgedGates).filter(Boolean).length} of {complianceGates.length} checked
             </span>
           </div>
@@ -490,7 +490,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
                           [{gate.reference}]
                         </span>
                       </div>
-                      <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-snug">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 leading-snug">
                         {gate.requirement}
                       </p>
                     </div>
@@ -517,7 +517,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
             {allGatesAcknowledged ? 'Begin Timed Checklist Run' : 'Acknowledge All Gates to Begin'}
           </button>
           {!allGatesAcknowledged && (
-            <p className="text-[11px] text-center text-gray-400 mt-2">
+            <p className="text-xs text-center text-gray-400 mt-2">
               Regulatory compliance gates must be acknowledged prior to procedure execution.
             </p>
           )}
@@ -658,7 +658,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
                         {phaseTitle(group.label)}
                       </p>
                     </div>
-                    <div className="shrink-0 flex items-center gap-2 text-[11px] font-mono text-gray-500">
+                    <div className="shrink-0 flex items-center gap-2 text-xs font-mono text-gray-500">
                       <span>
                         {doneCount}/{group.indices.length}
                       </span>
@@ -718,12 +718,12 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
 
                             <div className="shrink-0 flex items-center gap-2">
                               {state?.deviation && (
-                                <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                                <span className="px-1.5 py-0.5 text-xs font-bold rounded bg-amber-500/10 text-amber-600 border border-amber-500/20">
                                   Deviation
                                 </span>
                               )}
                               {state?.durationSeconds ? (
-                                <span className="text-[11px] font-mono text-gray-400">
+                                <span className="text-xs font-mono text-gray-400">
                                   {formatTime(state.durationSeconds)}
                                 </span>
                               ) : null}
@@ -837,7 +837,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
 
                           <div className="shrink-0 flex items-center gap-2">
                             {state?.deviation && (
-                              <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                              <span className="px-1.5 py-0.5 text-xs font-bold rounded bg-amber-500/10 text-amber-600 border border-amber-500/20">
                                 Deviation
                               </span>
                             )}

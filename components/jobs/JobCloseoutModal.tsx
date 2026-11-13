@@ -184,7 +184,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setSelectedApplianceId(null)}
-                    className="text-[11px] text-gray-400 hover:text-brand-red font-medium"
+                    className="text-xs text-gray-400 hover:text-brand-red font-medium"
                   >
                     Clear link
                   </button>
@@ -295,7 +295,7 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
                 <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">build</span>
                 Parts Used
               </label>
-              <span className="text-[11px] font-mono text-gray-400">{parts.length} recorded</span>
+              <span className="text-xs font-mono text-gray-400">{parts.length} recorded</span>
             </div>
 
             {parts.length > 0 && (

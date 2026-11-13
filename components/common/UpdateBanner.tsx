@@ -168,7 +168,7 @@ export const UpdateBanner: React.FC<UpdateBannerProps> = ({
           <h4 className="text-xs font-bold leading-tight truncate text-white">
             New version available
           </h4>
-          <p className="text-[11px] text-gray-300 dark:text-text-sub-dark leading-tight mt-0.5">
+          <p className="text-xs text-gray-300 dark:text-text-sub-dark leading-tight mt-0.5">
             Tap reload to apply update.
           </p>
         </div>

@@ -155,7 +155,7 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
                 className="w-full min-h-[44px] px-3 py-2 text-sm font-mono rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:border-primary"
               />
               {isVerifiedPart(partNumber) && (
-                <p className="mt-1 text-[11px] text-amber-700 dark:text-amber-400 flex items-center gap-1 font-medium">
+                <p className="mt-1 text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1 font-medium">
                   <span aria-hidden="true" className="material-symbols-outlined text-[13px]">info</span>
                   Fitment-verified part. Part number and model will be locked against changes; stash quantities and notes stay editable.
                 </p>

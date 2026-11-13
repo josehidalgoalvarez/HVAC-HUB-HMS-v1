@@ -661,7 +661,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 data-testid="detail-repeat-access-chip"
                 className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-bold rounded-md bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700"
               >
-                <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xs leading-none text-amber-600 dark:text-amber-400">warning</span>
                 Repeat access problem
               </span>
             )}
@@ -670,7 +670,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 key={chip.key}
                 className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-bold rounded-md ${chip.className}`}
               >
-                <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none">{chip.icon}</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xs leading-none">{chip.icon}</span>
                 {chip.key === 'renovated' ? (
                   <ExplainableTerm term="renovated">{chip.label}</ExplainableTerm>
                 ) : (
@@ -680,7 +680,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             ))}
             {(ticket.appliance_name || ticket.appliance_model || ticket.appliance_id) && (
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-bold rounded-md bg-blue-100 text-blue-900 border border-blue-200 dark:bg-blue-950/80 dark:text-blue-200 dark:border-blue-800">
-                <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none text-blue-600 dark:text-blue-400">kitchen</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xs leading-none text-blue-600 dark:text-blue-400">kitchen</span>
                 <span>
                   {ticket.appliance_name || 'Appliance'}
                   {ticket.appliance_model ? ` (${ticket.appliance_model})` : ''}
@@ -722,7 +722,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 <p className="text-xs font-semibold text-rose-800 dark:text-rose-300 mt-1">
                   Reason: {ticket.blocked_reason || ticket.blocker_reason}
                 </p>
-                <p className="text-[11px] text-rose-700/80 dark:text-rose-400/80 mt-0.5">
+                <p className="text-xs text-rose-700/80 dark:text-rose-400/80 mt-0.5">
                   Tickets blocked 30+ days automatically prune into permanent unit history and move to the archive.
                 </p>
               </div>
@@ -811,7 +811,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-lg">warning</span>
             <div>
               <span className="font-bold">Unseen in Yardi (7+ days)</span>
-              <p className="text-[11px] text-amber-700 dark:text-amber-300">
+              <p className="text-xs text-amber-700 dark:text-amber-300">
                 {ticket.yardi_warning || 'Unseen in Yardi for 7+ days. Full local history is preserved.'}
               </p>
             </div>
@@ -902,7 +902,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   <span className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark block">
                     24h Notice of Entry
                   </span>
-                  <span className="text-[11px] text-gray-500">
+                  <span className="text-xs text-gray-500">
                     {isVacant
                       ? 'Vacant unit — no tenant to notify (entry permitted)'
                       : (isNoticeNeeded ? 'Tenant-occupied — 24h advance notice required' : 'Notice of entry not required')}
@@ -910,7 +910,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 </div>
               </div>
 
-              <span className={`px-2.5 py-1 text-[11px] font-bold rounded-lg shrink-0 ${gateBadge.className}`}>
+              <span className={`px-2.5 py-1 text-xs font-bold rounded-lg shrink-0 ${gateBadge.className}`}>
                 {gateBadge.label}
               </span>
             </div>
@@ -921,7 +921,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 <label htmlFor="notice-needed-toggle" className="text-xs font-bold text-brand-black dark:text-white block cursor-pointer">
                   Notice needed
                 </label>
-                <p className="text-[11px] text-gray-500">
+                <p className="text-xs text-gray-500">
                   {isVacant
                     ? 'Unit is vacant — 24h notice not applicable'
                     : isNoticeNeeded
@@ -970,7 +970,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                             Sent — {formatDateTime(noticeSentAt, { dateStyle: 'short', timeStyle: 'short' })} — confirmed by <span className="text-primary">{noticeConfirmedBy || 'Management'}</span>
                           </span>
                         </div>
-                        <p className="text-[11px] text-gray-500 pl-5">
+                        <p className="text-xs text-gray-500 pl-5">
                           {gateBadge.description}
                         </p>
                       </div>
@@ -994,7 +994,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                           <span className="text-xs font-bold text-amber-800 dark:text-amber-200 block">
                             Notice pending
                           </span>
-                          <span className="text-[11px] text-amber-700 dark:text-amber-300">
+                          <span className="text-xs text-amber-700 dark:text-amber-300">
                             Management sends notice. Mark sent here to start 24h clock.
                           </span>
                         </div>
@@ -1033,7 +1033,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
+                            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
                               Sent Date & Time *
                             </label>
                             <input
@@ -1046,7 +1046,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                           </div>
 
                           <div>
-                            <label className="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
+                            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
                               Confirmed by (Name) *
                             </label>
                             <input
@@ -1099,7 +1099,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
               <span className="text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark block">
                 Work Exposure
               </span>
-              <span className="text-[11px] text-gray-500">
+              <span className="text-xs text-gray-500">
                 {workExposure === 'indoor'
                   ? 'Indoor job'
                   : workExposure === 'exterior'
@@ -1368,7 +1368,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                       {p.part_name}
                     </span>
                     {p.part_number && (
-                      <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                      <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
                         #{p.part_number}
                       </span>
                     )}
@@ -1386,7 +1386,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-3 text-[11px] text-gray-500 flex-wrap">
+                  <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
                     <span>Supplier: <strong className="text-brand-black dark:text-white">{p.supplier}</strong></span>
                     {p.order_ref && <span>Ref: <strong className="font-mono text-brand-black dark:text-white">{p.order_ref}</strong></span>}
                     <span>Qty: <strong>{p.quantity}</strong></span>
@@ -1399,7 +1399,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     )}
                   </div>
 
-                  {p.notes && <p className="text-[11px] text-gray-400 italic">Note: {p.notes}</p>}
+                  {p.notes && <p className="text-xs text-gray-400 italic">Note: {p.notes}</p>}
                 </div>
 
                 {p.status === 'ordered' && (
@@ -1486,7 +1486,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {formatRunDate(run.started_at)} · {run.technician}
                     </p>
-                    <div className="flex flex-wrap gap-1.5 text-[11px] font-semibold">
+                    <div className="flex flex-wrap gap-1.5 text-xs font-semibold">
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200">
                         <span className="material-symbols-outlined text-xs" aria-hidden="true">timer</span>
                         {formatRunDuration(run.total_seconds)}
@@ -1539,7 +1539,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                             <span className="text-xs font-bold text-primary shrink-0">{step.position}.</span>
                             <div className="flex-1 min-w-0 space-y-1">
                               <p className="text-sm text-brand-black dark:text-white">{step.instruction}</p>
-                              <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
+                              <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                 <span className="inline-flex items-center gap-1">
                                   <span className="material-symbols-outlined text-xs" aria-hidden="true">timer</span>
                                   {formatRunDuration(step.duration_seconds)}
@@ -1552,7 +1552,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                                 )}
                               </div>
                               {step.note && (
-                                <p className="text-[11px] text-gray-600 dark:text-gray-300 whitespace-pre-wrap">Note: {step.note}</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-300 whitespace-pre-wrap">Note: {step.note}</p>
                               )}
                             </div>
                           </div>
@@ -1567,7 +1567,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                       ) : (
                         <div className="flex flex-wrap gap-1.5">
                           {run.acknowledged_gates.map((gate) => (
-                            <span key={gate} className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-mono">
+                            <span key={gate} className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-mono">
                               {gate}
                             </span>
                           ))}
@@ -1612,7 +1612,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
               {timeline.length}
             </span>
           </div>
-          <span className="text-[11px] font-mono text-gray-400">Append-Only Provenance</span>
+          <span className="text-xs font-mono text-gray-400">Append-Only Provenance</span>
         </div>
 
         {timeline.length === 0 ? (
@@ -1667,7 +1667,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                           <span className="text-xs font-bold text-brand-black dark:text-white">
                             {cfg.label}
                           </span>
-                          <span className="text-[11px] text-gray-500">by {ev.actor}</span>
+                          <span className="text-xs text-gray-500">by {ev.actor}</span>
                         </div>
                         <span className="text-xs font-mono text-gray-400">
                           {formatDateTime(ev.created_at)}
@@ -1682,7 +1682,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
                       {/* Event Metadata Chips / Indicators */}
                       {meta && Object.keys(meta).length > 0 && (
-                        <div className="pt-1 flex items-center gap-1.5 flex-wrap text-[11px]">
+                        <div className="pt-1 flex items-center gap-1.5 flex-wrap text-xs">
                           {meta.sop_title && (
                             <span className="px-2 py-0.5 rounded bg-teal-500/10 text-teal-700 dark:text-teal-400 font-semibold border border-teal-500/20">
                               {meta.sop_title}
@@ -1839,7 +1839,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                     </span>
                   </div>
                   {child.blocker_reason && (
-                    <p className="text-[11px] text-brand-red truncate flex items-center gap-1">
+                    <p className="text-xs text-brand-red truncate flex items-center gap-1">
                       <span aria-hidden="true" className="material-symbols-outlined text-[13px]">warning</span>
                       Blocker: {child.blocker_reason}
                     </p>
@@ -1898,14 +1898,14 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                 key={corr.id}
                 className="text-xs pb-3 border-b border-gray-100 dark:border-gray-800 last:border-0 last:pb-0 space-y-1"
               >
-                <div className="flex items-center justify-between text-gray-400 text-[11px]">
+                <div className="flex items-center justify-between text-gray-400 text-xs">
                   <span className="font-mono font-bold text-primary">
                     field: {corr.fieldName || (corr as any).field_name}
                   </span>
                   <span>{formatDateTime(corr.createdAt || (corr as any).created_at)}</span>
                 </div>
 
-                <div className="flex items-center gap-2 font-mono text-[11px] bg-gray-50 dark:bg-gray-900 p-2 rounded-lg">
+                <div className="flex items-center gap-2 font-mono text-xs bg-gray-50 dark:bg-gray-900 p-2 rounded-lg">
                   <span className="text-red-500 line-through truncate max-w-[140px]">
                     {corr.oldValue ?? (corr as any).old_value ?? 'null'}
                   </span>
@@ -1915,7 +1915,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-gray-500">
+                <div className="flex items-center justify-between text-xs text-gray-500">
                   <span>
                     By: {corr.changedBy || (corr as any).changed_by_name || 'System / Tech'}
                   </span>
@@ -2366,8 +2366,8 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   <div className="p-3 rounded-xl bg-rose-100 text-rose-900 dark:bg-rose-950/80 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-xs flex items-start gap-2">
                     <span aria-hidden="true" className="material-symbols-outlined text-rose-600 dark:text-rose-400 text-base shrink-0 mt-0.5">error</span>
                     <div>
-                      <strong className="block uppercase tracking-wider font-extrabold text-[11px]">[OUR MISS — MANAGEMENT/DISPATCH]</strong>
-                      <p className="mt-0.5 text-[11px] leading-relaxed">
+                      <strong className="block uppercase tracking-wider font-extrabold text-xs">[OUR MISS — MANAGEMENT/DISPATCH]</strong>
+                      <p className="mt-0.5 text-xs leading-relaxed">
                         Notice was required on this unit but was never sent. This will display as <strong>OUR miss</strong>, not the tenant's refusal.
                       </p>
                     </div>

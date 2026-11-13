@@ -107,7 +107,7 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
             <h2 className="text-base font-bold text-brand-black dark:text-white">
               Stockpile Stock Transfer
             </h2>
-            <p className="text-[11px] text-gray-500">Move inventory between depots with provenance audit</p>
+            <p className="text-xs text-gray-500">Move inventory between depots with provenance audit</p>
           </div>
         </div>
         <button

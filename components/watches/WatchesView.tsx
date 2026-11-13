@@ -204,7 +204,7 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
           <span aria-hidden="true" className="material-symbols-outlined text-base leading-none">notifications_active</span>
           <span>Daily Digest</span>
           {activeAlertCount > 0 && (
-            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-500 text-white">
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500 text-white">
               {activeAlertCount}
             </span>
           )}

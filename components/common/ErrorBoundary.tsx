@@ -92,7 +92,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-800">
                   <button
                     onClick={this.toggleDetails}
-                    className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1"
+                    className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
                    aria-label="Icon">
                     <span>{this.state.showDetails ? 'Hide Details' : 'Show Component Trace'}</span>
                     <span aria-hidden="true" className="material-symbols-outlined text-[14px]">

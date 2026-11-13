@@ -165,7 +165,7 @@ export const LogPartUseModal: React.FC<LogPartUseModalProps> = ({
             <span className="font-bold">{part.reorder_point} pcs</span>
           </div>
           {willReorder && (
-            <div className="pt-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+            <div className="pt-1 text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
               <span aria-hidden="true" className="material-symbols-outlined text-[14px]">warning</span>
               Usage will trigger reorder flag (Remaining: {newStockPreview} ≤ {part.reorder_point})
             </div>

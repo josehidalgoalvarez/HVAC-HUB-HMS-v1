@@ -546,7 +546,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
           <span className="text-primary uppercase tracking-wider font-mono">
             {woNumber}
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-[11px]">
+          <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs">
             In Progress
           </span>
         </div>
@@ -580,7 +580,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
                 <button
                   type="button"
                   onClick={() => handleSelectAppliance(null)}
-                  className="text-[11px] text-gray-400 hover:text-brand-red font-medium"
+                  className="text-xs text-gray-400 hover:text-brand-red font-medium"
                 >
                   Clear link
                 </button>
@@ -624,7 +624,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             <span aria-hidden="true" className="material-symbols-outlined text-primary text-[18px]">edit_note</span>
             Job Notes
           </h3>
-          <span className="text-[11px] font-mono text-gray-400">
+          <span className="text-xs font-mono text-gray-400">
             {activeJob?.notes_list?.length || 0} logged
           </span>
         </div>
@@ -692,7 +692,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
                   <button
                     type="button"
                     onClick={() => handleOpenCorrect('note', n.id || idx, n.note_text)}
-                    className="px-2 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 rounded-lg shrink-0 flex items-center gap-0.5"
+                    className="px-2 py-1 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 rounded-lg shrink-0 flex items-center gap-0.5"
                     title="Correct this entry"
                   >
                     <span aria-hidden="true" className="material-symbols-outlined text-[13px]">edit_note</span>
@@ -712,7 +712,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             <span aria-hidden="true" className="material-symbols-outlined text-primary text-[18px]">build</span>
             Parts Used
           </h3>
-          <span className="text-[11px] font-mono text-gray-400">
+          <span className="text-xs font-mono text-gray-400">
             {activeJob?.parts_used?.length || 0} items
           </span>
         </div>
@@ -761,7 +761,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
                     <button
                       type="button"
                       onClick={() => handleOpenCorrect('part', p.id || idx, p.part_name)}
-                      className="px-2 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 rounded-lg flex items-center gap-0.5"
+                      className="px-2 py-1 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 rounded-lg flex items-center gap-0.5"
                       title="Correct this entry"
                     >
                       <span aria-hidden="true" className="material-symbols-outlined text-[13px]">edit_note</span>
@@ -791,7 +791,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             <span aria-hidden="true" className="material-symbols-outlined text-primary text-[18px]">photo_camera</span>
             Photos
           </h3>
-          <span className="text-[11px] font-mono text-gray-400">
+          <span className="text-xs font-mono text-gray-400">
             {activeJob?.photos?.length || 0} attached
           </span>
         </div>
@@ -813,7 +813,7 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             {activeJob.photos.map((ph, idx) => (
               <div
                 key={idx}
-                className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-[11px] font-mono text-gray-600 dark:text-gray-300 flex items-center gap-1"
+                className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-xs font-mono text-gray-600 dark:text-gray-300 flex items-center gap-1"
               >
                 <span aria-hidden="true" className="material-symbols-outlined text-xs text-primary">image</span>
                 <span>Photo #{idx + 1}</span>

@@ -56,7 +56,7 @@ export const FieldNotesView: React.FC<FieldNotesViewProps> = ({ onBack }) => {
                   <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-sm font-bold text-brand-black dark:text-white">{note.title}</h2>
                     {note.todo_verify ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[11px] font-bold">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-bold">
                         <span className="material-symbols-outlined text-xs" aria-hidden="true">pending</span>
                         TODO-verify
                       </span>
@@ -93,7 +93,7 @@ export const FieldNotesView: React.FC<FieldNotesViewProps> = ({ onBack }) => {
                     <h3 className="text-xs font-bold text-brand-black dark:text-white uppercase tracking-wider">WO citations</h3>
                     <div className="flex flex-wrap gap-1.5">
                       {note.wo_citations.map((w) => (
-                        <span key={w} className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-mono">
+                        <span key={w} className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-mono">
                           {w}
                         </span>
                       ))}
@@ -101,7 +101,7 @@ export const FieldNotesView: React.FC<FieldNotesViewProps> = ({ onBack }) => {
                   </div>
 
                   {note.source_note && (
-                    <p className="text-[11px] text-gray-500 dark:text-gray-400">{note.source_note}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{note.source_note}</p>
                   )}
                 </div>
               )}

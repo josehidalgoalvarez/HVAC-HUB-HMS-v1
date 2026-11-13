@@ -379,7 +379,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
                         <button
                           type="button"
                           onClick={() => onOpenTicket(String(entry.ticketId))}
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:underline transition-colors"
+                          className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:underline transition-colors"
                           title="Open linked ticket"
                         >
                           <span aria-hidden="true" className="material-symbols-outlined text-[13px]">confirmation_number</span>
@@ -387,7 +387,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
                           <span aria-hidden="true" className="material-symbols-outlined text-[12px]">open_in_new</span>
                         </button>
                       ) : entry.ticketId && entry.ticketLabel ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
                           <span aria-hidden="true" className="material-symbols-outlined text-[13px]">confirmation_number</span>
                           <span>{entry.ticketLabel}</span>
                         </span>
@@ -402,7 +402,7 @@ export const ApplianceHistorySection: React.FC<ApplianceHistorySectionProps> = (
                       </p>
                     )}
                     {entry.actor && (
-                      <div className="flex items-center gap-1 text-[11px] text-gray-400 mt-0.5">
+                      <div className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
                         <span aria-hidden="true" className="material-symbols-outlined text-[13px]">person</span>
                         <span>{entry.actor}</span>
                       </div>

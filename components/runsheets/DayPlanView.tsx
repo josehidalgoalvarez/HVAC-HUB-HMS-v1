@@ -355,7 +355,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
           </div>
 
           {/* Alert Pills */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
+          <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs">
             {rollup.red_gate_count > 0 && (
               <span className="px-2 py-0.5 rounded-lg bg-red-100 text-brand-red font-bold flex items-center gap-1 border border-red-200">
                 <span aria-hidden="true" className="material-symbols-outlined text-xs">gavel</span>
@@ -446,7 +446,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
               <div key={block.id} className="space-y-1">
                 {/* Site Transition Indicator */}
                 {block.is_site_transition && (
-                  <div className="px-3 py-1 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl text-[11px] font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5 my-2">
+                  <div className="px-3 py-1 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl text-xs font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5 my-2">
                     <span aria-hidden="true" className="material-symbols-outlined text-[15px]">directions_bike</span>
                     Travel transit to {block.building_name} (+{block.travel_buffer_before_minutes || 20}m buffer)
                   </div>
@@ -539,18 +539,18 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                     <div className="mt-2.5 p-2.5 bg-amber-500/10 border border-amber-400/40 rounded-xl text-xs text-amber-900 dark:text-amber-200 space-y-1">
                       <div className="flex items-center gap-1.5 font-bold">
                         <span aria-hidden="true" className="material-symbols-outlined text-amber-600 text-lg">warning</span>
-                        <span className="uppercase text-[11px] tracking-wide">
+                        <span className="uppercase text-xs tracking-wide">
                           {block.carry_warning || 'exceeds carry capacity — split or reschedule'}
                         </span>
                       </div>
-                      <p className="text-[11px] text-amber-800 dark:text-amber-300 pl-6">
+                      <p className="text-xs text-amber-800 dark:text-amber-300 pl-6">
                         {block.carry_reason || 'Requires Ladder + Drain Auger + Parts on e-bike. Exceeds single-trip cargo allowance.'}
                       </p>
                     </div>
                   )}
 
                   {/* Tools and Parts Pills */}
-                  <div className="mt-2.5 flex flex-wrap gap-1 text-[11px]">
+                  <div className="mt-2.5 flex flex-wrap gap-1 text-xs">
                     {block.required_tools_list?.map((t, i) => (
                       <span
                         key={i}
@@ -682,7 +682,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
               <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-2">
                 This will remove all <span className="font-bold text-brand-black dark:text-white">{blockCount} job{blockCount === 1 ? '' : 's'}</span> from the Day Plan for <span className="font-mono font-bold text-brand-black dark:text-white">{currentDate}</span>.
               </p>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                 The tickets themselves are untouched — they will remain open and selectable for future plans. Any work logged stays recorded on the tickets.
               </p>
             </div>
@@ -724,7 +724,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
               <p className="text-xs text-text-sub-light dark:text-text-sub-dark mt-2">
                 Empty plan shell for <span className="font-mono font-bold text-brand-black dark:text-white">{currentDate}</span> has no scheduled jobs or logged work.
               </p>
-              <p className="text-[11px] text-gray-400 mt-2">
+              <p className="text-xs text-gray-400 mt-2">
                 No tickets, jobs, or corrections will be deleted.
               </p>
             </div>
@@ -770,7 +770,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
                 {removingBlock.building_name}
                 {removingBlock.unit_number ? ` • Unit ${removingBlock.unit_number}` : ''}
               </p>
-              <p className="text-[11px] text-gray-400 mt-2">
+              <p className="text-xs text-gray-400 mt-2">
                 The underlying ticket will remain open and untouched.
               </p>
             </div>

@@ -285,7 +285,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                   </button>
                 )}
               </div>
-              <span className="text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark shrink-0 px-1">
+              <span className="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark shrink-0 px-1">
                 Showing {filteredStockpiles.length} of {stockpiles.length}
               </span>
             </div>
@@ -384,7 +384,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                     Location Menu
                   </span>
                 </div>
-                <p className="text-[11px] text-amber-800 dark:text-amber-300 truncate mt-0.5">
+                <p className="text-xs text-amber-800 dark:text-amber-300 truncate mt-0.5">
                   {activeSp.location} · Tap to see full stock &amp; manage this location
                 </p>
               </div>
@@ -437,7 +437,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                       {candidate.building_name} • Unit {candidate.unit_number}
                     </span>
                     {candidate.category && (
-                      <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         {candidate.category}
                       </span>
                     )}
@@ -496,7 +496,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                         {part.part_number || 'NO-PART-#'}
                       </span>
                       {isVerifiedPart(part.part_number) && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800" title="Fitment-verified part: Part number and compatible model are locked">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800" title="Fitment-verified part: Part number and compatible model are locked">
                           <span aria-hidden="true" className="material-symbols-outlined text-[13px]">lock</span>
                           <span>Verified part</span>
                         </span>
@@ -542,7 +542,7 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
                         Compatible Models ({part.compatible_models.length})
                       </span>
                       {isVerifiedPart(part.part_number) && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400">
                           <span aria-hidden="true" className="material-symbols-outlined text-[13px]">lock</span>
                           <span>Model locked</span>
                         </span>

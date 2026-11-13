@@ -70,7 +70,7 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
           >
             <div>
               <div className="text-sm font-semibold text-brand-black dark:text-white group-hover:text-primary transition-colors">1 Hour</div>
-              <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark">Silence for 60 minutes</div>
+              <div className="text-xs text-text-sub-light dark:text-text-sub-dark">Silence for 60 minutes</div>
             </div>
             <span aria-hidden="true" className="material-symbols-outlined text-gray-400 dark:text-gray-500 group-hover:text-primary text-lg leading-none transition-colors">timer</span>
           </button>
@@ -83,7 +83,7 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
           >
             <div>
               <div className="text-sm font-semibold text-brand-black dark:text-white group-hover:text-primary transition-colors">4 Hours</div>
-              <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark">Silence for 4 hours</div>
+              <div className="text-xs text-text-sub-light dark:text-text-sub-dark">Silence for 4 hours</div>
             </div>
             <span aria-hidden="true" className="material-symbols-outlined text-gray-400 dark:text-gray-500 group-hover:text-primary text-lg leading-none transition-colors">hourglass_bottom</span>
           </button>
@@ -96,7 +96,7 @@ export const SnoozeModal: React.FC<SnoozeModalProps> = ({
           >
             <div>
               <div className="text-sm font-semibold text-brand-black dark:text-white group-hover:text-primary transition-colors">Tomorrow morning</div>
-              <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark">Silence until 08:00 AM</div>
+              <div className="text-xs text-text-sub-light dark:text-text-sub-dark">Silence until 08:00 AM</div>
             </div>
             <span aria-hidden="true" className="material-symbols-outlined text-gray-400 dark:text-gray-500 group-hover:text-primary text-lg leading-none transition-colors">wb_sunny</span>
           </button>

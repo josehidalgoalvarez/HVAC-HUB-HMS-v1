@@ -280,12 +280,12 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
                         {bld.name}
                       </h4>
                       {bld.complexName && (
-                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark">
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-text-sub-light dark:text-text-sub-dark">
                           {bld.complexName}
                         </span>
                       )}
                       {hasSpecialRole && (
-                        <span className="text-[11px] font-semibold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full capitalize">
+                        <span className="text-xs font-semibold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full capitalize">
                           {bld.role === 'storage' ? 'Storage Node' : bld.role}
                         </span>
                       )}
@@ -334,7 +334,7 @@ export const InventorySearchResultsPanel: React.FC<InventorySearchResultsPanelPr
               Units ({results.units.length})
             </h3>
             {results.units.length > UNIT_RESULT_CAP && (
-              <span className="text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark">
+              <span className="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark">
                 Showing first {UNIT_RESULT_CAP} of {results.units.length} matches
               </span>
             )}

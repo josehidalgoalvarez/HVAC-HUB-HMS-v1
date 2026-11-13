@@ -323,7 +323,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
             <p className="text-xs font-bold text-brand-black dark:text-white">
               No vacant units marked as harvest sources yet.
             </p>
-            <p className="text-[11px] text-text-sub-light dark:text-text-sub-dark max-w-md mx-auto">
+            <p className="text-xs text-text-sub-light dark:text-text-sub-dark max-w-md mx-auto">
               Only units explicitly marked <code className="px-1 py-0.5 rounded bg-gray-200/70 dark:bg-neutral-700">occupancy_status = &apos;vacant&apos;</code> appear here ({units.length.toLocaleString()} loaded units currently have status <code className="px-1 py-0.5 rounded bg-gray-200/70 dark:bg-neutral-700">unknown</code>). Vacancy is never inferred from missing tenant data or failed access.
             </p>
           </div>
@@ -341,7 +341,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                       {building?.name || `Building #${unit.buildingId}`} · Unit {unit.unitNumber}
                     </div>
                     {building?.address && (
-                      <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark">
+                      <div className="text-xs text-text-sub-light dark:text-text-sub-dark">
                         {building.address}
                       </div>
                     )}
@@ -357,7 +357,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                     Confirmed Direct Unit Appliances ({directAppliances.length})
                   </div>
                   {directAppliances.length === 0 ? (
-                    <div className="text-[11px] text-gray-500 italic">
+                    <div className="text-xs text-gray-500 italic">
                       No confirmed unit-specific appliance rows recorded on this unit.
                     </div>
                   ) : (
@@ -439,7 +439,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
           </span>
         </div>
 
-        <p className="text-[11px] text-text-sub-light dark:text-text-sub-dark">
+        <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
           Appliances in storage explicitly marked <code className="px-1 py-0.5 rounded bg-gray-100 dark:bg-neutral-800">status = &apos;donor&apos;</code> (parts source, NOT in service). Merely stored appliances (<code className="px-1 py-0.5 rounded bg-gray-100 dark:bg-neutral-800">status = &apos;stored&apos;</code>) are NOT automatically donor sources and are listed separately below for clarity.
         </p>
 
@@ -465,7 +465,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                         Status: {donor.status} (Parts Source · Not in Service)
                       </span>
                     </div>
-                    <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark mt-0.5">
+                    <div className="text-xs text-text-sub-light dark:text-text-sub-dark mt-0.5">
                       Type: <span className="font-semibold">{donor.type}</span> · Brand/Model:{' '}
                       <span className="font-semibold">
                         {donor.brand}
@@ -486,13 +486,13 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                   )}
                 </div>
 
-                <div className="flex items-center gap-1.5 text-[11px] text-amber-900 dark:text-amber-200">
+                <div className="flex items-center gap-1.5 text-xs text-amber-900 dark:text-amber-200">
                   <span aria-hidden="true" className="material-symbols-outlined text-[15px]">location_on</span>
                   <span>Storage Location: {donor.storageLocationName}</span>
                 </div>
 
                 {donor.notes && (
-                  <div className="p-2.5 rounded-lg bg-gray-50 dark:bg-neutral-800/70 border border-gray-200/80 dark:border-gray-700 text-[11px] text-text-sub-light dark:text-text-sub-dark">
+                  <div className="p-2.5 rounded-lg bg-gray-50 dark:bg-neutral-800/70 border border-gray-200/80 dark:border-gray-700 text-xs text-text-sub-light dark:text-text-sub-dark">
                     {donor.notes}
                   </div>
                 )}
@@ -508,7 +508,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
             data-testid="harvest-merely-stored-separation"
           >
             <div className="flex items-center justify-between gap-2 flex-wrap">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+              <div className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                 <span aria-hidden="true" className="material-symbols-outlined text-[15px]">inventory_2</span>
                 <span>Other Stored Appliances — Status: &apos;stored&apos; (Not Marked as Donor Sources)</span>
               </div>
@@ -538,13 +538,13 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                         </span>
                       )}
                     </div>
-                    <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark">
+                    <div className="text-xs text-text-sub-light dark:text-text-sub-dark">
                       Location: <span className="font-semibold">{item.storageLocationName}</span> · Brand:{' '}
                       <span className="font-semibold">{item.brand}</span>
                       {item.modelNumber ? ` · Model: ${item.modelNumber}` : ' · Model: Unconfirmed / Blank'}
                     </div>
                     {item.toConfirmSummary && (
-                      <div className="text-[11px] font-medium text-amber-900 dark:text-amber-200">
+                      <div className="text-xs font-medium text-amber-900 dark:text-amber-200">
                         {item.toConfirmSummary}
                       </div>
                     )}
@@ -554,7 +554,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                     <button
                       type="button"
                       onClick={() => onOpenStockpileInventory(item.stockpileId!)}
-                      className="min-h-[36px] px-2.5 py-1 rounded-lg bg-white dark:bg-card-dark hover:bg-amber-500/10 text-amber-900 dark:text-amber-200 border border-amber-400/60 text-[11px] font-bold flex items-center gap-1 self-start sm:self-center shrink-0"
+                      className="min-h-[36px] px-2.5 py-1 rounded-lg bg-white dark:bg-card-dark hover:bg-amber-500/10 text-amber-900 dark:text-amber-200 border border-amber-400/60 text-xs font-bold flex items-center gap-1 self-start sm:self-center shrink-0"
                     >
                       <span aria-hidden="true" className="material-symbols-outlined text-[14px]">open_in_new</span>
                       <span>View Storage</span>
@@ -584,7 +584,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
           </span>
         </div>
 
-        <p className="text-[11px] text-text-sub-light dark:text-text-sub-dark">
+        <p className="text-xs text-text-sub-light dark:text-text-sub-dark">
           Field-reported basement/storage notes where count, rating-plate identity, or strip-parts ticket is still pending. Kept strictly separate from counted stock.
         </p>
 
@@ -608,7 +608,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                 {src.reportedItems}
               </div>
 
-              <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark leading-relaxed">
+              <div className="text-xs text-text-sub-light dark:text-text-sub-dark leading-relaxed">
                 {src.reasonAndRule}
               </div>
 
@@ -617,7 +617,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                   <button
                     type="button"
                     onClick={() => onOpenStockpileInventory(src.stockpileId!)}
-                    className="min-h-[36px] px-3 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-400/60 text-[11px] font-bold inline-flex items-center gap-1.5 transition-colors"
+                    className="min-h-[36px] px-3 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-400/60 text-xs font-bold inline-flex items-center gap-1.5 transition-colors"
                    aria-label="View warehouse stockpile">
                     <span aria-hidden="true" className="material-symbols-outlined text-[15px]">warehouse</span>
                     <span>{src.stockpileButtonLabel}</span>
@@ -655,7 +655,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
             <p className="text-xs font-bold text-brand-black dark:text-white">
               No harvest events recorded yet.
             </p>
-            <p className="text-[11px] text-text-sub-light dark:text-text-sub-dark max-w-md mx-auto">
+            <p className="text-xs text-text-sub-light dark:text-text-sub-dark max-w-md mx-auto">
               Only explicitly recorded unit-to-unit or donor-to-unit harvest events with a verified source, destination, and date/ticket appear here.
             </p>
           </div>
@@ -670,7 +670,7 @@ export const HarvestSourcingView: React.FC<HarvestSourcingViewProps> = ({
                   <span>{ev.applianceLabel}</span>
                   <span className="text-gray-500">{ev.dateDisplay}</span>
                 </div>
-                <div className="text-[11px] text-text-sub-light dark:text-text-sub-dark">
+                <div className="text-xs text-text-sub-light dark:text-text-sub-dark">
                   From: {ev.sourceUnitLabel} → To: {ev.destinationUnitLabel}
                 </div>
               </div>

@@ -558,7 +558,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
             type="button"
             onClick={loadManualItems}
             disabled={isSyncingManual}
-            className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-200 dark:bg-amber-900/60 hover:bg-amber-300 text-amber-900 dark:text-amber-100 shrink-0 transition-colors"
+            className="px-2 py-0.5 rounded-md text-xs font-bold bg-amber-200 dark:bg-amber-900/60 hover:bg-amber-300 text-amber-900 dark:text-amber-100 shrink-0 transition-colors"
           >
             {isSyncingManual ? 'Connecting...' : 'Retry'}
           </button>
@@ -573,7 +573,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
               <span aria-hidden="true" className="material-symbols-outlined text-sm text-amber-500 shrink-0">delete</span>
               <span className="truncate">Deleted "{lastDeletedItem.item.part_name}" (x{lastDeletedItem.item.quantity}{lastDeletedItem.linkedWo ? ` · ${lastDeletedItem.linkedWo}` : ''})</span>
             </div>
-            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               Item removed from list. Tap Undo to restore with identical details.
             </p>
           </div>
@@ -641,7 +641,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-500 mb-1">
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
                 Part Name <span className="text-brand-red">*</span>
               </label>
               <input
@@ -655,7 +655,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-500 mb-1">
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
                 Part Number (optional)
               </label>
               <input
@@ -668,7 +668,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-500 mb-1">
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
                 Quantity <span className="text-brand-red">*</span>
               </label>
               <input
@@ -682,7 +682,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-500 mb-1">
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
                 Preferred Supplier (optional)
               </label>
               <input
@@ -695,7 +695,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-[11px] font-bold uppercase text-gray-500 mb-1">
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
                 Work Order / Ticket (optional — blank puts in "Manually added")
               </label>
               <select
@@ -713,7 +713,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-[11px] font-bold uppercase text-gray-500 mb-1">
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
                 Notes (optional)
               </label>
               <input
@@ -813,7 +813,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                       </span>
                     </div>
                     {group.buildingUnit && (
-                      <div className="text-[11px] text-gray-500 flex items-center gap-1 mt-1">
+                      <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
                         <span aria-hidden="true" className="material-symbols-outlined text-[13px]">location_on</span>
                         <span>{group.buildingUnit}</span>
                       </div>
@@ -833,7 +833,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                         <div>
                           <div className="flex items-center gap-2">
                             {item.partNumber && (
-                              <span className="px-2 py-0.5 text-[11px] font-mono font-bold rounded-md bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900">
+                              <span className="px-2 py-0.5 text-xs font-mono font-bold rounded-md bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900">
                                 {item.partNumber}
                               </span>
                             )}
@@ -847,7 +847,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                             )}
                           </div>
                           {item.notes && (
-                            <p className="text-[11px] text-gray-500 mt-1 italic">
+                            <p className="text-xs text-gray-500 mt-1 italic">
                               Note: {item.notes}
                             </p>
                           )}
@@ -858,7 +858,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                             <span className="text-base font-mono font-black text-brand-black dark:text-white">
                               x{item.quantity}
                             </span>
-                            <span className="block text-[9px] uppercase font-bold text-gray-400">Qty</span>
+                            <span className="block text-xs uppercase font-bold text-gray-400">Qty</span>
                           </div>
 
                           {item.manualId && (
@@ -877,7 +877,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                       {/* Supplier & Harvest Badges */}
                       <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
                         {item.harvestTag && (
-                          <span className="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-bold text-[11px] flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center gap-1">
                             <span aria-hidden="true" className="material-symbols-outlined text-[13px]">recycling</span>
                             {item.harvestTag}
                           </span>
@@ -885,7 +885,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
 
                         {item.supplierName && (
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 font-bold text-[11px] flex items-center gap-1">
+                            <span className="px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 font-bold text-xs flex items-center gap-1">
                               <span aria-hidden="true" className="material-symbols-outlined text-[13px]">store</span>
                               {item.supplierName}
                             </span>
@@ -894,7 +894,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                               <a
                                 href={`tel:${item.supplierPhone.replace(/[^0-9+]/g, '')}`}
                                 onClick={(e) => e.stopPropagation()}
-                                className="min-h-[44px] px-2.5 py-1 text-[11px] font-bold rounded-lg bg-primary text-white flex items-center gap-1.5 active:scale-95 shadow-xs transition-all"
+                                className="min-h-[44px] px-2.5 py-1 text-xs font-bold rounded-lg bg-primary text-white flex items-center gap-1.5 active:scale-95 shadow-xs transition-all"
                                 title={`Call ${item.supplierName}`}
                                 aria-label={`Call ${item.supplierName} at ${item.supplierPhone}`}
                               >
@@ -936,7 +936,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                         <div>
                           <div className="flex items-center gap-2">
                             {item.partNumber && (
-                              <span className="px-2 py-0.5 text-[11px] font-mono font-bold rounded-md bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900">
+                              <span className="px-2 py-0.5 text-xs font-mono font-bold rounded-md bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900">
                                 {item.partNumber}
                               </span>
                             )}
@@ -945,7 +945,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                             </span>
                           </div>
                           {item.notes && (
-                            <p className="text-[11px] text-gray-500 mt-1 italic">
+                            <p className="text-xs text-gray-500 mt-1 italic">
                               Note: {item.notes}
                             </p>
                           )}
@@ -956,7 +956,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                             <span className="text-base font-mono font-black text-brand-black dark:text-white">
                               x{item.quantity}
                             </span>
-                            <span className="block text-[9px] uppercase font-bold text-gray-400">Qty</span>
+                            <span className="block text-xs uppercase font-bold text-gray-400">Qty</span>
                           </div>
 
                           <button
@@ -972,7 +972,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
 
                       {item.supplierName && (
                         <div className="pt-1 flex flex-wrap items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 font-bold text-[11px] inline-flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 font-bold text-xs inline-flex items-center gap-1">
                             <span aria-hidden="true" className="material-symbols-outlined text-[13px]">store</span>
                             {item.supplierName}
                           </span>
@@ -981,7 +981,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
                             <a
                               href={`tel:${item.supplierPhone.replace(/[^0-9+]/g, '')}`}
                               onClick={(e) => e.stopPropagation()}
-                              className="min-h-[44px] px-2.5 py-1 text-[11px] font-bold rounded-lg bg-primary text-white inline-flex items-center gap-1.5 active:scale-95 shadow-xs transition-all"
+                              className="min-h-[44px] px-2.5 py-1 text-xs font-bold rounded-lg bg-primary text-white inline-flex items-center gap-1.5 active:scale-95 shadow-xs transition-all"
                               title={`Call ${item.supplierName}`}
                               aria-label={`Call ${item.supplierName} at ${item.supplierPhone}`}
                             >

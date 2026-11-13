@@ -168,7 +168,7 @@ export const WatchCard: React.FC<WatchCardProps> = ({
       )}
 
       {/* Timestamps Row */}
-      <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-800 mb-3">
+      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-800 mb-3">
         <span>Evaluated: {watch.last_evaluated_at ? formatTime(watch.last_evaluated_at) : 'Pending'}</span>
         {watch.last_triggered_at && (
           <span>Triggered: {formatTime(watch.last_triggered_at)}</span>

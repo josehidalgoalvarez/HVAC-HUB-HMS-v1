@@ -86,7 +86,7 @@ export const ExplainableTerm: React.FC<ExplainableTermProps> = ({
             <span aria-hidden="true" className="material-symbols-outlined text-[13px]">help_outline</span>
             {entry.label}
           </span>
-          <span className="block text-[11px] text-gray-200 dark:text-gray-200">
+          <span className="block text-xs text-gray-200 dark:text-gray-200">
             {entry.explanation}
           </span>
           {/* Subtle triangle caret pointing down */}

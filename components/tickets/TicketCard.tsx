@@ -192,7 +192,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
         </div>
 
         {ageStr && (
-          <span className="shrink-0 text-[11px] font-mono text-text-sub-light dark:text-text-sub-dark flex items-center gap-0.5">
+          <span className="shrink-0 text-xs font-mono text-text-sub-light dark:text-text-sub-dark flex items-center gap-0.5">
             <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none text-gray-400">schedule</span>
             {ageStr}
           </span>
@@ -210,7 +210,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
               <span
                 className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-bold rounded-md bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700"
               >
-                <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none text-amber-600 dark:text-amber-400">warning</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xs leading-none text-amber-600 dark:text-amber-400">warning</span>
                 Repeat access problem
               </span>
             )}
@@ -219,7 +219,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
                 key={chip.key}
                 className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-bold rounded-md ${chip.className}`}
               >
-                <span aria-hidden="true" className="material-symbols-outlined text-[11px] leading-none">{chip.icon}</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xs leading-none">{chip.icon}</span>
                 {chip.key === 'renovated' ? (
                   <ExplainableTerm term="renovated">{chip.label}</ExplainableTerm>
                 ) : (
@@ -265,7 +265,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
             e.stopPropagation();
             setIsExpanded(!isExpanded);
           }}
-          className="mt-1 min-h-[44px] w-full text-left text-[11px] font-bold text-primary dark:text-sky-400 hover:opacity-80 flex items-center justify-between py-1 border-t border-gray-100 dark:border-gray-800/80 uppercase tracking-wider"
+          className="mt-1 min-h-[44px] w-full text-left text-xs font-bold text-primary dark:text-sky-400 hover:opacity-80 flex items-center justify-between py-1 border-t border-gray-100 dark:border-gray-800/80 uppercase tracking-wider"
           aria-expanded={isExpanded}
          aria-label="Icon">
           <span>{isExpanded ? '[COLLAPSE ISSUE]' : '[SHOW FULL ISSUE]'}</span>
@@ -325,7 +325,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
 
               return (
                 <div className="flex items-center justify-between gap-2 pt-1">
-                  <span className="text-[11px] font-semibold text-text-sub-light dark:text-text-sub-dark">
+                  <span className="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark">
                     Quick State:
                   </span>
                   <select
@@ -358,7 +358,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
       </div>
 
       {/* 4. COMPACT META ROW OF CHIPS/BADGES (FLEX-WRAP, NO HORIZONTAL CLIPPING) */}
-      <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-gray-100 dark:border-gray-800/80 text-[11px]">
+      <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-gray-100 dark:border-gray-800/80 text-xs">
         {/* Exposure Badge */}
         {isLadder ? (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded-md bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
