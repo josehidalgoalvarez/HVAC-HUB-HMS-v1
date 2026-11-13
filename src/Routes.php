@@ -142,9 +142,9 @@ class Routes
             $group->delete('/tickets/{id}', function (Request $request, Response $response, array $args): Response {
                 $id = (int) ($args['id'] ?? 0);
                 try {
-                    Db::execute("UPDATE ticket SET status = 'closed', title = CONCAT('[ARCHIVED] ', title), updated_at = CURRENT_TIMESTAMP WHERE id = ?", [$id]);
+                    Db::execute("UPDATE ticket SET status = 'archived', title = CONCAT('[ARCHIVED] ', title), updated_at = CURRENT_TIMESTAMP WHERE id = ?", [$id]);
                     Db::execute("UPDATE watch SET state = 'resolved', resolved_at = CURRENT_TIMESTAMP WHERE target_type = 'ticket' AND target_id = ?", [$id]);
-                    return Auth::jsonSuccess(['deleted' => true, 'id' => $id, 'status' => 'closed']);
+                    return Auth::jsonSuccess(['deleted' => true, 'id' => $id, 'status' => 'archived']);
                 } catch (\Throwable $e) {
                     return Auth::jsonError('delete_failed', $e->getMessage(), 500);
                 }

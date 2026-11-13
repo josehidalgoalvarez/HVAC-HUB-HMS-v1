@@ -58,9 +58,10 @@ class Ticket
             $where[] = 't.status = ?';
             $params[] = $filters['status'];
         } elseif (empty($filters['include_archived'])) {
-            // By default, exclude archived-blocked tickets from active listings
-            $where[] = 't.status != ?';
+            // By default, exclude archived-blocked and archived tickets from active listings
+            $where[] = 't.status NOT IN (?, ?)';
             $params[] = self::STATE_ARCHIVED_BLOCKED;
+            $params[] = 'archived';
         }
 
         if (!empty($filters['since'])) {

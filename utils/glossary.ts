@@ -43,6 +43,12 @@ export const STATUS_GLOSSARY: Record<string, GlossaryEntry> = {
     explanation: 'Work order blocked 30+ days; scope and notes permanently recorded in unit history and ticket archived.',
     category: 'ticket_state',
   },
+  archived: {
+    term: 'archived',
+    label: 'Archived',
+    explanation: 'Archived — test or obsolete ticket, kept for history and hidden from the active lists.',
+    category: 'ticket_state',
+  },
   'on-hold': {
     term: 'on-hold',
     label: 'On-Hold',

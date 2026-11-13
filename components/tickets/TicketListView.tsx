@@ -78,7 +78,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   const filteredTickets = useMemo(() => {
     return tickets.filter((t) => {
       const s = t.status || t.state;
-      const isArchived = s === 'archived-blocked';
+      const isArchived = s === 'archived-blocked' || s === 'archived';
 
       // Search query filter
       if (searchQuery.trim()) {
@@ -133,13 +133,14 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
     });
   }, [tickets, searchQuery, activeFilter]);
 
-  // Section breakdown counts (archived-blocked tickets are excluded from active counts)
-  const activeTicketsCount = tickets.filter((t) => (t.status || t.state) !== 'archived-blocked').length;
-  const safetyCount = tickets.filter((t) => (t.status || t.state) !== 'archived-blocked' && t.priority === 'urgent').length;
+  // Section breakdown counts (archived-blocked and archived tickets are excluded from active counts)
+  const isArchivedStatus = (s?: string) => s === 'archived-blocked' || s === 'archived';
+  const activeTicketsCount = tickets.filter((t) => !isArchivedStatus(t.status || t.state)).length;
+  const safetyCount = tickets.filter((t) => !isArchivedStatus(t.status || t.state) && t.priority === 'urgent').length;
   const closableCount = tickets.filter((t) => {
     const s = t.status || t.state;
     return (
-      s !== 'archived-blocked' &&
+      !isArchivedStatus(s) &&
       (s === 'new' ||
         s === 'in-progress' ||
         s === 'in_progress' ||
@@ -151,10 +152,10 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   const blockedCount = tickets.filter((t) => (t.status || t.state) === 'blocked').length;
   const completedCount = tickets.filter((t) => {
     const s = t.status || t.state;
-    return s !== 'archived-blocked' && (s === 'done' || s === 'closed' || s === 'closed-elsewhere');
+    return !isArchivedStatus(s) && (s === 'done' || s === 'closed' || s === 'closed-elsewhere');
   }).length;
-  const archivedCount = tickets.filter((t) => (t.status || t.state) === 'archived-blocked').length;
-  const unassignedCount = tickets.filter((t) => (t.status || t.state) !== 'archived-blocked' && !t.wo_number).length;
+  const archivedCount = tickets.filter((t) => isArchivedStatus(t.status || t.state)).length;
+  const unassignedCount = tickets.filter((t) => !isArchivedStatus(t.status || t.state) && !t.wo_number).length;
 
   if (selectedTicketId) {
     return (

@@ -306,6 +306,7 @@ export type TicketState =
   | 'in-progress'
   | 'blocked'
   | 'archived-blocked'
+  | 'archived'
   | 'on-hold'
   | 'on_hold'
   | 'done'
