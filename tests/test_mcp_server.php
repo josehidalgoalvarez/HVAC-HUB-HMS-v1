@@ -219,11 +219,11 @@ $resWrite = dispatchJsonRpc($app, $validToken, [
     'id' => 8,
     'method' => 'tools/call',
     'params' => [
-        'name' => 'create_ticket',
+        'name' => 'not_a_real_tool',
         'arguments' => ['title' => 'Sneak write'],
     ],
 ]);
-assertMcp(($resWrite['body']['error']['code'] ?? null) === -32602, '8.2 Unimplemented tool call (create_ticket) is rejected with -32602', $passes, $failures);
+assertMcp(($resWrite['body']['error']['code'] ?? null) === -32602 && str_contains($resWrite['body']['error']['message'] ?? '', 'Unknown tool'), '8.2 Unimplemented tool call (not_a_real_tool) is rejected with -32602', $passes, $failures);
 
 // ============================================================================
 // MCP v2 Write Tool Tests: record_move (9 tests)
