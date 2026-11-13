@@ -383,6 +383,17 @@ export class ApiClient {
     return this.post<Ticket>(`/api/tickets/${parentId}/children`, data);
   }
 
+  public async linkRelatedTicket(ticketId: string | number, relatedTicketId: string | number, reason?: string): Promise<any> {
+    return this.post<any>(`/api/tickets/${ticketId}/related`, {
+      related_ticket_id: Number(relatedTicketId),
+      ...(reason ? { reason } : {}),
+    });
+  }
+
+  public async unlinkRelatedTicket(ticketId: string | number, relatedTicketId: string | number): Promise<any> {
+    return this.delete<any>(`/api/tickets/${ticketId}/related/${relatedTicketId}`);
+  }
+
   /**
    * Get correction history log for a ticket
    */

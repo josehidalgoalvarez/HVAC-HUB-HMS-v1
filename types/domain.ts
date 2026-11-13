@@ -367,6 +367,7 @@ export interface Ticket {
   is_stale_yardi?: boolean;
   yardi_warning?: string | null;
   children?: Ticket[];
+  related_tickets?: Ticket[];
   childrenCount?: number;
   childrenRollup?: TicketRollup;
   created_at?: string;

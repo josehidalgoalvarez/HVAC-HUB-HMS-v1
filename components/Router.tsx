@@ -231,6 +231,10 @@ const Router: React.FC<RouterProps> = ({
           onApplianceClick={handleApplianceClick}
           isEditMode={isEditMode}
           onOpenStockpileInventory={handleOpenStockpileInventory}
+          onOpenTicket={(ticketId) => {
+            setSelectedTicketId(ticketId);
+            setActiveView(ViewType.TICKETS);
+          }}
           onNavigateComplex={(complexId) => {
             handleUpdatePropertiesNav({
               navLevel: 'complex',

@@ -14,6 +14,7 @@ import {
   BuildingMoveReference
 } from '../../residential_constants';
 import { BuildingMoveReferenceSheet } from './BuildingMoveReferenceSheet';
+import { UnitHistorySection } from './UnitHistorySection';
 
 interface PropertyDetailViewProps {
   propertyId: string;
@@ -22,6 +23,7 @@ interface PropertyDetailViewProps {
   isEditMode: boolean;
   onOpenStockpileInventory?: (stockpileId: number | string) => void;
   onNavigateComplex?: (complexId: string) => void;
+  onOpenTicket?: (ticketId: string) => void;
 }
 
 const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
@@ -31,8 +33,10 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
   isEditMode,
   onOpenStockpileInventory,
   onNavigateComplex,
+  onOpenTicket,
 }) => {
   const { getProperty, appliances, updateProperty, units } = useData();
+  const [selectedHistoryUnitId, setSelectedHistoryUnitId] = useState<string>('');
   const property = getProperty(propertyId);
   const propertyAppliances = appliances.filter(a => a.propertyId === propertyId);
 
@@ -617,6 +621,43 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
             ))}
           </div>
         </div>
+
+        {/* Unit History Section */}
+        {(() => {
+          const buildingUnits = units.filter((u) => Number(u.buildingId) === Number(property.id));
+          if (buildingUnits.length === 0) return null;
+          const activeUnit =
+            buildingUnits.find((u) => String(u.id) === selectedHistoryUnitId) || buildingUnits[0];
+          return (
+            <div className="bg-white dark:bg-card-dark rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 space-y-3">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">history</span>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-primary">Unit History</h3>
+                </div>
+                <select
+                  aria-label="Select unit for history"
+                  value={String(activeUnit.id)}
+                  onChange={(e) => setSelectedHistoryUnitId(e.target.value)}
+                  className="px-2.5 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs font-bold text-brand-black dark:text-white"
+                >
+                  {buildingUnits.map((u) => (
+                    <option key={u.id} value={String(u.id)}>
+                      Unit {u.unitNumber}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <UnitHistorySection
+                buildingId={Number(property.id)}
+                unitId={Number(activeUnit.id)}
+                unitNumber={activeUnit.unitNumber}
+                appliances={appliances}
+                onOpenTicket={onOpenTicket}
+              />
+            </div>
+          );
+        })()}
       </div>
 
       {/* Building Move Reference Sheet */}

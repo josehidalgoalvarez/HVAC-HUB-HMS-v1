@@ -234,11 +234,131 @@ class Ticket
             $parent['timeline'] = TicketTimeline::getForTicket((int) $id);
             $parent['visits'] = TicketVisit::getForTicket((int) $id);
             $parent['parts'] = PartWorkflow::getPartsForTicket((int) $id);
+            $parent['related_tickets'] = self::getRelated((int) $id);
         } catch (Throwable) {
             // Fallback
         }
 
         return $parent;
+    }
+
+    /**
+     * Link two tickets as related (bidirectional, unordered pair).
+     */
+    public static function linkRelated(int $ticketId, int $relatedId, ?int $userId = null, ?string $reason = null): array
+    {
+        if ($ticketId <= 0 || $relatedId <= 0) {
+            throw new RuntimeException('Invalid ticket ID');
+        }
+        if ($ticketId === $relatedId) {
+            throw new RuntimeException('Cannot link a ticket to itself');
+        }
+
+        $t1 = self::findById($ticketId);
+        if ($t1 === null) {
+            throw new RuntimeException("Ticket #{$ticketId} not found");
+        }
+        $t2 = self::findById($relatedId);
+        if ($t2 === null) {
+            throw new RuntimeException("Related ticket #{$relatedId} not found");
+        }
+
+        $a = min($ticketId, $relatedId);
+        $b = max($ticketId, $relatedId);
+
+        $existing = Db::fetchOne(
+            'SELECT id FROM ticket_relationship WHERE (ticket_id = ? AND related_ticket_id = ?) OR (ticket_id = ? AND related_ticket_id = ?) LIMIT 1',
+            [$a, $b, $b, $a]
+        );
+        if ($existing !== null) {
+            throw new RuntimeException("Tickets #{$ticketId} and #{$relatedId} are already linked");
+        }
+
+        $cleanReason = $reason !== null && trim($reason) !== '' ? trim($reason) : null;
+
+        Db::execute(
+            'INSERT INTO ticket_relationship (ticket_id, related_ticket_id, reason, created_by, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)',
+            [$a, $b, $cleanReason, $userId]
+        );
+        $relId = (int) Db::lastInsertId();
+
+        Correction::record(
+            'ticket',
+            $ticketId,
+            'related_ticket',
+            null,
+            (string) $relatedId,
+            $userId,
+            $cleanReason ?? "Linked related ticket #{$relatedId}"
+        );
+
+        return [
+            'id' => $relId,
+            'ticket_id' => $a,
+            'related_ticket_id' => $b,
+            'reason' => $cleanReason,
+            'created_by' => $userId,
+        ];
+    }
+
+    /**
+     * Unlink two related tickets (bidirectional).
+     */
+    public static function unlinkRelated(int $ticketId, int $relatedId, ?int $userId = null, ?string $reason = null): bool
+    {
+        if ($ticketId <= 0 || $relatedId <= 0) {
+            throw new RuntimeException('Invalid ticket ID');
+        }
+
+        $t1 = self::findById($ticketId);
+        if ($t1 === null) {
+            throw new RuntimeException("Ticket #{$ticketId} not found");
+        }
+
+        $affected = Db::execute(
+            'DELETE FROM ticket_relationship WHERE (ticket_id = ? AND related_ticket_id = ?) OR (ticket_id = ? AND related_ticket_id = ?)',
+            [$ticketId, $relatedId, $relatedId, $ticketId]
+        );
+        if ($affected === 0) {
+            throw new RuntimeException("Relationship between ticket #{$ticketId} and #{$relatedId} not found");
+        }
+
+        $cleanReason = $reason !== null && trim($reason) !== '' ? trim($reason) : "Unlinked related ticket #{$relatedId}";
+        Correction::record(
+            'ticket',
+            $ticketId,
+            'related_ticket',
+            (string) $relatedId,
+            null,
+            $userId,
+            $cleanReason
+        );
+
+        return true;
+    }
+
+    /**
+     * Get all related tickets for a ticket in either direction (one hop only).
+     */
+    public static function getRelated(int $ticketId): array
+    {
+        $sql = "SELECT t.*,
+                       b.name AS building_name,
+                       u.unit_number AS unit_number,
+                       tr.reason AS link_reason,
+                       tr.created_at AS linked_at
+                FROM ticket_relationship tr
+                JOIN ticket t ON t.id = CASE
+                    WHEN tr.ticket_id = ? THEN tr.related_ticket_id
+                    ELSE tr.ticket_id
+                END
+                LEFT JOIN building b ON t.building_id = b.id
+                LEFT JOIN unit u ON t.unit_id = u.id
+                WHERE tr.ticket_id = ? OR tr.related_ticket_id = ?
+                ORDER BY tr.id DESC";
+
+        $rows = Db::fetchAll($sql, [$ticketId, $ticketId, $ticketId]);
+        return array_map([self::class, 'enrichTicket'], $rows);
     }
 
     /**

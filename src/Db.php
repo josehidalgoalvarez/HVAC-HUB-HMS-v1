@@ -337,6 +337,15 @@ class Db
                 metadata TEXT NULL,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS ticket_relationship (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ticket_id INTEGER NOT NULL,
+                related_ticket_id INTEGER NOT NULL,
+                reason TEXT NULL,
+                created_by INTEGER NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(ticket_id, related_ticket_id)
+            );
             CREATE TABLE IF NOT EXISTS ticket_visit (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ticket_id INTEGER NOT NULL,

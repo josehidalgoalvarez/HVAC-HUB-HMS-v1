@@ -153,6 +153,12 @@ class Routes
             // POST /api/tickets/{id}/children (creates child ticket under parent)
             $group->post('/tickets/{id}/children', [TicketController::class, 'createChild']);
 
+            // POST /api/tickets/{id}/related (links related ticket)
+            $group->post('/tickets/{id}/related', [TicketController::class, 'linkRelated']);
+
+            // DELETE /api/tickets/{id}/related/{relatedId} (unlinks related ticket)
+            $group->delete('/tickets/{id}/related/{relatedId}', [TicketController::class, 'unlinkRelated']);
+
             // GET /api/tickets/{id}/corrections (returns full correction log)
             $group->get('/tickets/{id}/corrections', [TicketController::class, 'corrections']);
 

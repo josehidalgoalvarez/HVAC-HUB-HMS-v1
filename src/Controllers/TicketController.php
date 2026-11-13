@@ -139,6 +139,70 @@ class TicketController
     }
 
     /**
+     * POST /api/tickets/{id}/related
+     * Links two tickets as related (bidirectional).
+     */
+    public function linkRelated(Request $request, Response $response, array $args): Response
+    {
+        $ticketId = (int) ($args['id'] ?? 0);
+        if ($ticketId <= 0) {
+            return Auth::jsonError('not_found', 'Ticket not found', 404);
+        }
+
+        if (Ticket::findById($ticketId) === null) {
+            return Auth::jsonError('not_found', "Ticket #{$ticketId} not found", 404);
+        }
+
+        $body = (array) ($request->getParsedBody() ?? []);
+        $relatedId = (int) ($body['related_ticket_id'] ?? 0);
+        if ($relatedId <= 0) {
+            return Auth::jsonError('bad_request', 'related_ticket_id is required', 400);
+        }
+
+        if (Ticket::findById($relatedId) === null) {
+            return Auth::jsonError('not_found', "Related ticket #{$relatedId} not found", 404);
+        }
+
+        $user = $request->getAttribute('user');
+        $userId = isset($user['id']) ? (int) $user['id'] : null;
+        $reason = isset($body['reason']) ? (string) $body['reason'] : null;
+
+        try {
+            $rel = Ticket::linkRelated($ticketId, $relatedId, $userId, $reason);
+            return Auth::jsonSuccess($rel, 201);
+        } catch (Throwable $e) {
+            return Auth::jsonError('bad_request', $e->getMessage(), 400);
+        }
+    }
+
+    /**
+     * DELETE /api/tickets/{id}/related/{relatedId}
+     * Unlinks two related tickets.
+     */
+    public function unlinkRelated(Request $request, Response $response, array $args): Response
+    {
+        $ticketId = (int) ($args['id'] ?? 0);
+        $relatedId = (int) ($args['relatedId'] ?? 0);
+        if ($ticketId <= 0 || $relatedId <= 0) {
+            return Auth::jsonError('not_found', 'Ticket not found', 404);
+        }
+
+        if (Ticket::findById($ticketId) === null) {
+            return Auth::jsonError('not_found', "Ticket #{$ticketId} not found", 404);
+        }
+
+        $user = $request->getAttribute('user');
+        $userId = isset($user['id']) ? (int) $user['id'] : null;
+
+        try {
+            Ticket::unlinkRelated($ticketId, $relatedId, $userId);
+            return Auth::jsonSuccess(['unlinked' => true, 'ticket_id' => $ticketId, 'related_ticket_id' => $relatedId]);
+        } catch (Throwable $e) {
+            return Auth::jsonError('bad_request', $e->getMessage(), 400);
+        }
+    }
+
+    /**
      * GET /api/tickets/{id}/corrections
      * Returns full append-only audit trail for this ticket.
      */
