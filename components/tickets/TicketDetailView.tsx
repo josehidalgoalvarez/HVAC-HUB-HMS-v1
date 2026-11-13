@@ -27,6 +27,10 @@ import { TicketPartsSection } from './detail/TicketPartsSection';
 import { TicketRelatedSection } from './detail/TicketRelatedSection';
 import { TicketNoticeCard } from './detail/TicketNoticeCard';
 import { TicketSubJobsSection } from './detail/TicketSubJobsSection';
+import { TicketEditModal } from './detail/TicketEditModal';
+import { TicketVisitModal } from './detail/TicketVisitModal';
+import { TicketOrderPartModal } from './detail/TicketOrderPartModal';
+import { TicketIdentifyModal } from './detail/TicketIdentifyModal';
 
 interface TicketDetailViewProps {
   ticketId: string;
@@ -53,33 +57,12 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
   // Log Visit Modal State
   const [isLogVisitOpen, setIsLogVisitOpen] = useState(false);
-  const [visitOutcome, setVisitOutcome] = useState<TicketVisitOutcome>('completed');
-  const [visitReason, setVisitReason] = useState<TicketVisitReason>('tenant_absent');
-  const [visitNotes, setVisitNotes] = useState('');
-  const [visitedAt, setVisitedAt] = useState('');
-  const [visitTechName, setVisitTechName] = useState('Jose (Tech)');
-  const [visitSaving, setVisitSaving] = useState(false);
 
   // Order Part Modal State
   const [isOrderPartOpen, setIsOrderPartOpen] = useState(false);
-  const [partName, setPartName] = useState('');
-  const [partNumber, setPartNumber] = useState('');
-  const [partSupplier, setPartSupplier] = useState<'Dependable' | 'Home Depot Gardiners Rd' | 'other'>('Dependable');
-  const [customSupplier, setCustomSupplier] = useState('');
-  const [partOrderRef, setPartOrderRef] = useState('');
-  const [partApplianceType, setPartApplianceType] = useState('Refrigerator');
-  const [partQuantity, setPartQuantity] = useState<number | ''>(1);
-  const [partUnitCost, setPartUnitCost] = useState('');
-  const [partNotes, setPartNotes] = useState('');
-  const [partSaving, setPartSaving] = useState(false);
 
   // Appliance Identification Modal State
   const [isIdentifyOpen, setIsIdentifyOpen] = useState(false);
-  const [appliancePhotoUrl, setAppliancePhotoUrl] = useState('');
-  const [ratingPlateUrl, setRatingPlateUrl] = useState('');
-  const [manualUrl, setManualUrl] = useState('');
-  const [identifyNotes, setIdentifyNotes] = useState('');
-  const [identifySaving, setIdentifySaving] = useState(false);
 
   // Work Exposure & Rain Signal State
   const [workExposure, setWorkExposure] = useState<'indoor' | 'exterior' | 'exterior_ladder'>('indoor');
@@ -90,17 +73,6 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   // Edit Modal State
   const { units, getUnitAppliances } = useData();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editTitle, setEditTitle] = useState('');
-  const [editWoNumber, setEditWoNumber] = useState('');
-  const [editPriority, setEditPriority] = useState<TicketPriority>('medium');
-  const [editState, setEditState] = useState<TicketState>('new');
-  const [editParty, setEditParty] = useState<ClosedByParty | null>(null);
-  const [editScope, setEditScope] = useState('');
-  const [editBlocker, setEditBlocker] = useState('');
-  const [editExposure, setEditExposure] = useState<'indoor' | 'exterior' | 'exterior_ladder'>('indoor');
-  const [editApplianceId, setEditApplianceId] = useState<string | number | null>(null);
-  const [editReason, setEditReason] = useState('');
-  const [editSaving, setEditSaving] = useState(false);
 
   // Add Child Modal State
 
@@ -150,67 +122,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   useEffect(() => {
   }, [ticketId]);
 
-  const handleLogVisit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!ticket) return;
-    try {
-      setVisitSaving(true);
-      await apiClient.logTicketVisit(ticket.id, {
-        outcome: visitOutcome,
-        failure_reason: visitOutcome === 'failed_access' ? visitReason : undefined,
-        notes: visitNotes.trim() || undefined,
-        visited_at: visitedAt ? new Date(visitedAt).toISOString().slice(0, 19).replace('T', ' ') : undefined,
-        tech_name: visitTechName.trim() || 'Jose (Tech)',
-      });
-      setIsLogVisitOpen(false);
-      setVisitNotes('');
-      setVisitedAt('');
-      await loadTicketData();
-    } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Failed to log visit');
-    } finally {
-      setVisitSaving(false);
-    }
-  };
 
-  const handleOrderPart = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!ticket) return;
-    if (!partName.trim()) {
-      alert('Part name is required');
-      return;
-    }
-    const numericQty = typeof partQuantity === 'number' ? partQuantity : parseInt(String(partQuantity), 10);
-    if (!numericQty || isNaN(numericQty) || numericQty <= 0) {
-      alert('Please enter a valid part quantity greater than zero');
-      return;
-    }
-    const supplier = partSupplier === 'other' ? (customSupplier.trim() || 'Other Supplier') : partSupplier;
-    try {
-      setPartSaving(true);
-      await apiClient.orderTicketPart(ticket.id, {
-        part_name: partName.trim(),
-        part_number: partNumber.trim() || undefined,
-        supplier,
-        order_ref: partOrderRef.trim() || undefined,
-        appliance_type: partApplianceType,
-        quantity: numericQty,
-        unit_cost: partUnitCost ? parseFloat(partUnitCost) : undefined,
-        notes: partNotes.trim() || undefined,
-      });
-      setIsOrderPartOpen(false);
-      setPartName('');
-      setPartNumber('');
-      setPartOrderRef('');
-      setCustomSupplier('');
-      setPartNotes('');
-      await loadTicketData();
-    } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Failed to order part');
-    } finally {
-      setPartSaving(false);
-    }
-  };
 
   const handleMarkPartArrived = async (part: any) => {
     if (!ticket) return;
@@ -240,33 +152,6 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     }
   };
 
-  const handleIdentifyAppliance = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!ticket) return;
-    try {
-      setIdentifySaving(true);
-      await apiClient.appendTicketTimeline(ticket.id, {
-        event_type: 'appliance_identified',
-        actor: 'Jose (Tech)',
-        note: identifyNotes.trim() || 'Appliance identified and documented with field data',
-        metadata: {
-          photo_url: appliancePhotoUrl.trim() || undefined,
-          rating_plate_url: ratingPlateUrl.trim() || undefined,
-          manual_url: manualUrl.trim() || undefined,
-        },
-      });
-      setIsIdentifyOpen(false);
-      setAppliancePhotoUrl('');
-      setRatingPlateUrl('');
-      setManualUrl('');
-      setIdentifyNotes('');
-      await loadTicketData();
-    } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Failed to identify appliance');
-    } finally {
-      setIdentifySaving(false);
-    }
-  };
 
   const handleSetExposure = async (newExp: 'indoor' | 'exterior' | 'exterior_ladder') => {
     if (!ticket || newExp === workExposure) return;
@@ -299,20 +184,6 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     }
   };
 
-  const openEditModal = () => {
-    if (!ticket) return;
-    setEditTitle(ticket.title || '');
-    setEditWoNumber(ticket.wo_number || '');
-    setEditPriority(ticket.priority || 'medium');
-    setEditState((ticket.status || ticket.state || 'new') as TicketState);
-    setEditParty((ticket.closed_by_party as ClosedByParty) || null);
-    setEditScope(ticket.verified_scope || '');
-    setEditBlocker(ticket.blocked_reason || ticket.blocker_reason || '');
-    setEditExposure((ticket.work_exposure || (ticket.exterior_work ? 'exterior' : 'indoor')) as 'indoor' | 'exterior' | 'exterior_ladder');
-    setEditApplianceId(ticket.appliance_id ?? null);
-    setEditReason('');
-    setIsEditModalOpen(true);
-  };
 
   const [isPruning, setIsPruning] = useState(false);
 
@@ -337,54 +208,6 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     }
   };
 
-  const handleSaveEdit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!ticket) return;
-    setEditSaving(true);
-    if (editState === 'blocked' && !editBlocker.trim()) {
-      alert('A blocker reason is strictly required when setting a ticket to Blocked.');
-      setEditSaving(false);
-      return;
-    }
-
-    try {
-      const payload: Partial<Ticket> & { reason: string } = {
-        title: editTitle.trim(),
-        wo_number: editWoNumber.trim() || null,
-        priority: editPriority,
-        status: editState,
-        closed_by_party: editState === 'closed-elsewhere' ? editParty : null,
-        verified_scope: editScope.trim() || null,
-        blocker_reason: editState === 'blocked' ? editBlocker.trim() : null,
-        blocked_reason: editState === 'blocked' ? editBlocker.trim() : null,
-        work_exposure: editExposure,
-        exterior_work: editExposure !== 'indoor',
-        appliance_id: editApplianceId,
-        reason: editReason.trim() || 'Updated ticket details',
-      };
-
-      const updated = await apiClient.updateTicket(ticket.id, payload);
-      setTicket(updated);
-      setWorkExposure(editExposure);
-
-      if (editExposure === 'exterior' || editExposure === 'exterior_ladder') {
-        const scheduledDate = updated?.scheduled_date || (updated?.scheduled_at ? updated.scheduled_at.slice(0, 10) : undefined);
-        apiClient.checkRainExpected(scheduledDate).then(setRainExpected).catch(() => setRainExpected(null));
-      } else {
-        setRainExpected(null);
-      }
-
-      setIsEditModalOpen(false);
-
-      // Refresh correction history
-      const freshCorrections = await apiClient.getTicketCorrections(ticket.id);
-      setCorrections(freshCorrections || []);
-    } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Failed to save changes');
-    } finally {
-      setEditSaving(false);
-    }
-  };
 
 
   const handleStampYardiSighting = async () => {
@@ -532,7 +355,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         </div>
 
         <button
-          onClick={openEditModal}
+          onClick={() => setIsEditModalOpen(true)}
           className="px-3 py-1.5 text-xs font-bold bg-primary/10 text-primary hover:bg-primary/20 rounded-xl flex items-center gap-1 shrink-0"
         >
           <span aria-hidden="true" className="material-symbols-outlined text-[16px]">edit</span>
@@ -833,7 +656,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
           <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 flex items-center justify-between">
             <span className="text-xs text-gray-400 italic">No verified scope recorded yet.</span>
             <button
-              onClick={openEditModal}
+              onClick={() => setIsEditModalOpen(true)}
               className="text-xs font-bold text-primary hover:underline"
             >
               + Confirm Scope
@@ -898,684 +721,18 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       <TicketCorrectionsSection corrections={corrections} />
 
       {/* Edit Field Modal */}
-      {isEditModalOpen && (
-        <Modal title="Edit Ticket" onClose={() => setIsEditModalOpen(false)} className="max-w-md">
-          <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
-            <h2 className="text-base font-bold text-brand-black dark:text-white">Edit Ticket</h2>
-            <button
-              onClick={() => setIsEditModalOpen(false)}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
-             aria-label="Close">
-              <span aria-hidden="true" className="material-symbols-outlined">close</span>
-            </button>
-          </div>
-
-          <form onSubmit={handleSaveEdit} className="mt-4 space-y-3">
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Title</label>
-              <input
-                type="text"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">WO Number</label>
-                <input
-                  type="text"
-                  value={editWoNumber}
-                  onChange={(e) => setEditWoNumber(e.target.value)}
-                  placeholder="e.g. WO-19970"
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">State</label>
-                <select
-                  value={
-                    editState === 'closed-elsewhere' && editParty
-                      ? `closed-elsewhere:${editParty}`
-                      : editState
-                  }
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val.startsWith('closed-elsewhere:')) {
-                      setEditState('closed-elsewhere');
-                      setEditParty(val.split(':')[1] as ClosedByParty);
-                    } else if (val === 'closed-elsewhere') {
-                      setEditState('closed-elsewhere');
-                      setEditParty(null);
-                    } else {
-                      setEditState(val as TicketState);
-                      setEditParty(null);
-                    }
-                  }}
-                  className={`w-full px-3 py-2 text-sm rounded-xl border font-semibold ${
-                    editState === 'done'
-                      ? 'border-emerald-500 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-500'
-                      : editState === 'blocked'
-                      ? 'border-rose-500 bg-rose-50 text-rose-900 dark:bg-rose-950/50 dark:text-rose-200 dark:border-rose-500'
-                      : editState === 'in-progress'
-                      ? 'border-primary/40 bg-primary/5 text-primary dark:border-primary/60 dark:bg-primary/20 dark:text-sky-300'
-                      : editState === 'on-hold'
-                      ? 'border-amber-400 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-600'
-                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
-                  }`}
-                >
-                  <option value="new">New</option>
-                  <option value="verified">Verified</option>
-                  <option value="in-progress">In-Progress</option>
-                  <option value="blocked">Blocked</option>
-                  <option value="on-hold">On-Hold</option>
-                  <option value="done">Done</option>
-                  <option value="closed">Closed</option>
-                  <option value="closed-elsewhere:coworker">Closed — Coworker</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Priority</label>
-                <select
-                  value={editPriority}
-                  onChange={(e) => setEditPriority(e.target.value as TicketPriority)}
-                  className={`w-full px-3 py-2 text-sm rounded-xl border font-semibold ${
-                    editPriority === 'urgent'
-                      ? 'border-brand-red bg-rose-50 text-brand-red dark:bg-rose-950/50 dark:text-rose-200 dark:border-brand-red font-bold'
-                      : editPriority === 'high'
-                      ? 'border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-500'
-                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
-                  }`}
-                >
-                  <option value="urgent">Urgent</option>
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </select>
-              </div>
-
-              {editState === 'blocked' && (
-                <div>
-                  <label className="block text-xs font-bold uppercase text-brand-red mb-1">
-                    Blocker Reason <span className="text-brand-red">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editBlocker}
-                    onChange={(e) => setEditBlocker(e.target.value)}
-                    placeholder="Why is this blocked? (e.g. Awaiting owner authorization / rent hold)"
-                    className="w-full px-3 py-2 text-sm rounded-xl border border-red-300 dark:border-red-800 bg-red-50/50"
-                  />
-                  <span className="text-xs text-gray-500 mt-0.5 block">
-                    Distinction: on-hold = waiting on next expected step; blocked = outside tech control.
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-primary mb-1">
-                Verified Scope (Confirmed Description)
-              </label>
-              <textarea
-                value={editScope}
-                onChange={(e) => setEditScope(e.target.value)}
-                rows={2}
-                className="w-full px-3 py-2 text-sm rounded-xl border border-primary/40 bg-primary/5 dark:bg-primary/10"
-              />
-            </div>
-
-            {/* Work Exposure Selector in Edit Modal */}
-            <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 space-y-2">
-              <label className="block text-xs font-bold uppercase text-gray-600 dark:text-gray-300">
-                Work Exposure
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEditExposure('indoor')}
-                  className={`min-h-[40px] px-2 py-1.5 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1 transition-all ${
-                    editExposure === 'indoor'
-                      ? 'bg-white dark:bg-gray-700 text-brand-black dark:text-white border-primary shadow-sm'
-                      : 'border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  <span aria-hidden="true" className="material-symbols-outlined text-[14px]">roofing</span>
-                  <span>Indoor</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditExposure('exterior')}
-                  className={`min-h-[40px] px-2 py-1.5 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1 transition-all ${
-                    editExposure === 'exterior'
-                      ? 'bg-sky-500 text-white border-sky-500 shadow-sm'
-                      : 'border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  <span aria-hidden="true" className="material-symbols-outlined text-[14px]">wb_sunny</span>
-                  <span>Exterior</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditExposure('exterior_ladder')}
-                  className={`min-h-[40px] px-2 py-1.5 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1 transition-all ${
-                    editExposure === 'exterior_ladder'
-                      ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
-                      : 'border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  <span aria-hidden="true" className="material-symbols-outlined text-[14px]">stairs</span>
-                  <span>Ladder</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Appliance Selector in Edit Modal */}
-            {unitAppliances.length > 0 && (
-              <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 space-y-2">
-                <label className="block text-xs font-bold uppercase text-gray-600 dark:text-gray-300">
-                  Target Appliance
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setEditApplianceId(null)}
-                    className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                      editApplianceId === null
-                        ? 'bg-brand-black text-white dark:bg-white dark:text-brand-black border-transparent font-bold'
-                        : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-gray-400'
-                    }`}
-                  >
-                    None / General
-                  </button>
-                  {unitAppliances.map((app) => {
-                    const isSelected = editApplianceId !== null && String(editApplianceId) === String(app.id);
-                    return (
-                      <button
-                        key={app.id}
-                        type="button"
-                        onClick={() => setEditApplianceId(isSelected ? null : app.id)}
-                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                          isSelected
-                            ? 'bg-blue-600 text-white border-blue-600 font-bold shadow-xs'
-                            : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-600 hover:border-blue-400'
-                        }`}
-                      >
-                        <span aria-hidden="true" className="material-symbols-outlined text-[13px]">kitchen</span>
-                        <span>{app.name || app.type}</span>
-                        {app.modelNumber && (
-                          <span className="font-mono text-xs opacity-80">({app.modelNumber})</span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* MANDATORY REASON FOR EDIT */}
-            <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
-              <label className="block text-xs font-bold uppercase text-brand-black dark:text-white mb-1">
-                Reason for change <span className="text-brand-red">*</span>
-              </label>
-              <input
-                type="text"
-                value={editReason}
-                onChange={(e) => setEditReason(e.target.value)}
-                placeholder="Why is this field being modified? (e.g. Scope confirmed on site)"
-                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-card-dark font-medium"
-                required
-              />
-              <span className="text-xs text-gray-400">
-                Required: every change is permanently logged in the correction audit trail.
-              </span>
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setIsEditModalOpen(false)}
-                className="flex-1 py-2.5 text-xs"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="primary"
-                className="flex-1 py-2.5 text-xs shadow-md"
-                disabled={editSaving}
-              >
-                {editSaving ? 'Saving...' : 'Save & Log Correction'}
-              </Button>
-            </div>
-          </form>
-        </Modal>
-      )}
+      <TicketEditModal ticket={ticket} unitAppliances={unitAppliances} open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSaved={loadTicketData} />
+      <TicketVisitModal ticketId={ticketId} noticeNeeded={ticket.notice_needed} noticeSentAt={ticket.notice_sent_at} open={isLogVisitOpen} onClose={() => setIsLogVisitOpen(false)} onSaved={loadTicketData} />
+      <TicketOrderPartModal ticketId={ticketId} open={isOrderPartOpen} onClose={() => setIsOrderPartOpen(false)} onSaved={loadTicketData} />
+      <TicketIdentifyModal ticketId={ticketId} open={isIdentifyOpen} onClose={() => setIsIdentifyOpen(false)} onSaved={loadTicketData} />
 
       {/* Add Child Ticket Modal */}
 
       {/* Log Field Visit Modal */}
-      {isLogVisitOpen && (
-        <Modal title="Log Field Visit" onClose={() => setIsLogVisitOpen(false)} className="max-w-md">
-          <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
-            <div className="flex items-center gap-2">
-              <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl">assignment_turned_in</span>
-              <h2 className="text-base font-bold text-brand-black dark:text-white">Log Field Visit</h2>
-            </div>
-            <button
-              onClick={() => setIsLogVisitOpen(false)}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
-             aria-label="Close">
-              <span aria-hidden="true" className="material-symbols-outlined">close</span>
-            </button>
-          </div>
-
-          <form onSubmit={handleLogVisit} className="mt-4 space-y-3.5">
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-600 dark:text-gray-300 mb-1">
-                Visit Outcome <span className="text-brand-red">*</span>
-              </label>
-              <select
-                value={visitOutcome}
-                onChange={(e) => setVisitOutcome(e.target.value as TicketVisitOutcome)}
-                className="w-full min-h-[44px] px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-semibold"
-              >
-                <option value="completed">Completed (Work finished, ready to close)</option>
-                <option value="partial">Partial (In progress, requires return visit)</option>
-                <option value="failed_access">Failed Access (Could not enter unit)</option>
-              </select>
-            </div>
-
-            {/* If Failed Access: Select Reason and Snapshot Notice State */}
-            {visitOutcome === 'failed_access' && (
-              <div className="space-y-3 p-3 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 animate-fadeIn">
-                <div>
-                  <label className="block text-xs font-bold uppercase text-amber-900 dark:text-amber-200 mb-1">
-                    Failed Access Reason <span className="text-brand-red">*</span>
-                  </label>
-                  <select
-                    value={visitReason}
-                    onChange={(e) => setVisitReason(e.target.value as TicketVisitReason)}
-                    className="w-full min-h-[44px] px-3 py-2 text-sm rounded-xl border border-amber-300 dark:border-amber-800 bg-white dark:bg-card-dark font-semibold"
-                  >
-                    <option value="tenant_absent">Tenant absent</option>
-                    <option value="no_answer">No answer at door</option>
-                    <option value="refused_entry">Tenant refused entry</option>
-                    <option value="key_or_lock_issue">Key or lock issue</option>
-                    <option value="access_blocked">Access physically blocked</option>
-                    <option value="unsafe">Unsafe conditions</option>
-                    <option value="other">Other issue</option>
-                  </select>
-                </div>
-
-                {/* Notice State Snapshot and Provenance Check */}
-                {ticket.notice_needed && !ticket.notice_sent_at ? (
-                  <div className="p-3 rounded-xl bg-rose-100 text-rose-900 dark:bg-rose-950/80 dark:text-rose-200 border border-rose-300 dark:border-rose-800 text-xs flex items-start gap-2">
-                    <span aria-hidden="true" className="material-symbols-outlined text-rose-600 dark:text-rose-400 text-base shrink-0 mt-0.5">error</span>
-                    <div>
-                      <strong className="block uppercase tracking-wider font-extrabold text-xs">[OUR MISS — MANAGEMENT/DISPATCH]</strong>
-                      <p className="mt-0.5 text-xs leading-relaxed">
-                        Notice was required on this unit but was never sent. This will display as <strong>OUR miss</strong>, not the tenant's refusal.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="p-2.5 rounded-lg bg-white dark:bg-neutral-800 border border-amber-200 dark:border-amber-800/60 text-xs text-gray-600 dark:text-gray-300">
-                    <span className="font-semibold text-brand-black dark:text-white">Notice Snapshot: </span>
-                    {ticket.notice_needed
-                      ? `Notice sent at ${ticket.notice_sent_at ? formatDateTime(ticket.notice_sent_at) : 'N/A'}`
-                      : 'Notice not required (or vacant unit)'}
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                  Visited Date/Time
-                </label>
-                <input
-                  type="datetime-local"
-                  value={visitedAt}
-                  onChange={(e) => setVisitedAt(e.target.value)}
-                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                  Technician
-                </label>
-                <input
-                  type="text"
-                  value={visitTechName}
-                  onChange={(e) => setVisitTechName(e.target.value)}
-                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-medium"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Visit Notes
-              </label>
-              <textarea
-                rows={3}
-                value={visitNotes}
-                onChange={(e) => setVisitNotes(e.target.value)}
-                placeholder="Findings, diagnostics, or follow-up details..."
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-              />
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setIsLogVisitOpen(false)}
-                className="flex-1 min-h-[44px] py-2 text-xs font-bold"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="primary"
-                className="flex-1 min-h-[44px] py-2 text-xs font-bold shadow-sm"
-                disabled={visitSaving}
-              >
-                {visitSaving ? 'Recording...' : 'Log Visit'}
-              </Button>
-            </div>
-          </form>
-        </Modal>
-      )}
 
       {/* Order Part Modal (Auto-Creates Part-Wait Watch) */}
-      {isOrderPartOpen && (
-        <Modal title="Order Part" onClose={() => setIsOrderPartOpen(false)} className="max-w-md">
-          <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
-            <div className="flex items-center gap-2">
-              <span aria-hidden="true" className="material-symbols-outlined text-amber-500 text-xl">shopping_cart</span>
-              <h2 className="text-base font-bold text-brand-black dark:text-white">Order Part</h2>
-            </div>
-            <button
-              onClick={() => setIsOrderPartOpen(false)}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
-             aria-label="Close">
-              <span aria-hidden="true" className="material-symbols-outlined">close</span>
-            </button>
-          </div>
-
-          <form onSubmit={handleOrderPart} className="mt-4 space-y-3">
-            <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-xs text-amber-900 dark:text-amber-200">
-              💡 Ordering a part automatically logs a timeline event and creates a <strong>part-wait watch</strong>.
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                  Appliance Type <span className="text-brand-red">*</span>
-                </label>
-                <select
-                  value={partApplianceType}
-                  onChange={(e) => setPartApplianceType(e.target.value)}
-                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-medium"
-                >
-                  <option value="Refrigerator">Refrigerator</option>
-                  <option value="Range / Stove">Range / Stove</option>
-                  <option value="Dishwasher">Dishwasher</option>
-                  <option value="HVAC / Heat Pump">HVAC / Heat Pump</option>
-                  <option value="Water Heater">Water Heater</option>
-                  <option value="Washer / Dryer">Washer / Dryer</option>
-                  <option value="General Appliance">General Appliance</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                  Supplier <span className="text-brand-red">*</span>
-                </label>
-                <select
-                  value={partSupplier}
-                  onChange={(e) => setPartSupplier(e.target.value as any)}
-                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-medium"
-                >
-                  <option value="Dependable">Dependable</option>
-                  <option value="Home Depot Gardiners Rd">Home Depot Gardiners Rd</option>
-                  <option value="other">Other Supplier...</option>
-                </select>
-              </div>
-            </div>
-
-            {partSupplier === 'other' && (
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                  Custom Supplier Name
-                </label>
-                <input
-                  type="text"
-                  value={customSupplier}
-                  onChange={(e) => setCustomSupplier(e.target.value)}
-                  placeholder="e.g. Reliable Parts, WW Grainger"
-                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-                  required
-                />
-              </div>
-            )}
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Part Name / Description <span className="text-brand-red">*</span>
-              </label>
-              <input
-                type="text"
-                value={partName}
-                onChange={(e) => setPartName(e.target.value)}
-                placeholder="e.g. Defrost timer, igniter coil, blower capacitor"
-                className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                  Part # (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={partNumber}
-                  onChange={(e) => setPartNumber(e.target.value)}
-                  placeholder="e.g. WPW10366605"
-                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                  Order Ref (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={partOrderRef}
-                  onChange={(e) => setPartOrderRef(e.target.value)}
-                  placeholder="Auto-generated if blank"
-                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-mono"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                  Quantity
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={partQuantity}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === '') {
-                      setPartQuantity('');
-                    } else {
-                      const num = parseInt(val, 10);
-                      setPartQuantity(isNaN(num) ? '' : num);
-                    }
-                  }}
-                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                  Est. Cost ($)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={partUnitCost}
-                  onChange={(e) => setPartUnitCost(e.target.value)}
-                  placeholder="0.00"
-                  className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Notes
-              </label>
-              <textarea
-                rows={2}
-                value={partNotes}
-                onChange={(e) => setPartNotes(e.target.value)}
-                placeholder="Shipping details, tracking #, or special instructions..."
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-              />
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setIsOrderPartOpen(false)}
-                className="flex-1 min-h-[44px] py-2 text-xs font-bold"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="primary"
-                className="flex-1 min-h-[44px] py-2 text-xs font-bold shadow-sm"
-                disabled={partSaving}
-              >
-                {partSaving ? 'Ordering...' : 'Place Order & Watch'}
-              </Button>
-            </div>
-          </form>
-        </Modal>
-      )}
 
       {/* Identify Appliance Modal */}
-      {isIdentifyOpen && (
-        <Modal title="Appliance Identified" onClose={() => setIsIdentifyOpen(false)} className="max-w-md">
-          <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
-            <div className="flex items-center gap-2">
-              <span aria-hidden="true" className="material-symbols-outlined text-indigo-600 text-xl">photo_camera</span>
-              <h2 className="text-base font-bold text-brand-black dark:text-white">Appliance Identified</h2>
-            </div>
-            <button
-              onClick={() => setIsIdentifyOpen(false)}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
-             aria-label="Close">
-              <span aria-hidden="true" className="material-symbols-outlined">close</span>
-            </button>
-          </div>
-
-          <form onSubmit={handleIdentifyAppliance} className="mt-4 space-y-3">
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Appliance Photo URL
-              </label>
-              <input
-                type="text"
-                value={appliancePhotoUrl}
-                onChange={(e) => setAppliancePhotoUrl(e.target.value)}
-                placeholder="https://... or /uploads/photo.jpg"
-                className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-mono"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Rating-Plate Photo URL
-              </label>
-              <input
-                type="text"
-                value={ratingPlateUrl}
-                onChange={(e) => setRatingPlateUrl(e.target.value)}
-                placeholder="https://... or /uploads/rating-plate.jpg"
-                className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-mono"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Manufacturer Manual Link
-              </label>
-              <input
-                type="text"
-                value={manualUrl}
-                onChange={(e) => setManualUrl(e.target.value)}
-                placeholder="https://manuals.brand.com/model123.pdf"
-                className="w-full min-h-[44px] px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-mono"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Field Identification Notes
-              </label>
-              <textarea
-                rows={2}
-                value={identifyNotes}
-                onChange={(e) => setIdentifyNotes(e.target.value)}
-                placeholder="Model # confirmed, serial plate verified on left cabinet interior..."
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-              />
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setIsIdentifyOpen(false)}
-                className="flex-1 min-h-[44px] py-2 text-xs font-bold"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="primary"
-                className="flex-1 min-h-[44px] py-2 text-xs font-bold shadow-sm"
-                disabled={identifySaving}
-              >
-                {identifySaving ? 'Saving...' : 'Record to Timeline'}
-              </Button>
-            </div>
-          </form>
-        </Modal>
-      )}
 
     </div>
   );
