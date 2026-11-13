@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { apiClient } from '../../src/api/client';
-import type { PartRecord, Stockpile } from '../../types/domain';
+import type { PartRecord, Stockpile, StockTransfer } from '../../types/domain';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 
@@ -76,13 +76,13 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
 
     setLoading(true);
     try {
-      const payload = {
+      const payload: StockTransfer = {
         source_type: 'stockpile',
         source_stockpile_id: sId,
         destination_type: 'stockpile',
         destination_stockpile_id: dId,
         part_id: pId,
-        quantity,
+        quantity: numericQty,
         transferred_by: transferredBy.trim() || 'Jose (Tech)',
         notes: notes.trim() || `Generalized stock transfer between stockpiles (#${sId} -> #${dId})`,
         ticket_id: ticketId.trim() ? parseInt(ticketId.trim(), 10) : undefined,

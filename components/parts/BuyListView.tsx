@@ -3,18 +3,7 @@ import { apiClient } from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
 import Button from '../ui/Button';
-import type { ShoppingListResponse, SupplierRecord, Ticket } from '../../types/domain';
-
-export interface ManualBuyItem {
-  id: string;
-  part_name: string;
-  part_number?: string;
-  quantity: number;
-  supplier?: string;
-  notes?: string;
-  ticket_id?: number | null;
-  created_at: string;
-}
+import type { ManualBuyItem, ShoppingListResponse, SupplierRecord, Ticket } from '../../types/domain';
 
 const MANUAL_BUY_CACHE_KEY = 'manual_buy_items_v1';
 
@@ -435,6 +424,13 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       return groups.get(ticketId)!;
     };
 
+    // Helper to find supplier phone from loaded suppliers
+    const findSupplierPhone = (name?: string | null): string | null => {
+      if (!name) return null;
+      const match = suppliers.find(s => s.name?.toLowerCase().trim() === name.toLowerCase().trim());
+      return match?.phone || null;
+    };
+
     // A. Add ticket-derived items from shoppingList
     if (shoppingList && shoppingList.items) {
       for (const item of shoppingList.items) {
@@ -475,13 +471,6 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       }
     }
 
-    // Helper to find supplier phone from loaded suppliers
-    const findSupplierPhone = (name?: string | null): string | null => {
-      if (!name) return null;
-      const match = suppliers.find(s => s.name?.toLowerCase().trim() === name.toLowerCase().trim());
-      return match?.phone || null;
-    };
-
     // B. Add manual items
     for (const m of manualItems) {
       const sName = m.supplier || null;
@@ -489,7 +478,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       if (m.ticket_id) {
         const grp = getOrCreateGroup(m.ticket_id);
         grp.items.push({
-          id: m.id,
+          id: String(m.id),
           partName: m.part_name,
           partNumber: m.part_number,
           quantity: m.quantity,
@@ -497,18 +486,18 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
           supplierPhone: sPhone,
           notes: m.notes || null,
           sourceType: 'manual',
-          manualId: m.id,
+          manualId: String(m.id),
         });
       } else {
         manualOnly.push({
-          id: m.id,
+          id: String(m.id),
           partName: m.part_name,
           partNumber: m.part_number,
           quantity: m.quantity,
           supplierName: sName,
           supplierPhone: sPhone,
           notes: m.notes || null,
-          manualId: m.id,
+          manualId: String(m.id),
         });
       }
     }

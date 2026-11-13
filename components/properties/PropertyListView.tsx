@@ -3609,15 +3609,7 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
         entries={moveSheetEntries}
         onNavigateComplex={(complexSlug) => {
           setIsMoveSheetOpen(false);
-          // If viewing building details, go back to complex list first
-          if (viewMode === 'building') {
-            setViewMode('complex');
-          }
-          if (onSelectComplex) {
-            onSelectComplex(complexSlug);
-          } else {
-            setSelectedComplex(complexSlug);
-          }
+          updateNav('complex', complexSlug, null, null);
         }}
       />
     </div>

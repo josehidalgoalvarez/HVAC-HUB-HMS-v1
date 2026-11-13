@@ -396,7 +396,7 @@ const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
           const profile = getBuildingProfile(property.name) || getBuildingProfile(property.address);
           
           // Compute units for this building
-          const buildingUnits = units.filter(u => u.buildingId === property.id || u.propertyId === property.id);
+          const buildingUnits = units.filter(u => u.buildingId === property.id);
           const computedTotalUnits = buildingUnits.length > 0 ? buildingUnits.length : (property.applianceCount || 0);
 
           // Compute floors: from profile, else derived from highest unit floor, else null

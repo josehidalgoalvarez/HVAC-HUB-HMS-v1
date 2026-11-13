@@ -181,7 +181,6 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
                   </div>
 
                   <Button
-                    size="sm"
                     variant="outline"
                     onClick={() => handleAddToBuyList(part)}
                     disabled={addingId === part.id}
@@ -273,7 +272,6 @@ export const AppliancePartsSection: React.FC<AppliancePartsSectionProps> = ({ ap
                   </div>
 
                   <Button
-                    size="sm"
                     variant="outline"
                     onClick={() => handleAddToBuyList(part)}
                     disabled={addingId === part.id}

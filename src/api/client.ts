@@ -1251,6 +1251,13 @@ export class ApiClient {
   }
 
   /**
+   * Get full inventory (properties, appliances, complexes, defaultSets, units)
+   */
+  public async getInventory(): Promise<any> {
+    return this.get<any>('/api/inventory');
+  }
+
+  /**
    * Check online status via navigator and lightweight /api/health ping
    */
   public async isOnline(): Promise<boolean> {

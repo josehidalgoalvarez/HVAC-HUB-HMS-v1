@@ -4,6 +4,8 @@ import { useData } from '../../hooks/useData';
 import apiClient from '../../src/api/client';
 import { outbox } from '../../src/offline/outbox';
 import { JobCloseoutModal } from './JobCloseoutModal';
+import { Modal } from '../ui/Modal';
+import Button from '../ui/Button';
 
 interface QuickLogWidgetProps {
   block?: RunSheetBlock | null;
