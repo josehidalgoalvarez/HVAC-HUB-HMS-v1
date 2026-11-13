@@ -290,6 +290,40 @@ class McpController
                     'required' => ['part_id'],
                 ],
             ],
+            [
+                'name' => 'add_to_buy_list',
+                'description' => 'Add a manual item to the Buy List: part name and quantity, with optional part number, supplier, notes, and the ticket it is for.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'part_name' => [
+                            'type' => 'string',
+                            'description' => 'Part name (required, non-empty)',
+                        ],
+                        'quantity' => [
+                            'type' => 'integer',
+                            'description' => 'Pieces to buy (required, integer > 0)',
+                        ],
+                        'part_number' => [
+                            'type' => 'string',
+                            'description' => 'Optional manufacturer part number',
+                        ],
+                        'supplier' => [
+                            'type' => 'string',
+                            'description' => 'Optional supplier name (e.g. Dependable Appliances)',
+                        ],
+                        'notes' => [
+                            'type' => 'string',
+                            'description' => 'Optional note (e.g. which unit it is for)',
+                        ],
+                        'ticket_id' => [
+                            'type' => 'integer',
+                            'description' => 'Optional ticket ID the item is for (must exist if given)',
+                        ],
+                    ],
+                    'required' => ['part_name', 'quantity'],
+                ],
+            ],
         ];
 
         return $this->jsonRpcResult($id, ['tools' => $tools]);
@@ -330,6 +364,9 @@ class McpController
 
             case 'log_part_use':
                 return $this->toolLogPartUse($id, $arguments, $request);
+
+            case 'add_to_buy_list':
+                return $this->toolAddToBuyList($id, $arguments);
 
             default:
                 return $this->jsonRpcError($id, -32602, "Unknown tool: {$name}");
@@ -936,6 +973,60 @@ class McpController
     /**
      * Build MCP tools/call standard content response.
      */
+    /**
+     * Tool 10: add_to_buy_list (Write tool)
+     * Adds a manual item to buy_list_item via BuyListItem::create().
+     */
+    private function toolAddToBuyList(mixed $id, array $args): Response
+    {
+        $partName = isset($args['part_name']) ? trim((string) $args['part_name']) : '';
+        if ($partName === '') {
+            return $this->jsonRpcError($id, -32602, 'Part name is required');
+        }
+
+        if (!isset($args['quantity']) || !is_numeric($args['quantity']) || (int) $args['quantity'] != $args['quantity']) {
+            return $this->jsonRpcError($id, -32602, 'Quantity must be an integer greater than zero');
+        }
+        $quantity = (int) $args['quantity'];
+        if ($quantity <= 0) {
+            return $this->jsonRpcError($id, -32602, 'Quantity must be greater than zero');
+        }
+
+        $ticketId = null;
+        if (isset($args['ticket_id']) && $args['ticket_id'] !== '' && $args['ticket_id'] !== null) {
+            if (!is_numeric($args['ticket_id']) || (int) $args['ticket_id'] != $args['ticket_id'] || (int) $args['ticket_id'] <= 0) {
+                return $this->jsonRpcError($id, -32602, 'ticket_id must be a positive integer');
+            }
+            $ticketId = (int) $args['ticket_id'];
+            $ticket = Db::fetchOne('SELECT id FROM ticket WHERE id = ?', [$ticketId]);
+            if (!$ticket) {
+                return $this->jsonRpcError($id, -32602, "Ticket #{$ticketId} does not exist");
+            }
+        }
+
+        $optStr = static function (string $key) use ($args): ?string {
+            if (!isset($args[$key]) || $args[$key] === null) {
+                return null;
+            }
+            $trimmed = trim((string) $args[$key]);
+            return $trimmed === '' ? null : $trimmed;
+        };
+
+        try {
+            $created = \App\Models\BuyListItem::create([
+                'part_name' => $partName,
+                'quantity' => $quantity,
+                'part_number' => $optStr('part_number'),
+                'supplier' => $optStr('supplier'),
+                'notes' => $optStr('notes'),
+                'ticket_id' => $ticketId,
+            ]);
+            return $this->jsonRpcToolContent($id, $created);
+        } catch (\Throwable $e) {
+            return $this->jsonRpcError($id, -32603, 'Failed to add item to buy list: ' . $e->getMessage());
+        }
+    }
+
     private function jsonRpcToolContent(mixed $id, mixed $data): Response
     {
         return $this->jsonRpcResult($id, [

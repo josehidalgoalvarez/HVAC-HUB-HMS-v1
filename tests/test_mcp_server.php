@@ -109,7 +109,7 @@ $resList = dispatchJsonRpc($app, $validToken, [
 ]);
 assertMcp($resList['status'] === 200, '3.1 tools/list returns HTTP 200', $passes, $failures);
 $tools = $resList['body']['result']['tools'] ?? [];
-assertMcp(count($tools) === 9, '3.2 tools/list returns exactly 9 tools (got ' . count($tools) . ')', $passes, $failures);
+assertMcp(count($tools) === 10, '3.2 tools/list returns exactly 10 tools (got ' . count($tools) . ')', $passes, $failures);
 
 $expectedToolNames = [
     'list_tickets',
@@ -121,11 +121,12 @@ $expectedToolNames = [
     'get_counts',
     'record_move',
     'log_part_use',
+    'add_to_buy_list',
 ];
 $toolNames = array_column($tools, 'name');
 sort($expectedToolNames);
 sort($toolNames);
-assertMcp($toolNames === $expectedToolNames, '3.3 All 9 expected tool names match exactly: ' . implode(', ', $expectedToolNames), $passes, $failures);
+assertMcp($toolNames === $expectedToolNames, '3.3 All 10 expected tool names match exactly: ' . implode(', ', $expectedToolNames), $passes, $failures);
 
 // 6. Tool Call: get_counts matches canonical schema
 $resCounts = dispatchJsonRpc($app, $validToken, [
@@ -729,6 +730,123 @@ try {
         (int) $jobPartRow['job_id'] === $testJobId &&
         (float) $jobPartRow['quantity'] === 1.0,
         '10.12 Existing job_id records a job_part row linked to that job',
+        $passes,
+        $failures
+    );
+
+    // 11.x add_to_buy_list (9 tests)
+    $res11_1 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 111,
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'add_to_buy_list',
+            'arguments' => [
+                'part_name' => 'Homeline HOM220 Breaker',
+                'quantity' => 2,
+            ],
+        ],
+    ]);
+    $data11_1 = json_decode($res11_1['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        $res11_1['status'] === 200 &&
+        !empty($data11_1['id']) &&
+        ($data11_1['part_name'] ?? null) === 'Homeline HOM220 Breaker' &&
+        (int) ($data11_1['quantity'] ?? 0) === 2,
+        '11.1 Valid add_to_buy_list creates item with id and exact fields',
+        $passes,
+        $failures
+    );
+
+    $res11_2 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 112,
+        'method' => 'tools/call',
+        'params' => ['name' => 'add_to_buy_list', 'arguments' => ['quantity' => 1]],
+    ]);
+    assertMcp(($res11_2['body']['error']['code'] ?? 0) === -32602, '11.2 Missing part_name rejected (-32602)', $passes, $failures);
+
+    $res11_3 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 113,
+        'method' => 'tools/call',
+        'params' => ['name' => 'add_to_buy_list', 'arguments' => ['part_name' => '   ', 'quantity' => 1]],
+    ]);
+    assertMcp(($res11_3['body']['error']['code'] ?? 0) === -32602, '11.3 Whitespace-only part_name rejected (-32602)', $passes, $failures);
+
+    $res11_4 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 114,
+        'method' => 'tools/call',
+        'params' => ['name' => 'add_to_buy_list', 'arguments' => ['part_name' => 'Test Part', 'quantity' => 0]],
+    ]);
+    assertMcp(($res11_4['body']['error']['code'] ?? 0) === -32602, '11.4 Quantity 0 rejected (-32602)', $passes, $failures);
+
+    $res11_5 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 115,
+        'method' => 'tools/call',
+        'params' => ['name' => 'add_to_buy_list', 'arguments' => ['part_name' => 'Test Part', 'quantity' => -3]],
+    ]);
+    assertMcp(($res11_5['body']['error']['code'] ?? 0) === -32602, '11.5 Negative quantity rejected (-32602)', $passes, $failures);
+
+    $res11_6 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 116,
+        'method' => 'tools/call',
+        'params' => ['name' => 'add_to_buy_list', 'arguments' => ['part_name' => 'Test Part', 'quantity' => 2.5]],
+    ]);
+    assertMcp(($res11_6['body']['error']['code'] ?? 0) === -32602, '11.6 Non-integer quantity (2.5) rejected (-32602)', $passes, $failures);
+
+    $res11_7 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 117,
+        'method' => 'tools/call',
+        'params' => ['name' => 'add_to_buy_list', 'arguments' => ['part_name' => 'Test Part', 'quantity' => 1, 'ticket_id' => 999999]],
+    ]);
+    assertMcp(($res11_7['body']['error']['code'] ?? 0) === -32602, '11.7 Unknown ticket_id rejected (-32602)', $passes, $failures);
+
+    $pdo->exec("INSERT INTO ticket (building_id, title, status, priority, created_at, updated_at) VALUES (1, 'MCP Buy List Test Ticket', 'open', 'normal', datetime('now'), datetime('now'))");
+    $testTicketId = (int) $pdo->lastInsertId();
+    $res11_8 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 118,
+        'method' => 'tools/call',
+        'params' => ['name' => 'add_to_buy_list', 'arguments' => ['part_name' => 'Ticket Part', 'quantity' => 1, 'ticket_id' => $testTicketId]],
+    ]);
+    $data11_8 = json_decode($res11_8['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        $res11_8['status'] === 200 && (int) ($data11_8['ticket_id'] ?? 0) === $testTicketId,
+        '11.8 Existing ticket_id accepted and stored on row',
+        $passes,
+        $failures
+    );
+
+    $res11_9 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 119,
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'add_to_buy_list',
+            'arguments' => [
+                'part_name' => '3000W 208V Element',
+                'quantity' => 1,
+                'part_number' => 'JW-3000-208',
+                'supplier' => 'Dependable Appliances',
+                'notes' => 'For 565-401',
+            ],
+        ],
+    ]);
+    $data11_9 = json_decode($res11_9['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        $res11_9['status'] === 200 &&
+        ($data11_9['part_number'] ?? null) === 'JW-3000-208' &&
+        ($data11_9['supplier'] ?? null) === 'Dependable Appliances' &&
+        ($data11_9['notes'] ?? null) === 'For 565-401' &&
+        ($data11_1['part_number'] ?? null) === null &&
+        ($data11_1['supplier'] ?? null) === null &&
+        ($data11_1['notes'] ?? null) === null,
+        '11.9 Optional fields round-trip and omitted ones are NULL',
         $passes,
         $failures
     );
