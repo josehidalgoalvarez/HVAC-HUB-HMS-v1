@@ -1091,6 +1091,8 @@ class McpController
                 'ticket_id' => $ticketId,
             ]);
             return $this->jsonRpcToolContent($id, $created);
+        } catch (\InvalidArgumentException|\RuntimeException $e) {
+            return $this->jsonRpcError($id, -32602, $e->getMessage());
         } catch (\Throwable $e) {
             return $this->jsonRpcError($id, -32603, 'Failed to add item to buy list: ' . $e->getMessage());
         }
