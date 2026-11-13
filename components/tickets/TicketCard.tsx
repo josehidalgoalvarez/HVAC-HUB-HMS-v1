@@ -92,16 +92,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
         );
       case 'closed-elsewhere': {
         const party = ticket.closed_by_party;
-        const partyLabel =
-          party === 'third-party'
-            ? 'Third party'
-            : party === 'contractor'
-            ? 'Contractor'
-            : party === 'handoff'
-            ? 'Handoff'
-            : party === 'coworker'
-            ? 'Coworker'
-            : null;
+        const partyLabel = party === 'coworker' ? 'Coworker' : null;
         const displayLabel = partyLabel ? `Closed — ${partyLabel}` : 'Closed elsewhere';
 
         return (

@@ -292,7 +292,7 @@ export interface TicketRollup {
   states: Record<string, number>;
 }
 
-export type ClosedByParty = 'third-party' | 'contractor' | 'handoff' | 'coworker';
+export type ClosedByParty = 'coworker';
 
 export interface Ticket {
   id: string;

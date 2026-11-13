@@ -598,12 +598,12 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
       const byId = units.find(u => String(u.id) === String(uId));
       if (byId) return byId;
     }
-    const bName = ticket.buildingName || ticket.building_name || ticket.propertyName || '';
+    const bId = ticket.building_id || ticket.buildingId;
     const uNum = ticket.unitNumber || ticket.unit_number;
-    if (bName && uNum) {
+    if (bId && uNum) {
       return units.find(u =>
-        (u.unitNumber?.toLowerCase() === String(uNum).toLowerCase() || u.unit_number?.toLowerCase() === String(uNum).toLowerCase()) &&
-        (u.buildingName?.toLowerCase().includes(bName.toLowerCase()) || bName.toLowerCase().includes(u.buildingName?.toLowerCase() || ''))
+        String(u.buildingId) === String(bId) &&
+        u.unitNumber?.toLowerCase() === String(uNum).toLowerCase()
       ) || null;
     }
     return null;
@@ -1225,25 +1225,16 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
                   ? 'bg-amber-500 text-white border-amber-500 font-bold'
                   : 'bg-primary/10 text-primary border-primary/20 font-bold';
 
-              let displayStatus = ticket.status || ticket.state;
+              let displayStatus: string = ticket.status || ticket.state;
               if (s === 'closed-elsewhere') {
                 const party = ticket.closed_by_party;
-                const partyLabel =
-                  party === 'third-party'
-                    ? 'Third party'
-                    : party === 'contractor'
-                    ? 'Contractor'
-                    : party === 'handoff'
-                    ? 'Handoff'
-                    : party === 'coworker'
-                    ? 'Coworker'
-                    : null;
+                const partyLabel = party === 'coworker' ? 'Coworker' : null;
                 displayStatus = partyLabel ? `Closed — ${partyLabel}` : 'Closed elsewhere';
               }
 
               return (
                 <span className={`px-2.5 py-0.5 text-xs rounded-lg uppercase tracking-wide border shadow-2xs ${badgeClass}`}>
-                  <ExplainableTerm term={s}>{displayStatus}</ExplainableTerm>
+                  <ExplainableTerm term="closed-elsewhere">{displayStatus}</ExplainableTerm>
                 </span>
               );
             })()}
@@ -1271,13 +1262,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
             <span className="font-bold text-gray-500">Completed By Party:</span>
             <span className="font-semibold text-brand-black dark:text-white">
               {ticket.closed_by_party ? (
-                ticket.closed_by_party === 'third-party'
-                  ? 'Third party'
-                  : ticket.closed_by_party === 'contractor'
-                  ? 'Contractor'
-                  : ticket.closed_by_party === 'handoff'
-                  ? 'Handoff'
-                  : ticket.closed_by_party === 'coworker'
+                ticket.closed_by_party === 'coworker'
                   ? 'Coworker'
                   : ticket.closed_by_party
               ) : (
