@@ -557,19 +557,6 @@ class Db
         ");
 
         $pdo->exec("
-            CREATE TABLE IF NOT EXISTS complex (
-                id TEXT PRIMARY KEY,
-                code TEXT NOT NULL,
-                name TEXT NOT NULL,
-                description TEXT NULL,
-                address TEXT NULL,
-                building_count INTEGER NOT NULL DEFAULT 0,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-            );
-        ");
-
-        $pdo->exec("
             CREATE TABLE IF NOT EXISTS complexes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
