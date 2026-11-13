@@ -1,3 +1,4 @@
+import type { ChangeLogEntry } from './service';
 export interface Complex {
   id: string;
   name: string;
@@ -1109,6 +1110,16 @@ export interface FieldNote {
 }
 
 export type EquipmentStatus = 'available' | 'needs_service' | 'out_of_service' | 'unknown';
+
+export interface InventoryResponse {
+  complexes: Complex[];
+  defaultSets: ApplianceDefaultSet[];
+  properties: Property[];
+  buildings?: Property[];
+  appliances: Appliance[];
+  units: Unit[];
+  logs?: ChangeLogEntry[];
+}
 
 export interface EquipmentItem {
   id: number;

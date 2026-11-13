@@ -36,6 +36,7 @@ import type {
   ManualBuyItem,
   EquipmentItem,
   EquipmentStatus,
+  InventoryResponse,
 } from '../../types/domain';
 import { appCache } from '../offline/cache.ts';
 
@@ -700,7 +701,7 @@ export class ApiClient {
             wo_number: t.wo_number || null,
             title: t.title || 'Work Order',
             building_id: t.buildingId || t.building_id || 1,
-            building_name: t.buildingName || t.building_name || t.propertyName || 'Property',
+            building_name: t.building_name || 'Property',
             building_address: t.address || 'Bath Rd',
             unit_id: t.unitId || t.unit_id || null,
             unit_number: t.unitNumber || t.unit_number || '1',
@@ -1253,8 +1254,8 @@ export class ApiClient {
   /**
    * Get full inventory (properties, appliances, complexes, defaultSets, units)
    */
-  public async getInventory(): Promise<any> {
-    return this.get<any>('/api/inventory');
+  public async getInventory(): Promise<InventoryResponse> {
+    return this.get<InventoryResponse>('/api/inventory');
   }
 
   /**
