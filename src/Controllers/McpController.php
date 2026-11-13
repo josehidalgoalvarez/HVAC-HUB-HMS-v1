@@ -35,6 +35,7 @@ use Throwable;
  *
  * Write tools (v2):
  * - record_move
+ * - log_part_use
  */
 class McpController
 {
@@ -259,6 +260,36 @@ class McpController
                     'required' => ['appliance_id'],
                 ],
             ],
+            [
+                'name' => 'log_part_use',
+                'description' => 'Log part usage on a job: decrements stock (named stockpile, or first stockpile with stock), updates reorder flag, writes an append-only audit row, and records the usage against a job when given.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'part_id' => [
+                            'type' => 'integer',
+                            'description' => 'Numeric ID of the part (must exist)',
+                        ],
+                        'quantity' => [
+                            'type' => 'integer',
+                            'description' => 'Pieces used (must be > 0 and <= quantity_on_hand; defaults to 1)',
+                        ],
+                        'job_id' => [
+                            'type' => 'integer',
+                            'description' => 'Optional job ID the usage is recorded against (must exist if given)',
+                        ],
+                        'stockpile_id' => [
+                            'type' => 'integer',
+                            'description' => 'Optional stockpile to decrement (must exist and hold this part if given)',
+                        ],
+                        'reason' => [
+                            'type' => 'string',
+                            'description' => "Optional audit note (defaults to the model's 'Used N pcs on field job #J' / 'Manual stock consumption' text)",
+                        ],
+                    ],
+                    'required' => ['part_id'],
+                ],
+            ],
         ];
 
         return $this->jsonRpcResult($id, ['tools' => $tools]);
@@ -296,6 +327,9 @@ class McpController
 
             case 'record_move':
                 return $this->toolRecordMove($id, $arguments, $request);
+
+            case 'log_part_use':
+                return $this->toolLogPartUse($id, $arguments, $request);
 
             default:
                 return $this->jsonRpcError($id, -32602, "Unknown tool: {$name}");
@@ -810,6 +844,92 @@ class McpController
             return $this->jsonRpcToolContent($id, $resultData);
         } catch (Throwable $e) {
             return $this->jsonRpcError($id, -32603, 'Failed to record appliance movement: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Tool 9: log_part_use (Write tool)
+     * Decrements stock, updates reorder status, writes append-only audit, records job usage when given.
+     */
+    private function toolLogPartUse(mixed $id, array $args, Request $request): Response
+    {
+        // 1. Validate part_id
+        if (!isset($args['part_id']) || !is_numeric($args['part_id'])) {
+            return $this->jsonRpcError($id, -32602, 'part_id is required and must be an integer');
+        }
+        $partId = (int) $args['part_id'];
+        if ($partId <= 0) {
+            return $this->jsonRpcError($id, -32602, "Invalid part_id: {$partId}");
+        }
+
+        $part = Db::fetchOne('SELECT id, name, part_number, quantity_on_hand, reorder_point FROM part WHERE id = ?', [$partId]);
+        if (!$part) {
+            return $this->jsonRpcError($id, -32602, "Part #{$partId} not found");
+        }
+        $qoh = (int) ($part['quantity_on_hand'] ?? 0);
+
+        // 2. Validate quantity (defaults to 1, must be integer > 0)
+        $quantity = 1;
+        if (isset($args['quantity'])) {
+            if (!is_numeric($args['quantity']) || (int) $args['quantity'] != $args['quantity']) {
+                return $this->jsonRpcError($id, -32602, 'Quantity used must be an integer greater than zero');
+            }
+            $quantity = (int) $args['quantity'];
+            if ($quantity <= 0) {
+                return $this->jsonRpcError($id, -32602, 'Quantity used must be greater than zero');
+            }
+        }
+
+        // 3. Over-use check: quantity must be <= quantity_on_hand
+        if ($quantity > $qoh) {
+            return $this->jsonRpcError($id, -32602, "Cannot use more than current stock ({$qoh} pcs)");
+        }
+
+        // 4. Validate job_id (when given)
+        $jobId = null;
+        if (isset($args['job_id']) && $args['job_id'] !== '' && $args['job_id'] !== null) {
+            if (!is_numeric($args['job_id']) || (int) $args['job_id'] <= 0) {
+                return $this->jsonRpcError($id, -32602, 'job_id must be a positive integer');
+            }
+            $jobId = (int) $args['job_id'];
+            $job = Db::fetchOne('SELECT id FROM job WHERE id = ?', [$jobId]);
+            if (!$job) {
+                return $this->jsonRpcError($id, -32602, "Job #{$jobId} not found");
+            }
+        }
+
+        // 5. Validate stockpile_id (when given)
+        $stockpileId = null;
+        if (isset($args['stockpile_id']) && $args['stockpile_id'] !== '' && $args['stockpile_id'] !== null) {
+            if (!is_numeric($args['stockpile_id']) || (int) $args['stockpile_id'] <= 0) {
+                return $this->jsonRpcError($id, -32602, 'stockpile_id must be a positive integer');
+            }
+            $stockpileId = (int) $args['stockpile_id'];
+            $stockpile = Db::fetchOne('SELECT id, name FROM stockpile WHERE id = ?', [$stockpileId]);
+            if (!$stockpile) {
+                return $this->jsonRpcError($id, -32602, "Stockpile #{$stockpileId} not found");
+            }
+
+            // Must hold this part
+            $partStockpile = Db::fetchOne('SELECT id, quantity FROM part_stockpile WHERE part_id = ? AND stockpile_id = ? LIMIT 1', [$partId, $stockpileId]);
+            if (!$partStockpile) {
+                return $this->jsonRpcError($id, -32602, "Part #{$partId} has no allocation at stockpile #{$stockpileId}");
+            }
+        }
+
+        // 6. User attribution & reason
+        $user = $request->getAttribute('user');
+        $userId = isset($user['id']) ? (int) $user['id'] : null;
+        $reason = isset($args['reason']) && trim((string) $args['reason']) !== '' ? trim((string) $args['reason']) : null;
+
+        // 7. Call Model method Part::usePart
+        try {
+            $result = Part::usePart($partId, $quantity, $jobId, $stockpileId, $userId, $reason);
+            return $this->jsonRpcToolContent($id, $result);
+        } catch (\RuntimeException $e) {
+            return $this->jsonRpcError($id, -32602, $e->getMessage());
+        } catch (Throwable $e) {
+            return $this->jsonRpcError($id, -32603, 'Failed to log part usage: ' . $e->getMessage());
         }
     }
 

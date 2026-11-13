@@ -101,7 +101,7 @@ $resPing = dispatchJsonRpc($app, $validToken, [
 ]);
 assertMcp($resPing['status'] === 200, '2.4 ping returns HTTP 200', $passes, $failures);
 
-// 5. Tools List: returns the 7 read tools + record_move write tool (8 total)
+// 5. Tools List: returns the 7 read tools + 2 write tools (record_move, log_part_use = 9 total)
 $resList = dispatchJsonRpc($app, $validToken, [
     'jsonrpc' => '2.0',
     'id' => 2,
@@ -109,7 +109,7 @@ $resList = dispatchJsonRpc($app, $validToken, [
 ]);
 assertMcp($resList['status'] === 200, '3.1 tools/list returns HTTP 200', $passes, $failures);
 $tools = $resList['body']['result']['tools'] ?? [];
-assertMcp(count($tools) === 8, '3.2 tools/list returns exactly 8 tools (got ' . count($tools) . ')', $passes, $failures);
+assertMcp(count($tools) === 9, '3.2 tools/list returns exactly 9 tools (got ' . count($tools) . ')', $passes, $failures);
 
 $expectedToolNames = [
     'list_tickets',
@@ -120,11 +120,12 @@ $expectedToolNames = [
     'get_stockpile',
     'get_counts',
     'record_move',
+    'log_part_use',
 ];
 $toolNames = array_column($tools, 'name');
 sort($expectedToolNames);
 sort($toolNames);
-assertMcp($toolNames === $expectedToolNames, '3.3 All 8 expected tool names match exactly: ' . implode(', ', $expectedToolNames), $passes, $failures);
+assertMcp($toolNames === $expectedToolNames, '3.3 All 9 expected tool names match exactly: ' . implode(', ', $expectedToolNames), $passes, $failures);
 
 // 6. Tool Call: get_counts matches canonical schema
 $resCounts = dispatchJsonRpc($app, $validToken, [
@@ -438,6 +439,299 @@ try {
         ],
     ]);
     assertMcp($resNoAuth['status'] === 401, '9.9 Unauthenticated call to record_move returns HTTP 401', $passes, $failures);
+
+    // ============================================================================
+    // MCP v2 Write Tool Tests: log_part_use (12 tests: 10.1 .. 10.12)
+    // ============================================================================
+
+    // Set up a dedicated test part with known initial stock and reorder point
+    Db::execute(
+        "INSERT INTO part (id, name, part_number, category, quantity_on_hand, reorder_point, unit_cost, is_reorder, created_at, updated_at)
+         VALUES (99991, 'MCP Test Capacitor 45uF', 'CAP-45UF-TEST', 'Electrical', 10, 3, 14.50, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+    );
+    Db::execute(
+        "INSERT INTO part_stockpile (id, part_id, stockpile_id, quantity, minimum, status, created_at, updated_at)
+         VALUES (99991, 99991, 1, 10, 2, 'available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+    );
+
+    // 10.1 Happy path: use 1 pc of fixture part with known stock
+    $res10_1 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'part-1',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'log_part_use',
+            'arguments' => [
+                'part_id' => 99991,
+                'quantity' => 1,
+            ],
+        ],
+    ]);
+    $data10_1 = json_decode($res10_1['body']['result']['content'][0]['text'] ?? '{}', true);
+    $part10_1Check = Db::fetchOne('SELECT quantity_on_hand FROM part WHERE id = 99991');
+    assertMcp(
+        $res10_1['status'] === 200 &&
+        $data10_1['quantity_used'] === 1 &&
+        $data10_1['previous_quantity'] === 10 &&
+        $data10_1['new_quantity'] === 9 &&
+        (int) $part10_1Check['quantity_on_hand'] === 9,
+        '10.1 log_part_use happy path: HTTP 200, carries quantity_used (1), previous_quantity (10), new_quantity (9), and decrements part table by 1',
+        $passes,
+        $failures
+    );
+
+    // 10.2 Quantity defaults to 1 when omitted
+    $res10_2 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'part-2',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'log_part_use',
+            'arguments' => [
+                'part_id' => 99991,
+            ],
+        ],
+    ]);
+    $data10_2 = json_decode($res10_2['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp($data10_2['quantity_used'] === 1 && $data10_2['new_quantity'] === 8, '10.2 Quantity defaults to 1 when omitted', $passes, $failures);
+
+    // 10.3 Named stockpile_id decrements that stockpile's allocation
+    $res10_3 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'part-3',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'log_part_use',
+            'arguments' => [
+                'part_id' => 99991,
+                'stockpile_id' => 1,
+                'quantity' => 2,
+            ],
+        ],
+    ]);
+    $data10_3 = json_decode($res10_3['body']['result']['content'][0]['text'] ?? '{}', true);
+    $sp10_3Check = Db::fetchOne('SELECT quantity FROM part_stockpile WHERE part_id = 99991 AND stockpile_id = 1');
+    assertMcp($data10_3['new_quantity'] === 6 && (int) $sp10_3Check['quantity'] === 6, "10.3 Named stockpile_id decrements that stockpile's allocation", $passes, $failures);
+
+    // 10.4 Unknown part_id -> -32602, no rows written
+    $corrCountBefore = (int) Db::fetchOne('SELECT COUNT(*) as c FROM correction WHERE entity_type = "part"')['c'];
+    $res10_4 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'part-4',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'log_part_use',
+            'arguments' => [
+                'part_id' => 888888,
+                'quantity' => 1,
+            ],
+        ],
+    ]);
+    $corrCountAfter = (int) Db::fetchOne('SELECT COUNT(*) as c FROM correction WHERE entity_type = "part"')['c'];
+    assertMcp(
+        ($res10_4['body']['error']['code'] ?? null) === -32602 &&
+        str_contains($res10_4['body']['error']['message'] ?? '', 'Part #888888 not found') &&
+        $corrCountBefore === $corrCountAfter,
+        '10.4 Unknown part_id rejected with -32602, no correction rows written',
+        $passes,
+        $failures
+    );
+
+    // 10.5 Quantity 0 and quantity negative -> -32602, no write
+    $res10_5a = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'part-5a',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'log_part_use',
+            'arguments' => [
+                'part_id' => 99991,
+                'quantity' => 0,
+            ],
+        ],
+    ]);
+    $res10_5b = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'part-5b',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'log_part_use',
+            'arguments' => [
+                'part_id' => 99991,
+                'quantity' => -3,
+            ],
+        ],
+    ]);
+    assertMcp(
+        ($res10_5a['body']['error']['code'] ?? null) === -32602 &&
+        ($res10_5b['body']['error']['code'] ?? null) === -32602,
+        '10.5 Quantity 0 and negative rejected with -32602, no write',
+        $passes,
+        $failures
+    );
+
+    // 10.6 Quantity greater than quantity_on_hand -> -32602, no write (over-use prevention)
+    $partBefore10_6 = Db::fetchOne('SELECT quantity_on_hand FROM part WHERE id = 99991');
+    $currentQoh = (int) $partBefore10_6['quantity_on_hand']; // 6
+    $res10_6 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'part-6',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'log_part_use',
+            'arguments' => [
+                'part_id' => 99991,
+                'quantity' => $currentQoh + 10,
+            ],
+        ],
+    ]);
+    $partAfter10_6 = Db::fetchOne('SELECT quantity_on_hand FROM part WHERE id = 99991');
+    assertMcp(
+        ($res10_6['body']['error']['code'] ?? null) === -32602 &&
+        str_contains($res10_6['body']['error']['message'] ?? '', 'Cannot use more than current stock') &&
+        (int) $partAfter10_6['quantity_on_hand'] === $currentQoh,
+        '10.6 Quantity greater than stock rejected with -32602, stock unchanged',
+        $passes,
+        $failures
+    );
+
+    // 10.7 Unknown job_id -> -32602, no write
+    $res10_7 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'part-7',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'log_part_use',
+            'arguments' => [
+                'part_id' => 99991,
+                'job_id' => 777777,
+                'quantity' => 1,
+            ],
+        ],
+    ]);
+    assertMcp(
+        ($res10_7['body']['error']['code'] ?? null) === -32602 &&
+        str_contains($res10_7['body']['error']['message'] ?? '', 'Job #777777 not found'),
+        '10.7 Unknown job_id rejected with -32602, no write',
+        $passes,
+        $failures
+    );
+
+    // 10.8 Unknown stockpile_id -> -32602, no write
+    $res10_8 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'part-8',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'log_part_use',
+            'arguments' => [
+                'part_id' => 99991,
+                'stockpile_id' => 666666,
+                'quantity' => 1,
+            ],
+        ],
+    ]);
+    assertMcp(
+        ($res10_8['body']['error']['code'] ?? null) === -32602 &&
+        str_contains($res10_8['body']['error']['message'] ?? '', 'Stockpile #666666 not found'),
+        '10.8 Unknown stockpile_id rejected with -32602, no write',
+        $passes,
+        $failures
+    );
+
+    // 10.9 Stockpile that exists but holds no allocation of this part -> -32602, no write
+    // Stockpile 2 exists in fixture but part 99991 is only allocated to stockpile 1
+    $res10_9 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'part-9',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'log_part_use',
+            'arguments' => [
+                'part_id' => 99991,
+                'stockpile_id' => 2,
+                'quantity' => 1,
+            ],
+        ],
+    ]);
+    assertMcp(
+        ($res10_9['body']['error']['code'] ?? null) === -32602 &&
+        str_contains($res10_9['body']['error']['message'] ?? '', 'has no allocation at stockpile'),
+        '10.9 Stockpile that holds no allocation of this part rejected with -32602, no write',
+        $passes,
+        $failures
+    );
+
+    // 10.10 Using enough to drop stock to/below reorder point sets is_reorder and returns reorder warning
+    // Current stock is 6, reorder_point is 3. Using 3 drops stock to 3 (<= 3)
+    $res10_10 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'part-10',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'log_part_use',
+            'arguments' => [
+                'part_id' => 99991,
+                'quantity' => 3,
+            ],
+        ],
+    ]);
+    $data10_10 = json_decode($res10_10['body']['result']['content'][0]['text'] ?? '{}', true);
+    $part10_10Check = Db::fetchOne('SELECT quantity_on_hand, is_reorder FROM part WHERE id = 99991');
+    assertMcp(
+        $data10_10['new_quantity'] === 3 &&
+        $data10_10['is_reorder'] === true &&
+        !empty($data10_10['reorder_warning']) &&
+        (int) $part10_10Check['is_reorder'] === 1,
+        '10.10 Dropping stock to/below reorder point sets is_reorder = 1 and returns reorder warning',
+        $passes,
+        $failures
+    );
+
+    // 10.11 Unauthenticated call -> HTTP 401
+    $res10_11 = dispatchJsonRpc($app, null, [
+        'jsonrpc' => '2.0',
+        'id' => 'part-11',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'log_part_use',
+            'arguments' => [
+                'part_id' => 99991,
+                'quantity' => 1,
+            ],
+        ],
+    ]);
+    assertMcp($res10_11['status'] === 401, '10.11 Unauthenticated call to log_part_use returns HTTP 401', $passes, $failures);
+
+    // 10.12 A job_id that exists records a job_part row
+    // Use existing fixture job 2 or insert a temporary test job if needed
+    $existingJob = Db::fetchOne('SELECT id FROM job LIMIT 1');
+    $testJobId = $existingJob ? (int) $existingJob['id'] : 2;
+    $res10_12 = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0',
+        'id' => 'part-12',
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'log_part_use',
+            'arguments' => [
+                'part_id' => 99991,
+                'job_id' => $testJobId,
+                'quantity' => 1,
+                'reason' => 'Job part test record',
+            ],
+        ],
+    ]);
+    $data10_12 = json_decode($res10_12['body']['result']['content'][0]['text'] ?? '{}', true);
+    $jobPartRow = Db::fetchOne('SELECT * FROM job_part WHERE id = ?', [$data10_12['job_part_id'] ?? 0]);
+    assertMcp(
+        !empty($data10_12['job_part_id']) &&
+        $jobPartRow !== null &&
+        (int) $jobPartRow['job_id'] === $testJobId &&
+        (float) $jobPartRow['quantity'] === 1.0,
+        '10.12 Existing job_id records a job_part row linked to that job',
+        $passes,
+        $failures
+    );
 
 } finally {
     $pdo->rollBack();
