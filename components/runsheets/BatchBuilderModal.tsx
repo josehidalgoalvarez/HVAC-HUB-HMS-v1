@@ -243,7 +243,7 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
                             {t.wo_number || `WO #${t.id}`}
                           </span>
                           <span className="text-[11px] font-semibold text-gray-500 truncate">
-                            {t.buildingName || 'Property'} {t.unitNumber ? `• Unit ${t.unitNumber}` : ''}
+                            {t.building_name || 'Property'} {t.unitNumber ? `• Unit ${t.unitNumber}` : ''}
                           </span>
                         </div>
                         <h4 className="text-xs font-bold text-brand-black dark:text-white truncate mt-0.5">

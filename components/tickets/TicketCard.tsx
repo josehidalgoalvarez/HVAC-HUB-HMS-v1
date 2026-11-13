@@ -112,7 +112,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({
   };
 
   // Location string: Building + Unit (biggest text after title)
-  const building = ticket.buildingName || ticket.building_name || ticket.propertyName || 'Property';
+  const building = ticket.building_name || 'Property';
   const unit = ticket.unitNumber || ticket.unit_number;
   const locationText = unit ? `${building} · Unit ${unit}` : building;
 

@@ -615,7 +615,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   }, [matchedUnit, getUnitAppliances]);
   const rollup = ticket.childrenRollup || (ticket as any).rollup;
   const children = ticket.children || [];
-  const building = ticket.buildingName || ticket.building_name || ticket.propertyName || '';
+  const building = ticket.building_name || '';
   const unitNum = ticket.unitNumber || ticket.unit_number;
   const locationText = unitNum ? `${building} · Unit ${unitNum}` : building;
   const unitContextChips = getUnitContextChips(ticket.unit || ticket);
