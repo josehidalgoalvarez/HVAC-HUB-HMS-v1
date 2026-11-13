@@ -166,7 +166,6 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
 
     // Ensure complexes exist & are named properly
     $pdo->exec("UPDATE complexes SET name = 'BD — Bath & Days' WHERE slug = 'bd'");
-    $pdo->exec("UPDATE complex SET name = 'BD — Bath & Days' WHERE id = 'bd'");
     if ($isSqlite) {
         $pdo->exec("INSERT OR IGNORE INTO complexes (id, name, slug, notes, created_at, updated_at) VALUES (9, 'Frontenac–Alfred Quadrant', 'frontenac-alfred', 'Frontenac and Alfred street cluster + 565 Princess St in Kingston, ON.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
         $pdo->exec("INSERT OR IGNORE INTO complexes (id, name, slug, notes, created_at, updated_at) VALUES (10, 'Armstrong / Skyfall', 'armstrong-skyfall', 'Adjacent group: 539 Armstrong Rd, 300 Skyfall Lane (Le Santé), and 2274 Princess St.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
@@ -255,7 +254,6 @@ function seedRealPortfolio(?string $customPhotosDir = null): array
     $pdo->exec("DELETE FROM unit WHERE building_id IN (70, 71, 72, 73, 74, 75) AND provenance != 'verified — Yardi extract 2026-10-22'");
     $pdo->exec("DELETE FROM unit WHERE building_id = 96 AND provenance != 'verified — Yardi extract 2026-10-22'");
     $pdo->exec("DELETE FROM unit WHERE building_id IN (87, 82, 83, 12, 11, 86) AND provenance != 'verified — Yardi extract 2026-10-22'");
-    $pdo->exec("UPDATE complex SET building_count = 9 WHERE id = 'complex-princess'");
 
     // Ensure Uniform Appliance Default Set exists
     $dsStmt = $pdo->prepare("SELECT id FROM default_sets WHERE id = 'set-skyfall-sante-uniform'");

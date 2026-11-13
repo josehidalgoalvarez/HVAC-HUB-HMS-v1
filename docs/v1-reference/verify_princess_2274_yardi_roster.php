@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * RETIRED: retired Nov 12, 2026 — reflects Phase 2 pre-migration-027 groupings;
+ * superseded by tests/verify_complexes_and_defaults.php (canonical complexes table).
+ */
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
