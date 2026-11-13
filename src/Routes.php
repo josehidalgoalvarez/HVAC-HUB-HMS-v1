@@ -647,6 +647,33 @@ class Routes
 
             // --- Inventory & Portfolio synchronization ---
             $group->get('/inventory', function (Request $request, Response $response): Response {
+                $etagSpecs = [
+                    ['complexes', 'id'],
+                    ['default_sets', 'id'],
+                    ['ticket_visit', 'id'],
+                    ['building', 'updated_at'],
+                    ['unit', 'updated_at'],
+                    ['appliance', 'updated_at'],
+                    ['photo', 'id'],
+                ];
+                $etagParts = [];
+                foreach ($etagSpecs as [$tbl, $maxCol]) {
+                    try {
+                        $row = Db::fetchOne("SELECT COUNT(*) AS c, MAX({$maxCol}) AS m, MAX(id) AS mid FROM {$tbl}");
+                        $etagParts[] = $tbl . ':' . ($row['c'] ?? 0) . ':' . ($row['m'] ?? '') . ':' . ($row['mid'] ?? 0);
+                    } catch (\Throwable) {
+                        $etagParts[] = $tbl . ':err';
+                    }
+                }
+                $etag = '"' . md5(implode('|', $etagParts)) . '"';
+                $ifNoneMatch = trim($request->getHeaderLine('If-None-Match'));
+                if ($ifNoneMatch !== '' && ($ifNoneMatch === $etag || $ifNoneMatch === 'W/' . $etag)) {
+                    return $response
+                        ->withStatus(304)
+                        ->withHeader('ETag', $etag)
+                        ->withHeader('Cache-Control', 'private, no-cache');
+                }
+
                 try {
                     $complexRows = Db::fetchAll('SELECT c.*, (SELECT COUNT(*) FROM building b WHERE b.complex_id = c.id) as building_count FROM complexes c ORDER BY c.id ASC');
                 } catch (\Throwable) {
@@ -808,7 +835,9 @@ class Routes
                     'appliances' => $appliances,
                     'units' => $allUnits,
                     'logs' => [],
-                ]);
+                ])
+                    ->withHeader('ETag', $etag)
+                    ->withHeader('Cache-Control', 'private, no-cache');
             });
 
             // Tech role route
