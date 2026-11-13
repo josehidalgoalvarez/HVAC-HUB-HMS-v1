@@ -3,6 +3,7 @@ import type { Ticket, TicketState, ClosedByParty } from '../../types/domain';
 import { getUnitContextChips } from '../../utils/unitContextUtils';
 import { formatAge } from '../../utils/dateUtils';
 import { ExplainableTerm } from '../common/ExplainableTerm';
+import { TicketStatusBadge, TicketPriorityBadge } from './TicketStatusBadges';
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -16,100 +17,6 @@ export const TicketCard: React.FC<TicketCardProps> = ({
   onQuickStateChange,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  const getPriorityBadge = (priority: string) => {
-    switch (priority) {
-      case 'urgent':
-        return (
-          <span className="shrink-0 px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md bg-brand-red text-white flex items-center gap-1 shadow-2xs">
-            <span aria-hidden="true" className="material-symbols-outlined text-[13px] leading-none">warning</span>
-            <ExplainableTerm term="urgent">URGENT</ExplainableTerm>
-          </span>
-        );
-      case 'high':
-        return (
-          <span className="shrink-0 px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md bg-amber-500 text-white shadow-2xs">
-            <ExplainableTerm term="high">HIGH</ExplainableTerm>
-          </span>
-        );
-      case 'medium':
-        return (
-          <span className="shrink-0 px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-            <ExplainableTerm term="medium">NORMAL</ExplainableTerm>
-          </span>
-        );
-      case 'low':
-      default:
-        return (
-          <span className="shrink-0 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
-            <ExplainableTerm term="low">LOW</ExplainableTerm>
-          </span>
-        );
-    }
-  };
-
-  const getStatusBadge = (stateOrStatus: string) => {
-    const s = (stateOrStatus || 'new').toLowerCase();
-    switch (s) {
-      case 'in-progress':
-      case 'in_progress':
-        return (
-          <span className="shrink-0 px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md bg-primary/10 text-primary border border-primary/30 dark:bg-primary/20 dark:text-sky-300">
-            <ExplainableTerm term="in-progress">IN-PROGRESS</ExplainableTerm>
-          </span>
-        );
-      case 'verified':
-        return (
-          <span className="shrink-0 px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-            <ExplainableTerm term="verified">VERIFIED</ExplainableTerm>
-          </span>
-        );
-      case 'blocked':
-        return (
-          <span className="shrink-0 px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
-            <ExplainableTerm term="blocked">BLOCKED</ExplainableTerm>
-          </span>
-        );
-      case 'on-hold':
-      case 'on_hold':
-        return (
-          <span className="shrink-0 px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-            <ExplainableTerm term="on-hold">ON-HOLD</ExplainableTerm>
-          </span>
-        );
-      case 'done':
-      case 'resolved':
-        return (
-          <span className="shrink-0 px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-300 border border-green-300 dark:border-green-800">
-            <ExplainableTerm term="done">DONE</ExplainableTerm>
-          </span>
-        );
-      case 'closed':
-        return (
-          <span className="shrink-0 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
-            <ExplainableTerm term="closed">CLOSED</ExplainableTerm>
-          </span>
-        );
-      case 'closed-elsewhere': {
-        const party = ticket.closed_by_party;
-        const partyLabel = party === 'coworker' ? 'Coworker' : null;
-        const displayLabel = partyLabel ? `Closed — ${partyLabel}` : 'Closed elsewhere';
-
-        return (
-          <span className="shrink-0 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
-            <ExplainableTerm term="closed-elsewhere">{displayLabel}</ExplainableTerm>
-          </span>
-        );
-      }
-      case 'new':
-      default:
-        return (
-          <span className="shrink-0 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider rounded-md bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-            <ExplainableTerm term="new">NEW</ExplainableTerm>
-          </span>
-        );
-    }
-  };
 
   // Location string: Building + Unit (biggest text after title)
   const building = ticket.building_name || 'Property';
@@ -178,8 +85,8 @@ export const TicketCard: React.FC<TicketCardProps> = ({
             </span>
           )}
 
-          {getPriorityBadge(ticket.priority)}
-          {getStatusBadge(ticket.status || ticket.state)}
+          <TicketPriorityBadge priority={ticket.priority} variant="card" />
+          <TicketStatusBadge status={ticket.status || ticket.state} closedByParty={ticket.closed_by_party} variant="card" />
           {hasRepeatAccessProblem && (
             <span
               data-testid="repeat-access-problem-flag"

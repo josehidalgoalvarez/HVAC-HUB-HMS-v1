@@ -19,6 +19,7 @@ import type {
 import { getUnitContextChips } from '../../utils/unitContextUtils';
 import { parseDate, formatDateTime, formatTime, formatDate } from '../../utils/dateUtils';
 import { ExplainableTerm } from '../common/ExplainableTerm';
+import { TicketStatusBadge, TicketPriorityBadge } from './TicketStatusBadges';
 
 const formatRunDuration = (totalSeconds: number): string => {
   const safe = Math.max(0, Math.round(totalSeconds || 0));
@@ -1265,47 +1266,16 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-gray-500">Status:</span>
-            {(() => {
-              const s = (ticket.status || ticket.state || 'new').toLowerCase();
-              const badgeClass =
-                s === 'done' || s === 'resolved'
-                  ? 'bg-emerald-600 text-white border-emerald-600 font-bold'
-                  : s === 'blocked'
-                  ? 'bg-rose-600 text-white border-rose-600 font-bold'
-                  : s === 'in-progress' || s === 'in_progress'
-                  ? 'bg-primary text-white border-primary font-bold'
-                  : s === 'on-hold' || s === 'on_hold'
-                  ? 'bg-amber-500 text-white border-amber-500 font-bold'
-                  : 'bg-primary/10 text-primary border-primary/20 font-bold';
-
-              let displayStatus: string = ticket.status || ticket.state;
-              if (s === 'closed-elsewhere') {
-                const party = ticket.closed_by_party;
-                const partyLabel = party === 'coworker' ? 'Coworker' : null;
-                displayStatus = partyLabel ? `Closed — ${partyLabel}` : 'Closed elsewhere';
-              }
-
-              return (
-                <span className={`px-2.5 py-0.5 text-xs rounded-lg uppercase tracking-wide border shadow-2xs ${badgeClass}`}>
-                  <ExplainableTerm term={s}>{displayStatus}</ExplainableTerm>
-                </span>
-              );
-            })()}
+            <TicketStatusBadge
+              status={ticket.status || ticket.state}
+              closedByParty={ticket.closed_by_party}
+              variant="detail"
+            />
           </div>
 
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-gray-500">Priority:</span>
-            <span
-              className={`px-2.5 py-0.5 text-xs font-bold rounded-lg uppercase tracking-wide shadow-2xs ${
-                ticket.priority === 'urgent'
-                  ? 'bg-brand-red text-white border border-brand-red ring-1 ring-brand-red/30'
-                  : ticket.priority === 'high'
-                  ? 'bg-amber-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              <ExplainableTerm term={ticket.priority}>{ticket.priority}</ExplainableTerm>
-            </span>
+            <TicketPriorityBadge priority={ticket.priority} variant="detail" />
           </div>
         </div>
 
