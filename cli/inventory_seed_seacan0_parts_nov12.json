@@ -1,0 +1,36 @@
+{
+  "stockpiles": [
+    {
+      "name": "Sea Can 0 — 698 McKay",
+      "location": "698 McKay St (Area 2)",
+      "building_id": 89,
+      "notes": "Container ECTU 100739, type 22G1, 20-ft, 33.2 m³. Can number 0 at McKay. Contents from Jose's Nov 12, 2026 observation."
+    }
+  ],
+  "items": [
+    {
+      "stockpile_match": "Sea Can 0 — 698 McKay",
+      "name": "Air filters",
+      "category": "HVAC",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: type and quantity TBD (going into the can; Jose has not counted them)",
+      "source": "Jose's Nov 12, 2026 observation",
+      "last_updated": "2026-11-12"
+    },
+    {
+      "stockpile_match": "Sea Can 0 — 698 McKay",
+      "name": "LED lightbulbs",
+      "category": "Electrical",
+      "quantity": null,
+      "unit": null,
+      "purpose": "spare",
+      "status": "placeholder",
+      "location_notes": "PLACEHOLDER — to count: type and quantity TBD (Jose has not counted them)",
+      "source": "Jose's Nov 12, 2026 observation",
+      "last_updated": "2026-11-12"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "stockpiles": [
+    {
+      "name": "509 Days Rd Storage",
+      "location": "509 Days Rd",
+      "building_id": 14,
+      "notes": "509 Days Rd storage area (not 511 basement). Area 12 in Jose's list label (distinct from stockpile ID 12). Observation Nov 12, 2026."
+    }
+  ],
+  "appliances": [
+    {
+      "stockpile_name": "509 Days Rd Storage",
+      "name": "Gas instant water heater (1 of 2)",
+      "type": "Water Heater",
+      "brand": "Unknown",
+      "model_number": null,
+      "serial_number": null,
+      "status": "stored",
+      "notes": "Uncommissioned gas instant water heater in 509 Days Rd storage; rating plate outstanding (Nov 12, 2026)."
+    },
+    {
+      "stockpile_name": "509 Days Rd Storage",
+      "name": "Gas instant water heater (2 of 2)",
+      "type": "Water Heater",
+      "brand": "Unknown",
+      "model_number": null,
+      "serial_number": null,
+      "status": "stored",
+      "notes": "Uncommissioned gas instant water heater in 509 Days Rd storage; rating plate outstanding (Nov 12, 2026)."
+    }
+  ]
+}
