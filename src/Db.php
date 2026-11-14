@@ -644,6 +644,20 @@ class Db
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             );
+
+            CREATE TABLE IF NOT EXISTS server_error_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                level TEXT NOT NULL,
+                message TEXT NOT NULL,
+                file TEXT NULL,
+                line INTEGER NULL,
+                route TEXT NULL,
+                user_id INTEGER NULL,
+                context TEXT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX IF NOT EXISTS idx_server_error_log_created_at ON server_error_log (created_at);
+            CREATE INDEX IF NOT EXISTS idx_server_error_log_level_created_at ON server_error_log (level, created_at);
         ");
     }
 

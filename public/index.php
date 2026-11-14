@@ -93,7 +93,57 @@ $errorMiddleware->setDefaultErrorHandler(function (
         $message = $exception->getMessage();
     }
 
+    \App\Models\ServerErrorLog::log([
+        'level' => 'error',
+        'message' => $exception->getMessage(),
+        'file' => $exception->getFile(),
+        'line' => $exception->getLine(),
+        'route' => $request->getUri()->getPath(),
+        'context' => [
+            'method' => $request->getMethod(),
+            'path' => $request->getUri()->getPath(),
+        ],
+    ]);
+
     return Auth::jsonError($errorCode, $message, $statusCode);
+});
+
+set_error_handler(function (int $severity, string $errstr, string $errfile, int $errline): bool {
+    if (!in_array($severity, [E_WARNING, E_USER_WARNING, E_USER_ERROR], true)) {
+        return false;
+    }
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: null;
+    $method = $_SERVER['REQUEST_METHOD'] ?? null;
+    \App\Models\ServerErrorLog::log([
+        'level' => 'warning',
+        'message' => $errstr,
+        'file' => $errfile,
+        'line' => $errline,
+        'route' => $path,
+        'context' => array_filter(['method' => $method, 'path' => $path]),
+    ]);
+    return false;
+}, E_WARNING | E_USER_WARNING | E_USER_ERROR);
+
+register_shutdown_function(function (): void {
+    try {
+        $err = error_get_last();
+        if (!$err || !in_array($err['type'] ?? 0, [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+            return;
+        }
+        $path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: null;
+        $method = $_SERVER['REQUEST_METHOD'] ?? null;
+        \App\Models\ServerErrorLog::log([
+            'level' => 'fatal',
+            'message' => (string) ($err['message'] ?? 'Fatal error'),
+            'file' => $err['file'] ?? null,
+            'line' => $err['line'] ?? null,
+            'route' => $path,
+            'context' => array_filter(['method' => $method, 'path' => $path]),
+        ]);
+    } catch (\Throwable) {
+        // Best-effort only
+    }
 });
 
 $app->run();

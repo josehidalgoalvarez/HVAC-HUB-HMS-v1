@@ -109,7 +109,7 @@ $resList = dispatchJsonRpc($app, $validToken, [
 ]);
 assertMcp($resList['status'] === 200, '3.1 tools/list returns HTTP 200', $passes, $failures);
 $tools = $resList['body']['result']['tools'] ?? [];
-assertMcp(count($tools) === 11, '3.2 tools/list returns exactly 11 tools (got ' . count($tools) . ')', $passes, $failures);
+assertMcp(count($tools) === 12, '3.2 tools/list returns exactly 12 tools (got ' . count($tools) . ')', $passes, $failures);
 
 $expectedToolNames = [
     'list_tickets',
@@ -119,6 +119,7 @@ $expectedToolNames = [
     'search_parts',
     'get_stockpile',
     'get_counts',
+    'get_server_errors',
     'record_move',
     'log_part_use',
     'add_to_buy_list',
@@ -1030,6 +1031,94 @@ try {
         'params' => ['name' => 'create_ticket', 'arguments' => ['title' => 'Bad Tech', 'building_id' => 1, 'assigned_tech_id' => 999999]],
     ]);
     assertMcp(($res12_17['body']['error']['code'] ?? 0) === -32602, '12.17 Unknown assigned_tech_id rejected (-32602)', $passes, $failures);
+
+    // -----------------------------------------
+    // 13. get_server_errors (Read-Only Tool #12)
+    // -----------------------------------------
+    // 13.1 Appears in tools/list
+    $res13_list = dispatchJsonRpc($app, $validToken, ['jsonrpc' => '2.0', 'id' => 1301, 'method' => 'tools/list']);
+    $tools13 = $res13_list['body']['result']['tools'] ?? [];
+    $gseTool = null;
+    foreach ($tools13 as $t) {
+        if (($t['name'] ?? '') === 'get_server_errors') {
+            $gseTool = $t;
+            break;
+        }
+    }
+    assertMcp(
+        $gseTool !== null && isset($gseTool['inputSchema']['properties']['level'], $gseTool['inputSchema']['properties']['limit'], $gseTool['inputSchema']['properties']['since']),
+        '13.1 get_server_errors appears in tools/list with level/limit/since schema',
+        $passes, $failures
+    );
+
+    // 13.2 Empty table returns {errors: [], total: 0}
+    $res13_empty = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1302, 'method' => 'tools/call',
+        'params' => ['name' => 'get_server_errors', 'arguments' => []],
+    ]);
+    $d13_empty = json_decode($res13_empty['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        ($d13_empty['errors'] ?? null) === [] && ($d13_empty['total'] ?? -1) === 0,
+        '13.2 Empty server_error_log returns {errors: [], total: 0}',
+        $passes, $failures
+    );
+
+    // 13.3 Invalid level, limit 0/101, unparseable since -> -32602
+    $badLevel = dispatchJsonRpc($app, $validToken, ['jsonrpc' => '2.0', 'id' => 1303, 'method' => 'tools/call', 'params' => ['name' => 'get_server_errors', 'arguments' => ['level' => 'debug']]]);
+    $badLim0  = dispatchJsonRpc($app, $validToken, ['jsonrpc' => '2.0', 'id' => 1304, 'method' => 'tools/call', 'params' => ['name' => 'get_server_errors', 'arguments' => ['limit' => 0]]]);
+    $badLimHi = dispatchJsonRpc($app, $validToken, ['jsonrpc' => '2.0', 'id' => 1305, 'method' => 'tools/call', 'params' => ['name' => 'get_server_errors', 'arguments' => ['limit' => 101]]]);
+    $badSince = dispatchJsonRpc($app, $validToken, ['jsonrpc' => '2.0', 'id' => 1306, 'method' => 'tools/call', 'params' => ['name' => 'get_server_errors', 'arguments' => ['since' => 'not-a-date-xyz']]]);
+    assertMcp(
+        ($badLevel['body']['error']['code'] ?? 0) === -32602
+        && ($badLim0['body']['error']['code'] ?? 0) === -32602
+        && ($badLimHi['body']['error']['code'] ?? 0) === -32602
+        && ($badSince['body']['error']['code'] ?? 0) === -32602,
+        '13.3 Invalid level, limit 0/101, and unparseable since rejected (-32602)',
+        $passes, $failures
+    );
+
+    // 13.4 Seed 3 rows via Model, assert newest-first order and total 3
+    \App\Models\ServerErrorLog::log(['level' => 'warning', 'message' => 'First warning', 'file' => '/a.php', 'line' => 10, 'route' => '/api/a']);
+    \App\Models\ServerErrorLog::log(['level' => 'error',   'message' => 'Second error',  'file' => '/b.php', 'line' => 20, 'route' => '/api/b']);
+    \App\Models\ServerErrorLog::log(['level' => 'fatal',   'message' => 'Third fatal',   'file' => '/c.php', 'line' => 30, 'route' => '/api/c']);
+    $res13_all = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1307, 'method' => 'tools/call',
+        'params' => ['name' => 'get_server_errors', 'arguments' => []],
+    ]);
+    $d13_all = json_decode($res13_all['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        ($d13_all['total'] ?? 0) === 3
+        && count($d13_all['errors'] ?? []) === 3
+        && ($d13_all['errors'][0]['message'] ?? '') === 'Third fatal'
+        && ($d13_all['errors'][2]['message'] ?? '') === 'First warning',
+        '13.4 Seeded 3 rows returned newest-first with total 3',
+        $passes, $failures
+    );
+
+    // 13.5 level filter returns only that level
+    $res13_lvl = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1308, 'method' => 'tools/call',
+        'params' => ['name' => 'get_server_errors', 'arguments' => ['level' => 'error']],
+    ]);
+    $d13_lvl = json_decode($res13_lvl['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        ($d13_lvl['total'] ?? 0) === 1 && ($d13_lvl['errors'][0]['level'] ?? '') === 'error',
+        '13.5 level filter returns only matching level',
+        $passes, $failures
+    );
+
+    // 13.6 since filter excludes older rows
+    $futureSince = date('Y-m-d H:i:s', time() + 3600);
+    $res13_since = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1309, 'method' => 'tools/call',
+        'params' => ['name' => 'get_server_errors', 'arguments' => ['since' => $futureSince]],
+    ]);
+    $d13_since = json_decode($res13_since['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        ($d13_since['total'] ?? -1) === 0 && ($d13_since['errors'] ?? null) === [],
+        '13.6 since filter excludes older rows',
+        $passes, $failures
+    );
 
 } finally {
     $pdo->rollBack();
