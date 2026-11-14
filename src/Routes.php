@@ -735,11 +735,7 @@ class Routes
                             'washrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
                             'storeys' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
                             'washerDryerState' => $u['washer_dryer_state'] ?? null,
-                            'renovated' => $u['renovated'] !== null ? (bool) $u['renovated'] : null,
-                            'renovatedDate' => $u['renovated_date'] ?? null,
-                            'moveInDate' => $u['move_in_date'] ?? null,
                             'occupancyStatus' => $u['occupancy_status'] ?? 'unknown',
-                            'vacantSince' => $u['vacant_since'] ?? null,
                             'comments' => $u['comments'] ?? null,
                             'failedVisitsCount' => $failedCount,
                         ];
