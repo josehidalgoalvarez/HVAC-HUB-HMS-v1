@@ -741,10 +741,7 @@ class Routes
                             'occupancyStatus' => $u['occupancy_status'] ?? 'unknown',
                             'vacantSince' => $u['vacant_since'] ?? null,
                             'comments' => $u['comments'] ?? null,
-                            'provenance' => $u['provenance'] ?? 'verified',
                             'failedVisitsCount' => $failedCount,
-                            'repeatAccessProblem' => ($failedCount >= 2),
-                            'externalId' => $u['external_id'] ?? null,
                         ];
                     }
                     $unitNumbers = array_column($units, 'unit_number');
