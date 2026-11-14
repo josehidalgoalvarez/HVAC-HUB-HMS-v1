@@ -4,6 +4,9 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import AuthGate from "./components/auth/AuthGate";
+import { initClientErrorReporting } from './utils/clientErrorReporter';
+
+initClientErrorReporting();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

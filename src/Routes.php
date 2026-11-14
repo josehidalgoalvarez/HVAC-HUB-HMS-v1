@@ -806,6 +806,36 @@ class Routes
                     ->withHeader('Cache-Control', 'private, no-cache');
             });
 
+            // Client Error Reporting (In-House Observability)
+            $group->post('/client-errors', function (Request $request, Response $response): Response {
+                $body = (array) ($request->getParsedBody() ?? []);
+                $source = $body['source'] ?? '';
+                $message = $body['message'] ?? '';
+
+                if (!is_string($message) || trim($message) === '' || strlen($message) > 2000) {
+                    return Auth::jsonError('validation_error', 'message is required (string, <= 2000 chars)', 400);
+                }
+                if (!is_string($source) || !in_array($source, \App\Models\ClientErrorLog::VALID_SOURCES, true)) {
+                    return Auth::jsonError('validation_error', 'source must be one of: boundary, window, unhandledrejection', 400);
+                }
+
+                $user = $request->getAttribute('user');
+                $userId = is_array($user) && isset($user['id']) ? (int) $user['id'] : null;
+
+                $id = \App\Models\ClientErrorLog::log([
+                    'source' => $source,
+                    'message' => $message,
+                    'stack' => isset($body['stack']) && is_string($body['stack']) ? $body['stack'] : null,
+                    'component_stack' => isset($body['component_stack']) && is_string($body['component_stack']) ? $body['component_stack'] : null,
+                    'route' => isset($body['route']) && is_string($body['route']) ? $body['route'] : null,
+                    'app_version' => isset($body['app_version']) && is_string($body['app_version']) ? $body['app_version'] : null,
+                    'user_agent' => isset($body['user_agent']) && is_string($body['user_agent']) ? $body['user_agent'] : null,
+                    'user_id' => $userId,
+                ]);
+
+                return Auth::jsonSuccess(['received' => true, 'id' => $id]);
+            });
+
             // Tech role route
             $group->get('/tech/ping', function (Request $request, Response $response): Response {
                 return Auth::jsonSuccess(['service' => 'tech', 'status' => 'ready']);

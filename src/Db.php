@@ -658,6 +658,21 @@ class Db
             );
             CREATE INDEX IF NOT EXISTS idx_server_error_log_created_at ON server_error_log (created_at);
             CREATE INDEX IF NOT EXISTS idx_server_error_log_level_created_at ON server_error_log (level, created_at);
+
+            CREATE TABLE IF NOT EXISTS client_error_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                source TEXT NOT NULL,
+                message TEXT NOT NULL,
+                stack TEXT NULL,
+                component_stack TEXT NULL,
+                route TEXT NULL,
+                app_version TEXT NULL,
+                user_agent TEXT NULL,
+                user_id INTEGER NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX IF NOT EXISTS idx_client_error_log_created_at ON client_error_log (created_at);
+            CREATE INDEX IF NOT EXISTS idx_client_error_log_source_created_at ON client_error_log (source, created_at);
         ");
     }
 

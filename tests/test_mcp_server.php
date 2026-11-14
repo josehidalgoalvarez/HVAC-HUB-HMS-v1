@@ -109,7 +109,7 @@ $resList = dispatchJsonRpc($app, $validToken, [
 ]);
 assertMcp($resList['status'] === 200, '3.1 tools/list returns HTTP 200', $passes, $failures);
 $tools = $resList['body']['result']['tools'] ?? [];
-assertMcp(count($tools) === 12, '3.2 tools/list returns exactly 12 tools (got ' . count($tools) . ')', $passes, $failures);
+assertMcp(count($tools) === 13, '3.2 tools/list returns exactly 13 tools (got ' . count($tools) . ')', $passes, $failures);
 
 $expectedToolNames = [
     'list_tickets',
@@ -120,6 +120,7 @@ $expectedToolNames = [
     'get_stockpile',
     'get_counts',
     'get_server_errors',
+    'get_client_errors',
     'record_move',
     'log_part_use',
     'add_to_buy_list',
@@ -1117,6 +1118,93 @@ try {
     assertMcp(
         ($d13_since['total'] ?? -1) === 0 && ($d13_since['errors'] ?? null) === [],
         '13.6 since filter excludes older rows',
+        $passes, $failures
+    );
+
+    // -----------------------------------------
+    // 14. get_client_errors (Read-Only Tool #13)
+    // -----------------------------------------
+    // 14.1 Appears in tools/list
+    $res14_list = dispatchJsonRpc($app, $validToken, ['jsonrpc' => '2.0', 'id' => 1401, 'method' => 'tools/list']);
+    $tools14 = $res14_list['body']['result']['tools'] ?? [];
+    $gceTool = null;
+    foreach ($tools14 as $t) {
+        if (($t['name'] ?? '') === 'get_client_errors') {
+            $gceTool = $t;
+            break;
+        }
+    }
+    assertMcp(
+        $gceTool !== null && isset($gceTool['inputSchema']['properties']['source'], $gceTool['inputSchema']['properties']['limit'], $gceTool['inputSchema']['properties']['since']),
+        '14.1 get_client_errors appears in tools/list with source/limit/since schema',
+        $passes, $failures
+    );
+
+    // 14.2 Empty table returns {errors: [], total: 0}
+    $res14_empty = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1402, 'method' => 'tools/call',
+        'params' => ['name' => 'get_client_errors', 'arguments' => []],
+    ]);
+    $d14_empty = json_decode($res14_empty['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        ($d14_empty['errors'] ?? null) === [] && ($d14_empty['total'] ?? -1) === 0,
+        '14.2 Empty client_error_log returns {errors: [], total: 0}',
+        $passes, $failures
+    );
+
+    // 14.3 Invalid source, limit 0/101, unparseable since -> -32602
+    $badSrc   = dispatchJsonRpc($app, $validToken, ['jsonrpc' => '2.0', 'id' => 1403, 'method' => 'tools/call', 'params' => ['name' => 'get_client_errors', 'arguments' => ['source' => 'console']]]);
+    $badLim0  = dispatchJsonRpc($app, $validToken, ['jsonrpc' => '2.0', 'id' => 1404, 'method' => 'tools/call', 'params' => ['name' => 'get_client_errors', 'arguments' => ['limit' => 0]]]);
+    $badLimHi = dispatchJsonRpc($app, $validToken, ['jsonrpc' => '2.0', 'id' => 1405, 'method' => 'tools/call', 'params' => ['name' => 'get_client_errors', 'arguments' => ['limit' => 101]]]);
+    $badSince = dispatchJsonRpc($app, $validToken, ['jsonrpc' => '2.0', 'id' => 1406, 'method' => 'tools/call', 'params' => ['name' => 'get_client_errors', 'arguments' => ['since' => 'not-a-date-xyz']]]);
+    assertMcp(
+        ($badSrc['body']['error']['code'] ?? 0) === -32602
+        && ($badLim0['body']['error']['code'] ?? 0) === -32602
+        && ($badLimHi['body']['error']['code'] ?? 0) === -32602
+        && ($badSince['body']['error']['code'] ?? 0) === -32602,
+        '14.3 Invalid source, limit 0/101, and unparseable since rejected (-32602)',
+        $passes, $failures
+    );
+
+    // 14.4 Seed 3 rows via Model, assert newest-first order and total 3
+    \App\Models\ClientErrorLog::log(['source' => 'window',             'message' => 'First window error',  'route' => '/tickets']);
+    \App\Models\ClientErrorLog::log(['source' => 'boundary',           'message' => 'Second boundary err', 'route' => '/tickets/42']);
+    \App\Models\ClientErrorLog::log(['source' => 'unhandledrejection', 'message' => 'Third rejection',     'route' => '/properties']);
+    $res14_all = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1407, 'method' => 'tools/call',
+        'params' => ['name' => 'get_client_errors', 'arguments' => []],
+    ]);
+    $d14_all = json_decode($res14_all['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        ($d14_all['total'] ?? 0) === 3
+        && count($d14_all['errors'] ?? []) === 3
+        && ($d14_all['errors'][0]['message'] ?? '') === 'Third rejection'
+        && ($d14_all['errors'][2]['message'] ?? '') === 'First window error',
+        '14.4 Seeded 3 rows returned newest-first with total 3',
+        $passes, $failures
+    );
+
+    // 14.5 source filter returns only matching source
+    $res14_src = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1408, 'method' => 'tools/call',
+        'params' => ['name' => 'get_client_errors', 'arguments' => ['source' => 'boundary']],
+    ]);
+    $d14_src = json_decode($res14_src['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        ($d14_src['total'] ?? 0) === 1 && ($d14_src['errors'][0]['source'] ?? '') === 'boundary',
+        '14.5 source filter returns only matching source',
+        $passes, $failures
+    );
+
+    // 14.6 since filter excludes older rows
+    $res14_since = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1409, 'method' => 'tools/call',
+        'params' => ['name' => 'get_client_errors', 'arguments' => ['since' => $futureSince]],
+    ]);
+    $d14_since = json_decode($res14_since['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        ($d14_since['total'] ?? -1) === 0 && ($d14_since['errors'] ?? null) === [],
+        '14.6 since filter excludes older rows',
         $passes, $failures
     );
 

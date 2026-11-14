@@ -248,6 +248,28 @@ class McpController
                 ],
             ],
             [
+                'name' => 'get_client_errors',
+                'description' => 'List recent client-side errors captured from React ErrorBoundary and window handlers, newest first, with optional source/since/limit filters.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'source' => [
+                            'type' => 'string',
+                            'enum' => ['boundary', 'window', 'unhandledrejection'],
+                            'description' => 'Optional source filter (boundary, window, unhandledrejection)',
+                        ],
+                        'limit' => [
+                            'type' => 'integer',
+                            'description' => 'Maximum number of rows to return (1-100, default 20)',
+                        ],
+                        'since' => [
+                            'type' => 'string',
+                            'description' => 'Optional lower bound on created_at (YYYY-MM-DD or full datetime)',
+                        ],
+                    ],
+                ],
+            ],
+            [
                 'name' => 'record_move',
                 'description' => "Record an appliance movement (install / store / stage) with the app's proven rules. Enforces existence of appliance and destination, exactly one destination (unit_id or stockpile_id), disallows future movement dates, and records an append-only audit trail.",
                 'inputSchema' => [
@@ -449,6 +471,9 @@ class McpController
 
             case 'get_server_errors':
                 return $this->toolGetServerErrors($id, $arguments);
+
+            case 'get_client_errors':
+                return $this->toolGetClientErrors($id, $arguments);
 
             case 'record_move':
                 return $this->toolRecordMove($id, $arguments, $request);
@@ -850,6 +875,33 @@ class McpController
             return $this->jsonRpcError($id, -32602, $e->getMessage());
         } catch (\Throwable $e) {
             return $this->jsonRpcError($id, -32603, 'Failed to fetch server errors: ' . $e->getMessage());
+        }
+    }
+
+    private function toolGetClientErrors($id, array $args): Response
+    {
+        $source = isset($args['source']) ? (string) $args['source'] : null;
+        $since = isset($args['since']) ? (string) $args['since'] : null;
+
+        $limit = 20;
+        if (array_key_exists('limit', $args)) {
+            if (!is_int($args['limit']) || $args['limit'] < 1 || $args['limit'] > 100) {
+                return $this->jsonRpcError($id, -32602, 'Invalid limit: must be an integer between 1 and 100.');
+            }
+            $limit = $args['limit'];
+        }
+
+        try {
+            $errors = \App\Models\ClientErrorLog::recent($source, $limit, $since);
+            $total = \App\Models\ClientErrorLog::count($source, $since);
+            return $this->jsonRpcToolContent($id, [
+                'errors' => $errors,
+                'total' => $total,
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return $this->jsonRpcError($id, -32602, $e->getMessage());
+        } catch (\Throwable $e) {
+            return $this->jsonRpcError($id, -32603, 'Failed to fetch client errors: ' . $e->getMessage());
         }
     }
 
