@@ -490,6 +490,10 @@ export class ApiClient {
     return this.post<Ticket>(`/api/tickets/${ticketId}/prune`, { actor, reason });
   }
 
+  public async getUnitDetail(unitId: string | number): Promise<any> {
+    return this.get<any>(`/api/units/${unitId}`);
+  }
+
   public async getUnitVisits(unitId: string | number): Promise<UnitFailedVisitsSummary> {
     return this.get<UnitFailedVisitsSummary>(`/api/units/${unitId}/visits`);
   }

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useData } from '../../hooks/useData';
 import { Property, Unit, ApplianceDefaultSet, Appliance, ApplianceDefaultItem } from '../../types';
 import {
@@ -79,7 +79,8 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     resetUnitToDefault,
     applyDefaultSetToUnit,
     updateDefaultSet,
-    updateUnit
+    updateUnit,
+    hydrateUnit
   } = useData();
 
   // Navigation State
@@ -394,6 +395,12 @@ const PropertyListView: React.FC<PropertyListViewProps> = ({
     if (!selectedUnitId) return null;
     return units.find(u => u.id === selectedUnitId) || null;
   }, [selectedUnitId, units]);
+
+  useEffect(() => {
+    if (selectedUnitId) {
+      void hydrateUnit(selectedUnitId);
+    }
+  }, [selectedUnitId]);
 
   const activeUnitAppliances = useMemo(() => {
     if (!activeUnit) return [];

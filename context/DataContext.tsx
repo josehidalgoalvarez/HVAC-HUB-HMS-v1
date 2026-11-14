@@ -51,6 +51,7 @@ interface ActionContextType {
 
   addUnit: (unit: Unit) => void;
   updateUnit: (unit: Unit) => void;
+  hydrateUnit: (id: string) => Promise<void>;
   updateDefaultSet: (updatedSet: ApplianceDefaultSet) => void;
   applyDefaultSetToUnit: (unitId: string, defaultSetId: string, force?: boolean) => { success: boolean; overwrittenCount: number };
   overrideUnitAppliance: (unitId: string, appliance: Appliance) => void;
@@ -551,22 +552,54 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUnits(prev => [...prev, unit]);
   };
 
+  const hydrateUnit = async (id: string) => {
+    if (!useApi || !id) return;
+    try {
+      const detail = await apiClient.getUnitDetail(id);
+      if (!detail) return;
+      setUnits(prev => {
+        const next = prev.map(u =>
+          u.id === id
+            ? {
+                ...u,
+                renovated: detail.renovated ?? u.renovated,
+                renovatedDate: detail.renovatedDate ?? detail.renovated_date ?? u.renovatedDate,
+                moveInDate: detail.moveInDate ?? detail.move_in_date ?? u.moveInDate,
+                vacantSince: detail.vacantSince ?? detail.vacant_since ?? u.vacantSince,
+              }
+            : u
+        );
+        try {
+          localStorage.setItem('hvachome_units', JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+    } catch (err) {
+      console.warn('Failed to hydrate unit detail:', err);
+    }
+  };
+
   const updateUnit = (unit: Unit) => {
     setUnits(prev => prev.map(u => u.id === unit.id ? unit : u));
     if (useApi) {
-      apiClient.patch(`/api/units/${unit.id}`, {
+      const renovatedDateVal = unit.renovated_date ?? unit.renovatedDate;
+      const moveInDateVal = unit.move_in_date ?? unit.moveInDate;
+      const vacantSinceVal = unit.vacant_since ?? unit.vacantSince;
+      const patchBody: Record<string, unknown> = {
         bedrooms: unit.bedrooms,
         washrooms: unit.washrooms ?? unit.bathrooms,
         storeys: unit.storeys ?? unit.stories,
         washer_dryer_state: unit.washerDryerState,
-        renovated: unit.renovated,
-        renovated_date: unit.renovated_date ?? unit.renovatedDate,
-        move_in_date: unit.move_in_date ?? unit.moveInDate,
         occupancy_status: unit.occupancy_status ?? unit.occupancyStatus,
-        vacant_since: unit.vacant_since ?? unit.vacantSince,
         comments: unit.comments,
         default_set_id: unit.defaultSetId,
-      }).catch(err => {
+      };
+      if (unit.renovated !== undefined) patchBody.renovated = unit.renovated;
+      if (renovatedDateVal !== undefined) patchBody.renovated_date = renovatedDateVal;
+      if (moveInDateVal !== undefined) patchBody.move_in_date = moveInDateVal;
+      if (vacantSinceVal !== undefined) patchBody.vacant_since = vacantSinceVal;
+
+      apiClient.patch(`/api/units/${unit.id}`, patchBody).catch(err => {
         console.warn('Failed to sync updated unit to API:', err);
       });
     }
@@ -738,6 +771,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     duplicateAppliance,
     addUnit,
     updateUnit,
+    hydrateUnit,
     updateDefaultSet,
     applyDefaultSetToUnit,
     overrideUnitAppliance,
