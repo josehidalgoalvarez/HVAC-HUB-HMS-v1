@@ -151,28 +151,6 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
 
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3 text-gray-500">
-        <span aria-hidden="true" className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
-        <p className="text-sm font-medium">Loading ticket details & hierarchy...</p>
-      </div>
-    );
-  }
-
-  if (error || !ticket) {
-    return (
-      <div className="p-6 max-w-lg mx-auto text-center space-y-4">
-        <div className="p-4 bg-red-50 dark:bg-red-950/40 rounded-2xl border border-red-200 dark:border-red-900 text-brand-red text-sm">
-          {error || 'Ticket not found.'}
-        </div>
-        <Button variant="secondary" onClick={onBack} fullWidth>
-          Back to Tickets
-        </Button>
-      </div>
-    );
-  }
-
   const matchedUnit = useMemo(() => {
     if (!ticket) return null;
     const uId = ticket.unit_id || ticket.unitId;
@@ -195,6 +173,28 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
     if (!matchedUnit) return [];
     return getUnitAppliances(matchedUnit);
   }, [matchedUnit, getUnitAppliances]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3 text-gray-500">
+        <span aria-hidden="true" className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
+        <p className="text-sm font-medium">Loading ticket details & hierarchy...</p>
+      </div>
+    );
+  }
+
+  if (error || !ticket) {
+    return (
+      <div className="p-6 max-w-lg mx-auto text-center space-y-4">
+        <div className="p-4 bg-red-50 dark:bg-red-950/40 rounded-2xl border border-red-200 dark:border-red-900 text-brand-red text-sm">
+          {error || 'Ticket not found.'}
+        </div>
+        <Button variant="secondary" onClick={onBack} fullWidth>
+          Back to Tickets
+        </Button>
+      </div>
+    );
+  }
   const rollup = ticket.childrenRollup || (ticket as any).rollup;
   const children = ticket.children || [];
   const building = ticket.building_name || '';
