@@ -368,7 +368,6 @@ class Routes
                         'name' => $c['name'],
                         'notes' => $c['notes'] ?? '',
                         'buildingCount' => (int) ($c['building_count'] ?? 0),
-                        'building_count' => (int) ($c['building_count'] ?? 0),
                     ];
                 }
                 return Auth::jsonSuccess($complexes);
@@ -382,19 +381,14 @@ class Routes
                     $sets[] = [
                         'id' => $ds['id'],
                         'complexSlug' => $ds['complex_slug'],
-                        'complex_slug' => $ds['complex_slug'],
                         'complexId' => $ds['complex_id'] ? (string) $ds['complex_id'] : null,
-                        'complex_id' => $ds['complex_id'] ? (int) $ds['complex_id'] : null,
                         'name' => $ds['name'],
                         'unitType' => $ds['unit_type'],
-                        'unit_type' => $ds['unit_type'],
                         'isDefault' => (bool) $ds['is_default'],
-                        'is_default' => (int) $ds['is_default'],
                         'bedrooms' => $ds['bedrooms'] !== null ? (int) $ds['bedrooms'] : null,
                         'bathrooms' => $ds['bathrooms'] !== null ? (float) $ds['bathrooms'] : null,
                         'stories' => $ds['stories'] !== null ? (int) $ds['stories'] : null,
                         'hasUnitWaterHeater' => (bool) ($ds['has_unit_water_heater'] ?? false),
-                        'has_unit_water_heater' => (int) ($ds['has_unit_water_heater'] ?? 0),
                         'appliances' => !empty($ds['appliances_json']) ? json_decode($ds['appliances_json'], true) : [],
                         'notes' => $ds['notes'] ?? '',
                     ];
@@ -691,11 +685,9 @@ class Routes
                         'slug' => $c['slug'] ?? '',
                         'db_id' => (int) $c['id'],
                         'name' => $c['name'],
-                        'description' => $c['notes'] ?? '',
                         'notes' => $c['notes'] ?? '',
                         'address' => '',
                         'buildingCount' => (int) ($c['building_count'] ?? 0),
-                        'building_count' => (int) ($c['building_count'] ?? 0),
                     ];
                 }
 
@@ -705,19 +697,14 @@ class Routes
                     $defaultSets[] = [
                         'id' => $ds['id'],
                         'complexSlug' => $ds['complex_slug'],
-                        'complex_slug' => $ds['complex_slug'],
                         'complexId' => $ds['complex_slug'] ?? ($ds['complex_id'] ? (string) $ds['complex_id'] : null),
-                        'complex_id' => $ds['complex_id'] ? (int) $ds['complex_id'] : null,
                         'name' => $ds['name'],
                         'unitType' => $ds['unit_type'],
-                        'unit_type' => $ds['unit_type'],
                         'isDefault' => (bool) $ds['is_default'],
-                        'is_default' => (int) $ds['is_default'],
                         'bedrooms' => $ds['bedrooms'] !== null ? (int) $ds['bedrooms'] : null,
                         'bathrooms' => $ds['bathrooms'] !== null ? (float) $ds['bathrooms'] : null,
                         'stories' => $ds['stories'] !== null ? (int) $ds['stories'] : null,
                         'hasUnitWaterHeater' => (bool) ($ds['has_unit_water_heater'] ?? false),
-                        'has_unit_water_heater' => (int) ($ds['has_unit_water_heater'] ?? 0),
                         'appliances' => !empty($ds['appliances_json']) ? json_decode($ds['appliances_json'], true) : [],
                         'notes' => $ds['notes'] ?? '',
                     ];
@@ -746,27 +733,17 @@ class Routes
                             'defaultSetId' => $u['default_set_id'],
                             'bedrooms' => $u['bedrooms'] !== null ? (int) $u['bedrooms'] : null,
                             'washrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
-                            'bathrooms' => $u['washrooms'] !== null ? (int) $u['washrooms'] : null,
                             'storeys' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
-                            'stories' => $u['storeys'] !== null ? (int) $u['storeys'] : null,
                             'washerDryerState' => $u['washer_dryer_state'] ?? null,
-                            'washer_dryer_state' => $u['washer_dryer_state'] ?? null,
                             'renovated' => $u['renovated'] !== null ? (bool) $u['renovated'] : null,
-                            'renovated_date' => $u['renovated_date'] ?? null,
                             'renovatedDate' => $u['renovated_date'] ?? null,
-                            'move_in_date' => $u['move_in_date'] ?? null,
                             'moveInDate' => $u['move_in_date'] ?? null,
-                            'occupancy_status' => $u['occupancy_status'] ?? 'unknown',
                             'occupancyStatus' => $u['occupancy_status'] ?? 'unknown',
-                            'vacant_since' => $u['vacant_since'] ?? null,
                             'vacantSince' => $u['vacant_since'] ?? null,
                             'comments' => $u['comments'] ?? null,
                             'provenance' => $u['provenance'] ?? 'verified',
                             'failedVisitsCount' => $failedCount,
-                            'failed_visits_count' => $failedCount,
                             'repeatAccessProblem' => ($failedCount >= 2),
-                            'has_repeat_access_problem' => ($failedCount >= 2),
-                            'external_id' => $u['external_id'] ?? null,
                             'externalId' => $u['external_id'] ?? null,
                         ];
                     }
@@ -778,8 +755,6 @@ class Routes
                     $bFailedCount = $buildingFailedCounts[(int) $b['id']] ?? 0;
                     $properties[] = [
                         'id' => (string) $b['id'],
-                        'complex_id' => $cId,
-                        'complex_name' => $cName,
                         'complexId' => $cSlug ?? ($cId !== null ? (string) $cId : null),
                         'complexSlug' => $cSlug,
                         'complexName' => $cName,
@@ -796,8 +771,6 @@ class Routes
                         'role' => $b['role'] ?? 'standard',
                         'responsibility' => $b['responsibility'] ?? 'internal',
                         'failedVisitsCount' => $bFailedCount,
-                        'failed_visits_count' => $bFailedCount,
-                        'external_id' => $b['external_id'] ?? null,
                         'externalId' => $b['external_id'] ?? null,
                         'createdAt' => $b['created_at'],
                     ];
