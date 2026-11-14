@@ -673,6 +673,18 @@ class Db
             );
             CREATE INDEX IF NOT EXISTS idx_client_error_log_created_at ON client_error_log (created_at);
             CREATE INDEX IF NOT EXISTS idx_client_error_log_source_created_at ON client_error_log (source, created_at);
+
+            CREATE TABLE IF NOT EXISTS slow_request_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                method TEXT NOT NULL,
+                route TEXT NOT NULL,
+                duration_ms INTEGER NOT NULL,
+                status_code INTEGER NULL,
+                user_id INTEGER NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX IF NOT EXISTS idx_slow_request_log_created_at ON slow_request_log (created_at);
+            CREATE INDEX IF NOT EXISTS idx_slow_request_log_route_created_at ON slow_request_log (route, created_at);
         ");
     }
 

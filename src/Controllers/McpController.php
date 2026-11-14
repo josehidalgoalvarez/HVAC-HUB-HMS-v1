@@ -270,6 +270,31 @@ class McpController
                 ],
             ],
             [
+                'name' => 'get_slow_requests',
+                'description' => 'List recent slow API requests (>= 1000ms by default), newest first, with optional route/min_duration_ms/limit/since filters.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'route' => [
+                            'type' => 'string',
+                            'description' => 'Optional substring match on the matched route pattern',
+                        ],
+                        'min_duration_ms' => [
+                            'type' => 'integer',
+                            'description' => 'Minimum duration in milliseconds (default 1000, min 0)',
+                        ],
+                        'limit' => [
+                            'type' => 'integer',
+                            'description' => 'Maximum number of rows to return (1-100, default 20)',
+                        ],
+                        'since' => [
+                            'type' => 'string',
+                            'description' => 'Optional lower bound on created_at (YYYY-MM-DD or full datetime)',
+                        ],
+                    ],
+                ],
+            ],
+            [
                 'name' => 'record_move',
                 'description' => "Record an appliance movement (install / store / stage) with the app's proven rules. Enforces existence of appliance and destination, exactly one destination (unit_id or stockpile_id), disallows future movement dates, and records an append-only audit trail.",
                 'inputSchema' => [
@@ -474,6 +499,9 @@ class McpController
 
             case 'get_client_errors':
                 return $this->toolGetClientErrors($id, $arguments);
+
+            case 'get_slow_requests':
+                return $this->toolGetSlowRequests($id, $arguments);
 
             case 'record_move':
                 return $this->toolRecordMove($id, $arguments, $request);
@@ -902,6 +930,41 @@ class McpController
             return $this->jsonRpcError($id, -32602, $e->getMessage());
         } catch (\Throwable $e) {
             return $this->jsonRpcError($id, -32603, 'Failed to fetch client errors: ' . $e->getMessage());
+        }
+    }
+
+    private function toolGetSlowRequests($id, array $args): Response
+    {
+        $route = isset($args['route']) ? (string) $args['route'] : null;
+        $since = isset($args['since']) ? (string) $args['since'] : null;
+
+        $minDurationMs = 1000;
+        if (array_key_exists('min_duration_ms', $args)) {
+            if (!is_int($args['min_duration_ms'])) {
+                return $this->jsonRpcError($id, -32602, 'Invalid min_duration_ms: must be an integer >= 0.');
+            }
+            $minDurationMs = $args['min_duration_ms'];
+        }
+
+        $limit = 20;
+        if (array_key_exists('limit', $args)) {
+            if (!is_int($args['limit']) || $args['limit'] < 1 || $args['limit'] > 100) {
+                return $this->jsonRpcError($id, -32602, 'Invalid limit: must be an integer between 1 and 100.');
+            }
+            $limit = $args['limit'];
+        }
+
+        try {
+            $requests = \App\Models\SlowRequestLog::recent($route, $minDurationMs, $limit, $since);
+            $total = \App\Models\SlowRequestLog::count($route, $minDurationMs, $since);
+            return $this->jsonRpcToolContent($id, [
+                'requests' => $requests,
+                'total' => $total,
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return $this->jsonRpcError($id, -32602, $e->getMessage());
+        } catch (\Throwable $e) {
+            return $this->jsonRpcError($id, -32603, 'Failed to fetch slow requests: ' . $e->getMessage());
         }
     }
 

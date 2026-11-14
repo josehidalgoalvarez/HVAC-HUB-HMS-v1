@@ -21,6 +21,9 @@ $app = AppFactory::create();
 // Body parsing middleware
 $app->addBodyParsingMiddleware();
 
+// Timing middleware (runs after routing in LIFO order)
+$app->add(new \App\Middleware\TimingMiddleware());
+
 // Routing middleware
 $app->addRoutingMiddleware();
 

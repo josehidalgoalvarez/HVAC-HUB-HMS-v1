@@ -109,7 +109,7 @@ $resList = dispatchJsonRpc($app, $validToken, [
 ]);
 assertMcp($resList['status'] === 200, '3.1 tools/list returns HTTP 200', $passes, $failures);
 $tools = $resList['body']['result']['tools'] ?? [];
-assertMcp(count($tools) === 13, '3.2 tools/list returns exactly 13 tools (got ' . count($tools) . ')', $passes, $failures);
+assertMcp(count($tools) === 14, '3.2 tools/list returns exactly 14 tools (got ' . count($tools) . ')', $passes, $failures);
 
 $expectedToolNames = [
     'list_tickets',
@@ -121,6 +121,7 @@ $expectedToolNames = [
     'get_counts',
     'get_server_errors',
     'get_client_errors',
+    'get_slow_requests',
     'record_move',
     'log_part_use',
     'add_to_buy_list',
@@ -1205,6 +1206,94 @@ try {
     assertMcp(
         ($d14_since['total'] ?? -1) === 0 && ($d14_since['errors'] ?? null) === [],
         '14.6 since filter excludes older rows',
+        $passes, $failures
+    );
+
+    // =====================================================================
+    // 15. get_slow_requests (Read-Only Tool #14)
+    // =====================================================================
+    echo "\n--- 15. get_slow_requests ---\n";
+
+    // 15.1 Appears in tools/list with route/min_duration_ms/limit/since schema
+    $slowTool = null;
+    foreach ($tools as $t) {
+        if (($t['name'] ?? '') === 'get_slow_requests') {
+            $slowTool = $t;
+            break;
+        }
+    }
+    $slowProps = $slowTool['inputSchema']['properties'] ?? [];
+    assertMcp(
+        $slowTool !== null && isset($slowProps['route'], $slowProps['min_duration_ms'], $slowProps['limit'], $slowProps['since']),
+        '15.1 get_slow_requests appears in tools/list with route/min_duration_ms/limit/since schema',
+        $passes, $failures
+    );
+
+    // 15.2 Empty table returns {requests: [], total: 0}
+    $res15_empty = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1502, 'method' => 'tools/call',
+        'params' => ['name' => 'get_slow_requests', 'arguments' => []],
+    ]);
+    $d15_empty = json_decode($res15_empty['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        $res15_empty['status'] === 200 && ($d15_empty['requests'] ?? null) === [] && ($d15_empty['total'] ?? -1) === 0,
+        '15.2 get_slow_requests on empty table returns {requests: [], total: 0}',
+        $passes, $failures
+    );
+
+    // 15.3 Invalid min_duration_ms (-1) and invalid limit (0 / 101) return -32602
+    $badMin   = dispatchJsonRpc($app, $validToken, ['jsonrpc' => '2.0', 'id' => 1503, 'method' => 'tools/call', 'params' => ['name' => 'get_slow_requests', 'arguments' => ['min_duration_ms' => -1]]]);
+    $badLim0  = dispatchJsonRpc($app, $validToken, ['jsonrpc' => '2.0', 'id' => 1504, 'method' => 'tools/call', 'params' => ['name' => 'get_slow_requests', 'arguments' => ['limit' => 0]]]);
+    $badLimHi = dispatchJsonRpc($app, $validToken, ['jsonrpc' => '2.0', 'id' => 1505, 'method' => 'tools/call', 'params' => ['name' => 'get_slow_requests', 'arguments' => ['limit' => 101]]]);
+    assertMcp(
+        ($badMin['body']['error']['code'] ?? 0) === -32602
+        && ($badLim0['body']['error']['code'] ?? 0) === -32602
+        && ($badLimHi['body']['error']['code'] ?? 0) === -32602,
+        '15.3 invalid min_duration_ms (-1) and limit (0/101) return -32602',
+        $passes, $failures
+    );
+
+    // 15.4 Seed 3 rows via Model -> newest-first + total 3
+    \App\Models\SlowRequestLog::log(['method' => 'GET', 'route' => '/api/inventory', 'duration_ms' => 1200, 'status_code' => 200, 'user_id' => 1]);
+    \App\Models\SlowRequestLog::log(['method' => 'POST', 'route' => '/api/tickets/{id}', 'duration_ms' => 2500, 'status_code' => 200, 'user_id' => 1]);
+    \App\Models\SlowRequestLog::log(['method' => 'GET', 'route' => '/api/health', 'duration_ms' => 1050, 'status_code' => 200, 'user_id' => null]);
+
+    $res15_all = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1506, 'method' => 'tools/call',
+        'params' => ['name' => 'get_slow_requests', 'arguments' => []],
+    ]);
+    $d15_all = json_decode($res15_all['body']['result']['content'][0]['text'] ?? '{}', true);
+    $reqs = $d15_all['requests'] ?? [];
+    assertMcp(
+        ($d15_all['total'] ?? 0) === 3 && count($reqs) === 3
+        && ($reqs[0]['route'] ?? '') === '/api/health'
+        && ($reqs[1]['route'] ?? '') === '/api/tickets/{id}'
+        && ($reqs[2]['route'] ?? '') === '/api/inventory',
+        '15.4 seeded rows returned newest-first with total 3',
+        $passes, $failures
+    );
+
+    // 15.5 route filter (substring match)
+    $res15_route = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1507, 'method' => 'tools/call',
+        'params' => ['name' => 'get_slow_requests', 'arguments' => ['route' => 'tickets']],
+    ]);
+    $d15_route = json_decode($res15_route['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        ($d15_route['total'] ?? 0) === 1 && ($d15_route['requests'][0]['route'] ?? '') === '/api/tickets/{id}',
+        '15.5 route substring filter returns matching row',
+        $passes, $failures
+    );
+
+    // 15.6 min_duration_ms filter
+    $res15_min = dispatchJsonRpc($app, $validToken, [
+        'jsonrpc' => '2.0', 'id' => 1508, 'method' => 'tools/call',
+        'params' => ['name' => 'get_slow_requests', 'arguments' => ['min_duration_ms' => 2000]],
+    ]);
+    $d15_min = json_decode($res15_min['body']['result']['content'][0]['text'] ?? '{}', true);
+    assertMcp(
+        ($d15_min['total'] ?? 0) === 1 && (int) ($d15_min['requests'][0]['duration_ms'] ?? 0) === 2500,
+        '15.6 min_duration_ms filter excludes faster rows',
         $passes, $failures
     );
 
