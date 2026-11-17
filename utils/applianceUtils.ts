@@ -7,15 +7,24 @@ export const SPEC_LABELS: Partial<Record<keyof ApplianceSpecs, string>> = {
     fuelType: 'Fuel Source',
     volts: 'Voltage',
     watts: 'Wattage',
+    amps: 'Amps',
+    elements: 'Elements',
+    maxLoad: 'Max Load',
+    power208: 'Power @ 208V',
     phase: 'Phase',
     hertz: 'Frequency',
     airTempRise: 'Temp. Rise',
     capacity: 'Capacity',
+    pressure: 'Pressure',
     color: 'Color',
     installDate: 'Install Date',
     location: 'Location',
     breakerRating: 'Breaker Rating',
-    panelSlot: 'Panel Slot'
+    panelSlot: 'Panel Slot',
+    manufactured: 'Manufactured',
+    standard: 'Standard',
+    refrigerantType: 'Refrigerant',
+    refrigerant: 'Refrigerant'
 };
 
 const UNIT_SUFFIXES: Partial<Record<keyof ApplianceSpecs, string>> = {
@@ -38,15 +47,24 @@ export const getTechSpecs = (specs?: ApplianceSpecs) => {
         'fuelType',
         'volts',
         'watts',
+        'amps',
+        'elements',
+        'maxLoad',
+        'power208',
         'phase',
         'hertz',
         'airTempRise',
         'breakerRating',
         'panelSlot',
         'capacity',
+        'pressure',
         'color',
         'location',
-        'installDate'
+        'installDate',
+        'manufactured',
+        'standard',
+        'refrigerantType',
+        'refrigerant'
     ];
 
     return displayKeys.map(key => {
