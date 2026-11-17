@@ -1079,6 +1079,9 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                     <h3 className="text-sm font-bold text-brand-black dark:text-white leading-snug break-words">
                       {eq.name}
                     </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {eq.brand || '–'} / {eq.modelNumber || '–'} / {eq.serialNumber || '–'}
+                    </p>
                   </div>
 
                   {/* Actions Row: History, Quick Status Selector & Delete with clean wrapping */}

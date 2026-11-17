@@ -1127,6 +1127,9 @@ export interface EquipmentItem {
   id: number;
   name: string;
   category?: string | null;
+  brand?: string | null;
+  modelNumber?: string | null;
+  serialNumber?: string | null;
   stockpile_id?: number | null;
   stockpile_name?: string | null;
   status: EquipmentStatus;

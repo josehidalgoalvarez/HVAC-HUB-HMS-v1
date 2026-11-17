@@ -157,6 +157,16 @@ class Equipment
             $params[] = $notes;
         }
 
+        foreach (['brand', 'model_number', 'serial_number'] as $col) {
+            if (array_key_exists($col, $data)) {
+                $val = $data[$col] !== null && trim((string) $data[$col]) !== ''
+                    ? trim((string) $data[$col])
+                    : null;
+                $fields[] = "{$col} = ?";
+                $params[] = $val;
+            }
+        }
+
         if (array_key_exists('stockpile_id', $data)) {
             if ($data['stockpile_id'] === null || $data['stockpile_id'] === '') {
                 $fields[] = 'stockpile_id = NULL';
@@ -213,6 +223,9 @@ class Equipment
             'id' => (int) $row['id'],
             'name' => (string) $row['name'],
             'category' => $row['category'] !== null ? (string) $row['category'] : null,
+            'brand' => (string) ($row['brand'] ?? ''),
+            'modelNumber' => (string) ($row['model_number'] ?? ''),
+            'serialNumber' => (string) ($row['serial_number'] ?? ''),
             'stockpile_id' => $row['stockpile_id'] !== null ? (int) $row['stockpile_id'] : null,
             'stockpile_name' => $row['stockpile_name'] ?? null,
             'status' => (string) $row['status'],
