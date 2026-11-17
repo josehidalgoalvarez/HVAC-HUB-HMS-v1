@@ -50,6 +50,80 @@ export const ApplianceHero: React.FC<ApplianceHeroProps> = ({ appliance, onStatu
     e.target.value = '';
   };
 
+  const hasImage = Boolean(appliance.imageUrl?.trim());
+
+  if (!hasImage) {
+    return (
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+
+        {/* Dynamic Status Badge / Dropdown */}
+        <div className="relative">
+          <button
+            onClick={(e) => {
+              if (!isReadOnly) {
+                e.stopPropagation();
+                setShowStatusMenu(!showStatusMenu);
+              }
+            }}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-xs border border-black/10 dark:border-white/10 flex items-center gap-1.5 transition-all ${!isReadOnly ? 'cursor-pointer hover:scale-105 active:scale-95' : 'cursor-default'} ${
+              appliance.status === 'operational'
+                ? 'bg-emerald-500 text-white'
+                : appliance.status === 'needs_service'
+                  ? 'bg-amber-500 text-white'
+                  : 'bg-gray-500 text-white'
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full bg-white ${appliance.status === 'needs_service' ? 'animate-pulse' : ''}`}></span>
+            {appliance.status.replace('_', ' ')}
+            {!isReadOnly && <span aria-hidden="true" className="material-symbols-outlined text-[14px]">expand_more</span>}
+          </button>
+
+          {showStatusMenu && !isReadOnly && (
+            <div className="absolute left-0 mt-2 w-40 bg-white dark:bg-card-dark rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-1 overflow-hidden z-30 animate-in fade-in zoom-in-95 duration-150">
+              {(['operational', 'needs_service', 'idle'] as const).map((status) => (
+                <button
+                  key={status}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStatusSelect(status);
+                  }}
+                  className={`w-full text-left px-4 py-2 text-xs font-bold uppercase tracking-wider hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 ${
+                    appliance.status === status ? 'text-primary' : 'text-brand-black dark:text-white'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${
+                    status === 'operational' ? 'bg-emerald-500' : status === 'needs_service' ? 'bg-amber-500' : 'bg-gray-400'
+                  }`}></span>
+                  {status.replace('_', ' ')}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {!isReadOnly && (
+          <button
+            onClick={handleCameraClick}
+            disabled={isProcessing}
+            className="px-3 py-1.5 rounded-full bg-white dark:bg-card-dark text-brand-black dark:text-white shadow-xs border border-gray-200 dark:border-gray-700 hover:border-primary/40 flex items-center gap-1.5 text-xs font-semibold transition-all"
+            title="Add Photo"
+          >
+            <span aria-hidden="true" className="material-symbols-outlined text-[16px]">photo_camera</span>
+            {isProcessing ? 'Processing...' : 'Add photo'}
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full aspect-square bg-[#e0e4cc]/20 dark:bg-[#2A363B] rounded-3xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-inner flex items-center justify-center group">
 

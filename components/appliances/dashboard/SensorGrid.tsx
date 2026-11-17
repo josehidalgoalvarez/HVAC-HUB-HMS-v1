@@ -17,6 +17,9 @@ interface SensorGridProps {
 export const SensorGrid: React.FC<SensorGridProps> = ({ readings, title = "Specifications" }) => {
     return (
         <DashboardCard title={title}>
+            {readings.length === 0 ? (
+                <p className="text-sm text-gray-500 dark:text-gray-400">Not recorded</p>
+            ) : (
             <div className="grid grid-cols-2 gap-y-4 gap-x-8">
                 {readings.map((reading) => (
                     <div key={reading.id} className="flex flex-col">
@@ -36,6 +39,7 @@ export const SensorGrid: React.FC<SensorGridProps> = ({ readings, title = "Speci
                     </div>
                 ))}
             </div>
+            )}
         </DashboardCard>
     );
 };

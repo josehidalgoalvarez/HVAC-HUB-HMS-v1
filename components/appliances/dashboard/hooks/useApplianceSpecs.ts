@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Appliance } from '../../../../types';
 import { SensorReading } from '../SensorGrid';
-import { DEFAULT_HVAC_SPECS, DEFAULT_HEATER_SPECS, DEFAULT_GENERIC_SPECS } from '../../../../residential_constants';
 
 export const useApplianceSpecs = (appliance: Appliance) => {
     const [specs, setSpecs] = useState<SensorReading[]>([]);
@@ -65,16 +64,7 @@ export const useApplianceSpecs = (appliance: Appliance) => {
         addSpec('refrigerantType', 'Refrigerant', s.refrigerantType);
         addSpec('filterSize', 'Filter Size', s.filterSize);
 
-        // Fallback to constants ONLY if absolutely no matching specs found
-        if (newSpecs.length === 0) {
-            const isHVAC = appliance.type === 'HVAC' || appliance.type === 'AC' || appliance.type === 'Furnace';
-            const isHeater = appliance.type === 'Heater';
-            if (isHVAC) setSpecs(JSON.parse(JSON.stringify(DEFAULT_HVAC_SPECS)));
-            else if (isHeater) setSpecs(JSON.parse(JSON.stringify(DEFAULT_HEATER_SPECS)));
-            else setSpecs(JSON.parse(JSON.stringify(DEFAULT_GENERIC_SPECS)));
-        } else {
-            setSpecs(newSpecs);
-        }
+        setSpecs(newSpecs);
 
         if (appliance.status === 'needs_service') {
             setActiveAlerts('Filter Change Req.');
