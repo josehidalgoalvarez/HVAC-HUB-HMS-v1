@@ -8,18 +8,22 @@ import { AddPartModal } from './AddPartModal';
 import { EquipmentMovementSection } from './EquipmentMovementSection';
 import type { Stockpile, StockpilePartItem, PartRecord, EquipmentItem, EquipmentStatus } from '../../types/domain';
 import { ExplainableTerm } from '../common/ExplainableTerm';
+import { useData } from '../../hooks/useData';
 
 interface StockpileInventoryViewProps {
   stockpileId: number | string;
   onBack: () => void;
   onOpenTicket?: (ticketId: string) => void;
+  onOpenProperty?: (buildingId: string) => void;
 }
 
 export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
   stockpileId,
   onBack,
   onOpenTicket,
+  onOpenProperty,
 }) => {
+  const { properties, appliances } = useData();
   const [stockpile, setStockpile] = useState<Stockpile | null>(null);
   const [allStockpiles, setAllStockpiles] = useState<Stockpile[]>([]);
   const [items, setItems] = useState<StockpilePartItem[]>([]);
@@ -871,6 +875,40 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
           </div>
         )}
       </PullToRefresh>
+
+      {/* Installed Plant Building Link */}
+      {(() => {
+        const linkedBuildingId = stockpile?.buildingId ?? stockpile?.building_id ?? null;
+        if (linkedBuildingId === null || linkedBuildingId === undefined || String(linkedBuildingId) === '') {
+          return null;
+        }
+        const resolvedName =
+          stockpile?.building_name ||
+          properties.find((p) => String(p.id) === String(linkedBuildingId))?.name ||
+          'View building';
+        const installedCount = appliances.filter(
+          (a) => String(a.propertyId) === String(linkedBuildingId)
+        ).length;
+        const label =
+          resolvedName === 'View building'
+            ? `View building · ${installedCount} ${installedCount === 1 ? 'appliance' : 'appliances'}`
+            : `Installed plant — ${resolvedName} · ${installedCount} ${installedCount === 1 ? 'appliance' : 'appliances'}`;
+        return (
+          <button
+            type="button"
+            onClick={() => onOpenProperty?.(String(linkedBuildingId))}
+            className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:border-primary/40 active:scale-[0.99] transition-all text-left"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span aria-hidden="true" className="material-symbols-outlined text-primary text-xl shrink-0">apartment</span>
+              <span className="text-sm font-semibold text-brand-black dark:text-white truncate">
+                {label}
+              </span>
+            </div>
+            <span aria-hidden="true" className="material-symbols-outlined text-gray-400 text-xl shrink-0">chevron_right</span>
+          </button>
+        );
+      })()}
 
       {/* Stored Appliances Section (distinct from parts) */}
       <div className="space-y-3 pt-4 border-t border-gray-200/80 dark:border-gray-800">

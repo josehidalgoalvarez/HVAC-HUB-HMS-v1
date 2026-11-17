@@ -417,6 +417,12 @@ const Router: React.FC<RouterProps> = ({
             setSelectedTicketId(ticketId);
             setActiveView(ViewType.TICKETS);
           }}
+          onOpenProperty={(buildingId) => {
+            setSelectedPropertyId(buildingId);
+            setPreviousView(ViewType.PROPERTIES);
+            setActiveView(ViewType.PROPERTY_DETAIL);
+            window.scrollTo(0, 0);
+          }}
         />
       );
 
