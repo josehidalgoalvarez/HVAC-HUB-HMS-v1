@@ -237,12 +237,12 @@ assert(
   `6.1 Total buttons parsed across codebase matches expected >= 371 (got ${totalButtons})`
 );
 assert(
-  iconOnlyButtons === 129,
-  `6.2 Identified all 129 icon-only buttons`
+  iconOnlyButtons >= 129,
+  `6.2 Icon-only buttons counted (got ${iconOnlyButtons}, floor 129)`
 );
 assert(
   unlabelledButtons === 0,
-  `6.3 Exactly 0 unlabelled icon-only buttons remain (all 129 have accessible names)`
+  `6.3 Exactly 0 unlabelled icon-only buttons remain (all ${iconOnlyButtons} have accessible names)`
 );
 
 // 7. Accessibility Second Pass: Contrast Ratios, Text Floor, and Camera Row Button

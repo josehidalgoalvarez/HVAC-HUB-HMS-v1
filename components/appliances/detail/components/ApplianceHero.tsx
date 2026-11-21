@@ -67,6 +67,8 @@ export const ApplianceHero: React.FC<ApplianceHeroProps> = ({ appliance, onStatu
         {/* Dynamic Status Badge / Dropdown */}
         <div className="relative">
           <button
+            type="button"
+            aria-label="Change appliance status"
             onClick={(e) => {
               if (!isReadOnly) {
                 e.stopPropagation();
@@ -180,7 +182,7 @@ export const ApplianceHero: React.FC<ApplianceHeroProps> = ({ appliance, onStatu
               appliance.status === 'needs_service' ? 'bg-brand-orange/90 text-white border-brand-orange/50' :
                 'bg-gray-800/90 text-gray-300 border-gray-600/50'
             } ${!isReadOnly ? 'cursor-pointer hover:scale-105' : 'cursor-default'}`}
-         aria-label="Expand">
+         aria-label="Change appliance status">
           {(appliance.status || 'operational').toUpperCase().replace('_', ' ')}
           {!isReadOnly && <span aria-hidden="true" className="material-symbols-outlined text-[12px]">expand_more</span>}
         </button>

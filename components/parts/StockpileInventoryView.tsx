@@ -896,6 +896,7 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
         return (
           <button
             type="button"
+            aria-label={label}
             onClick={() => onOpenProperty?.(String(linkedBuildingId))}
             className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:border-primary/40 active:scale-[0.99] transition-all text-left"
           >
