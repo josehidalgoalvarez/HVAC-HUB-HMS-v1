@@ -18,6 +18,11 @@ export const Modal: React.FC<ModalProps> = ({
   const dialogRef = useRef<HTMLDivElement>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   // Focus management and Escape key handler
   useEffect(() => {
@@ -40,7 +45,7 @@ export const Modal: React.FC<ModalProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.stopPropagation();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -80,7 +85,7 @@ export const Modal: React.FC<ModalProps> = ({
         previouslyFocusedElementRef.current.focus();
       }
     };
-  }, [onClose]);
+  }, []);
 
   return (
     <div className={`fixed inset-0 ${zIndexClass} flex items-end sm:items-center justify-center p-4 sm:p-0`}>
