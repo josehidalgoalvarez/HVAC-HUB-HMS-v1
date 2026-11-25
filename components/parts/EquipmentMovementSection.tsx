@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import type { EquipmentItem, EquipmentStatus } from '../../types/domain';
 import { parseDate } from '../../utils/dateUtils';
+import { StatusBadge } from '../common/StatusBadge';
 
 export interface EquipmentMovementEntry {
   id: string;
@@ -112,13 +113,6 @@ export const EquipmentMovementSection: React.FC<EquipmentMovementSectionProps> =
     (currentLocationName && currentLocationName.trim()) ||
     (equipment.stockpile_id ? `Storage Location #${equipment.stockpile_id}` : 'Unassigned');
 
-  const statusBadgeClasses: Record<EquipmentStatus, string> = {
-    available: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20',
-    needs_service: 'bg-primary/10 text-primary border-primary/20',
-    out_of_service: 'bg-red-500/10 text-red-700 dark:text-red-300 border-red-500/20',
-    unknown: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700',
-  };
-
   return (
     <div className="space-y-5" data-testid="equipment-movement-section">
       {/* 1. TOP "CURRENT" BLOCK (Location + Stored Status as stored — never upgrades 'unknown') */}
@@ -133,14 +127,18 @@ export const EquipmentMovementSection: React.FC<EquipmentMovementSectionProps> =
               Current
             </h4>
           </div>
-          <span
-            className={`px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider border ${
-              statusBadgeClasses[equipment.status] || statusBadgeClasses.unknown
-            }`}
-            data-testid="equipment-current-status"
-          >
-            Status: {equipment.status}
-          </span>
+          <StatusBadge
+            status={equipment.status}
+            classMap={{
+              available: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20',
+              needs_service: 'bg-primary/10 text-primary border-primary/20',
+              out_of_service: 'bg-red-500/10 text-red-700 dark:text-red-300 border-red-500/20',
+              unknown: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700',
+            } satisfies Record<EquipmentStatus, string>}
+            className="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider border"
+            label={`Status: ${equipment.status}`}
+            testId="equipment-current-status"
+          />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
