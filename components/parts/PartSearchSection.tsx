@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { PartRecord, Stockpile, HarvestCandidate } from '../../types/domain';
 import { isVerifiedPart } from '../../utils/modelParts';
+import { filterItems } from '../../hooks/useFilteredList';
 
 interface PartSearchSectionProps {
   parts: PartRecord[];
@@ -108,50 +109,59 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
     };
   }, [checkScroll, parts.length, harvestCandidates.length]);
 
-  const filteredHarvestCandidates = harvestCandidates.filter(c => {
-    if (filter === 'reorder') return false;
-    if (selectedStockpileId !== 'all') return false; // Stockpile depot filter applies to warehouse parts
-    if (!searchQuery.trim()) return true;
+  const filteredHarvestCandidates =
+    filter === 'reorder' || selectedStockpileId !== 'all'
+      ? []
+      : filterItems(
+          harvestCandidates,
+          searchQuery,
+          (c) => [
+            c.name ?? '',
+            c.brand ?? '',
+            c.type ?? '',
+            c.category ?? '',
+            c.model_number ?? '',
+            c.serial_number ?? '',
+            c.building_name ?? '',
+            String(c.unit_number),
+          ],
+          undefined,
+          undefined,
+          false
+        );
 
-    const query = searchQuery.toLowerCase();
-    const matchName = c.name?.toLowerCase().includes(query) ?? false;
-    const matchBrand = c.brand?.toLowerCase().includes(query) ?? false;
-    const matchType = c.type?.toLowerCase().includes(query) ?? false;
-    const matchCat = c.category?.toLowerCase().includes(query) ?? false;
-    const matchModel = c.model_number?.toLowerCase().includes(query) ?? false;
-    const matchSerial = c.serial_number?.toLowerCase().includes(query) ?? false;
-    const matchBuilding = c.building_name?.toLowerCase().includes(query) ?? false;
-    const matchUnit = String(c.unit_number).toLowerCase().includes(query);
-
-    return matchName || matchBrand || matchType || matchCat || matchModel || matchSerial || matchBuilding || matchUnit;
-  });
-
-  const filteredParts = filter === 'harvest' ? [] : parts.filter(p => {
-    if (filter === 'reorder' && !p.is_reorder && (p.quantity_on_hand > p.reorder_point)) {
-      return false;
-    }
-    if (filter === 'available' && p.quantity_on_hand <= 0) {
-      return false;
-    }
-
-    if (selectedStockpileId !== 'all') {
-      const spIdNum = parseInt(selectedStockpileId, 10);
-      const inStockpile = p.stockpiles?.some(sp => sp.stockpile_id === spIdNum && sp.quantity > 0)
-        || p.stockpile_id === spIdNum;
-      if (!inStockpile) return false;
-    }
-
-    if (!searchQuery.trim()) return true;
-
-    const query = searchQuery.toLowerCase();
-    const matchNumber = p.part_number?.toLowerCase().includes(query) ?? false;
-    const matchName = p.name.toLowerCase().includes(query);
-    const matchDesc = p.description?.toLowerCase().includes(query) ?? false;
-    const matchCategory = p.category?.toLowerCase().includes(query) ?? false;
-    const matchModels = p.compatible_models?.some(m => m.toLowerCase().includes(query)) ?? false;
-
-    return matchNumber || matchName || matchDesc || matchCategory || matchModels;
-  });
+  const filteredParts =
+    filter === 'harvest'
+      ? []
+      : filterItems(
+          parts,
+          searchQuery,
+          (p) => [
+            p.part_number ?? '',
+            p.name,
+            p.description ?? '',
+            p.category ?? '',
+            ...(p.compatible_models ?? []),
+          ],
+          (p) => {
+            if (filter === 'reorder' && !p.is_reorder && p.quantity_on_hand > p.reorder_point) {
+              return false;
+            }
+            if (filter === 'available' && p.quantity_on_hand <= 0) {
+              return false;
+            }
+            if (selectedStockpileId !== 'all') {
+              const spIdNum = parseInt(selectedStockpileId, 10);
+              const inStockpile =
+                p.stockpiles?.some((sp) => sp.stockpile_id === spIdNum && sp.quantity > 0) ||
+                p.stockpile_id === spIdNum;
+              if (!inStockpile) return false;
+            }
+            return true;
+          },
+          undefined,
+          false
+        );
 
   const totalHits = filteredParts.length + (filter === 'reorder' ? 0 : filteredHarvestCandidates.length);
 

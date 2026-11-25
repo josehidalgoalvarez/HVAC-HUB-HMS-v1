@@ -11,9 +11,12 @@ export function filterItems<T>(
   query: string,
   getSearchText: (item: T) => string[],
   filter?: (item: T) => boolean,
-  sort?: (a: T, b: T) => number
+  sort?: (a: T, b: T) => number,
+  trimQuery = true
 ): T[] {
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = !query.trim()
+    ? ''
+    : (trimQuery ? query.trim().toLowerCase() : query.toLowerCase());
 
   let result = items.filter((item) => {
     const matchesQuery =

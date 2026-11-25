@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 const hookPath = path.resolve('hooks/useFilteredList.ts');
 const viewPath = path.resolve('components/sops/SOPListView.tsx');
 const stockpileViewPath = path.resolve('components/parts/StockpileInventoryView.tsx');
+const partSearchSectionPath = path.resolve('components/parts/PartSearchSection.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -63,6 +64,34 @@ check('7. StockpileInventoryView.tsx getSearchText coerces nullish fields with ?
   const match = spSrc.match(/getSearchText:\s*\([^)]*\)\s*=>\s*\[[\s\S]*?\]/);
   assert.ok(match, 'Could not locate getSearchText array in StockpileInventoryView.tsx');
   assert.ok(match[0].includes("?? ''"), 'getSearchText must coerce nullish fields with ?? \'\'');
+});
+
+check('8. PartSearchSection.tsx imports filterItems and calls it twice', () => {
+  const psSrc = fs.readFileSync(partSearchSectionPath, 'utf8');
+  assert.ok(/import\s*\{[^}]*\bfilterItems\b[^}]*\}\s*from\s*['"][^'"]*useFilteredList['"]/.test(psSrc), 'PartSearchSection.tsx does not import filterItems');
+  const calls = psSrc.match(/\bfilterItems\(/g) || [];
+  assert.ok(calls.length >= 2, `Expected at least 2 filterItems( calls in PartSearchSection.tsx, found ${calls.length}`);
+});
+
+check('9. PartSearchSection.tsx has zero hand-rolled toLowerCase().includes( calls', () => {
+  const psSrc = fs.readFileSync(partSearchSectionPath, 'utf8');
+  const matches = psSrc.match(/toLowerCase\(\)\.includes\(/g) || [];
+  assert.equal(matches.length, 0, `Expected 0 toLowerCase().includes( calls in PartSearchSection.tsx, found ${matches.length}`);
+});
+
+check('10. filterItems supports trimQuery = true and PartSearchSection passes false on both calls', () => {
+  const hookSrc = fs.readFileSync(hookPath, 'utf8');
+  assert.ok(/trimQuery\s*(?::\s*boolean\s*)?=\s*true/.test(hookSrc), 'filterItems must accept trimQuery = true parameter');
+  const psSrc = fs.readFileSync(partSearchSectionPath, 'utf8');
+  const falseTrimMatches = psSrc.match(/\bundefined\s*,\s*false\s*\)/g) || [];
+  assert.ok(falseTrimMatches.length >= 2, `Expected 2 filterItems calls passing undefined, false in PartSearchSection.tsx, found ${falseTrimMatches.length}`);
+});
+
+check('11. PartSearchSection.tsx preserves nullish coercion, String(c.unit_number), and compatible_models spread', () => {
+  const psSrc = fs.readFileSync(partSearchSectionPath, 'utf8');
+  assert.ok(psSrc.includes("?? ''"), 'PartSearchSection.tsx must coerce nullish fields with ?? \'\'');
+  assert.ok(psSrc.includes('String(c.unit_number)'), 'PartSearchSection.tsx must preserve String(c.unit_number)');
+  assert.ok(/\.\.\.\(p\.compatible_models\s*\?\?\s*\[\]\)/.test(psSrc), 'PartSearchSection.tsx must spread ...(p.compatible_models ?? [])');
 });
 
 console.log(`\nuseFilteredList Tests: ${passes} Passed, ${failures} Failed`);
