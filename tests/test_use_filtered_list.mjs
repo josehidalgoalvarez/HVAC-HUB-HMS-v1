@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 
 const hookPath = path.resolve('hooks/useFilteredList.ts');
 const viewPath = path.resolve('components/sops/SOPListView.tsx');
+const stockpileViewPath = path.resolve('components/parts/StockpileInventoryView.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -44,6 +45,24 @@ check('4. hooks/useFilteredList.ts contains toLowerCase().includes( and useMemo(
   const hookSrc = fs.readFileSync(hookPath, 'utf8');
   assert.ok(hookSrc.includes('toLowerCase().includes('), 'Hook must contain toLowerCase().includes(');
   assert.ok(hookSrc.includes('useMemo('), 'Hook must contain useMemo(');
+});
+
+check('5. StockpileInventoryView.tsx imports useFilteredList', () => {
+  const spSrc = fs.readFileSync(stockpileViewPath, 'utf8');
+  assert.ok(/import\s*\{[^}]*\buseFilteredList\b[^}]*\}\s*from\s*['"][^'"]*useFilteredList['"]/.test(spSrc), 'StockpileInventoryView.tsx does not import useFilteredList');
+});
+
+check('6. StockpileInventoryView.tsx has zero hand-rolled toLowerCase().includes( calls', () => {
+  const spSrc = fs.readFileSync(stockpileViewPath, 'utf8');
+  const matches = spSrc.match(/toLowerCase\(\)\.includes\(/g) || [];
+  assert.equal(matches.length, 0, `Expected 0 toLowerCase().includes( calls in StockpileInventoryView.tsx, found ${matches.length}`);
+});
+
+check('7. StockpileInventoryView.tsx getSearchText coerces nullish fields with ?? \'\'', () => {
+  const spSrc = fs.readFileSync(stockpileViewPath, 'utf8');
+  const match = spSrc.match(/getSearchText:\s*\([^)]*\)\s*=>\s*\[[\s\S]*?\]/);
+  assert.ok(match, 'Could not locate getSearchText array in StockpileInventoryView.tsx');
+  assert.ok(match[0].includes("?? ''"), 'getSearchText must coerce nullish fields with ?? \'\'');
 });
 
 console.log(`\nuseFilteredList Tests: ${passes} Passed, ${failures} Failed`);

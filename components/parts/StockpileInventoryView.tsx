@@ -9,6 +9,7 @@ import { EquipmentMovementSection } from './EquipmentMovementSection';
 import type { Stockpile, StockpilePartItem, PartRecord, EquipmentItem, EquipmentStatus } from '../../types/domain';
 import { ExplainableTerm } from '../common/ExplainableTerm';
 import { useData } from '../../hooks/useData';
+import { useFilteredList } from '../../hooks/useFilteredList';
 
 interface StockpileInventoryViewProps {
   stockpileId: number | string;
@@ -32,7 +33,6 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
   const [equipmentList, setEquipmentList] = useState<EquipmentItem[]>([]);
   const [auditHistory, setAuditHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [filterBelowMinOnly, setFilterBelowMinOnly] = useState(false);
   const [flashMsg, setFlashMsg] = useState<{ text: string; type: 'success' | 'warning' } | null>(null);
 
@@ -481,19 +481,16 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
     stockpile?.building_id === 15;
 
   // Filtered items
-  const filteredItems = items.filter(item => {
-    if (filterBelowMinOnly && (item.status === 'placeholder' || !(item.is_below_minimum || item.quantity < item.minimum))) {
-      return false;
-    }
-    if (searchQuery.trim() !== '') {
-      const q = searchQuery.toLowerCase().trim();
-      const matchName = item.part_name?.toLowerCase().includes(q);
-      const matchNum = item.part_number?.toLowerCase().includes(q);
-      const matchCat = item.category?.toLowerCase().includes(q);
-      const matchDesc = item.description?.toLowerCase().includes(q);
-      return matchName || matchNum || matchCat || matchDesc;
-    }
-    return true;
+  const { query: searchQuery, setQuery: setSearchQuery, filtered: filteredItems } = useFilteredList(items, {
+    getSearchText: (item) => [
+      item.part_name ?? '',
+      item.part_number ?? '',
+      item.category ?? '',
+      item.description ?? '',
+    ],
+    filter: (item) =>
+      !filterBelowMinOnly ||
+      (item.status !== 'placeholder' && Boolean(item.is_below_minimum || item.quantity < item.minimum)),
   });
 
   return (
