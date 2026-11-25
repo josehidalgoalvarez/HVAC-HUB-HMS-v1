@@ -3,6 +3,7 @@ import { apiClient } from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
 import { SEED_SOPS } from '../../sop_constants';
+import { useFilteredList } from '../../hooks/useFilteredList';
 import type { SOP } from '../../types/domain';
 
 interface SOPListViewProps {
@@ -15,7 +16,6 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
   const [sops, setSops] = useState<SOP[]>(SEED_SOPS);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
   const [expandedSopId, setExpandedSopId] = useState<string | null>(null);
 
   const loadSops = async () => {
@@ -42,18 +42,13 @@ export const SOPListView: React.FC<SOPListViewProps> = ({ onBack, onStartRun, on
 
   const categories = ['all', ...Array.from(new Set(sops.map((s) => s.category)))];
 
-  const filteredSops = sops.filter((sop) => {
-    const matchesCat = selectedCategory === 'all' || sop.category === selectedCategory;
-    const matchesQuery =
-      searchQuery === '' ||
-      sop.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sop.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sop.compliance_gates.some(
-        (g) =>
-          g.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          g.reference.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    return matchesCat && matchesQuery;
+  const { query: searchQuery, setQuery: setSearchQuery, filtered: filteredSops } = useFilteredList(sops, {
+    getSearchText: (sop) => [
+      sop.title,
+      sop.category,
+      ...sop.compliance_gates.flatMap((g) => [g.label, g.reference]),
+    ],
+    filter: (sop) => selectedCategory === 'all' || sop.category === selectedCategory,
   });
 
   return (
