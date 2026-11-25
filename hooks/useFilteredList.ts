@@ -2,15 +2,16 @@ import { useState, useMemo } from 'react';
 
 export interface UseFilteredListOptions<T> {
   getSearchText: (item: T) => string[];
-  filter?: (item: T) => boolean;
+  filter?: (item: T, query?: string) => boolean;
   sort?: (a: T, b: T) => number;
+  trimQuery?: boolean;
 }
 
 export function filterItems<T>(
   items: T[],
   query: string,
   getSearchText: (item: T) => string[],
-  filter?: (item: T) => boolean,
+  filter?: (item: T, query?: string) => boolean,
   sort?: (a: T, b: T) => number,
   trimQuery = true
 ): T[] {
@@ -23,7 +24,7 @@ export function filterItems<T>(
       normalizedQuery === '' ||
       getSearchText(item).some((text) => text.toLowerCase().includes(normalizedQuery));
     if (!matchesQuery) return false;
-    return filter ? filter(item) : true;
+    return filter ? filter(item, query) : true;
   });
 
   if (sort) {
@@ -42,11 +43,11 @@ export function useFilteredList<T>(
   filtered: T[];
 } {
   const [query, setQuery] = useState('');
-  const { getSearchText, filter, sort } = options;
+  const { getSearchText, filter, sort, trimQuery = true } = options;
 
   const filtered = useMemo(
-    () => filterItems(items, query, getSearchText, filter, sort),
-    [items, query, getSearchText, filter, sort]
+    () => filterItems(items, query, getSearchText, filter, sort, trimQuery),
+    [items, query, getSearchText, filter, sort, trimQuery]
   );
 
   return { query, setQuery, filtered };

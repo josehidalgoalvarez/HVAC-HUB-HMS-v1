@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '../../src/api/client';
 import { useSWRData } from '../../src/offline/useSWRData';
+import { useFilteredList } from '../../hooks/useFilteredList';
 import { PullToRefresh } from '../common/PullToRefresh';
 import { TicketCard } from './TicketCard';
 import { TicketIntakeModal } from './TicketIntakeModal';
@@ -45,7 +46,6 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
 
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(initialSelectedTicketId);
   const [isIntakeOpen, setIsIntakeOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'safety' | 'closable' | 'blocked' | 'completed' | 'archived' | 'unassigned'>('all');
 
   useEffect(() => {
@@ -75,26 +75,16 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
     }
   };
 
-  const filteredTickets = useMemo(() => {
-    return tickets.filter((t) => {
+  const { query: searchQuery, setQuery: setSearchQuery, filtered: filteredTickets } = useFilteredList(tickets, {
+    getSearchText: (t) => [
+      t.wo_number ?? '',
+      t.title,
+      t.verified_scope ?? '',
+      t.unitNumber ?? '',
+    ],
+    filter: (t, q = '') => {
       const s = t.status || t.state;
       const isArchived = s === 'archived-blocked' || s === 'archived';
-
-      // Search query filter
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matchesWo = t.wo_number?.toLowerCase().includes(q);
-        const matchesTitle = t.title.toLowerCase().includes(q);
-        const matchesScope = t.verified_scope?.toLowerCase().includes(q);
-        const matchesUnit = t.unitNumber?.toLowerCase().includes(q);
-        if (!matchesWo && !matchesTitle && !matchesScope && !matchesUnit) {
-          return false;
-        }
-        // When searching, let user see archived tickets if matched
-        if (activeFilter !== 'archived' && isArchived && !searchQuery.trim()) {
-          return false;
-        }
-      }
 
       // Category filter pills
       if (activeFilter === 'safety') {
@@ -125,13 +115,14 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
       }
 
       // Default 'all' tab: Active tickets only (exclude archived-blocked tickets unless searching)
-      if (isArchived && !searchQuery.trim()) {
+      if (isArchived && !q.trim()) {
         return false;
       }
 
       return true;
-    });
-  }, [tickets, searchQuery, activeFilter]);
+    },
+    trimQuery: false,
+  });
 
   // Section breakdown counts (archived-blocked and archived tickets are excluded from active counts)
   const isArchivedStatus = (s?: string) => s === 'archived-blocked' || s === 'archived';
