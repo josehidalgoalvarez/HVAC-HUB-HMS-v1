@@ -232,9 +232,13 @@ for (const fpath of allTsx) {
   }
 }
 
+// This counts literal <button source tags, not rendered buttons; the TabBar series
+// consolidated 13 literal tab buttons across 4 views (PartsView 3, WatchesView 2,
+// ApplianceDetailView 1, TicketListView 7) into 1 shared <button> in TabBar that
+// renders 16 tab buttons at runtime, so the floor tracks the new source-tag count.
 assert(
-  totalButtons >= 371,
-  `6.1 Total buttons parsed across codebase matches expected >= 371 (got ${totalButtons})`
+  totalButtons >= 369,
+  `6.1 Total buttons parsed across codebase matches expected >= 369 (got ${totalButtons})`
 );
 assert(
   iconOnlyButtons >= 129,

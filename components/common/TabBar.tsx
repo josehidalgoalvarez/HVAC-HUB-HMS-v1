@@ -6,6 +6,10 @@ export interface Tab {
   icon?: string;
   badge?: string;
   buttonId?: string;
+  buttonClassName?: string;
+  activeClassName?: string;
+  inactiveClassName?: string;
+  iconClassName?: string;
 }
 
 export interface TabBarProps {
@@ -40,28 +44,34 @@ export const TabBar: React.FC<TabBarProps> = ({
 }) => {
   return (
     <div className={containerClassName}>
-      {tabs.map((tab) => (
-        <React.Fragment key={tab.id}>
-          <button
-            id={tab.buttonId}
-            onClick={() => onChange(tab.id)}
-            className={`${buttonClassName} ${
-              activeTab === tab.id ? activeClassName : inactiveClassName
-            }`}
-          >
-            {tab.icon && (
-              <span aria-hidden="true" className={`material-symbols-outlined ${iconClassName}`}>
-                {tab.icon}
-              </span>
-            )}
-            {tab.label}
-            {tab.badge && tab.badge !== '' && (
-              <span className={badgeClassName}>{tab.badge}</span>
-            )}
-          </button>
-          {afterTab?.[tab.id]}
-        </React.Fragment>
-      ))}
+      {tabs.map((tab) => {
+        const resolvedButtonClass = tab.buttonClassName ?? buttonClassName;
+        const resolvedActiveClass = tab.activeClassName ?? activeClassName;
+        const resolvedInactiveClass = tab.inactiveClassName ?? inactiveClassName;
+        const resolvedIconClass = tab.iconClassName ?? iconClassName;
+        return (
+          <React.Fragment key={tab.id}>
+            <button
+              id={tab.buttonId}
+              onClick={() => onChange(tab.id)}
+              className={`${resolvedButtonClass} ${
+                activeTab === tab.id ? resolvedActiveClass : resolvedInactiveClass
+              }`}
+            >
+              {tab.icon && (
+                <span aria-hidden="true" className={`material-symbols-outlined ${resolvedIconClass}`}>
+                  {tab.icon}
+                </span>
+              )}
+              {tab.label}
+              {tab.badge && tab.badge !== '' && (
+                <span className={badgeClassName}>{tab.badge}</span>
+              )}
+            </button>
+            {afterTab?.[tab.id]}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 };

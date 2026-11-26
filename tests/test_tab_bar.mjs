@@ -6,6 +6,7 @@ const tabBarPath = path.resolve('components/common/TabBar.tsx');
 const partsViewPath = path.resolve('components/parts/PartsView.tsx');
 const watchesViewPath = path.resolve('components/watches/WatchesView.tsx');
 const applianceDetailViewPath = path.resolve('components/appliances/detail/ApplianceDetailView.tsx');
+const ticketListViewPath = path.resolve('components/tickets/TicketListView.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -144,6 +145,52 @@ check('14. ApplianceDetailView.tsx keeps availableTabs.length > 1 conditional an
     /containerClassName=["']grid grid-cols-4 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl["']/.test(tabBarMatch[0]),
     'ApplianceDetailView.tsx must pass grid containerClassName'
   );
+});
+
+check('15. TicketListView.tsx imports TabBar from ../common/TabBar', () => {
+  const src = fs.readFileSync(ticketListViewPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bTabBar\b[^}]*\}\s*from\s*['"]\.\.\/common\/TabBar['"]/.test(src),
+    'TicketListView.tsx does not import TabBar from ../common/TabBar'
+  );
+});
+
+check('16. TicketListView.tsx renders <TabBar with all 7 tab ids and zero inline setActiveFilter handlers', () => {
+  const src = fs.readFileSync(ticketListViewPath, 'utf8');
+  assert.ok(/<TabBar\b/.test(src), 'TicketListView.tsx must render <TabBar');
+  for (const id of ["'all'", "'safety'", "'closable'", "'blocked'", "'completed'", "'archived'", "'unassigned'"]) {
+    assert.ok(src.includes(id), `TicketListView.tsx missing tab id ${id}`);
+  }
+  assert.ok(!/onClick=\{\(\)\s*=>\s*setActiveFilter\(/.test(src), 'TicketListView.tsx must contain zero inline onClick={() => setActiveFilter( handlers');
+});
+
+check('17. TabBar.tsx declares 4 optional per-tab fields and resolves them with component-level fallbacks', () => {
+  const src = fs.readFileSync(tabBarPath, 'utf8');
+  for (const field of ['buttonClassName', 'activeClassName', 'inactiveClassName', 'iconClassName']) {
+    assert.ok(new RegExp(`${field}\\?:\\s*string`).test(src), `Tab interface must declare ${field}?: string`);
+    assert.ok(new RegExp(`tab\\.${field}\\s*\\?\\?\\s*${field}`).test(src), `TabBar must resolve tab.${field} ?? ${field}`);
+  }
+});
+
+check('18. TabBar.tsx contains no TicketListView color/icon strings and TicketListView keeps archivedCount > 0 in tabs array', () => {
+  const tbSrc = fs.readFileSync(tabBarPath, 'utf8');
+  for (const forbidden of [
+    'bg-brand-red',
+    'bg-rose-600',
+    'bg-emerald-600',
+    'bg-gray-600',
+    'text-rose-500',
+    'text-emerald-500',
+    'text-brand-red',
+    'inventory_2',
+    'check_circle',
+  ]) {
+    assert.ok(!tbSrc.includes(forbidden), `TabBar.tsx must stay generic and not contain '${forbidden}'`);
+  }
+  const tlSrc = fs.readFileSync(ticketListViewPath, 'utf8');
+  const tabBarMatch = tlSrc.match(/<TabBar[\s\S]*?\/>/);
+  assert.ok(tabBarMatch, 'Could not locate <TabBar ... /> in TicketListView.tsx');
+  assert.ok(/archivedCount\s*>\s*0\s*\?/.test(tabBarMatch[0]), 'TicketListView.tsx must keep archivedCount > 0 conditional inside <TabBar tabs>');
 });
 
 console.log(`\nTabBar Tests: ${passes} Passed, ${failures} Failed`);

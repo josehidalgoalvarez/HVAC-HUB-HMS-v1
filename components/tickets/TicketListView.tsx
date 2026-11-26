@@ -3,6 +3,7 @@ import { apiClient } from '../../src/api/client';
 import { useSWRData } from '../../src/offline/useSWRData';
 import { useFilteredList } from '../../hooks/useFilteredList';
 import { PullToRefresh } from '../common/PullToRefresh';
+import { TabBar } from '../common/TabBar';
 import { TicketCard } from './TicketCard';
 import { TicketIntakeModal } from './TicketIntakeModal';
 import { TicketDetailView } from './TicketDetailView';
@@ -276,84 +277,71 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center gap-1.5 pb-1 text-xs w-full min-w-0">
-        <button
-          onClick={() => setActiveFilter('all')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all uppercase tracking-wider ${activeFilter === 'all'
-              ? 'bg-primary text-white shadow-2xs border border-primary'
-              : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
-            }`}
-        >
-          All ({activeTicketsCount})
-        </button>
-
-        <button
-          onClick={() => setActiveFilter('safety')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'safety'
-              ? 'bg-brand-red text-white shadow-2xs border border-brand-red'
-              : 'bg-red-500/10 dark:bg-red-500/20 text-red-700 dark:text-red-300 border border-red-300/40 dark:border-red-500/30 hover:bg-red-500/20 dark:hover:bg-red-500/30'
-            }`}
-        >
-          <span aria-hidden="true" className={`material-symbols-outlined text-xs ${activeFilter === 'safety' ? 'text-white' : 'text-brand-red'}`}>emergency</span>
-          Urgent ({safetyCount})
-        </button>
-
-        <button
-          onClick={() => setActiveFilter('closable')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'closable'
-              ? 'bg-primary text-white shadow-2xs border border-primary'
-              : 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-sky-300 border border-primary/30 dark:border-primary/40 hover:bg-primary/20 dark:hover:bg-primary/30'
-            }`}
-        >
-          <span aria-hidden="true" className={`material-symbols-outlined text-xs ${activeFilter === 'closable' ? 'text-white' : 'text-primary'}`}>timer</span>
-          Active ({closableCount})
-        </button>
-
-        <button
-          onClick={() => setActiveFilter('blocked')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'blocked'
-              ? 'bg-rose-600 text-white shadow-2xs border border-rose-600'
-              : 'bg-rose-500/10 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-300/40 dark:border-rose-500/30 hover:bg-rose-500/20 dark:hover:bg-rose-500/30'
-            }`}
-        >
-          <span aria-hidden="true" className={`material-symbols-outlined text-xs ${activeFilter === 'blocked' ? 'text-white' : 'text-rose-500'}`}>block</span>
-          Blocked ({blockedCount})
-        </button>
-
-        <button
-          onClick={() => setActiveFilter('completed')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'completed'
-              ? 'bg-emerald-600 text-white shadow-2xs border border-emerald-600'
-              : 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300/40 dark:border-emerald-500/30 hover:bg-emerald-500/20 dark:hover:bg-emerald-500/30'
-            }`}
-        >
-          <span aria-hidden="true" className={`material-symbols-outlined text-xs ${activeFilter === 'completed' ? 'text-white' : 'text-emerald-500'}`}>check_circle</span>
-          Completed ({completedCount})
-        </button>
-
-        {archivedCount > 0 && (
-          <button
-            onClick={() => setActiveFilter('archived')}
-            className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider ${activeFilter === 'archived'
-                ? 'bg-gray-600 text-white shadow-2xs border border-gray-600'
-                : 'bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800'
-              }`}
-          >
-            <span aria-hidden="true" className={`material-symbols-outlined text-xs ${activeFilter === 'archived' ? 'text-white' : 'text-gray-400'}`}>inventory_2</span>
-            Archived ({archivedCount})
-          </button>
-        )}
-
-        <button
-          onClick={() => setActiveFilter('unassigned')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all uppercase tracking-wider ${activeFilter === 'unassigned'
-              ? 'bg-primary text-white shadow-2xs border border-primary'
-              : 'bg-slate-500/10 dark:bg-slate-500/20 text-slate-700 dark:text-slate-300 border border-slate-300/40 dark:border-slate-500/30 hover:bg-slate-500/20 dark:hover:bg-slate-500/30'
-            }`}
-        >
-          No WO ({unassignedCount})
-        </button>
-      </div>
+      <TabBar
+        tabs={[
+          { id: 'all', label: `All (${activeTicketsCount})` },
+          {
+            id: 'safety',
+            label: `Urgent (${safetyCount})`,
+            icon: 'emergency',
+            iconClassName: `text-xs ${activeFilter === 'safety' ? 'text-white' : 'text-brand-red'}`,
+            buttonClassName: 'min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider',
+            activeClassName: 'bg-brand-red text-white shadow-2xs border border-brand-red',
+            inactiveClassName: 'bg-red-500/10 dark:bg-red-500/20 text-red-700 dark:text-red-300 border border-red-300/40 dark:border-red-500/30 hover:bg-red-500/20 dark:hover:bg-red-500/30',
+          },
+          {
+            id: 'closable',
+            label: `Active (${closableCount})`,
+            icon: 'timer',
+            iconClassName: `text-xs ${activeFilter === 'closable' ? 'text-white' : 'text-primary'}`,
+            buttonClassName: 'min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider',
+            inactiveClassName: 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-sky-300 border border-primary/30 dark:border-primary/40 hover:bg-primary/20 dark:hover:bg-primary/30',
+          },
+          {
+            id: 'blocked',
+            label: `Blocked (${blockedCount})`,
+            icon: 'block',
+            iconClassName: `text-xs ${activeFilter === 'blocked' ? 'text-white' : 'text-rose-500'}`,
+            buttonClassName: 'min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider',
+            activeClassName: 'bg-rose-600 text-white shadow-2xs border border-rose-600',
+            inactiveClassName: 'bg-rose-500/10 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-300/40 dark:border-rose-500/30 hover:bg-rose-500/20 dark:hover:bg-rose-500/30',
+          },
+          {
+            id: 'completed',
+            label: `Completed (${completedCount})`,
+            icon: 'check_circle',
+            iconClassName: `text-xs ${activeFilter === 'completed' ? 'text-white' : 'text-emerald-500'}`,
+            buttonClassName: 'min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider',
+            activeClassName: 'bg-emerald-600 text-white shadow-2xs border border-emerald-600',
+            inactiveClassName: 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300/40 dark:border-emerald-500/30 hover:bg-emerald-500/20 dark:hover:bg-emerald-500/30',
+          },
+          ...(archivedCount > 0
+            ? [
+                {
+                  id: 'archived',
+                  label: `Archived (${archivedCount})`,
+                  icon: 'inventory_2',
+                  iconClassName: `text-xs ${activeFilter === 'archived' ? 'text-white' : 'text-gray-400'}`,
+                  buttonClassName: 'min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-1 uppercase tracking-wider',
+                  activeClassName: 'bg-gray-600 text-white shadow-2xs border border-gray-600',
+                },
+              ]
+            : []),
+          {
+            id: 'unassigned',
+            label: `No WO (${unassignedCount})`,
+            inactiveClassName: 'bg-slate-500/10 dark:bg-slate-500/20 text-slate-700 dark:text-slate-300 border border-slate-300/40 dark:border-slate-500/30 hover:bg-slate-500/20 dark:hover:bg-slate-500/30',
+          },
+        ]}
+        activeTab={activeFilter}
+        onChange={(id) =>
+          setActiveFilter(id as 'all' | 'safety' | 'closable' | 'blocked' | 'completed' | 'archived' | 'unassigned')
+        }
+        containerClassName="flex flex-wrap items-center gap-1.5 pb-1 text-xs w-full min-w-0"
+        buttonClassName="min-h-[44px] px-3.5 py-2 rounded-xl font-bold transition-all uppercase tracking-wider"
+        activeClassName="bg-primary text-white shadow-2xs border border-primary"
+        inactiveClassName="bg-white dark:bg-card-dark text-text-sub-light dark:text-text-sub-dark hover:text-brand-black dark:hover:text-white border border-gray-200 dark:border-gray-800"
+      />
 
       {/* Tickets List */}
       <PullToRefresh onRefresh={refreshTickets}>
