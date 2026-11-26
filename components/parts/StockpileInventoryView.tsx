@@ -8,6 +8,7 @@ import { AddPartModal } from './AddPartModal';
 import { EquipmentMovementSection } from './EquipmentMovementSection';
 import type { Stockpile, StockpilePartItem, PartRecord, EquipmentItem, EquipmentStatus } from '../../types/domain';
 import { ExplainableTerm } from '../common/ExplainableTerm';
+import { StatusBadge } from '../common/StatusBadge';
 import { useData } from '../../hooks/useData';
 import { useFilteredList } from '../../hooks/useFilteredList';
 
@@ -492,6 +493,13 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       !filterBelowMinOnly ||
       (item.status !== 'placeholder' && Boolean(item.is_below_minimum || item.quantity < item.minimum)),
   });
+
+  const equipmentStatusColors: Record<EquipmentStatus, string> = {
+    available: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20',
+    needs_service: 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20',
+    out_of_service: 'bg-red-500/10 text-red-700 dark:text-red-300 border-red-500/20',
+    unknown: 'bg-gray-500/10 text-gray-700 dark:text-gray-300 border-gray-500/20',
+  };
 
   return (
     <div className="max-w-xl mx-auto px-4 py-4 space-y-4 pb-32 pb-safe animate-fadeIn text-brand-black dark:text-white">
@@ -1045,13 +1053,6 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
         ) : (
           <div className="space-y-3">
             {equipmentList.map((eq: EquipmentItem) => {
-              const statusColors: Record<EquipmentStatus, string> = {
-                available: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20',
-                needs_service: 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20',
-                out_of_service: 'bg-red-500/10 text-red-700 dark:text-red-300 border-red-500/20',
-                unknown: 'bg-gray-500/10 text-gray-700 dark:text-gray-300 border-gray-500/20',
-              };
-
               return (
                 <div
                   key={`equipment-${eq.id}`}
@@ -1070,9 +1071,11 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                           {eq.category}
                         </span>
                       )}
-                      <span className={`px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider border ${statusColors[eq.status] || statusColors.unknown}`}>
-                        {eq.status}
-                      </span>
+                      <StatusBadge
+                        status={eq.status}
+                        classMap={equipmentStatusColors}
+                        className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider border"
+                      />
                     </div>
                     <h3 className="text-sm font-bold text-brand-black dark:text-white leading-snug break-words">
                       {eq.name}

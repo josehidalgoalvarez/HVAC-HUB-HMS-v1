@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 
 const componentPath = path.resolve('components/common/StatusBadge.tsx');
 const movementSectionPath = path.resolve('components/parts/EquipmentMovementSection.tsx');
+const stockpileViewPath = path.resolve('components/parts/StockpileInventoryView.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -56,6 +57,41 @@ check('5. EquipmentMovementSection.tsx passes testId="equipment-current-status" 
   assert.ok(
     /testId=["']equipment-current-status["']/.test(match[0]),
     '<StatusBadge> must pass testId="equipment-current-status"'
+  );
+});
+
+check('6. StockpileInventoryView.tsx imports StatusBadge from ../common/StatusBadge', () => {
+  const src = fs.readFileSync(stockpileViewPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bStatusBadge\b[^}]*\}\s*from\s*['"]\.\.\/common\/StatusBadge['"]/.test(src),
+    'StockpileInventoryView.tsx does not import StatusBadge from ../common/StatusBadge'
+  );
+});
+
+check('7. StockpileInventoryView.tsx renders <StatusBadge and has zero statusColors[eq.status] lookups', () => {
+  const src = fs.readFileSync(stockpileViewPath, 'utf8');
+  assert.ok(/<StatusBadge\b/.test(src), 'StockpileInventoryView.tsx must render <StatusBadge');
+  assert.ok(!src.includes('statusColors[eq.status]'), 'StockpileInventoryView.tsx must not contain statusColors[eq.status] lookup');
+});
+
+check('8. StockpileInventoryView.tsx hoists equipment status map out of equipmentList.map and preserves amber/gray-500/10 entries', () => {
+  const src = fs.readFileSync(stockpileViewPath, 'utf8');
+  const mapMatch = src.match(/Record<EquipmentStatus,\s*string>\s*=\s*\{[\s\S]*?\};/);
+  assert.ok(mapMatch, 'Could not locate Record<EquipmentStatus, string> map in StockpileInventoryView.tsx');
+  const mapIdx = src.indexOf(mapMatch[0]);
+  const loopIdx = src.indexOf('equipmentList.map(');
+  assert.ok(loopIdx !== -1 && mapIdx < loopIdx, 'Equipment status map must be hoisted before equipmentList.map(');
+  assert.ok(
+    mapMatch[0].includes('bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20'),
+    'Hoisted map must preserve amber needs_service entry'
+  );
+  assert.ok(
+    mapMatch[0].includes('bg-gray-500/10 text-gray-700 dark:text-gray-300 border-gray-500/20'),
+    'Hoisted map must preserve gray-500/10 unknown entry'
+  );
+  assert.ok(
+    !mapMatch[0].includes('bg-primary/10 text-primary border-primary/20'),
+    'Hoisted map must not use movement section primary needs_service entry'
   );
 });
 
