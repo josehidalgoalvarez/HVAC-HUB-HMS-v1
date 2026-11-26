@@ -690,7 +690,7 @@ export interface ShoppingListItem {
   total_needed: number;
   ticket_count: number;
   ticket_ids: number[];
-  tickets_meta: Array<{ ticket_id: number; wo_number?: string | null; title?: string | null }>;
+  tickets_meta: Array<{ ticket_id: number; wo_number?: string | null; title?: string | null; quantity?: number }>;
   available_in_stock: number;
   harvest_quantity: number;
   buy_quantity: number;

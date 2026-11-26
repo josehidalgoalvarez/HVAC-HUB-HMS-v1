@@ -194,6 +194,56 @@ assertTest($item['buy_quantity'] === 1, "3.6 Remaining buy quantity is 1", $pass
 assertTest($item['harvest_tag'] === 'harvest first @ 511 Days Rd', "3.7 Flagged explicitly with 'harvest first @ 511 Days Rd'", $passes, $failures);
 assertTest($item['buy_tag'] === 'buy @ Dependable Appliances', "3.8 Unfulfilled amount flagged with 'buy @ Dependable Appliances'", $passes, $failures);
 
+echo "\n--- 3b. No Fallback Switch on Unmatched Tickets & Per-Ticket Quantity in tickets_meta ---\n";
+$unmatched1 = Ticket::create([
+    'wo_number' => 'WO-UNMATCH-1',
+    'title' => 'Refrigerator crisper drawer cracked',
+    'description' => 'Plastic drawer broken in fridge',
+    'verified_scope' => 'Replace crisper drawer',
+    'building_id' => 1,
+    'unit_id' => 1,
+    'priority' => 'low',
+]);
+$unmatched2 = Ticket::create([
+    'wo_number' => 'WO-UNMATCH-2',
+    'title' => 'Freezer makes rattling noise',
+    'description' => 'Noise from freezer compartment',
+    'verified_scope' => 'Inspect freezer fan',
+    'building_id' => 1,
+    'unit_id' => 2,
+    'priority' => 'medium',
+]);
+$unmatched3 = Ticket::create([
+    'wo_number' => 'WO-UNMATCH-3',
+    'title' => 'Holes in bathroom wall',
+    'description' => 'Drywall repair needed behind vanity',
+    'verified_scope' => 'Patch and paint bathroom wall',
+    'building_id' => 2,
+    'unit_id' => 3,
+    'priority' => 'low',
+]);
+
+$unmatchedList = Part::buildShoppingListFromTickets([$unmatched1['id'], $unmatched2['id'], $unmatched3['id']]);
+$hasSwitch = false;
+$hasPump = false;
+foreach ($unmatchedList['items'] as $uItem) {
+    if (($uItem['part_number'] ?? '') === 'WB24T10025') $hasSwitch = true;
+    if (($uItem['part_number'] ?? '') === 'M376') $hasPump = true;
+}
+assertTest(!$hasSwitch, "3.9 Unmatched tickets produce NO WB24T10025 fallback item", $passes, $failures);
+assertTest(!$hasPump, "3.10 Unmatched tickets produce NO M376 item", $passes, $failures);
+
+$metaQtyOk = !empty($item['tickets_meta']) && count($item['tickets_meta']) === 3;
+$metaQtySum = 0;
+foreach ($item['tickets_meta'] as $tm) {
+    if (!isset($tm['quantity']) || $tm['quantity'] !== 1) {
+        $metaQtyOk = false;
+    }
+    $metaQtySum += (int) ($tm['quantity'] ?? 0);
+}
+assertTest($metaQtyOk, "3.11 Each WO-SW-01/02/03 tickets_meta entry carries quantity = 1", $passes, $failures);
+assertTest($metaQtySum === $item['total_needed'] && $metaQtySum === 3, "3.12 sum(tickets_meta[].quantity) === total_needed (3)", $passes, $failures);
+
 echo "\n--- 4. Acceptance Criterion 3: Log Part Use, Decrement Stock & Dynamic Reorder Flag ---\n";
 // Create a field job to log part use
 $job = \App\Models\Job::create([

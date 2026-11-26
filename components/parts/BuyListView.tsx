@@ -443,7 +443,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
               id: `derived_${item.part_number || item.part_name}_${tm.ticket_id}`,
               partName: item.part_name,
               partNumber: item.part_number,
-              quantity: item.buy_quantity > 0 ? item.buy_quantity : item.total_needed,
+              quantity: tm.quantity ?? 1,
               supplierName: item.preferred_supplier?.name || (item.buy_quantity > 0 ? 'Dependable Appliances' : null),
               supplierPhone: item.preferred_supplier?.phone || findSupplierPhone(item.preferred_supplier?.name || (item.buy_quantity > 0 ? 'Dependable Appliances' : null)),
               supplierHours: item.preferred_supplier?.hours || null,
@@ -455,11 +455,12 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
         } else if (item.ticket_ids && item.ticket_ids.length > 0) {
           for (const tid of item.ticket_ids) {
             const grp = getOrCreateGroup(Number(tid));
+            const matchingMeta = item.tickets_meta?.find(tm => tm.ticket_id === Number(tid));
             grp.items.push({
               id: `derived_${item.part_number || item.part_name}_${tid}`,
               partName: item.part_name,
               partNumber: item.part_number,
-              quantity: item.buy_quantity > 0 ? item.buy_quantity : item.total_needed,
+              quantity: matchingMeta?.quantity ?? 1,
               supplierName: item.preferred_supplier?.name || (item.buy_quantity > 0 ? 'Dependable Appliances' : null),
               supplierPhone: item.preferred_supplier?.phone || findSupplierPhone(item.preferred_supplier?.name || (item.buy_quantity > 0 ? 'Dependable Appliances' : null)),
               supplierHours: item.preferred_supplier?.hours || null,

@@ -487,17 +487,6 @@ class Part
                         'wo_number' => $t['wo_number'] ?? null,
                         'ticket_title' => $t['title'] ?? null,
                     ];
-                } else {
-                    // Default fallback item for test tickets needing parts
-                    $ticketParts[] = [
-                        'ticket_id' => (int) $t['id'],
-                        'part_id' => null,
-                        'part_number' => 'WB24T10025',
-                        'part_name' => 'Robertshaw Infinite Switch',
-                        'quantity' => 1,
-                        'wo_number' => $t['wo_number'] ?? null,
-                        'ticket_title' => $t['title'] ?? null,
-                    ];
                 }
             }
         }
@@ -516,15 +505,25 @@ class Part
                     'tickets_meta' => [],
                 ];
             }
+            $tid = (int) $tp['ticket_id'];
             $qty = max(1, (int) ($tp['quantity'] ?? 1));
             $grouped[$key]['total_needed'] += $qty;
-            if (!in_array((int) $tp['ticket_id'], $grouped[$key]['ticket_ids'], true)) {
-                $grouped[$key]['ticket_ids'][] = (int) $tp['ticket_id'];
+            if (!in_array($tid, $grouped[$key]['ticket_ids'], true)) {
+                $grouped[$key]['ticket_ids'][] = $tid;
                 $grouped[$key]['tickets_meta'][] = [
-                    'ticket_id' => (int) $tp['ticket_id'],
+                    'ticket_id' => $tid,
                     'wo_number' => $tp['wo_number'] ?? null,
                     'title' => $tp['ticket_title'] ?? null,
+                    'quantity' => $qty,
                 ];
+            } else {
+                foreach ($grouped[$key]['tickets_meta'] as &$metaEntry) {
+                    if ($metaEntry['ticket_id'] === $tid) {
+                        $metaEntry['quantity'] += $qty;
+                        break;
+                    }
+                }
+                unset($metaEntry);
             }
         }
 
