@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { apiClient } from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
+import { TextInput, Select, Field } from '../common/FormFields';
 import Button from '../ui/Button';
 import type { ManualBuyItem, ShoppingListResponse, SupplierRecord, Ticket } from '../../types/domain';
 
@@ -641,88 +642,77 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Part Name <span className="text-brand-red">*</span>
-              </label>
-              <input
-                type="text"
-                value={partName}
-                onChange={e => setPartName(e.target.value)}
-                placeholder="e.g. 1/4 Dual Flare Nut"
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-800 focus:outline-none focus:border-primary"
-                required
-              />
+              <Field label="Part Name" required>
+                <TextInput
+                  type="text"
+                  value={partName}
+                  onChange={e => setPartName(e.target.value)}
+                  placeholder="e.g. 1/4 Dual Flare Nut"
+                  required
+                />
+              </Field>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Part Number (optional)
-              </label>
-              <input
-                type="text"
-                value={partNumber}
-                onChange={e => setPartNumber(e.target.value)}
-                placeholder="e.g. WB24T10025"
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-800 focus:outline-none focus:border-primary"
-              />
+              <Field label="Part Number (optional)">
+                <TextInput
+                  type="text"
+                  value={partNumber}
+                  onChange={e => setPartNumber(e.target.value)}
+                  placeholder="e.g. WB24T10025"
+                />
+              </Field>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Quantity <span className="text-brand-red">*</span>
-              </label>
-              <input
-                type="number"
-                min="1"
-                value={quantity}
-                onChange={e => setQuantity(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-800 focus:outline-none focus:border-primary font-mono"
-                required
-              />
+              <Field label="Quantity" required>
+                <TextInput
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={e => setQuantity(e.target.value === '' ? '' : Number(e.target.value))}
+                  className="font-mono"
+                  required
+                />
+              </Field>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Preferred Supplier (optional)
-              </label>
-              <input
-                type="text"
-                value={supplier}
-                onChange={e => setSupplier(e.target.value)}
-                placeholder="e.g. Home Depot Gardiners Rd, Dependable"
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-800 focus:outline-none focus:border-primary"
-              />
+              <Field label="Preferred Supplier (optional)">
+                <TextInput
+                  type="text"
+                  value={supplier}
+                  onChange={e => setSupplier(e.target.value)}
+                  placeholder="e.g. Home Depot Gardiners Rd, Dependable"
+                />
+              </Field>
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Work Order / Ticket (optional — blank puts in "Manually added")
-              </label>
-              <select
-                value={assignedTicketId}
-                onChange={e => setAssignedTicketId(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-800 focus:outline-none focus:border-primary"
-              >
-                <option value="">No Work Order (Manually added group)</option>
-                {tickets.map(t => (
-                  <option key={t.id} value={t.id}>
-                    {t.wo_number || `WO #${t.id}`}: {t.title.slice(0, 35)} ({t.building_name || 'Site'} {t.unit_number ? `Unit ${t.unit_number}` : ''})
-                  </option>
-                ))}
-              </select>
+              <Field label='Work Order / Ticket (optional — blank puts in "Manually added")'>
+                <Select
+                  value={assignedTicketId}
+                  onChange={e => setAssignedTicketId(e.target.value)}
+                >
+                  <option value="">No Work Order (Manually added group)</option>
+                  {tickets.map(t => (
+                    <option key={t.id} value={t.id}>
+                      {t.wo_number || `WO #${t.id}`}: {t.title.slice(0, 35)} ({t.building_name || 'Site'} {t.unit_number ? `Unit ${t.unit_number}` : ''})
+                    </option>
+                  ))}
+                </Select>
+              </Field>
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Notes (optional)
-              </label>
-              <input
-                type="text"
-                value={notes}
-                onChange={e => setNotes(e.target.value)}
-                placeholder="e.g. Needed for emergency repair"
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-800 focus:outline-none focus:border-primary"
-              />
+              <Field label="Notes (optional)">
+                <TextInput
+                  type="text"
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  placeholder="e.g. Needed for emergency repair"
+                />
+              </Field>
             </div>
           </div>
 
