@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 const tabBarPath = path.resolve('components/common/TabBar.tsx');
 const partsViewPath = path.resolve('components/parts/PartsView.tsx');
 const watchesViewPath = path.resolve('components/watches/WatchesView.tsx');
+const applianceDetailViewPath = path.resolve('components/appliances/detail/ApplianceDetailView.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -117,6 +118,32 @@ check('11. WatchesView.tsx passes digest badge from activeAlertCount, iconClassN
   assert.ok(/badge:\s*activeAlertCount\s*>\s*0/.test(block), 'Digest tab must pass badge driven by activeAlertCount > 0');
   assert.ok(/iconClassName=["']text-base leading-none["']/.test(block), 'WatchesView.tsx must pass iconClassName="text-base leading-none"');
   assert.ok(!/badgeClassName/.test(block), 'WatchesView.tsx must not pass badgeClassName (uses TabBar default rose pill)');
+});
+
+check('12. ApplianceDetailView.tsx imports TabBar from ../../common/TabBar', () => {
+  const src = fs.readFileSync(applianceDetailViewPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bTabBar\b[^}]*\}\s*from\s*['"]\.\.\/\.\.\/common\/TabBar['"]/.test(src),
+    'ApplianceDetailView.tsx does not import TabBar from ../../common/TabBar'
+  );
+});
+
+check('13. ApplianceDetailView.tsx renders <TabBar with tabs={availableTabs} and zero inline setActiveTab(tab.id) handlers', () => {
+  const src = fs.readFileSync(applianceDetailViewPath, 'utf8');
+  assert.ok(/<TabBar\b/.test(src), 'ApplianceDetailView.tsx must render <TabBar');
+  assert.ok(/tabs=\{availableTabs\}/.test(src), 'ApplianceDetailView.tsx must pass tabs={availableTabs}');
+  assert.ok(!/onClick=\{\(\)\s*=>\s*setActiveTab\(tab\.id\)\}/.test(src), 'ApplianceDetailView.tsx must contain zero inline onClick={() => setActiveTab(tab.id)} handlers');
+});
+
+check('14. ApplianceDetailView.tsx keeps availableTabs.length > 1 conditional and grid containerClassName', () => {
+  const src = fs.readFileSync(applianceDetailViewPath, 'utf8');
+  assert.ok(/availableTabs\.length\s*>\s*1\s*&&\s*\([\s\S]*?<TabBar[\s\S]*?\)/.test(src), 'ApplianceDetailView.tsx must wrap <TabBar> in availableTabs.length > 1');
+  const tabBarMatch = src.match(/<TabBar[\s\S]*?\/>/);
+  assert.ok(tabBarMatch, 'Could not locate <TabBar ... /> in ApplianceDetailView.tsx');
+  assert.ok(
+    /containerClassName=["']grid grid-cols-4 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl["']/.test(tabBarMatch[0]),
+    'ApplianceDetailView.tsx must pass grid containerClassName'
+  );
 });
 
 console.log(`\nTabBar Tests: ${passes} Passed, ${failures} Failed`);

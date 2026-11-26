@@ -16,6 +16,7 @@ import { AddMaintenanceRecordForm } from './components/AddMaintenanceRecordForm'
 import { ServiceButton } from './components/ServiceButton';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
+import { TabBar } from '../../common/TabBar';
 
 interface ApplianceDetailViewProps {
   applianceId: string | null;
@@ -199,20 +200,15 @@ const ApplianceDetailView: React.FC<ApplianceDetailViewProps> = ({
 
         {/* Tabs */}
         {availableTabs.length > 1 && (
-          <div className="grid grid-cols-4 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
-            {availableTabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-2.5 text-xs font-bold rounded-lg transition-all uppercase tracking-wide ${activeTab === tab.id
-                  ? 'bg-primary text-white shadow-md'
-                  : 'text-text-sub-light dark:text-gray-400 hover:text-brand-black dark:hover:text-white'
-                  }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <TabBar
+            tabs={availableTabs}
+            activeTab={activeTab}
+            onChange={setActiveTab}
+            containerClassName="grid grid-cols-4 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl"
+            buttonClassName="py-2.5 text-xs font-bold rounded-lg transition-all uppercase tracking-wide"
+            activeClassName="bg-primary text-white shadow-md"
+            inactiveClassName="text-text-sub-light dark:text-gray-400 hover:text-brand-black dark:hover:text-white"
+          />
         )}
 
         {/* Tab Content */}
