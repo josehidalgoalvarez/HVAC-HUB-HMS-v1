@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiClient } from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
+import { TabBar } from '../common/TabBar';
 import { PartSearchSection } from './PartSearchSection';
 import { SupplierDirectorySection } from './SupplierDirectorySection';
 import { HarvestSourcingView } from './HarvestSourcingView';
@@ -249,57 +250,31 @@ export const PartsView: React.FC<PartsViewProps> = ({
       )}
 
       {/* Navigation Tab Bar */}
-      <div className="flex rounded-2xl bg-gray-100 dark:bg-neutral-800/80 p-1 border border-gray-200/50 dark:border-gray-800">
-        <button
-          id="parts-tab-search"
-          onClick={() => setActiveTab('search')}
-          className={`flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-            activeTab === 'search'
-              ? 'bg-white dark:bg-card-dark text-primary shadow-xs'
-              : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-          }`}
-        >
-          <span aria-hidden="true" className="material-symbols-outlined text-[16px]">search</span>
-          Catalog
-        </button>
-
-        <button
-          id="parts-tab-harvest"
-          onClick={() => setActiveTab('harvest')}
-          className={`flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-            activeTab === 'harvest'
-              ? 'bg-white dark:bg-card-dark text-primary shadow-xs'
-              : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-          }`}
-        >
-          <span aria-hidden="true" className="material-symbols-outlined text-[16px]">swap_horiz</span>
-          Harvest Sources
-        </button>
-
-        {onOpenBuyList && (
-          <button
-            id="parts-tab-shopping"
-            onClick={onOpenBuyList}
-            className="flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-          >
-            <span aria-hidden="true" className="material-symbols-outlined text-[16px]">shopping_cart</span>
-            Buy List
-          </button>
-        )}
-
-        <button
-          id="parts-tab-suppliers"
-          onClick={() => setActiveTab('suppliers')}
-          className={`flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-            activeTab === 'suppliers'
-              ? 'bg-white dark:bg-card-dark text-primary shadow-xs'
-              : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-          }`}
-        >
-          <span aria-hidden="true" className="material-symbols-outlined text-[16px]">store</span>
-          Suppliers
-        </button>
-      </div>
+      <TabBar
+        tabs={[
+          { id: 'search', buttonId: 'parts-tab-search', label: 'Catalog', icon: 'search' },
+          { id: 'harvest', buttonId: 'parts-tab-harvest', label: 'Harvest Sources', icon: 'swap_horiz' },
+          { id: 'suppliers', buttonId: 'parts-tab-suppliers', label: 'Suppliers', icon: 'store' },
+        ]}
+        activeTab={activeTab}
+        onChange={(id) => setActiveTab(id as 'search' | 'harvest' | 'suppliers')}
+        containerClassName="flex rounded-2xl bg-gray-100 dark:bg-neutral-800/80 p-1 border border-gray-200/50 dark:border-gray-800"
+        buttonClassName="flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5"
+        activeClassName="bg-white dark:bg-card-dark text-primary shadow-xs"
+        inactiveClassName="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+        afterTab={{
+          harvest: onOpenBuyList ? (
+            <button
+              id="parts-tab-shopping"
+              onClick={onOpenBuyList}
+              className="flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+            >
+              <span aria-hidden="true" className="material-symbols-outlined text-[16px]">shopping_cart</span>
+              Buy List
+            </button>
+          ) : undefined,
+        }}
+      />
 
       {/* Tab Panels */}
       <PullToRefresh onRefresh={loadPartsData}>
