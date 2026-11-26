@@ -3,6 +3,7 @@ import type { WatchRecord, WatchDigestResponse } from '../../types/domain';
 import apiClient from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
+import { TabBar } from '../common/TabBar';
 import { WatchCard } from './WatchCard';
 import { DigestSection } from './DigestSection';
 import { SnoozeModal } from './SnoozeModal';
@@ -192,36 +193,28 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
       )}
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-800 pb-2">
-        <button
-          onClick={() => setActiveTab('digest')}
-          className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-            activeTab === 'digest'
-              ? 'bg-primary/20 text-blue-600 dark:text-blue-300 border border-primary/40 shadow-sm'
-              : 'text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-card-dark'
-          }`}
-        >
-          <span aria-hidden="true" className="material-symbols-outlined text-base leading-none">notifications_active</span>
-          <span>Daily Digest</span>
-          {activeAlertCount > 0 && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500 text-white">
-              {activeAlertCount}
-            </span>
-          )}
-        </button>
-
-        <button
-          onClick={() => setActiveTab('all')}
-          className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-            activeTab === 'all'
-              ? 'bg-primary/20 text-blue-600 dark:text-blue-300 border border-primary/40 shadow-sm'
-              : 'text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-card-dark'
-          }`}
-        >
-          <span aria-hidden="true" className="material-symbols-outlined text-base leading-none">visibility</span>
-          <span>All ({watches.length})</span>
-        </button>
-      </div>
+      <TabBar
+        tabs={[
+          {
+            id: 'digest',
+            label: 'Daily Digest',
+            icon: 'notifications_active',
+            badge: activeAlertCount > 0 ? String(activeAlertCount) : undefined,
+          },
+          {
+            id: 'all',
+            label: `All (${watches.length})`,
+            icon: 'visibility',
+          },
+        ]}
+        activeTab={activeTab}
+        onChange={(id) => setActiveTab(id as 'digest' | 'all')}
+        containerClassName="flex items-center gap-2 border-b border-gray-200 dark:border-gray-800 pb-2"
+        buttonClassName="min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2"
+        activeClassName="bg-primary/20 text-blue-600 dark:text-blue-300 border border-primary/40 shadow-sm"
+        inactiveClassName="text-gray-500 dark:text-gray-400 hover:text-brand-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-card-dark"
+        iconClassName="text-base leading-none"
+      />
 
       {/* Tab Content */}
       <PullToRefresh onRefresh={loadData}>

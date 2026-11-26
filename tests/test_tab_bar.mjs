@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 
 const tabBarPath = path.resolve('components/common/TabBar.tsx');
 const partsViewPath = path.resolve('components/parts/PartsView.tsx');
+const watchesViewPath = path.resolve('components/watches/WatchesView.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -89,6 +90,33 @@ check('8. TabBar.tsx renders afterTab?.[tab.id] after each tab button and PartsV
   const afterMatch = pvSrc.match(/afterTab=\{\{[\s\S]*?\}\}/);
   assert.ok(afterMatch, 'PartsView.tsx must pass afterTab={{ ... }} to <TabBar>');
   assert.ok(/\bharvest\s*:/.test(afterMatch[0]) && afterMatch[0].includes('parts-tab-shopping'), 'PartsView.tsx afterTab must key the parts-tab-shopping button under harvest');
+});
+
+check('9. WatchesView.tsx imports TabBar from ../common/TabBar', () => {
+  const src = fs.readFileSync(watchesViewPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bTabBar\b[^}]*\}\s*from\s*['"]\.\.\/common\/TabBar['"]/.test(src),
+    'WatchesView.tsx does not import TabBar from ../common/TabBar'
+  );
+});
+
+check('10. WatchesView.tsx renders <TabBar with digest/all tabs and zero inline setActiveTab handlers', () => {
+  const src = fs.readFileSync(watchesViewPath, 'utf8');
+  assert.ok(/<TabBar\b/.test(src), 'WatchesView.tsx must render <TabBar');
+  for (const id of ["'digest'", "'all'"]) {
+    assert.ok(src.includes(id), `WatchesView.tsx missing tab id ${id}`);
+  }
+  assert.ok(!/onClick=\{\(\)\s*=>\s*setActiveTab\(/.test(src), 'WatchesView.tsx must contain zero inline onClick={() => setActiveTab( handlers');
+});
+
+check('11. WatchesView.tsx passes digest badge from activeAlertCount, iconClassName="text-base leading-none", and no badgeClassName', () => {
+  const src = fs.readFileSync(watchesViewPath, 'utf8');
+  const tabBarMatch = src.match(/<TabBar[\s\S]*?\/>/);
+  assert.ok(tabBarMatch, 'Could not locate <TabBar ... /> in WatchesView.tsx');
+  const block = tabBarMatch[0];
+  assert.ok(/badge:\s*activeAlertCount\s*>\s*0/.test(block), 'Digest tab must pass badge driven by activeAlertCount > 0');
+  assert.ok(/iconClassName=["']text-base leading-none["']/.test(block), 'WatchesView.tsx must pass iconClassName="text-base leading-none"');
+  assert.ok(!/badgeClassName/.test(block), 'WatchesView.tsx must not pass badgeClassName (uses TabBar default rose pill)');
 });
 
 console.log(`\nTabBar Tests: ${passes} Passed, ${failures} Failed`);
