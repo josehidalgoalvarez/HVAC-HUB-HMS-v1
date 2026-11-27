@@ -9,6 +9,7 @@ import { EquipmentMovementSection } from './EquipmentMovementSection';
 import type { Stockpile, StockpilePartItem, PartRecord, EquipmentItem, EquipmentStatus } from '../../types/domain';
 import { ExplainableTerm } from '../common/ExplainableTerm';
 import { StatusBadge } from '../common/StatusBadge';
+import { TextInput, Select, Textarea } from '../common/FormFields';
 import { useData } from '../../hooks/useData';
 import { useFilteredList } from '../../hooks/useFilteredList';
 
@@ -1200,16 +1201,16 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
                   Target Disposition / Action
                 </label>
-                <select
+                <Select
                   value={moveDisposition}
                   onChange={e => setMoveDisposition(e.target.value as any)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-800 text-xs font-semibold text-brand-black dark:text-white"
+                  className="py-2.5 bg-gray-50 font-semibold text-brand-black dark:text-white"
                 >
                   <option value="installed">Install into Unit (Operational)</option>
                   <option value="stored">Keep Stored / Relocate</option>
                   <option value="harvested">Mark as Donor / Harvested</option>
                   <option value="disposed">Scrap / Disposed</option>
-                </select>
+                </Select>
               </div>
 
               {moveDisposition === 'installed' && (
@@ -1217,13 +1218,13 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                   <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
                     Destination Unit ID
                   </label>
-                  <input
+                  <TextInput
                     type="number"
                     value={moveUnitId}
                     onChange={e => setMoveUnitId(e.target.value)}
                     required
                     placeholder="e.g. 137"
-                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-800 text-xs text-brand-black dark:text-white"
+                    className="py-2.5 bg-gray-50 text-brand-black dark:text-white"
                   />
                   <p className="text-xs text-gray-400 mt-1">
                     Enter the unit database ID to assign and mark as operational.
@@ -1235,12 +1236,12 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
                   Movement Notes / Work Order
                 </label>
-                <textarea
+                <Textarea
                   value={moveNotes}
                   onChange={e => setMoveNotes(e.target.value)}
                   rows={2}
                   placeholder="Reason for movement, tech notes, or work order reference..."
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-800 text-xs text-brand-black dark:text-white"
+                  className="bg-gray-50 text-brand-black dark:text-white"
                 />
               </div>
 

@@ -7,6 +7,7 @@ const buyListPath = path.resolve('components/parts/BuyListView.tsx');
 const ticketEditModalPath = path.resolve('components/tickets/detail/TicketEditModal.tsx');
 const ticketSubJobsPath = path.resolve('components/tickets/detail/TicketSubJobsSection.tsx');
 const ticketIntakeModalPath = path.resolve('components/tickets/TicketIntakeModal.tsx');
+const stockpileViewPath = path.resolve('components/parts/StockpileInventoryView.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -204,6 +205,46 @@ check('19. TicketIntakeModal.tsx preserves focus:ring-2 and primary highlight va
   const selects = src.match(/<Select[\s\S]*?<\/Select>/g) || [];
   assert.equal(selects.length, 1, 'Expected 1 <Select>...</Select> block');
   assert.ok(selects[0].includes('focus:ring-2 focus:ring-primary/40'), 'Priority <Select> must preserve focus:ring-2 focus:ring-primary/40');
+});
+
+check('20. StockpileInventoryView.tsx imports TextInput, Select, and Textarea from ../common/FormFields', () => {
+  const src = fs.readFileSync(stockpileViewPath, 'utf8');
+  const importMatch = src.match(/import\s*\{([^}]*)\}\s*from\s*['"]\.\.\/common\/FormFields['"]/);
+  assert.ok(importMatch, 'StockpileInventoryView.tsx does not import from ../common/FormFields');
+  for (const name of ['TextInput', 'Select', 'Textarea']) {
+    assert.ok(new RegExp(`\\b${name}\\b`).test(importMatch[1]), `StockpileInventoryView.tsx import missing ${name}`);
+  }
+});
+
+check('21. StockpileInventoryView.tsx renders 1 <TextInput, 1 <Select, 1 <Textarea with zero inline w-full px-3 py-2', () => {
+  const src = fs.readFileSync(stockpileViewPath, 'utf8');
+  const textInputs = src.match(/<TextInput\b/g) || [];
+  const selects = src.match(/<Select\b/g) || [];
+  const textareas = src.match(/<Textarea\b/g) || [];
+  const inlineInputs = src.match(/w-full px-3 py-2/g) || [];
+  assert.equal(textInputs.length, 1, `Expected 1 <TextInput in StockpileInventoryView.tsx, found ${textInputs.length}`);
+  assert.equal(selects.length, 1, `Expected 1 <Select in StockpileInventoryView.tsx, found ${selects.length}`);
+  assert.equal(textareas.length, 1, `Expected 1 <Textarea in StockpileInventoryView.tsx, found ${textareas.length}`);
+  assert.equal(inlineInputs.length, 0, `Expected 0 inline w-full px-3 py-2 in StockpileInventoryView.tsx, found ${inlineInputs.length}`);
+});
+
+check('22. GUARD: StockpileInventoryView.tsx renders 0 <Field wrappers and keeps text-gray-700 labels untouched', () => {
+  const src = fs.readFileSync(stockpileViewPath, 'utf8');
+  const fields = src.match(/<Field\b/g) || [];
+  const gray700Labels = src.match(/block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1/g) || [];
+  assert.equal(fields.length, 0, `Expected 0 <Field in StockpileInventoryView.tsx, found ${fields.length}`);
+  assert.ok(gray700Labels.length >= 3, `Expected at least 3 text-gray-700 labels in StockpileInventoryView.tsx, found ${gray700Labels.length}`);
+});
+
+check('23. StockpileInventoryView.tsx preserves py-2.5, bg-gray-50, and moveDisposition === installed conditional on kit components', () => {
+  const src = fs.readFileSync(stockpileViewPath, 'utf8');
+  const selects = src.match(/<Select[\s\S]*?<\/Select>/g) || [];
+  assert.equal(selects.length, 1, 'Expected 1 <Select>...</Select> block');
+  assert.ok(selects[0].includes('py-2.5') && selects[0].includes('bg-gray-50'), 'Disposition <Select> must preserve py-2.5 and bg-gray-50');
+  assert.ok(/\{moveDisposition === 'installed' && \([\s\S]*?<TextInput[\s\S]*?py-2\.5[\s\S]*?bg-gray-50[\s\S]*?\)\}/.test(src), 'Unit ID <TextInput> must preserve moveDisposition === installed conditional, py-2.5, and bg-gray-50');
+  const textareas = src.match(/<Textarea[\s\S]*?\/>/g) || [];
+  assert.equal(textareas.length, 1, 'Expected 1 <Textarea ... /> block');
+  assert.ok(textareas[0].includes('bg-gray-50'), 'Movement Notes <Textarea> must preserve bg-gray-50');
 });
 
 console.log(`\nFormFields Tests: ${passes} Passed, ${failures} Failed`);
