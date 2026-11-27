@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
+import { TextInput, Select, Textarea } from '../common/FormFields';
 import { useData } from '../../hooks/useData';
 import { apiClient } from '../../src/api/client';
 import { compressImageToBlob } from '../../utils/imageUtils';
@@ -177,12 +178,13 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
           <label className="block text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark mb-1">
             Verbatim Text (Raw text from screenshot)
           </label>
-          <textarea
+          <Textarea
+            size="sm"
             value={verbatimText}
             onChange={(e) => setVerbatimText(e.target.value)}
             rows={2}
             placeholder="e.g. 'AC unit rattling loudly in master bedroom, blowing room temp air'"
-            className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
         </div>
 
@@ -192,12 +194,13 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
             <span aria-hidden="true" className="material-symbols-outlined text-sm">verified</span>
             Verified Scope (Tech-confirmed job description)
           </label>
-          <textarea
+          <Textarea
+            size="sm"
             value={verifiedScope}
             onChange={(e) => setVerifiedScope(e.target.value)}
             rows={2}
             placeholder="e.g. 'Inspect condenser fan motor & run capacitor. Check refrigerant subcooling.'"
-            className="w-full px-3 py-2 text-sm rounded-xl border border-primary/40 bg-primary/5 dark:bg-primary/10 text-brand-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+            className="border-primary/40 bg-primary/5 dark:bg-primary/10 text-brand-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
@@ -207,12 +210,13 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
             <label className="block text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark mb-1">
               WO Number <span className="text-gray-400 font-normal lowercase">(optional)</span>
             </label>
-            <input
+            <TextInput
+              size="sm"
               type="text"
               value={woNumber}
               onChange={(e) => setWoNumber(e.target.value)}
               placeholder="e.g. WO-19970 (or leave blank)"
-              className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
+              className="border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
           </div>
 
@@ -220,16 +224,17 @@ export const TicketIntakeModal: React.FC<TicketIntakeModalProps> = ({
             <label className="block text-xs font-bold uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark mb-1">
               Priority
             </label>
-            <select
+            <Select
+              size="sm"
               value={priority}
               onChange={(e) => setPriority(e.target.value as TicketPriority)}
-              className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
+              className="border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
             >
               <option value="urgent">Urgent (Safety / Hazard)</option>
               <option value="high">High</option>
               <option value="medium">Medium</option>
               <option value="low">Low</option>
-            </select>
+            </Select>
           </div>
         </div>
 

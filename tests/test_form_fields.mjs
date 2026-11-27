@@ -6,6 +6,7 @@ const kitPath = path.resolve('components/common/FormFields.tsx');
 const buyListPath = path.resolve('components/parts/BuyListView.tsx');
 const ticketEditModalPath = path.resolve('components/tickets/detail/TicketEditModal.tsx');
 const ticketSubJobsPath = path.resolve('components/tickets/detail/TicketSubJobsSection.tsx');
+const ticketIntakeModalPath = path.resolve('components/tickets/TicketIntakeModal.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -157,6 +158,52 @@ check('15. TicketSubJobsSection.tsx preserves State/Priority/Blocker variant cla
   );
   assert.ok(selects[1].includes('border-brand-red') && selects[1].includes('border-amber-500'), 'Priority <Select> must preserve 3-branch conditional colors');
   assert.ok(/\{childState === 'blocked' && \([\s\S]*?<TextInput[\s\S]*?border-red-300[\s\S]*?bg-red-50\/50[\s\S]*?\)\}/.test(src), 'Blocker <TextInput> must preserve childState === blocked conditional and red classes');
+});
+
+check('16. TicketIntakeModal.tsx imports TextInput, Select, and Textarea from ../common/FormFields', () => {
+  const src = fs.readFileSync(ticketIntakeModalPath, 'utf8');
+  const importMatch = src.match(/import\s*\{([^}]*)\}\s*from\s*['"]\.\.\/common\/FormFields['"]/);
+  assert.ok(importMatch, 'TicketIntakeModal.tsx does not import from ../common/FormFields');
+  for (const name of ['TextInput', 'Select', 'Textarea']) {
+    assert.ok(new RegExp(`\\b${name}\\b`).test(importMatch[1]), `TicketIntakeModal.tsx import missing ${name}`);
+  }
+});
+
+check('17. TicketIntakeModal.tsx renders 1 <TextInput, 1 <Select, 2 <Textarea with zero inline w-full px-3 py-2', () => {
+  const src = fs.readFileSync(ticketIntakeModalPath, 'utf8');
+  const textInputs = src.match(/<TextInput\b/g) || [];
+  const selects = src.match(/<Select\b/g) || [];
+  const textareas = src.match(/<Textarea\b/g) || [];
+  const inlineInputs = src.match(/w-full px-3 py-2/g) || [];
+  assert.equal(textInputs.length, 1, `Expected 1 <TextInput in TicketIntakeModal.tsx, found ${textInputs.length}`);
+  assert.equal(selects.length, 1, `Expected 1 <Select in TicketIntakeModal.tsx, found ${selects.length}`);
+  assert.equal(textareas.length, 2, `Expected 2 <Textarea in TicketIntakeModal.tsx, found ${textareas.length}`);
+  assert.equal(inlineInputs.length, 0, `Expected 0 inline w-full px-3 py-2 in TicketIntakeModal.tsx, found ${inlineInputs.length}`);
+});
+
+check('18. GUARD: TicketIntakeModal.tsx renders 0 <Field wrappers and keeps tracking-wider labels untouched', () => {
+  const src = fs.readFileSync(ticketIntakeModalPath, 'utf8');
+  const fields = src.match(/<Field\b/g) || [];
+  const trackingLabels = src.match(/block text-xs font-bold uppercase tracking-wider/g) || [];
+  assert.equal(fields.length, 0, `Expected 0 <Field in TicketIntakeModal.tsx, found ${fields.length}`);
+  assert.ok(trackingLabels.length >= 4, `Expected at least 4 tracking-wider labels in TicketIntakeModal.tsx, found ${trackingLabels.length}`);
+});
+
+check('19. TicketIntakeModal.tsx preserves focus:ring-2 and primary highlight variant classes on kit components', () => {
+  const src = fs.readFileSync(ticketIntakeModalPath, 'utf8');
+  const textareas = src.match(/<Textarea[\s\S]*?\/>/g) || [];
+  assert.equal(textareas.length, 2, `Expected 2 <Textarea ... /> blocks in TicketIntakeModal.tsx, found ${textareas.length}`);
+  assert.ok(textareas[0].includes('focus:ring-2 focus:ring-primary/40'), 'Verbatim Text <Textarea> must preserve focus:ring-2 focus:ring-primary/40');
+  assert.ok(
+    textareas[1].includes('border-primary/40') && textareas[1].includes('bg-primary/5') && textareas[1].includes('focus:ring-2 focus:ring-primary'),
+    'Verified Scope <Textarea> must preserve primary highlight and focus:ring-2 focus:ring-primary'
+  );
+  const textInputs = src.match(/<TextInput[\s\S]*?\/>/g) || [];
+  assert.equal(textInputs.length, 1, 'Expected 1 <TextInput ... /> block');
+  assert.ok(textInputs[0].includes('focus:ring-2 focus:ring-primary/40'), 'WO Number <TextInput> must preserve focus:ring-2 focus:ring-primary/40');
+  const selects = src.match(/<Select[\s\S]*?<\/Select>/g) || [];
+  assert.equal(selects.length, 1, 'Expected 1 <Select>...</Select> block');
+  assert.ok(selects[0].includes('focus:ring-2 focus:ring-primary/40'), 'Priority <Select> must preserve focus:ring-2 focus:ring-primary/40');
 });
 
 console.log(`\nFormFields Tests: ${passes} Passed, ${failures} Failed`);
