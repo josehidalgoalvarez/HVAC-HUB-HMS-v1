@@ -3,6 +3,7 @@ import { Ticket, TicketState, TicketPriority, ClosedByParty, Appliance } from '.
 import { apiClient } from '../../../src/api/client';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
+import { TextInput, Select, Textarea, Field } from '../../common/FormFields';
 
 interface TicketEditModalProps {
   ticket: Ticket;
@@ -104,92 +105,99 @@ export const TicketEditModal: React.FC<TicketEditModalProps> = ({
 
           <form onSubmit={handleSaveEdit} className="mt-4 space-y-3">
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Title</label>
-              <input
-                type="text"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">WO Number</label>
-                <input
+              <Field label="Title">
+                <TextInput
+                  size="sm"
                   type="text"
-                  value={editWoNumber}
-                  onChange={(e) => setEditWoNumber(e.target.value)}
-                  placeholder="e.g. WO-19970"
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark font-mono"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  required
                 />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Field label="WO Number">
+                  <TextInput
+                    size="sm"
+                    type="text"
+                    value={editWoNumber}
+                    onChange={(e) => setEditWoNumber(e.target.value)}
+                    placeholder="e.g. WO-19970"
+                    className="font-mono"
+                  />
+                </Field>
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">State</label>
-                <select
-                  value={
-                    editState === 'closed-elsewhere' && editParty
-                      ? `closed-elsewhere:${editParty}`
-                      : editState
-                  }
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val.startsWith('closed-elsewhere:')) {
-                      setEditState('closed-elsewhere');
-                      setEditParty(val.split(':')[1] as ClosedByParty);
-                    } else if (val === 'closed-elsewhere') {
-                      setEditState('closed-elsewhere');
-                      setEditParty(null);
-                    } else {
-                      setEditState(val as TicketState);
-                      setEditParty(null);
+                <Field label="State">
+                  <Select
+                    size="sm"
+                    value={
+                      editState === 'closed-elsewhere' && editParty
+                        ? `closed-elsewhere:${editParty}`
+                        : editState
                     }
-                  }}
-                  className={`w-full px-3 py-2 text-sm rounded-xl border font-semibold ${
-                    editState === 'done'
-                      ? 'border-emerald-500 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-500'
-                      : editState === 'blocked'
-                      ? 'border-rose-500 bg-rose-50 text-rose-900 dark:bg-rose-950/50 dark:text-rose-200 dark:border-rose-500'
-                      : editState === 'in-progress'
-                      ? 'border-primary/40 bg-primary/5 text-primary dark:border-primary/60 dark:bg-primary/20 dark:text-sky-300'
-                      : editState === 'on-hold'
-                      ? 'border-amber-400 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-600'
-                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
-                  }`}
-                >
-                  <option value="new">New</option>
-                  <option value="verified">Verified</option>
-                  <option value="in-progress">In-Progress</option>
-                  <option value="blocked">Blocked</option>
-                  <option value="on-hold">On-Hold</option>
-                  <option value="done">Done</option>
-                  <option value="closed">Closed</option>
-                  <option value="closed-elsewhere:coworker">Closed — Coworker</option>
-                </select>
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val.startsWith('closed-elsewhere:')) {
+                        setEditState('closed-elsewhere');
+                        setEditParty(val.split(':')[1] as ClosedByParty);
+                      } else if (val === 'closed-elsewhere') {
+                        setEditState('closed-elsewhere');
+                        setEditParty(null);
+                      } else {
+                        setEditState(val as TicketState);
+                        setEditParty(null);
+                      }
+                    }}
+                    className={`font-semibold ${
+                      editState === 'done'
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-500'
+                        : editState === 'blocked'
+                        ? 'border-rose-500 bg-rose-50 text-rose-900 dark:bg-rose-950/50 dark:text-rose-200 dark:border-rose-500'
+                        : editState === 'in-progress'
+                        ? 'border-primary/40 bg-primary/5 text-primary dark:border-primary/60 dark:bg-primary/20 dark:text-sky-300'
+                        : editState === 'on-hold'
+                        ? 'border-amber-400 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-600'
+                        : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
+                    }`}
+                  >
+                    <option value="new">New</option>
+                    <option value="verified">Verified</option>
+                    <option value="in-progress">In-Progress</option>
+                    <option value="blocked">Blocked</option>
+                    <option value="on-hold">On-Hold</option>
+                    <option value="done">Done</option>
+                    <option value="closed">Closed</option>
+                    <option value="closed-elsewhere:coworker">Closed — Coworker</option>
+                  </Select>
+                </Field>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Priority</label>
-                <select
-                  value={editPriority}
-                  onChange={(e) => setEditPriority(e.target.value as TicketPriority)}
-                  className={`w-full px-3 py-2 text-sm rounded-xl border font-semibold ${
-                    editPriority === 'urgent'
-                      ? 'border-brand-red bg-rose-50 text-brand-red dark:bg-rose-950/50 dark:text-rose-200 dark:border-brand-red font-bold'
-                      : editPriority === 'high'
-                      ? 'border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-500'
-                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
-                  }`}
-                >
-                  <option value="urgent">Urgent</option>
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </select>
+                <Field label="Priority">
+                  <Select
+                    size="sm"
+                    value={editPriority}
+                    onChange={(e) => setEditPriority(e.target.value as TicketPriority)}
+                    className={`font-semibold ${
+                      editPriority === 'urgent'
+                        ? 'border-brand-red bg-rose-50 text-brand-red dark:bg-rose-950/50 dark:text-rose-200 dark:border-brand-red font-bold'
+                        : editPriority === 'high'
+                        ? 'border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-500'
+                        : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
+                    }`}
+                  >
+                    <option value="urgent">Urgent</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </Select>
+                </Field>
               </div>
 
               {editState === 'blocked' && (
@@ -197,13 +205,14 @@ export const TicketEditModal: React.FC<TicketEditModalProps> = ({
                   <label className="block text-xs font-bold uppercase text-brand-red mb-1">
                     Blocker Reason <span className="text-brand-red">*</span>
                   </label>
-                  <input
+                  <TextInput
+                    size="sm"
                     type="text"
                     required
                     value={editBlocker}
                     onChange={(e) => setEditBlocker(e.target.value)}
                     placeholder="Why is this blocked? (e.g. Awaiting owner authorization / rent hold)"
-                    className="w-full px-3 py-2 text-sm rounded-xl border border-red-300 dark:border-red-800 bg-red-50/50"
+                    className="border-red-300 dark:border-red-800 bg-red-50/50"
                   />
                   <span className="text-xs text-gray-500 mt-0.5 block">
                     Distinction: on-hold = waiting on next expected step; blocked = outside tech control.
@@ -216,11 +225,12 @@ export const TicketEditModal: React.FC<TicketEditModalProps> = ({
               <label className="block text-xs font-bold uppercase text-primary mb-1">
                 Verified Scope (Confirmed Description)
               </label>
-              <textarea
+              <Textarea
+                size="sm"
                 value={editScope}
                 onChange={(e) => setEditScope(e.target.value)}
                 rows={2}
-                className="w-full px-3 py-2 text-sm rounded-xl border border-primary/40 bg-primary/5 dark:bg-primary/10"
+                className="border-primary/40 bg-primary/5 dark:bg-primary/10"
               />
             </div>
 
@@ -317,12 +327,13 @@ export const TicketEditModal: React.FC<TicketEditModalProps> = ({
               <label className="block text-xs font-bold uppercase text-brand-black dark:text-white mb-1">
                 Reason for change <span className="text-brand-red">*</span>
               </label>
-              <input
+              <TextInput
+                size="sm"
                 type="text"
                 value={editReason}
                 onChange={(e) => setEditReason(e.target.value)}
                 placeholder="Why is this field being modified? (e.g. Scope confirmed on site)"
-                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-card-dark font-medium"
+                className="border-gray-300 dark:border-gray-700 bg-white dark:bg-card-dark font-medium"
                 required
               />
               <span className="text-xs text-gray-400">

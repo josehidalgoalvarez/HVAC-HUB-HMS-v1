@@ -47,6 +47,24 @@ export const Select: React.FC<SelectProps> = ({
   );
 };
 
+export interface TextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  size?: 'xs' | 'sm';
+}
+
+export const Textarea: React.FC<TextareaProps> = ({
+  size = 'xs',
+  className = '',
+  ...props
+}) => {
+  return (
+    <textarea
+      {...props}
+      className={`${BASE_FIELD_CLASSES} ${SIZE_CLASSES[size]}${className ? ` ${className}` : ''}`}
+    />
+  );
+};
+
 export interface FieldProps {
   label: string;
   required?: boolean;
