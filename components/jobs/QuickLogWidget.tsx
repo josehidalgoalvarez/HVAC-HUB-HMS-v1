@@ -6,6 +6,7 @@ import { outbox } from '../../src/offline/outbox';
 import { JobCloseoutModal } from './JobCloseoutModal';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
+import { Textarea, Field } from '../common/FormFields';
 
 interface QuickLogWidgetProps {
   block?: RunSheetBlock | null;
@@ -873,21 +874,20 @@ export const QuickLogWidget: React.FC<QuickLogWidgetProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Correction / Superseding Details
-              </label>
-              <textarea
-                rows={3}
-                required
-                value={correctionInput}
-                onChange={(e) => setCorrectionInput(e.target.value)}
-                placeholder={
-                  correctingEntry.type === 'note'
-                    ? 'e.g. Capacitor tested 42.5 uF, within tolerance; original note was typo.'
-                    : 'e.g. Corrected part quantity: used 2x 3/4in couplings instead of 1x.'
-                }
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark focus:border-primary"
-              />
+              <Field label="Correction / Superseding Details">
+                <Textarea
+                  rows={3}
+                  required
+                  value={correctionInput}
+                  onChange={(e) => setCorrectionInput(e.target.value)}
+                  placeholder={
+                    correctingEntry.type === 'note'
+                      ? 'e.g. Capacitor tested 42.5 uF, within tolerance; original note was typo.'
+                      : 'e.g. Corrected part quantity: used 2x 3/4in couplings instead of 1x.'
+                  }
+                  className="dark:bg-card-dark"
+                />
+              </Field>
             </div>
 
             <div className="flex gap-2 pt-1">
