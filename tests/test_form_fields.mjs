@@ -9,6 +9,7 @@ const ticketSubJobsPath = path.resolve('components/tickets/detail/TicketSubJobsS
 const ticketIntakeModalPath = path.resolve('components/tickets/TicketIntakeModal.tsx');
 const stockpileViewPath = path.resolve('components/parts/StockpileInventoryView.tsx');
 const closeBlockModalPath = path.resolve('components/runsheets/CloseBlockModal.tsx');
+const sopRunViewPath = path.resolve('components/sops/SOPRunView.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -283,6 +284,44 @@ check('27. CloseBlockModal.tsx preserves border-gray-300 on both <TextInput and 
   assert.ok(textInputs[0].includes('parseInt(e.target.value, 10) || 0'), 'Minutes <TextInput> must preserve parseInt onChange');
   assert.ok(textInputs[1].includes('border-gray-300'), 'Notes <TextInput> must preserve border-gray-300');
   assert.ok(!/size=/.test(textInputs[1]), 'Notes <TextInput> must omit size prop (defaults to xs)');
+});
+
+check('28. SOPRunView.tsx imports only TextInput from ../common/FormFields', () => {
+  const src = fs.readFileSync(sopRunViewPath, 'utf8');
+  const importMatch = src.match(/import\s*\{([^}]*)\}\s*from\s*['"]\.\.\/common\/FormFields['"]/);
+  assert.ok(importMatch, 'SOPRunView.tsx does not import from ../common/FormFields');
+  assert.ok(/\bTextInput\b/.test(importMatch[1]), 'SOPRunView.tsx import missing TextInput');
+  for (const excluded of ['Select', 'Textarea', 'Field']) {
+    assert.ok(!new RegExp(`\\b${excluded}\\b`).test(importMatch[1]), `SOPRunView.tsx should not import ${excluded}`);
+  }
+});
+
+check('29. SOPRunView.tsx renders 2 <TextInput with zero inline w-full px-3 py-2', () => {
+  const src = fs.readFileSync(sopRunViewPath, 'utf8');
+  const textInputs = src.match(/<TextInput\b/g) || [];
+  const inlineInputs = src.match(/w-full px-3 py-2/g) || [];
+  assert.equal(textInputs.length, 2, `Expected 2 <TextInput in SOPRunView.tsx, found ${textInputs.length}`);
+  assert.equal(inlineInputs.length, 0, `Expected 0 inline w-full px-3 py-2 in SOPRunView.tsx, found ${inlineInputs.length}`);
+});
+
+check('30. GUARD: SOPRunView.tsx renders 0 <Field wrappers and keeps text-brand-black dark:text-white labels untouched', () => {
+  const src = fs.readFileSync(sopRunViewPath, 'utf8');
+  const fields = src.match(/<Field\b/g) || [];
+  const brandLabels = src.match(/<label className="block text-xs font-bold text-brand-black dark:text-white"/g) || [];
+  assert.equal(fields.length, 0, `Expected 0 <Field in SOPRunView.tsx, found ${fields.length}`);
+  assert.ok(brandLabels.length >= 2, `Expected at least 2 text-brand-black dark:text-white labels in SOPRunView.tsx, found ${brandLabels.length}`);
+});
+
+check('31. SOPRunView.tsx preserves focus:ring-2, focus:ring-primary/40, bg-gray-50, font-semibold on Lead Technician, and multi-line setStepStates onChange on note', () => {
+  const src = fs.readFileSync(sopRunViewPath, 'utf8');
+  const textInputs = src.match(/<TextInput[\s\S]*?\/>/g) || [];
+  assert.equal(textInputs.length, 2, `Expected 2 <TextInput ... /> blocks in SOPRunView.tsx, found ${textInputs.length}`);
+  for (const block of textInputs) {
+    assert.ok(block.includes('focus:ring-2') && block.includes('focus:ring-primary/40') && block.includes('bg-gray-50'), 'Both <TextInput> blocks must preserve focus:ring-2, focus:ring-primary/40, and bg-gray-50');
+    assert.ok(!/size=/.test(block), 'Both <TextInput> blocks must omit size prop (defaults to xs)');
+  }
+  assert.ok(textInputs[0].includes('font-semibold'), 'Lead Technician <TextInput> must preserve font-semibold');
+  assert.ok(/setStepStates\(\(prev\) => \(\{[\s\S]*?\[currentStepIdx\]:[\s\S]*?note:\s*val/.test(textInputs[1]), 'Step note <TextInput> must preserve multi-line setStepStates onChange');
 });
 
 console.log(`\nFormFields Tests: ${passes} Passed, ${failures} Failed`);

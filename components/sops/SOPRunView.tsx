@@ -3,6 +3,7 @@ import { apiClient } from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { SEED_SOPS } from '../../sop_constants';
 import type { SOP, SOPRun, SOPRunStep, SOPStep, Ticket } from '../../types/domain';
+import { TextInput } from '../common/FormFields';
 
 interface SOPRunViewProps {
   sopId: string;
@@ -371,11 +372,11 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
           <label className="block text-xs font-bold text-brand-black dark:text-white">
             Lead Technician
           </label>
-          <input
+          <TextInput
             type="text"
             value={technician}
             onChange={(e) => setTechnician(e.target.value)}
-            className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-800 text-brand-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40 font-semibold"
+            className="bg-gray-50 dark:bg-neutral-800 text-brand-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40 font-semibold"
           />
         </div>
 
@@ -586,7 +587,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
             <label className="block text-xs font-bold text-brand-black dark:text-white">
               Step Observation / Deviation Note (optional)
             </label>
-            <input
+            <TextInput
               type="text"
               value={curStepState.note}
               onChange={(e) => {
@@ -600,7 +601,7 @@ export const SOPRunView: React.FC<SOPRunViewProps> = ({
                 }));
               }}
               placeholder="e.g. pressure slightly elevated, cleaned contacts, deviated from sequence..."
-              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-800 text-brand-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
+              className="bg-gray-50 dark:bg-neutral-800 text-brand-black dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
           </div>
 
