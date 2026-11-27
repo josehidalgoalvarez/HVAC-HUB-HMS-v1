@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { apiClient } from '../../../src/api/client';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
+import { Textarea, Field } from '../../common/FormFields';
 
 interface TicketOrderPartModalProps {
   ticketId: string;
@@ -219,16 +220,15 @@ export const TicketOrderPartModal: React.FC<TicketOrderPartModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Notes
-              </label>
-              <textarea
-                rows={2}
-                value={partNotes}
-                onChange={(e) => setPartNotes(e.target.value)}
-                placeholder="Shipping details, tracking #, or special instructions..."
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-              />
+              <Field label="Notes">
+                <Textarea
+                  rows={2}
+                  value={partNotes}
+                  onChange={(e) => setPartNotes(e.target.value)}
+                  placeholder="Shipping details, tracking #, or special instructions..."
+                  className="dark:bg-card-dark"
+                />
+              </Field>
             </div>
 
             <div className="flex gap-2 pt-2">

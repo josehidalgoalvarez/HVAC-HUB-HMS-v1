@@ -13,6 +13,7 @@ const sopRunViewPath = path.resolve('components/sops/SOPRunView.tsx');
 const ticketVisitModalPath = path.resolve('components/tickets/detail/TicketVisitModal.tsx');
 const quickLogWidgetPath = path.resolve('components/jobs/QuickLogWidget.tsx');
 const addPartModalPath = path.resolve('components/parts/AddPartModal.tsx');
+const ticketOrderPartModalPath = path.resolve('components/tickets/detail/TicketOrderPartModal.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -447,6 +448,45 @@ check('43. AddPartModal.tsx preserves rows={2}, value, onChange, placeholder, si
     textareas[0].includes('resize-none'),
     'Description <Textarea> must preserve dark:bg-card-dark, text-brand-black dark:text-white, and resize-none'
   );
+});
+
+check('44. TicketOrderPartModal.tsx imports only Textarea and Field from ../../common/FormFields', () => {
+  const src = fs.readFileSync(ticketOrderPartModalPath, 'utf8');
+  const importMatch = src.match(/import\s*\{([^}]*)\}\s*from\s*['"]\.\.\/\.\.\/common\/FormFields['"]/);
+  assert.ok(importMatch, 'TicketOrderPartModal.tsx does not import from ../../common/FormFields');
+  assert.ok(/\bTextarea\b/.test(importMatch[1]) && /\bField\b/.test(importMatch[1]), 'TicketOrderPartModal.tsx import missing Textarea or Field');
+  for (const excluded of ['TextInput', 'Select']) {
+    assert.ok(!new RegExp(`\\b${excluded}\\b`).test(importMatch[1]), `TicketOrderPartModal.tsx should not import ${excluded}`);
+  }
+});
+
+check('45. TicketOrderPartModal.tsx renders 1 <Textarea with zero inline w-full px-3 py-2', () => {
+  const src = fs.readFileSync(ticketOrderPartModalPath, 'utf8');
+  const textareas = src.match(/<Textarea\b/g) || [];
+  const inlineInputs = src.match(/w-full px-3 py-2/g) || [];
+  assert.equal(textareas.length, 1, `Expected 1 <Textarea in TicketOrderPartModal.tsx, found ${textareas.length}`);
+  assert.equal(inlineInputs.length, 0, `Expected 0 inline w-full px-3 py-2 in TicketOrderPartModal.tsx, found ${inlineInputs.length}`);
+});
+
+check('46. TicketOrderPartModal.tsx renders 1 <Field label="Notes"> and drops inline Field-string labels 9 -> 8', () => {
+  const src = fs.readFileSync(ticketOrderPartModalPath, 'utf8');
+  const fields = src.match(/<Field\b/g) || [];
+  const inlineLabels = src.match(/block text-xs font-bold uppercase text-gray-500 mb-1/g) || [];
+  assert.equal(fields.length, 1, `Expected 1 <Field in TicketOrderPartModal.tsx, found ${fields.length}`);
+  assert.ok(/<Field\s+label="Notes">/.test(src), 'TicketOrderPartModal.tsx must wrap Notes in <Field label="Notes">');
+  assert.equal(inlineLabels.length, 8, `Expected 8 remaining inline Field-string labels in TicketOrderPartModal.tsx, found ${inlineLabels.length}`);
+});
+
+check('47. TicketOrderPartModal.tsx preserves rows={2}, value, onChange, placeholder, and dark:bg-card-dark on Notes <Textarea>', () => {
+  const src = fs.readFileSync(ticketOrderPartModalPath, 'utf8');
+  const textareas = src.match(/<Textarea[\s\S]*?\/>/g) || [];
+  assert.equal(textareas.length, 1, `Expected 1 <Textarea ... /> block in TicketOrderPartModal.tsx, found ${textareas.length}`);
+  assert.ok(textareas[0].includes('rows={2}'), 'Notes <Textarea> must preserve rows={2}');
+  assert.ok(textareas[0].includes('value={partNotes}'), 'Notes <Textarea> must preserve value={partNotes}');
+  assert.ok(textareas[0].includes('setPartNotes(e.target.value)'), 'Notes <Textarea> must preserve onChange');
+  assert.ok(textareas[0].includes('Shipping details, tracking #, or special instructions...'), 'Notes <Textarea> must preserve placeholder');
+  assert.ok(textareas[0].includes('dark:bg-card-dark'), 'Notes <Textarea> must preserve dark:bg-card-dark');
+  assert.ok(!/size=/.test(textareas[0]), 'Notes <Textarea> must omit size prop (defaults to xs)');
 });
 
 console.log(`\nFormFields Tests: ${passes} Passed, ${failures} Failed`);
