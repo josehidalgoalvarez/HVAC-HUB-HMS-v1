@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 const kitPath = path.resolve('components/common/FormFields.tsx');
 const buyListPath = path.resolve('components/parts/BuyListView.tsx');
 const ticketEditModalPath = path.resolve('components/tickets/detail/TicketEditModal.tsx');
+const ticketSubJobsPath = path.resolve('components/tickets/detail/TicketSubJobsSection.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -117,6 +118,45 @@ check('11. TicketEditModal.tsx preserves State/Priority/Blocker variant classes 
   const textInputs = src.match(/<TextInput[\s\S]*?\/>/g) || [];
   const blockerInput = textInputs.find((m) => m.includes('border-red-300') && m.includes('bg-red-50/50'));
   assert.ok(blockerInput, 'Blocker <TextInput> must preserve border-red-300 and bg-red-50/50');
+});
+
+check('12. TicketSubJobsSection.tsx imports TextInput, Select, and Field from ../../common/FormFields', () => {
+  const src = fs.readFileSync(ticketSubJobsPath, 'utf8');
+  const importMatch = src.match(/import\s*\{([^}]*)\}\s*from\s*['"]\.\.\/\.\.\/common\/FormFields['"]/);
+  assert.ok(importMatch, 'TicketSubJobsSection.tsx does not import from ../../common/FormFields');
+  for (const name of ['TextInput', 'Select', 'Field']) {
+    assert.ok(new RegExp(`\\b${name}\\b`).test(importMatch[1]), `TicketSubJobsSection.tsx import missing ${name}`);
+  }
+});
+
+check('13. TicketSubJobsSection.tsx renders 2 <TextInput, 2 <Select with zero inline w-full px-3 py-2', () => {
+  const src = fs.readFileSync(ticketSubJobsPath, 'utf8');
+  const textInputs = src.match(/<TextInput\b/g) || [];
+  const selects = src.match(/<Select\b/g) || [];
+  const inlineInputs = src.match(/w-full px-3 py-2/g) || [];
+  assert.equal(textInputs.length, 2, `Expected 2 <TextInput in TicketSubJobsSection.tsx, found ${textInputs.length}`);
+  assert.equal(selects.length, 2, `Expected 2 <Select in TicketSubJobsSection.tsx, found ${selects.length}`);
+  assert.equal(inlineInputs.length, 0, `Expected 0 inline w-full px-3 py-2 in TicketSubJobsSection.tsx, found ${inlineInputs.length}`);
+});
+
+check('14. TicketSubJobsSection.tsx renders 3 <Field wrappers and zero inline Field label strings', () => {
+  const src = fs.readFileSync(ticketSubJobsPath, 'utf8');
+  const fields = src.match(/<Field\b/g) || [];
+  const inlineLabels = src.match(/block text-xs font-bold uppercase text-gray-500 mb-1/g) || [];
+  assert.equal(fields.length, 3, `Expected 3 <Field in TicketSubJobsSection.tsx, found ${fields.length}`);
+  assert.equal(inlineLabels.length, 0, `Expected 0 inline label strings in TicketSubJobsSection.tsx, found ${inlineLabels.length}`);
+});
+
+check('15. TicketSubJobsSection.tsx preserves State/Priority/Blocker variant classes and childState === blocked conditional on kit components', () => {
+  const src = fs.readFileSync(ticketSubJobsPath, 'utf8');
+  const selects = src.match(/<Select[\s\S]*?<\/Select>/g) || [];
+  assert.equal(selects.length, 2, 'Expected 2 <Select>...</Select> blocks in TicketSubJobsSection.tsx');
+  assert.ok(
+    selects[0].includes('border-emerald-500') && selects[0].includes('border-rose-500') && selects[0].includes('border-amber-400'),
+    'Initial State <Select> must preserve 5-branch conditional colors'
+  );
+  assert.ok(selects[1].includes('border-brand-red') && selects[1].includes('border-amber-500'), 'Priority <Select> must preserve 3-branch conditional colors');
+  assert.ok(/\{childState === 'blocked' && \([\s\S]*?<TextInput[\s\S]*?border-red-300[\s\S]*?bg-red-50\/50[\s\S]*?\)\}/.test(src), 'Blocker <TextInput> must preserve childState === blocked conditional and red classes');
 });
 
 console.log(`\nFormFields Tests: ${passes} Passed, ${failures} Failed`);

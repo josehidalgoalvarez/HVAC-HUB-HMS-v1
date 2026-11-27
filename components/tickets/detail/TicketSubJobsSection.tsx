@@ -3,6 +3,7 @@ import { Ticket, TicketState, TicketPriority } from '../../../types/domain';
 import { apiClient } from '../../../src/api/client';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
+import { TextInput, Select, Field } from '../../common/FormFields';
 import { TicketStatusBadge } from '../TicketStatusBadges';
 
 interface TicketSubJobsSectionProps {
@@ -185,64 +186,67 @@ export const TicketSubJobsSection: React.FC<TicketSubJobsSectionProps> = ({
 
           <form onSubmit={handleCreateChild} className="mt-4 space-y-3">
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Sub-Job Title <span className="text-brand-red">*</span>
-              </label>
-              <input
-                type="text"
-                value={childTitle}
-                onChange={(e) => setChildTitle(e.target.value)}
-                placeholder="e.g. Zone 2 Condenser Coil Replacement"
-                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-                required
-              />
+              <Field label="Sub-Job Title" required>
+                <TextInput
+                  size="sm"
+                  type="text"
+                  value={childTitle}
+                  onChange={(e) => setChildTitle(e.target.value)}
+                  placeholder="e.g. Zone 2 Condenser Coil Replacement"
+                  required
+                />
+              </Field>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Initial State</label>
-                <select
-                  value={childState}
-                  onChange={(e) => setChildState(e.target.value as TicketState)}
-                  className={`w-full px-3 py-2 text-sm rounded-xl border font-semibold ${
-                    childState === 'done'
-                      ? 'border-emerald-500 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-500'
-                      : childState === 'blocked'
-                      ? 'border-rose-500 bg-rose-50 text-rose-900 dark:bg-rose-950/50 dark:text-rose-200 dark:border-rose-500'
-                      : childState === 'in-progress'
-                      ? 'border-primary/40 bg-primary/5 text-primary dark:border-primary/60 dark:bg-primary/20 dark:text-sky-300'
-                      : childState === 'on-hold'
-                      ? 'border-amber-400 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-600'
-                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
-                  }`}
-                >
-                  <option value="new">New</option>
-                  <option value="verified">Verified</option>
-                  <option value="in-progress">In-Progress</option>
-                  <option value="blocked">Blocked</option>
-                  <option value="on-hold">On-Hold</option>
-                  <option value="done">Done</option>
-                </select>
+                <Field label="Initial State">
+                  <Select
+                    size="sm"
+                    value={childState}
+                    onChange={(e) => setChildState(e.target.value as TicketState)}
+                    className={`font-semibold ${
+                      childState === 'done'
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-500'
+                        : childState === 'blocked'
+                        ? 'border-rose-500 bg-rose-50 text-rose-900 dark:bg-rose-950/50 dark:text-rose-200 dark:border-rose-500'
+                        : childState === 'in-progress'
+                        ? 'border-primary/40 bg-primary/5 text-primary dark:border-primary/60 dark:bg-primary/20 dark:text-sky-300'
+                        : childState === 'on-hold'
+                        ? 'border-amber-400 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-600'
+                        : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
+                    }`}
+                  >
+                    <option value="new">New</option>
+                    <option value="verified">Verified</option>
+                    <option value="in-progress">In-Progress</option>
+                    <option value="blocked">Blocked</option>
+                    <option value="on-hold">On-Hold</option>
+                    <option value="done">Done</option>
+                  </Select>
+                </Field>
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Priority</label>
-                <select
-                  value={childPriority}
-                  onChange={(e) => setChildPriority(e.target.value as TicketPriority)}
-                  className={`w-full px-3 py-2 text-sm rounded-xl border font-semibold ${
-                    childPriority === 'urgent'
-                      ? 'border-brand-red bg-rose-50 text-brand-red dark:bg-rose-950/50 dark:text-rose-200 dark:border-brand-red font-bold'
-                      : childPriority === 'high'
-                      ? 'border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-500'
-                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
-                  }`}
-                >
-                  <option value="urgent">Urgent</option>
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </select>
+                <Field label="Priority">
+                  <Select
+                    size="sm"
+                    value={childPriority}
+                    onChange={(e) => setChildPriority(e.target.value as TicketPriority)}
+                    className={`font-semibold ${
+                      childPriority === 'urgent'
+                        ? 'border-brand-red bg-rose-50 text-brand-red dark:bg-rose-950/50 dark:text-rose-200 dark:border-brand-red font-bold'
+                        : childPriority === 'high'
+                        ? 'border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-500'
+                        : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white'
+                    }`}
+                  >
+                    <option value="urgent">Urgent</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </Select>
+                </Field>
               </div>
             </div>
 
@@ -251,13 +255,14 @@ export const TicketSubJobsSection: React.FC<TicketSubJobsSectionProps> = ({
                 <label className="block text-xs font-bold uppercase text-brand-red mb-1">
                   Blocker Reason <span className="text-brand-red">*</span>
                 </label>
-                <input
+                <TextInput
+                  size="sm"
                   type="text"
                   required
                   value={childBlocker}
                   onChange={(e) => setChildBlocker(e.target.value)}
                   placeholder="Why is this blocked? (e.g. Waiting on owner approval)"
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-red-300 dark:border-red-800 bg-red-50/50"
+                  className="border-red-300 dark:border-red-800 bg-red-50/50"
                 />
               </div>
             )}
