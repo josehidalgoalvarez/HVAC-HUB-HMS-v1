@@ -17,6 +17,7 @@ const ticketOrderPartModalPath = path.resolve('components/tickets/detail/TicketO
 const ticketIdentifyModalPath = path.resolve('components/tickets/detail/TicketIdentifyModal.tsx');
 const stockTransferModalPath = path.resolve('components/parts/StockTransferModal.tsx');
 const harvestTransferModalPath = path.resolve('components/parts/HarvestTransferModal.tsx');
+const jobCloseoutModalPath = path.resolve('components/jobs/JobCloseoutModal.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -607,6 +608,49 @@ check('59. HarvestTransferModal.tsx preserves rows={2}, value, onChange, placeho
   assert.ok(textareas[0].includes('Reason for pulling from vacant unit, component condition, etc.'), 'Transfer Notes <Textarea> must preserve placeholder');
   assert.ok(textareas[0].includes('dark:bg-card-dark'), 'Transfer Notes <Textarea> must preserve dark:bg-card-dark');
   assert.ok(!/size=/.test(textareas[0]), 'Transfer Notes <Textarea> must omit size prop (kit default xs adds text-xs per accepted decision)');
+});
+
+check('60. JobCloseoutModal.tsx imports only Textarea from ../common/FormFields', () => {
+  const src = fs.readFileSync(jobCloseoutModalPath, 'utf8');
+  const importMatch = src.match(/import\s*\{([^}]*)\}\s*from\s*['"]\.\.\/common\/FormFields['"]/);
+  assert.ok(importMatch, 'JobCloseoutModal.tsx does not import from ../common/FormFields');
+  assert.ok(/\bTextarea\b/.test(importMatch[1]), 'JobCloseoutModal.tsx import missing Textarea');
+  for (const excluded of ['TextInput', 'Select', 'Field']) {
+    assert.ok(!new RegExp(`\\b${excluded}\\b`).test(importMatch[1]), `JobCloseoutModal.tsx should not import ${excluded}`);
+  }
+});
+
+check('61. JobCloseoutModal.tsx renders 1 <Textarea with zero inline w-full px-3 py-2', () => {
+  const src = fs.readFileSync(jobCloseoutModalPath, 'utf8');
+  const textareas = src.match(/<Textarea\b/g) || [];
+  const inlineInputs = src.match(/w-full px-3 py-2/g) || [];
+  assert.equal(textareas.length, 1, `Expected 1 <Textarea in JobCloseoutModal.tsx, found ${textareas.length}`);
+  assert.equal(inlineInputs.length, 0, `Expected 0 inline w-full px-3 py-2 in JobCloseoutModal.tsx, found ${inlineInputs.length}`);
+});
+
+check('62. GUARD: JobCloseoutModal.tsx renders 0 <Field wrappers, 0 Field-string labels, and keeps 4 custom labels + Job Notes icon span untouched', () => {
+  const src = fs.readFileSync(jobCloseoutModalPath, 'utf8');
+  const fields = src.match(/<Field\b/g) || [];
+  const fieldLabels = src.match(/block text-xs font-bold uppercase text-gray-500 mb-1/g) || [];
+  const customLabels = src.match(/<label\b/g) || [];
+  assert.equal(fields.length, 0, `Expected 0 <Field in JobCloseoutModal.tsx, found ${fields.length}`);
+  assert.equal(fieldLabels.length, 0, `Expected 0 Field-string labels in JobCloseoutModal.tsx, found ${fieldLabels.length}`);
+  assert.equal(customLabels.length, 4, `Expected 4 custom <label elements in JobCloseoutModal.tsx, found ${customLabels.length}`);
+  assert.ok(src.includes('>notes</span>'), 'JobCloseoutModal.tsx must preserve Job Notes icon span');
+});
+
+check('63. JobCloseoutModal.tsx preserves rows={3}, value, onChange, placeholder, bg-gray-50, and resize-none on Job Notes <Textarea> without dark:bg-gray-800 or dark:bg-card-dark', () => {
+  const src = fs.readFileSync(jobCloseoutModalPath, 'utf8');
+  const textareas = src.match(/<Textarea[\s\S]*?\/>/g) || [];
+  assert.equal(textareas.length, 1, `Expected 1 <Textarea ... /> block in JobCloseoutModal.tsx, found ${textareas.length}`);
+  assert.ok(textareas[0].includes('rows={3}'), 'Job Notes <Textarea> must preserve rows={3}');
+  assert.ok(textareas[0].includes('value={notes}'), 'Job Notes <Textarea> must preserve value={notes}');
+  assert.ok(textareas[0].includes('setNotes(e.target.value)'), 'Job Notes <Textarea> must preserve onChange');
+  assert.ok(textareas[0].includes('Add completion notes...'), 'Job Notes <Textarea> must preserve placeholder');
+  assert.ok(textareas[0].includes('bg-gray-50') && textareas[0].includes('resize-none'), 'Job Notes <Textarea> must preserve bg-gray-50 and resize-none');
+  assert.ok(!textareas[0].includes('dark:bg-gray-800'), 'Job Notes <Textarea> must NOT carry dark:bg-gray-800 (accepted neutral-800)');
+  assert.ok(!textareas[0].includes('dark:bg-card-dark'), 'Job Notes <Textarea> must NOT add dark:bg-card-dark');
+  assert.ok(!/size=/.test(textareas[0]), 'Job Notes <Textarea> must omit size prop (defaults to xs)');
 });
 
 console.log(`\nFormFields Tests: ${passes} Passed, ${failures} Failed`);

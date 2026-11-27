@@ -3,6 +3,7 @@ import { Job, JobCloseoutPayload } from '../../types/domain';
 import { useData } from '../../hooks/useData';
 import apiClient from '../../src/api/client';
 import { outbox } from '../../src/offline/outbox';
+import { Textarea } from '../common/FormFields';
 
 interface JobCloseoutModalProps {
   job: Job;
@@ -353,12 +354,12 @@ export const JobCloseoutModal: React.FC<JobCloseoutModalProps> = ({
               Job Notes
             </label>
 
-            <textarea
+            <Textarea
               rows={3}
               placeholder="Add completion notes..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 resize-none"
+              className="bg-gray-50 resize-none"
             />
 
             {/* Quick common note chips */}
