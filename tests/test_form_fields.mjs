@@ -14,6 +14,7 @@ const ticketVisitModalPath = path.resolve('components/tickets/detail/TicketVisit
 const quickLogWidgetPath = path.resolve('components/jobs/QuickLogWidget.tsx');
 const addPartModalPath = path.resolve('components/parts/AddPartModal.tsx');
 const ticketOrderPartModalPath = path.resolve('components/tickets/detail/TicketOrderPartModal.tsx');
+const ticketIdentifyModalPath = path.resolve('components/tickets/detail/TicketIdentifyModal.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -485,6 +486,45 @@ check('47. TicketOrderPartModal.tsx preserves rows={2}, value, onChange, placeho
   assert.ok(textareas[0].includes('value={partNotes}'), 'Notes <Textarea> must preserve value={partNotes}');
   assert.ok(textareas[0].includes('setPartNotes(e.target.value)'), 'Notes <Textarea> must preserve onChange');
   assert.ok(textareas[0].includes('Shipping details, tracking #, or special instructions...'), 'Notes <Textarea> must preserve placeholder');
+  assert.ok(textareas[0].includes('dark:bg-card-dark'), 'Notes <Textarea> must preserve dark:bg-card-dark');
+  assert.ok(!/size=/.test(textareas[0]), 'Notes <Textarea> must omit size prop (defaults to xs)');
+});
+
+check('48. TicketIdentifyModal.tsx imports only Textarea and Field from ../../common/FormFields', () => {
+  const src = fs.readFileSync(ticketIdentifyModalPath, 'utf8');
+  const importMatch = src.match(/import\s*\{([^}]*)\}\s*from\s*['"]\.\.\/\.\.\/common\/FormFields['"]/);
+  assert.ok(importMatch, 'TicketIdentifyModal.tsx does not import from ../../common/FormFields');
+  assert.ok(/\bTextarea\b/.test(importMatch[1]) && /\bField\b/.test(importMatch[1]), 'TicketIdentifyModal.tsx import missing Textarea or Field');
+  for (const excluded of ['TextInput', 'Select']) {
+    assert.ok(!new RegExp(`\\b${excluded}\\b`).test(importMatch[1]), `TicketIdentifyModal.tsx should not import ${excluded}`);
+  }
+});
+
+check('49. TicketIdentifyModal.tsx renders 1 <Textarea with zero inline w-full px-3 py-2', () => {
+  const src = fs.readFileSync(ticketIdentifyModalPath, 'utf8');
+  const textareas = src.match(/<Textarea\b/g) || [];
+  const inlineInputs = src.match(/w-full px-3 py-2/g) || [];
+  assert.equal(textareas.length, 1, `Expected 1 <Textarea in TicketIdentifyModal.tsx, found ${textareas.length}`);
+  assert.equal(inlineInputs.length, 0, `Expected 0 inline w-full px-3 py-2 in TicketIdentifyModal.tsx, found ${inlineInputs.length}`);
+});
+
+check('50. TicketIdentifyModal.tsx renders 1 <Field label="Field Identification Notes"> and drops inline Field-string labels 4 -> 3', () => {
+  const src = fs.readFileSync(ticketIdentifyModalPath, 'utf8');
+  const fields = src.match(/<Field\b/g) || [];
+  const inlineLabels = src.match(/block text-xs font-bold uppercase text-gray-500 mb-1/g) || [];
+  assert.equal(fields.length, 1, `Expected 1 <Field in TicketIdentifyModal.tsx, found ${fields.length}`);
+  assert.ok(/<Field\s+label="Field Identification Notes">/.test(src), 'TicketIdentifyModal.tsx must wrap Field Identification Notes in <Field label="Field Identification Notes">');
+  assert.equal(inlineLabels.length, 3, `Expected 3 remaining inline Field-string labels in TicketIdentifyModal.tsx, found ${inlineLabels.length}`);
+});
+
+check('51. TicketIdentifyModal.tsx preserves rows={2}, value, onChange, placeholder, and dark:bg-card-dark on Field Identification Notes <Textarea>', () => {
+  const src = fs.readFileSync(ticketIdentifyModalPath, 'utf8');
+  const textareas = src.match(/<Textarea[\s\S]*?\/>/g) || [];
+  assert.equal(textareas.length, 1, `Expected 1 <Textarea ... /> block in TicketIdentifyModal.tsx, found ${textareas.length}`);
+  assert.ok(textareas[0].includes('rows={2}'), 'Notes <Textarea> must preserve rows={2}');
+  assert.ok(textareas[0].includes('value={identifyNotes}'), 'Notes <Textarea> must preserve value={identifyNotes}');
+  assert.ok(textareas[0].includes('setIdentifyNotes(e.target.value)'), 'Notes <Textarea> must preserve onChange');
+  assert.ok(textareas[0].includes('Model # confirmed, serial plate verified on left cabinet interior...'), 'Notes <Textarea> must preserve placeholder');
   assert.ok(textareas[0].includes('dark:bg-card-dark'), 'Notes <Textarea> must preserve dark:bg-card-dark');
   assert.ok(!/size=/.test(textareas[0]), 'Notes <Textarea> must omit size prop (defaults to xs)');
 });

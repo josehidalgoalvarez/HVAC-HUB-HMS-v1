@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { apiClient } from '../../../src/api/client';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
+import { Textarea, Field } from '../../common/FormFields';
 
 interface TicketIdentifyModalProps {
   ticketId: string;
@@ -107,16 +108,15 @@ export const TicketIdentifyModal: React.FC<TicketIdentifyModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Field Identification Notes
-              </label>
-              <textarea
-                rows={2}
-                value={identifyNotes}
-                onChange={(e) => setIdentifyNotes(e.target.value)}
-                placeholder="Model # confirmed, serial plate verified on left cabinet interior..."
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-              />
+              <Field label="Field Identification Notes">
+                <Textarea
+                  rows={2}
+                  value={identifyNotes}
+                  onChange={(e) => setIdentifyNotes(e.target.value)}
+                  placeholder="Model # confirmed, serial plate verified on left cabinet interior..."
+                  className="dark:bg-card-dark"
+                />
+              </Field>
             </div>
 
             <div className="flex gap-2 pt-2">
