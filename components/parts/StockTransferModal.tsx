@@ -3,6 +3,7 @@ import { apiClient } from '../../src/api/client';
 import type { PartRecord, Stockpile, StockTransfer } from '../../types/domain';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
+import { Textarea, Field } from '../common/FormFields';
 
 interface StockTransferModalProps {
   parts: PartRecord[];
@@ -240,16 +241,15 @@ export const StockTransferModal: React.FC<StockTransferModalProps> = ({
 
         {/* Notes */}
         <div>
-          <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-            Transfer Notes / Audit Reason
-          </label>
-          <textarea
-            rows={2}
-            value={notes}
-            onChange={e => setNotes(e.target.value)}
-            placeholder="e.g. Staging for upcoming maintenance run, balancing depot stock..."
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-          />
+          <Field label="Transfer Notes / Audit Reason">
+            <Textarea
+              rows={2}
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="e.g. Staging for upcoming maintenance run, balancing depot stock..."
+              className="dark:bg-card-dark"
+            />
+          </Field>
         </div>
 
         <div className="flex gap-2 pt-2">
