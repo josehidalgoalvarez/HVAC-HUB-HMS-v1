@@ -4,6 +4,7 @@ import { formatDateTime } from '../../../utils/dateUtils';
 import { apiClient } from '../../../src/api/client';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
+import { Textarea, Field } from '../../common/FormFields';
 
 interface TicketVisitModalProps {
   ticketId: string;
@@ -155,16 +156,15 @@ export const TicketVisitModal: React.FC<TicketVisitModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
-                Visit Notes
-              </label>
-              <textarea
-                rows={3}
-                value={visitNotes}
-                onChange={(e) => setVisitNotes(e.target.value)}
-                placeholder="Findings, diagnostics, or follow-up details..."
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark"
-              />
+              <Field label="Visit Notes">
+                <Textarea
+                  rows={3}
+                  value={visitNotes}
+                  onChange={(e) => setVisitNotes(e.target.value)}
+                  placeholder="Findings, diagnostics, or follow-up details..."
+                  className="dark:bg-card-dark"
+                />
+              </Field>
             </div>
 
             <div className="flex gap-2 pt-2">
