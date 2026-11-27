@@ -16,6 +16,7 @@ const addPartModalPath = path.resolve('components/parts/AddPartModal.tsx');
 const ticketOrderPartModalPath = path.resolve('components/tickets/detail/TicketOrderPartModal.tsx');
 const ticketIdentifyModalPath = path.resolve('components/tickets/detail/TicketIdentifyModal.tsx');
 const stockTransferModalPath = path.resolve('components/parts/StockTransferModal.tsx');
+const harvestTransferModalPath = path.resolve('components/parts/HarvestTransferModal.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -565,6 +566,45 @@ check('55. StockTransferModal.tsx preserves rows={2}, value, onChange, placehold
   assert.ok(textareas[0].includes('value={notes}'), 'Transfer Notes <Textarea> must preserve value={notes}');
   assert.ok(textareas[0].includes('setNotes(e.target.value)'), 'Transfer Notes <Textarea> must preserve onChange');
   assert.ok(textareas[0].includes('Staging for upcoming maintenance run, balancing depot stock...'), 'Transfer Notes <Textarea> must preserve placeholder');
+  assert.ok(textareas[0].includes('dark:bg-card-dark'), 'Transfer Notes <Textarea> must preserve dark:bg-card-dark');
+  assert.ok(!/size=/.test(textareas[0]), 'Transfer Notes <Textarea> must omit size prop (kit default xs adds text-xs per accepted decision)');
+});
+
+check('56. HarvestTransferModal.tsx imports only Textarea and Field from ../common/FormFields', () => {
+  const src = fs.readFileSync(harvestTransferModalPath, 'utf8');
+  const importMatch = src.match(/import\s*\{([^}]*)\}\s*from\s*['"]\.\.\/common\/FormFields['"]/);
+  assert.ok(importMatch, 'HarvestTransferModal.tsx does not import from ../common/FormFields');
+  assert.ok(/\bTextarea\b/.test(importMatch[1]) && /\bField\b/.test(importMatch[1]), 'HarvestTransferModal.tsx import missing Textarea or Field');
+  for (const excluded of ['TextInput', 'Select']) {
+    assert.ok(!new RegExp(`\\b${excluded}\\b`).test(importMatch[1]), `HarvestTransferModal.tsx should not import ${excluded}`);
+  }
+});
+
+check('57. HarvestTransferModal.tsx renders 1 <Textarea with zero inline w-full px-3 py-2', () => {
+  const src = fs.readFileSync(harvestTransferModalPath, 'utf8');
+  const textareas = src.match(/<Textarea\b/g) || [];
+  const inlineInputs = src.match(/w-full px-3 py-2/g) || [];
+  assert.equal(textareas.length, 1, `Expected 1 <Textarea in HarvestTransferModal.tsx, found ${textareas.length}`);
+  assert.equal(inlineInputs.length, 0, `Expected 0 inline w-full px-3 py-2 in HarvestTransferModal.tsx, found ${inlineInputs.length}`);
+});
+
+check('58. HarvestTransferModal.tsx renders 1 <Field label="Transfer Notes / Provenance"> and drops inline Field-string labels 7 -> 6', () => {
+  const src = fs.readFileSync(harvestTransferModalPath, 'utf8');
+  const fields = src.match(/<Field\b/g) || [];
+  const inlineLabels = src.match(/block text-xs font-bold uppercase text-gray-500 mb-1/g) || [];
+  assert.equal(fields.length, 1, `Expected 1 <Field in HarvestTransferModal.tsx, found ${fields.length}`);
+  assert.ok(/<Field\s+label="Transfer Notes \/ Provenance">/.test(src), 'HarvestTransferModal.tsx must wrap Transfer Notes / Provenance in <Field label="Transfer Notes / Provenance">');
+  assert.equal(inlineLabels.length, 6, `Expected 6 remaining inline Field-string labels in HarvestTransferModal.tsx, found ${inlineLabels.length}`);
+});
+
+check('59. HarvestTransferModal.tsx preserves rows={2}, value, onChange, placeholder, and dark:bg-card-dark on Transfer Notes <Textarea> (kit default xs -> text-xs)', () => {
+  const src = fs.readFileSync(harvestTransferModalPath, 'utf8');
+  const textareas = src.match(/<Textarea[\s\S]*?\/>/g) || [];
+  assert.equal(textareas.length, 1, `Expected 1 <Textarea ... /> block in HarvestTransferModal.tsx, found ${textareas.length}`);
+  assert.ok(textareas[0].includes('rows={2}'), 'Transfer Notes <Textarea> must preserve rows={2}');
+  assert.ok(textareas[0].includes('value={notes}'), 'Transfer Notes <Textarea> must preserve value={notes}');
+  assert.ok(textareas[0].includes('setNotes(e.target.value)'), 'Transfer Notes <Textarea> must preserve onChange');
+  assert.ok(textareas[0].includes('Reason for pulling from vacant unit, component condition, etc.'), 'Transfer Notes <Textarea> must preserve placeholder');
   assert.ok(textareas[0].includes('dark:bg-card-dark'), 'Transfer Notes <Textarea> must preserve dark:bg-card-dark');
   assert.ok(!/size=/.test(textareas[0]), 'Transfer Notes <Textarea> must omit size prop (kit default xs adds text-xs per accepted decision)');
 });
