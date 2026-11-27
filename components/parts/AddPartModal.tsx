@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
+import { Textarea } from '../common/FormFields';
 import { apiClient } from '../../src/api/client';
 import type { PartRecord, Stockpile } from '../../types/domain';
 import { isVerifiedPart } from '../../utils/modelParts';
@@ -290,12 +291,13 @@ export const AddPartModal: React.FC<AddPartModalProps> = ({
             <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
               Description / Notes
             </label>
-            <textarea
+            <Textarea
+              size="sm"
               rows={2}
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="e.g. Salvaged donor switch tested OK, stored on shelf A"
-              className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-card-dark text-brand-black dark:text-white focus:outline-none focus:border-primary resize-none"
+              className="dark:bg-card-dark text-brand-black dark:text-white resize-none"
             />
           </div>
         </div>

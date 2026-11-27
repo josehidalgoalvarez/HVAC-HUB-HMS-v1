@@ -12,6 +12,7 @@ const closeBlockModalPath = path.resolve('components/runsheets/CloseBlockModal.t
 const sopRunViewPath = path.resolve('components/sops/SOPRunView.tsx');
 const ticketVisitModalPath = path.resolve('components/tickets/detail/TicketVisitModal.tsx');
 const quickLogWidgetPath = path.resolve('components/jobs/QuickLogWidget.tsx');
+const addPartModalPath = path.resolve('components/parts/AddPartModal.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -401,6 +402,51 @@ check('39. QuickLogWidget.tsx preserves rows={3}, required, conditional placehol
   assert.ok(textareas[0].includes('value={correctionInput}'), 'Correction <Textarea> must preserve value={correctionInput}');
   assert.ok(textareas[0].includes('setCorrectionInput(e.target.value)'), 'Correction <Textarea> must preserve onChange');
   assert.ok(!/size=/.test(textareas[0]), 'Correction <Textarea> must omit size prop (defaults to xs)');
+});
+
+check('40. AddPartModal.tsx imports only Textarea from ../common/FormFields', () => {
+  const src = fs.readFileSync(addPartModalPath, 'utf8');
+  const importMatch = src.match(/import\s*\{([^}]*)\}\s*from\s*['"]\.\.\/common\/FormFields['"]/);
+  assert.ok(importMatch, 'AddPartModal.tsx does not import from ../common/FormFields');
+  assert.ok(/\bTextarea\b/.test(importMatch[1]), 'AddPartModal.tsx import missing Textarea');
+  for (const excluded of ['TextInput', 'Select', 'Field']) {
+    assert.ok(!new RegExp(`\\b${excluded}\\b`).test(importMatch[1]), `AddPartModal.tsx should not import ${excluded}`);
+  }
+});
+
+check('41. AddPartModal.tsx renders 1 <Textarea with zero inline w-full px-3 py-2', () => {
+  const src = fs.readFileSync(addPartModalPath, 'utf8');
+  const textareas = src.match(/<Textarea\b/g) || [];
+  const inlineInputs = src.match(/w-full px-3 py-2/g) || [];
+  assert.equal(textareas.length, 1, `Expected 1 <Textarea in AddPartModal.tsx, found ${textareas.length}`);
+  assert.equal(inlineInputs.length, 0, `Expected 0 inline w-full px-3 py-2 in AddPartModal.tsx, found ${inlineInputs.length}`);
+});
+
+check('42. GUARD: AddPartModal.tsx renders 0 <Field wrappers, 0 Field-string labels, and keeps 7 text-gray-700 labels untouched', () => {
+  const src = fs.readFileSync(addPartModalPath, 'utf8');
+  const fields = src.match(/<Field\b/g) || [];
+  const fieldLabels = src.match(/block text-xs font-bold uppercase text-gray-500 mb-1/g) || [];
+  const gray700Labels = src.match(/block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1/g) || [];
+  assert.equal(fields.length, 0, `Expected 0 <Field in AddPartModal.tsx, found ${fields.length}`);
+  assert.equal(fieldLabels.length, 0, `Expected 0 Field-string labels in AddPartModal.tsx, found ${fieldLabels.length}`);
+  assert.equal(gray700Labels.length, 7, `Expected 7 text-gray-700 labels in AddPartModal.tsx, found ${gray700Labels.length}`);
+});
+
+check('43. AddPartModal.tsx preserves rows={2}, value, onChange, placeholder, size="sm", dark:bg-card-dark, text-brand-black dark:text-white, and resize-none', () => {
+  const src = fs.readFileSync(addPartModalPath, 'utf8');
+  const textareas = src.match(/<Textarea[\s\S]*?\/>/g) || [];
+  assert.equal(textareas.length, 1, `Expected 1 <Textarea ... /> block in AddPartModal.tsx, found ${textareas.length}`);
+  assert.ok(textareas[0].includes('rows={2}'), 'Description <Textarea> must preserve rows={2}');
+  assert.ok(textareas[0].includes('size="sm"'), 'Description <Textarea> must pass size="sm"');
+  assert.ok(textareas[0].includes('value={description}'), 'Description <Textarea> must preserve value={description}');
+  assert.ok(textareas[0].includes('setDescription(e.target.value)'), 'Description <Textarea> must preserve onChange');
+  assert.ok(textareas[0].includes('Salvaged donor switch tested OK, stored on shelf A'), 'Description <Textarea> must preserve placeholder');
+  assert.ok(
+    textareas[0].includes('dark:bg-card-dark') &&
+    textareas[0].includes('text-brand-black dark:text-white') &&
+    textareas[0].includes('resize-none'),
+    'Description <Textarea> must preserve dark:bg-card-dark, text-brand-black dark:text-white, and resize-none'
+  );
 });
 
 console.log(`\nFormFields Tests: ${passes} Passed, ${failures} Failed`);
