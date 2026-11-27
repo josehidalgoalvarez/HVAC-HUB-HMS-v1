@@ -8,6 +8,7 @@ const ticketEditModalPath = path.resolve('components/tickets/detail/TicketEditMo
 const ticketSubJobsPath = path.resolve('components/tickets/detail/TicketSubJobsSection.tsx');
 const ticketIntakeModalPath = path.resolve('components/tickets/TicketIntakeModal.tsx');
 const stockpileViewPath = path.resolve('components/parts/StockpileInventoryView.tsx');
+const closeBlockModalPath = path.resolve('components/runsheets/CloseBlockModal.tsx');
 
 let passes = 0;
 let failures = 0;
@@ -245,6 +246,43 @@ check('23. StockpileInventoryView.tsx preserves py-2.5, bg-gray-50, and moveDisp
   const textareas = src.match(/<Textarea[\s\S]*?\/>/g) || [];
   assert.equal(textareas.length, 1, 'Expected 1 <Textarea ... /> block');
   assert.ok(textareas[0].includes('bg-gray-50'), 'Movement Notes <Textarea> must preserve bg-gray-50');
+});
+
+check('24. CloseBlockModal.tsx imports only TextInput from ../common/FormFields', () => {
+  const src = fs.readFileSync(closeBlockModalPath, 'utf8');
+  const importMatch = src.match(/import\s*\{([^}]*)\}\s*from\s*['"]\.\.\/common\/FormFields['"]/);
+  assert.ok(importMatch, 'CloseBlockModal.tsx does not import from ../common/FormFields');
+  assert.ok(/\bTextInput\b/.test(importMatch[1]), 'CloseBlockModal.tsx import missing TextInput');
+  for (const excluded of ['Select', 'Textarea', 'Field']) {
+    assert.ok(!new RegExp(`\\b${excluded}\\b`).test(importMatch[1]), `CloseBlockModal.tsx should not import ${excluded}`);
+  }
+});
+
+check('25. CloseBlockModal.tsx renders 2 <TextInput with zero inline w-full px-3 py-2', () => {
+  const src = fs.readFileSync(closeBlockModalPath, 'utf8');
+  const textInputs = src.match(/<TextInput\b/g) || [];
+  const inlineInputs = src.match(/w-full px-3 py-2/g) || [];
+  assert.equal(textInputs.length, 2, `Expected 2 <TextInput in CloseBlockModal.tsx, found ${textInputs.length}`);
+  assert.equal(inlineInputs.length, 0, `Expected 0 inline w-full px-3 py-2 in CloseBlockModal.tsx, found ${inlineInputs.length}`);
+});
+
+check('26. GUARD: CloseBlockModal.tsx renders 0 <Field wrappers and keeps tracking-wider labels untouched', () => {
+  const src = fs.readFileSync(closeBlockModalPath, 'utf8');
+  const fields = src.match(/<Field\b/g) || [];
+  const trackingLabels = src.match(/block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1/g) || [];
+  assert.equal(fields.length, 0, `Expected 0 <Field in CloseBlockModal.tsx, found ${fields.length}`);
+  assert.ok(trackingLabels.length >= 2, `Expected at least 2 tracking-wider labels in CloseBlockModal.tsx, found ${trackingLabels.length}`);
+});
+
+check('27. CloseBlockModal.tsx preserves border-gray-300 on both <TextInput and size="sm"/font-mono/font-bold/parseInt on minutes', () => {
+  const src = fs.readFileSync(closeBlockModalPath, 'utf8');
+  const textInputs = src.match(/<TextInput[\s\S]*?\/>/g) || [];
+  assert.equal(textInputs.length, 2, `Expected 2 <TextInput ... /> blocks in CloseBlockModal.tsx, found ${textInputs.length}`);
+  assert.ok(textInputs[0].includes('size="sm"'), 'Minutes <TextInput> must pass size="sm"');
+  assert.ok(textInputs[0].includes('border-gray-300') && textInputs[0].includes('font-mono') && textInputs[0].includes('font-bold'), 'Minutes <TextInput> must preserve border-gray-300, font-mono, and font-bold');
+  assert.ok(textInputs[0].includes('parseInt(e.target.value, 10) || 0'), 'Minutes <TextInput> must preserve parseInt onChange');
+  assert.ok(textInputs[1].includes('border-gray-300'), 'Notes <TextInput> must preserve border-gray-300');
+  assert.ok(!/size=/.test(textInputs[1]), 'Notes <TextInput> must omit size prop (defaults to xs)');
 });
 
 console.log(`\nFormFields Tests: ${passes} Passed, ${failures} Failed`);

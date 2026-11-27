@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
+import { TextInput } from '../common/FormFields';
 import { apiClient } from '../../src/api/client';
 import type { RunSheetBlock } from '../../types/domain';
 
@@ -131,13 +132,14 @@ export const CloseBlockModal: React.FC<CloseBlockModalProps> = ({
           <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
             Exact minutes
           </label>
-          <input
+          <TextInput
+            size="sm"
             type="number"
             min={1}
             max={720}
             value={actualMinutes}
             onChange={(e) => setActualMinutes(parseInt(e.target.value, 10) || 0)}
-            className="w-full px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-card-dark font-mono text-sm font-bold"
+            className="border-gray-300 dark:bg-card-dark font-mono font-bold"
             required
           />
         </div>
@@ -147,12 +149,12 @@ export const CloseBlockModal: React.FC<CloseBlockModalProps> = ({
           <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
             Notes
           </label>
-          <input
+          <TextInput
             type="text"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="e.g. Completed filter swap and condenser coil rinse"
-            className="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-card-dark"
+            className="border-gray-300 dark:bg-card-dark"
           />
         </div>
 
