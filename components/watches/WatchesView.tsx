@@ -4,6 +4,7 @@ import apiClient from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
 import { TabBar } from '../common/TabBar';
+import { EmptyState } from '../common/EmptyState';
 import { WatchCard } from './WatchCard';
 import { DigestSection } from './DigestSection';
 import { SnoozeModal } from './SnoozeModal';
@@ -256,10 +257,13 @@ export const WatchesView: React.FC<WatchesViewProps> = ({ onBack }) => {
 
             {/* Watches Grid */}
             {filteredWatches.length === 0 ? (
-              <div className="py-12 text-center text-text-sub-light dark:text-text-sub-dark border border-dashed border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-card-dark/40 rounded-2xl p-6">
-                <span aria-hidden="true" className="material-symbols-outlined text-gray-400 dark:text-gray-600 text-3xl mb-2 block mx-auto">search</span>
-                <p className="text-sm">No watches match current filter.</p>
-              </div>
+              <EmptyState
+                icon="search"
+                iconClassName="text-3xl text-gray-400 dark:text-gray-600"
+                title="No watches match current filter."
+                titleClassName="text-text-sub-light dark:text-text-sub-dark"
+                tone="faint"
+              />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {filteredWatches.map((w) => (

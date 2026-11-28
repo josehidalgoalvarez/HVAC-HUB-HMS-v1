@@ -158,15 +158,12 @@ for (const fpath of allTsx) {
   }
 }
 
-// Floor lowered 680 -> 669 (Nov 27): the EmptyState/LoadingState series consolidates literal
-// material-symbols spans from views into shared kit components, so each migration removes 1 literal
-// span while the rendered icon count is unchanged. 669 covers the 10 known remaining migrations:
-// 5 empty sites (TicketListView, DayPlanView, StockpileInventoryView x2, PartSearchSection) +
-// 5 loading sites (TicketListView, DayPlanView, BatchBuilderModal, ShoppingListSection, BuyListView).
-// Note: the WatchesView outlier holds 1 more span and would take the floor to 668 if migrated.
+// Floor lowered 669 -> 668 (Nov 28): the EmptyState/LoadingState series consolidates literal
+// material-symbols spans from views into shared kit components, and 668 is the total after
+// migrating the WatchesView outlier (search icon span).
 // Assertion 5.2 (aria-hidden) is unchanged and remains the real accessibility check.
 assert(
-  totalGlyphSpans >= 669,
+  totalGlyphSpans >= 668,
   `5.1 Checked material-symbols glyph spans across codebase (total: ${totalGlyphSpans})`
 );
 assert(

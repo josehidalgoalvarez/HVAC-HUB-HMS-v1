@@ -10,6 +10,7 @@ const dayPlanPath = path.resolve('components/runsheets/DayPlanView.tsx');
 const stockpileViewPath = path.resolve('components/parts/StockpileInventoryView.tsx');
 const partSearchPath = path.resolve('components/parts/PartSearchSection.tsx');
 const buyListPath = path.resolve('components/parts/BuyListView.tsx');
+const watchesViewPath = path.resolve('components/watches/WatchesView.tsx');
 
 const CANONICAL_SHELL =
   'text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800';
@@ -350,6 +351,34 @@ check('26. GUARD: BuyListView.tsx keeps its loading state as <LoadingState', () 
   const loadingStates = src.match(/<LoadingState\b/g) || [];
   assert.equal(loadingStates.length, 1, `Expected 1 <LoadingState in BuyListView.tsx, found ${loadingStates.length}`);
   assert.ok(src.includes('Generating buy list by work order...'), 'BuyListView.tsx loading message missing');
+});
+
+check('27. WatchesView.tsx imports EmptyState from ../common/EmptyState', () => {
+  const src = fs.readFileSync(watchesViewPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bEmptyState\b[^}]*\}\s*from\s*['"]\.\.\/common\/EmptyState['"]/.test(src),
+    'WatchesView.tsx does not import EmptyState from ../common/EmptyState'
+  );
+});
+
+check('28. WatchesView.tsx renders 1 <EmptyState with zero inline empty shell', () => {
+  const src = fs.readFileSync(watchesViewPath, 'utf8');
+  const emptyStates = src.match(/<EmptyState\b/g) || [];
+  const inlineShell = src.match(/py-12 text-center[^"]*border border-dashed border-gray-200 dark:border-gray-800 bg-white\/40/g) || [];
+  assert.equal(emptyStates.length, 1, `Expected 1 <EmptyState in WatchesView.tsx, found ${emptyStates.length}`);
+  assert.equal(inlineShell.length, 0, `Expected 0 inline empty shells in WatchesView.tsx, found ${inlineShell.length}`);
+});
+
+check('29. WatchesView.tsx preserves icon="search", title, iconClassName text-3xl, titleClassName text-text-sub-light, and tone="faint"', () => {
+  const src = fs.readFileSync(watchesViewPath, 'utf8');
+  const blockMatch = src.match(/<EmptyState[\s\S]*?\/>/);
+  assert.ok(blockMatch, 'Missing <EmptyState ... /> block in WatchesView.tsx');
+  const block = blockMatch[0];
+  assert.ok(block.includes('icon="search"'), 'Missing icon="search"');
+  assert.ok(block.includes('iconClassName=') && block.includes('text-3xl'), 'Missing iconClassName with text-3xl');
+  assert.ok(block.includes('title="No watches match current filter."'), 'Missing title');
+  assert.ok(block.includes('titleClassName=') && block.includes('text-text-sub-light'), 'Missing titleClassName with text-text-sub-light');
+  assert.ok(block.includes('tone="faint"'), 'Missing tone="faint"');
 });
 
 console.log(`\nEmptyState Tests: ${passes} Passed, ${failures} Failed`);
