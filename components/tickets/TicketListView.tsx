@@ -4,6 +4,7 @@ import { useSWRData } from '../../src/offline/useSWRData';
 import { useFilteredList } from '../../hooks/useFilteredList';
 import { PullToRefresh } from '../common/PullToRefresh';
 import { TabBar } from '../common/TabBar';
+import { EmptyState } from '../common/EmptyState';
 import { TicketCard } from './TicketCard';
 import { TicketIntakeModal } from './TicketIntakeModal';
 import { TicketDetailView } from './TicketDetailView';
@@ -352,22 +353,22 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
               <p className="text-xs font-semibold">Loading tickets...</p>
             </div>
           ) : filteredTickets.length === 0 ? (
-            <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
-              <span aria-hidden="true" className="material-symbols-outlined text-4xl text-gray-300">task_alt</span>
-              <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                {searchQuery || activeFilter !== 'all' ? 'No matching tickets found' : 'No active tickets'}
-              </p>
-              <p className="text-xs text-gray-400 max-w-xs mx-auto">
-                {searchQuery ? 'Try clearing your search query or filters' : 'Snap a photo or add details to start'}
-              </p>
-              <Button
-                variant="primary"
-                onClick={() => setIsIntakeOpen(true)}
-                className="py-2.5 px-4 text-xs mx-auto shadow-sm"
-              >
-                + New Ticket
-              </Button>
-            </div>
+            <EmptyState
+              icon="task_alt"
+              title={searchQuery || activeFilter !== 'all' ? 'No matching tickets found' : 'No active tickets'}
+              subtitle={searchQuery ? 'Try clearing your search query or filters' : 'Snap a photo or add details to start'}
+              subtitleClassName="text-xs text-gray-400 max-w-xs mx-auto"
+              spacing="normal"
+              action={
+                <Button
+                  variant="primary"
+                  onClick={() => setIsIntakeOpen(true)}
+                  className="py-2.5 px-4 text-xs mx-auto shadow-sm"
+                >
+                  + New Ticket
+                </Button>
+              }
+            />
           ) : (
             <div className="space-y-3">
               {filteredTickets.map((ticket) => (

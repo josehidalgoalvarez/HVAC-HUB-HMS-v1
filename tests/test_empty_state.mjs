@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 const kitPath = path.resolve('components/common/EmptyState.tsx');
 const shoppingListPath = path.resolve('components/parts/ShoppingListSection.tsx');
 const mckayStoragePath = path.resolve('components/parts/McKayStorageMenuView.tsx');
+const ticketListPath = path.resolve('components/tickets/TicketListView.tsx');
 
 const CANONICAL_SHELL =
   'text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800';
@@ -101,6 +102,57 @@ check('9. McKayStorageMenuView.tsx preserves icon, iconClassName, title, subtitl
   assert.ok(blockMatch[0].includes('title="No stockpiles found for McKay site"'), 'Missing title');
   assert.ok(blockMatch[0].includes('subtitle="Stockpiles linked to building #89 will appear here automatically."'), 'Missing subtitle');
   assert.ok(blockMatch[0].includes('subtitleClassName="text-xs text-gray-500"'), 'Missing subtitleClassName="text-xs text-gray-500"');
+});
+
+check('10. TicketListView.tsx imports EmptyState from ../common/EmptyState', () => {
+  const src = fs.readFileSync(ticketListPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bEmptyState\b[^}]*\}\s*from\s*['"]\.\.\/common\/EmptyState['"]/.test(src),
+    'TicketListView.tsx does not import EmptyState from ../common/EmptyState'
+  );
+});
+
+check('11. TicketListView.tsx renders 1 <EmptyState with zero inline canonical shell', () => {
+  const src = fs.readFileSync(ticketListPath, 'utf8');
+  const emptyStates = src.match(/<EmptyState\b/g) || [];
+  const inlineShells = src.match(new RegExp(CANONICAL_SHELL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || [];
+  assert.equal(emptyStates.length, 1, `Expected 1 <EmptyState in TicketListView.tsx, found ${emptyStates.length}`);
+  assert.equal(inlineShells.length, 0, `Expected 0 inline canonical shells in TicketListView.tsx, found ${inlineShells.length}`);
+});
+
+check('12. TicketListView.tsx preserves icon, conditional title/subtitle, subtitleClassName, spacing="normal", and + New Ticket action on <EmptyState>', () => {
+  const src = fs.readFileSync(ticketListPath, 'utf8');
+  const blockMatch = src.match(/<EmptyState[\s\S]*?\/>/);
+  assert.ok(blockMatch, 'Expected <EmptyState ... /> block in TicketListView.tsx');
+  assert.ok(blockMatch[0].includes('icon="task_alt"'), 'Missing icon="task_alt"');
+  assert.ok(
+    blockMatch[0].includes("searchQuery || activeFilter !== 'all' ? 'No matching tickets found' : 'No active tickets'"),
+    'Missing conditional title expression'
+  );
+  assert.ok(
+    blockMatch[0].includes("searchQuery ? 'Try clearing your search query or filters' : 'Snap a photo or add details to start'"),
+    'Missing conditional subtitle expression'
+  );
+  assert.ok(blockMatch[0].includes('subtitleClassName="text-xs text-gray-400 max-w-xs mx-auto"'), 'Missing subtitleClassName');
+  assert.ok(blockMatch[0].includes('spacing="normal"'), 'Missing spacing="normal"');
+  assert.ok(
+    blockMatch[0].includes('action={') &&
+    blockMatch[0].includes('variant="primary"') &&
+    blockMatch[0].includes('setIsIntakeOpen(true)') &&
+    blockMatch[0].includes('+ New Ticket'),
+    'Missing + New Ticket action Button'
+  );
+});
+
+check('13. GUARD: TicketListView.tsx keeps its loading block inline', () => {
+  const src = fs.readFileSync(ticketListPath, 'utf8');
+  assert.ok(
+    src.includes('flex flex-col items-center justify-center py-16 gap-3 text-gray-500'),
+    'TicketListView.tsx loading container missing'
+  );
+  assert.ok(src.includes('animate-spin text-primary'), 'TicketListView.tsx loading spinner missing');
+  assert.ok(src.includes('Loading tickets...'), 'TicketListView.tsx loading text missing');
+  assert.ok(!/LoadingState/.test(src), 'TicketListView.tsx must not reference LoadingState yet');
 });
 
 console.log(`\nEmptyState Tests: ${passes} Passed, ${failures} Failed`);
