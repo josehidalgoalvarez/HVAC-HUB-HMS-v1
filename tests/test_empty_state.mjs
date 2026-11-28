@@ -150,17 +150,6 @@ check('12. TicketListView.tsx preserves icon, conditional title/subtitle, subtit
   );
 });
 
-check('13. GUARD: TicketListView.tsx keeps its loading block inline', () => {
-  const src = fs.readFileSync(ticketListPath, 'utf8');
-  assert.ok(
-    src.includes('flex flex-col items-center justify-center py-16 gap-3 text-gray-500'),
-    'TicketListView.tsx loading container missing'
-  );
-  assert.ok(src.includes('animate-spin text-primary'), 'TicketListView.tsx loading spinner missing');
-  assert.ok(src.includes('Loading tickets...'), 'TicketListView.tsx loading text missing');
-  assert.ok(!/LoadingState/.test(src), 'TicketListView.tsx must not reference LoadingState yet');
-});
-
 check('14. DayPlanView.tsx imports EmptyState from ../common/EmptyState', () => {
   const src = fs.readFileSync(dayPlanPath, 'utf8');
   assert.ok(

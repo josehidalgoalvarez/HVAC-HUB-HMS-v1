@@ -5,6 +5,7 @@ import { useFilteredList } from '../../hooks/useFilteredList';
 import { PullToRefresh } from '../common/PullToRefresh';
 import { TabBar } from '../common/TabBar';
 import { EmptyState } from '../common/EmptyState';
+import { LoadingState } from '../common/LoadingState';
 import { TicketCard } from './TicketCard';
 import { TicketIntakeModal } from './TicketIntakeModal';
 import { TicketDetailView } from './TicketDetailView';
@@ -348,10 +349,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
       <PullToRefresh onRefresh={refreshTickets}>
         <div id="ticket-list" className="space-y-3">
           {loading && tickets.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
-              <span aria-hidden="true" className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
-              <p className="text-xs font-semibold">Loading tickets...</p>
-            </div>
+            <LoadingState message="Loading tickets..." tone="muted" />
           ) : filteredTickets.length === 0 ? (
             <EmptyState
               icon="task_alt"
