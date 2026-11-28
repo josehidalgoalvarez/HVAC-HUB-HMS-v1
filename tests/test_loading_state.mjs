@@ -7,6 +7,7 @@ const ticketListPath = path.resolve('components/tickets/TicketListView.tsx');
 const dayPlanPath = path.resolve('components/runsheets/DayPlanView.tsx');
 const batchBuilderPath = path.resolve('components/runsheets/BatchBuilderModal.tsx');
 const shoppingListPath = path.resolve('components/parts/ShoppingListSection.tsx');
+const buyListPath = path.resolve('components/parts/BuyListView.tsx');
 
 const BASE_SHELL = 'flex flex-col items-center justify-center';
 
@@ -176,6 +177,45 @@ check('18. GUARD: ShoppingListSection.tsx keeps its empty state as <EmptyState',
   const emptyStates = src.match(/<EmptyState\b/g) || [];
   assert.equal(emptyStates.length, 1, `Expected 1 <EmptyState in ShoppingListSection.tsx, found ${emptyStates.length}`);
   assert.ok(src.includes('No parts required for selected tickets'), 'ShoppingListSection.tsx empty state missing');
+});
+
+check('19. BuyListView.tsx imports LoadingState from ../common/LoadingState', () => {
+  const src = fs.readFileSync(buyListPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bLoadingState\b[^}]*\}\s*from\s*['"]\.\.\/common\/LoadingState['"]/.test(src),
+    'BuyListView.tsx does not import LoadingState from ../common/LoadingState'
+  );
+});
+
+check('20. BuyListView.tsx renders 1 <LoadingState with zero inline loading shell', () => {
+  const src = fs.readFileSync(buyListPath, 'utf8');
+  const loadingStates = src.match(/<LoadingState\b/g) || [];
+  const inlineShells = src.match(/flex flex-col items-center justify-center py-16 gap-3 text-gray-400/g) || [];
+  assert.equal(loadingStates.length, 1, `Expected 1 <LoadingState in BuyListView.tsx, found ${loadingStates.length}`);
+  assert.equal(inlineShells.length, 0, `Expected 0 inline loading shells in BuyListView.tsx, found ${inlineShells.length}`);
+});
+
+check('21. BuyListView.tsx preserves message="Generating buy list by work order..." on <LoadingState> with no other props', () => {
+  const src = fs.readFileSync(buyListPath, 'utf8');
+  const blockMatch = src.match(/<LoadingState[\s\S]*?\/>/);
+  assert.ok(blockMatch, 'Missing <LoadingState ... /> block in BuyListView.tsx');
+  const block = blockMatch[0];
+  assert.ok(block.includes('message="Generating buy list by work order..."'), 'Missing message="Generating buy list by work order..."');
+  for (const prop of ['padding=', 'spacing=', 'tone=', 'icon=', 'iconClassName=', 'messageClassName=', 'className=']) {
+    assert.ok(!block.includes(prop), `BuyListView.tsx <LoadingState> must not pass ${prop}`);
+  }
+});
+
+check('22. GUARD: BuyListView.tsx keeps its "No buy list items currently queued" empty block inline', () => {
+  const src = fs.readFileSync(buyListPath, 'utf8');
+  assert.ok(
+    src.includes('text-center py-16 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3'),
+    'BuyListView.tsx inline near-canonical empty container missing'
+  );
+  assert.ok(src.includes('production_quantity_limits'), 'BuyListView.tsx empty icon missing');
+  assert.ok(src.includes('No buy list items currently queued'), 'BuyListView.tsx empty title missing');
+  assert.ok(src.includes('Add Manual Item'), 'BuyListView.tsx Add Manual Item button missing');
+  assert.ok(!/EmptyState/.test(src), 'BuyListView.tsx must not reference EmptyState');
 });
 
 console.log(`\nLoadingState Tests: ${passes} Passed, ${failures} Failed`);

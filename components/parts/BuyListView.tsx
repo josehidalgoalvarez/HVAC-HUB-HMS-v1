@@ -3,6 +3,7 @@ import { apiClient } from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
 import { TextInput, Select, Field } from '../common/FormFields';
+import { LoadingState } from '../common/LoadingState';
 import Button from '../ui/Button';
 import type { ManualBuyItem, ShoppingListResponse, SupplierRecord, Ticket } from '../../types/domain';
 
@@ -758,10 +759,7 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
       {/* Groups List */}
       <PullToRefresh onRefresh={() => handleGenerate()}>
         {loadingList ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-400">
-            <span aria-hidden="true" className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
-            <p className="text-xs font-semibold">Generating buy list by work order...</p>
-          </div>
+          <LoadingState message="Generating buy list by work order..." />
         ) : totalItemsCount === 0 ? (
           <div className="text-center py-16 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
             <span aria-hidden="true" className="material-symbols-outlined text-5xl text-gray-300">production_quantity_limits</span>
