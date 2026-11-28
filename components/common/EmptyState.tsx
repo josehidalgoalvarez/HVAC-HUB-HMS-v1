@@ -3,10 +3,11 @@ import React from 'react';
 const BASE_SHELL =
   'text-center px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800';
 
-const PADDING_CLASSES: Record<'md' | 'sm' | 'lg', string> = {
+const PADDING_CLASSES: Record<'md' | 'sm' | 'lg' | 'xs', string> = {
   md: 'py-12',
   sm: 'py-10',
   lg: 'py-16',
+  xs: 'py-4',
 };
 
 const SPACING_CLASSES: Record<'compact' | 'normal', string> = {
@@ -20,9 +21,10 @@ const TONE_CLASSES: Record<'transparent' | 'subtle' | 'faint', string> = {
   faint: 'bg-white/40 dark:bg-card-dark/40',
 };
 
-const TITLE_SIZE_CLASSES: Record<'sm' | 'base', string> = {
+const TITLE_SIZE_CLASSES: Record<'sm' | 'base' | 'xs', string> = {
   sm: 'text-sm',
   base: 'text-base',
+  xs: 'text-xs',
 };
 
 export interface EmptyStateProps {
@@ -30,13 +32,13 @@ export interface EmptyStateProps {
   iconClassName?: string;
   iconWrapperClassName?: string;
   title: React.ReactNode;
-  titleSize?: 'sm' | 'base';
+  titleSize?: 'sm' | 'base' | 'xs';
   titleClassName?: string;
   subtitle?: React.ReactNode;
   subtitleClassName?: string;
   action?: React.ReactNode;
   spacing?: 'compact' | 'normal';
-  padding?: 'md' | 'sm' | 'lg';
+  padding?: 'md' | 'sm' | 'lg' | 'xs';
   tone?: 'transparent' | 'subtle' | 'faint';
   className?: string;
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { TicketPart } from '../../../types/domain';
 import { formatDate } from '../../../utils/dateUtils';
+import { EmptyState } from '../../common/EmptyState';
 
 interface TicketPartsSectionProps {
   parts: TicketPart[];
@@ -41,9 +42,12 @@ export const TicketPartsSection: React.FC<TicketPartsSectionProps> = ({
         </div>
 
         {parts.length === 0 ? (
-          <div className="p-4 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-xs text-gray-400">
-            No parts ordered for this ticket. Tap "Order Part" to order for any appliance type.
-          </div>
+          <EmptyState
+            title='No parts ordered for this ticket. Tap "Order Part" to order for any appliance type.'
+            titleSize="xs"
+            titleClassName="font-normal text-gray-400"
+            padding="xs"
+          />
         ) : (
           <div className="space-y-2">
             {parts.map(p => (

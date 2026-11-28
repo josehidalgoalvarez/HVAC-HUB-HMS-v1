@@ -12,6 +12,7 @@ const partSearchPath = path.resolve('components/parts/PartSearchSection.tsx');
 const buyListPath = path.resolve('components/parts/BuyListView.tsx');
 const watchesViewPath = path.resolve('components/watches/WatchesView.tsx');
 const batchBuilderPath = path.resolve('components/runsheets/BatchBuilderModal.tsx');
+const ticketPartsPath = path.resolve('components/tickets/detail/TicketPartsSection.tsx');
 
 const CANONICAL_SHELL =
   'text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800';
@@ -414,6 +415,38 @@ check('33. GUARD: BatchBuilderModal.tsx keeps its loading state as <LoadingState
   const loadingStates = src.match(/<LoadingState\b/g) || [];
   assert.equal(loadingStates.length, 1, `Expected 1 <LoadingState in BatchBuilderModal.tsx, found ${loadingStates.length}`);
   assert.ok(src.includes('Loading open tickets...'), 'BatchBuilderModal.tsx loading message missing');
+});
+
+check('34. TicketPartsSection.tsx imports EmptyState from ../../common/EmptyState', () => {
+  const src = fs.readFileSync(ticketPartsPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bEmptyState\b[^}]*\}\s*from\s*['"]\.\.\/\.\.\/common\/EmptyState['"]/.test(src),
+    'TicketPartsSection.tsx does not import EmptyState from ../../common/EmptyState'
+  );
+});
+
+check('35. TicketPartsSection.tsx renders 1 <EmptyState with zero inline empty shell', () => {
+  const src = fs.readFileSync(ticketPartsPath, 'utf8');
+  const emptyStates = src.match(/<EmptyState\b/g) || [];
+  const inlineShell = src.match(/p-4 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-xs text-gray-400/g) || [];
+  assert.equal(emptyStates.length, 1, `Expected 1 <EmptyState in TicketPartsSection.tsx, found ${emptyStates.length}`);
+  assert.equal(inlineShell.length, 0, `Expected 0 inline empty shells in TicketPartsSection.tsx, found ${inlineShell.length}`);
+});
+
+check('36. TicketPartsSection.tsx preserves title, titleSize="xs", titleClassName font-normal, padding="xs", and passes NO icon or action prop', () => {
+  const src = fs.readFileSync(ticketPartsPath, 'utf8');
+  const blockMatch = src.match(/<EmptyState[\s\S]*?\/>/);
+  assert.ok(blockMatch, 'Missing <EmptyState ... /> block in TicketPartsSection.tsx');
+  const block = blockMatch[0];
+  assert.ok(
+    block.includes('No parts ordered for this ticket. Tap "Order Part" to order for any appliance type.'),
+    'Missing title text'
+  );
+  assert.ok(block.includes('titleSize="xs"'), 'Missing titleSize="xs"');
+  assert.ok(block.includes('titleClassName=') && block.includes('font-normal'), 'Missing titleClassName with font-normal');
+  assert.ok(block.includes('padding="xs"'), 'Missing padding="xs"');
+  assert.ok(!block.includes('icon='), 'TicketPartsSection.tsx <EmptyState> must not pass icon prop');
+  assert.ok(!block.includes('action='), 'TicketPartsSection.tsx <EmptyState> must not pass action prop');
 });
 
 console.log(`\nEmptyState Tests: ${passes} Passed, ${failures} Failed`);
