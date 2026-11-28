@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 
 const kitPath = path.resolve('components/common/LoadingState.tsx');
 const ticketListPath = path.resolve('components/tickets/TicketListView.tsx');
+const dayPlanPath = path.resolve('components/runsheets/DayPlanView.tsx');
 
 const BASE_SHELL = 'flex flex-col items-center justify-center';
 
@@ -67,6 +68,38 @@ check('6. GUARD: TicketListView.tsx keeps its empty state as <EmptyState', () =>
   const emptyStates = src.match(/<EmptyState\b/g) || [];
   assert.equal(emptyStates.length, 1, `Expected 1 <EmptyState in TicketListView.tsx, found ${emptyStates.length}`);
   assert.ok(src.includes('No active tickets'), 'TicketListView.tsx empty state missing');
+});
+
+check('7. DayPlanView.tsx imports LoadingState from ../common/LoadingState', () => {
+  const src = fs.readFileSync(dayPlanPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bLoadingState\b[^}]*\}\s*from\s*['"]\.\.\/common\/LoadingState['"]/.test(src),
+    'DayPlanView.tsx does not import LoadingState from ../common/LoadingState'
+  );
+});
+
+check('8. DayPlanView.tsx renders 1 <LoadingState with zero inline loading shell', () => {
+  const src = fs.readFileSync(dayPlanPath, 'utf8');
+  const loadingStates = src.match(/<LoadingState\b/g) || [];
+  const inlineShells = src.match(/flex flex-col items-center justify-center py-16 gap-3 text-gray-500/g) || [];
+  assert.equal(loadingStates.length, 1, `Expected 1 <LoadingState in DayPlanView.tsx, found ${loadingStates.length}`);
+  assert.equal(inlineShells.length, 0, `Expected 0 inline loading shells in DayPlanView.tsx, found ${inlineShells.length}`);
+});
+
+check('9. DayPlanView.tsx preserves message="Loading day-plan route blocks..." and tone="muted" on <LoadingState>', () => {
+  const src = fs.readFileSync(dayPlanPath, 'utf8');
+  const blockMatch = src.match(/<LoadingState[\s\S]*?\/>/);
+  assert.ok(blockMatch, 'Missing <LoadingState ... /> block in DayPlanView.tsx');
+  const block = blockMatch[0];
+  assert.ok(block.includes('message="Loading day-plan route blocks..."'), 'Missing message="Loading day-plan route blocks..."');
+  assert.ok(block.includes('tone="muted"'), 'Missing tone="muted"');
+});
+
+check('10. GUARD: DayPlanView.tsx keeps its empty state as <EmptyState', () => {
+  const src = fs.readFileSync(dayPlanPath, 'utf8');
+  const emptyStates = src.match(/<EmptyState\b/g) || [];
+  assert.equal(emptyStates.length, 1, `Expected 1 <EmptyState in DayPlanView.tsx, found ${emptyStates.length}`);
+  assert.ok(src.includes('No day plan scheduled for'), 'DayPlanView.tsx empty state missing');
 });
 
 console.log(`\nLoadingState Tests: ${passes} Passed, ${failures} Failed`);

@@ -194,17 +194,6 @@ check('16. DayPlanView.tsx preserves icon, dynamic title, text-sub subtitleClass
   );
 });
 
-check('17. GUARD: DayPlanView.tsx keeps its loading block inline', () => {
-  const src = fs.readFileSync(dayPlanPath, 'utf8');
-  assert.ok(
-    src.includes('flex flex-col items-center justify-center py-16 gap-3 text-gray-500'),
-    'DayPlanView.tsx loading container missing'
-  );
-  assert.ok(src.includes('animate-spin text-primary'), 'DayPlanView.tsx loading spinner missing');
-  assert.ok(src.includes('Loading day-plan route blocks...'), 'DayPlanView.tsx loading text missing');
-  assert.ok(!/LoadingState/.test(src), 'DayPlanView.tsx must not reference LoadingState yet');
-});
-
 check("18. EmptyState.tsx supports padding prop ('md' | 'sm', default 'md') without hard-coded py-12 in BASE_SHELL", () => {
   const src = fs.readFileSync(kitPath, 'utf8');
   const baseShellMatch = src.match(/const BASE_SHELL =\s*['"`]([^'"`]+)['"`]/);

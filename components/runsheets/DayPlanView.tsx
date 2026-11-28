@@ -3,6 +3,7 @@ import { apiClient } from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
 import { EmptyState } from '../common/EmptyState';
+import { LoadingState } from '../common/LoadingState';
 import { BatchBuilderModal } from './BatchBuilderModal';
 import { CloseBlockModal } from './CloseBlockModal';
 import { Modal } from '../ui/Modal';
@@ -414,10 +415,7 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
       {/* Main Blocks List */}
       <PullToRefresh onRefresh={() => loadDayPlan(currentDate)}>
         {loading && !activeRunSheet ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-500">
-            <span aria-hidden="true" className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
-            <p className="text-xs font-semibold">Loading day-plan route blocks...</p>
-          </div>
+          <LoadingState message="Loading day-plan route blocks..." tone="muted" />
         ) : !activeRunSheet || !activeRunSheet.blocks || activeRunSheet.blocks.length === 0 ? (
           <EmptyState
             icon="event_busy"
