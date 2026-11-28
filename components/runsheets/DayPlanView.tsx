@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { apiClient } from '../../src/api/client';
 import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
+import { EmptyState } from '../common/EmptyState';
 import { BatchBuilderModal } from './BatchBuilderModal';
 import { CloseBlockModal } from './CloseBlockModal';
 import { Modal } from '../ui/Modal';
@@ -418,23 +419,23 @@ export const DayPlanView: React.FC<DayPlanViewProps> = ({
             <p className="text-xs font-semibold">Loading day-plan route blocks...</p>
           </div>
         ) : !activeRunSheet || !activeRunSheet.blocks || activeRunSheet.blocks.length === 0 ? (
-          <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
-            <span aria-hidden="true" className="material-symbols-outlined text-4xl text-gray-300">event_busy</span>
-            <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
-              No day plan scheduled for {currentDate}
-            </p>
-            <p className="text-xs text-text-sub-light dark:text-text-sub-dark max-w-sm mx-auto">
-              Plan a daily route from open tickets grouped by site.
-            </p>
-            <Button
-              variant="primary"
-              onClick={() => setIsBatchBuilderOpen(true)}
-              className="py-2.5 px-4 text-xs mx-auto shadow-sm"
-              icon="alt_route"
-            >
-              Plan Day
-            </Button>
-          </div>
+          <EmptyState
+            icon="event_busy"
+            title={<>No day plan scheduled for {currentDate}</>}
+            subtitle="Plan a daily route from open tickets grouped by site."
+            subtitleClassName="text-xs text-text-sub-light dark:text-text-sub-dark max-w-sm mx-auto"
+            spacing="normal"
+            action={
+              <Button
+                variant="primary"
+                onClick={() => setIsBatchBuilderOpen(true)}
+                className="py-2.5 px-4 text-xs mx-auto shadow-sm"
+                icon="alt_route"
+              >
+                Plan Day
+              </Button>
+            }
+          />
         ) : (
           <div className="space-y-3">
           {activeRunSheet.blocks.map((block) => {

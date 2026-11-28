@@ -6,6 +6,7 @@ const kitPath = path.resolve('components/common/EmptyState.tsx');
 const shoppingListPath = path.resolve('components/parts/ShoppingListSection.tsx');
 const mckayStoragePath = path.resolve('components/parts/McKayStorageMenuView.tsx');
 const ticketListPath = path.resolve('components/tickets/TicketListView.tsx');
+const dayPlanPath = path.resolve('components/runsheets/DayPlanView.tsx');
 
 const CANONICAL_SHELL =
   'text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800';
@@ -153,6 +154,61 @@ check('13. GUARD: TicketListView.tsx keeps its loading block inline', () => {
   assert.ok(src.includes('animate-spin text-primary'), 'TicketListView.tsx loading spinner missing');
   assert.ok(src.includes('Loading tickets...'), 'TicketListView.tsx loading text missing');
   assert.ok(!/LoadingState/.test(src), 'TicketListView.tsx must not reference LoadingState yet');
+});
+
+check('14. DayPlanView.tsx imports EmptyState from ../common/EmptyState', () => {
+  const src = fs.readFileSync(dayPlanPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bEmptyState\b[^}]*\}\s*from\s*['"]\.\.\/common\/EmptyState['"]/.test(src),
+    'DayPlanView.tsx does not import EmptyState from ../common/EmptyState'
+  );
+});
+
+check('15. DayPlanView.tsx renders 1 <EmptyState with zero inline canonical shell', () => {
+  const src = fs.readFileSync(dayPlanPath, 'utf8');
+  const emptyStates = src.match(/<EmptyState\b/g) || [];
+  const inlineShells = src.match(new RegExp(CANONICAL_SHELL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || [];
+  assert.equal(emptyStates.length, 1, `Expected 1 <EmptyState in DayPlanView.tsx, found ${emptyStates.length}`);
+  assert.equal(inlineShells.length, 0, `Expected 0 inline canonical shells in DayPlanView.tsx, found ${inlineShells.length}`);
+});
+
+check('16. DayPlanView.tsx preserves icon, dynamic title, text-sub subtitleClassName, spacing="normal", and Plan Day action on <EmptyState>', () => {
+  const src = fs.readFileSync(dayPlanPath, 'utf8');
+  const blockMatch = src.match(/<EmptyState[\s\S]*?\n\s*\/>/);
+  assert.ok(blockMatch, 'Expected <EmptyState ... /> block in DayPlanView.tsx');
+  assert.ok(blockMatch[0].includes('icon="event_busy"'), 'Missing icon="event_busy"');
+  assert.ok(
+    blockMatch[0].includes('No day plan scheduled for {currentDate}'),
+    'Missing dynamic {currentDate} title interpolation'
+  );
+  assert.ok(
+    blockMatch[0].includes('subtitle="Plan a daily route from open tickets grouped by site."'),
+    'Missing subtitle'
+  );
+  assert.ok(
+    blockMatch[0].includes('subtitleClassName="text-xs text-text-sub-light dark:text-text-sub-dark max-w-sm mx-auto"'),
+    'Missing text-sub subtitleClassName with max-w-sm mx-auto'
+  );
+  assert.ok(blockMatch[0].includes('spacing="normal"'), 'Missing spacing="normal"');
+  assert.ok(
+    blockMatch[0].includes('action={') &&
+    blockMatch[0].includes('variant="primary"') &&
+    blockMatch[0].includes('icon="alt_route"') &&
+    blockMatch[0].includes('setIsBatchBuilderOpen(true)') &&
+    blockMatch[0].includes('Plan Day'),
+    'Missing Plan Day action Button with icon="alt_route"'
+  );
+});
+
+check('17. GUARD: DayPlanView.tsx keeps its loading block inline', () => {
+  const src = fs.readFileSync(dayPlanPath, 'utf8');
+  assert.ok(
+    src.includes('flex flex-col items-center justify-center py-16 gap-3 text-gray-500'),
+    'DayPlanView.tsx loading container missing'
+  );
+  assert.ok(src.includes('animate-spin text-primary'), 'DayPlanView.tsx loading spinner missing');
+  assert.ok(src.includes('Loading day-plan route blocks...'), 'DayPlanView.tsx loading text missing');
+  assert.ok(!/LoadingState/.test(src), 'DayPlanView.tsx must not reference LoadingState yet');
 });
 
 console.log(`\nEmptyState Tests: ${passes} Passed, ${failures} Failed`);
