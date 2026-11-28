@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { PartRecord, Stockpile, HarvestCandidate } from '../../types/domain';
 import { isVerifiedPart } from '../../utils/modelParts';
 import { filterItems } from '../../hooks/useFilteredList';
+import { EmptyState } from '../common/EmptyState';
 
 interface PartSearchSectionProps {
   parts: PartRecord[];
@@ -411,22 +412,26 @@ export const PartSearchSection: React.FC<PartSearchSectionProps> = ({
 
       {/* Parts & Harvest Candidates List */}
       {totalHits === 0 ? (
-        <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3 bg-white/50 dark:bg-card-dark/50">
-          <span aria-hidden="true" className="material-symbols-outlined text-4xl text-gray-300">inventory_2</span>
-          <p className="text-base font-bold text-gray-700 dark:text-gray-300">No matching parts or harvest units found</p>
-          <p className="text-xs text-gray-400 max-w-xs mx-auto">
-            Try searching by part number, appliance type, building or unit, or buy a new replacement part.
-          </p>
-          {onAddPart && (
-            <button
-              onClick={onAddPart}
-              className="min-h-[44px] px-4 py-2 mt-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
-            >
-              <span aria-hidden="true" className="material-symbols-outlined text-[16px]">add_shopping_cart</span>
-              <span>Buy New / Add Part</span>
-            </button>
-          )}
-        </div>
+        <EmptyState
+          icon="inventory_2"
+          title="No matching parts or harvest units found"
+          titleSize="base"
+          subtitle="Try searching by part number, appliance type, building or unit, or buy a new replacement part."
+          subtitleClassName="text-xs text-gray-400 max-w-xs mx-auto"
+          spacing="normal"
+          tone="subtle"
+          action={
+            onAddPart && (
+              <button
+                onClick={onAddPart}
+                className="min-h-[44px] px-4 py-2 mt-2 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+              >
+                <span aria-hidden="true" className="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+                <span>Buy New / Add Part</span>
+              </button>
+            )
+          }
+        />
       ) : (
         <div className="grid gap-4 pb-8">
           {/* Harvest Candidates Ranked First (Stockpile/Vacant - Zero Cost) */}

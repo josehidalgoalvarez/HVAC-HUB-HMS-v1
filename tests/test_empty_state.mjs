@@ -8,6 +8,7 @@ const mckayStoragePath = path.resolve('components/parts/McKayStorageMenuView.tsx
 const ticketListPath = path.resolve('components/tickets/TicketListView.tsx');
 const dayPlanPath = path.resolve('components/runsheets/DayPlanView.tsx');
 const stockpileViewPath = path.resolve('components/parts/StockpileInventoryView.tsx');
+const partSearchPath = path.resolve('components/parts/PartSearchSection.tsx');
 
 const CANONICAL_SHELL =
   'text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800';
@@ -287,6 +288,48 @@ check('22. StockpileInventoryView.tsx filter <EmptyState> preserves search_off, 
     filter.includes('setFilterBelowMinOnly(false)') &&
     filter.includes('Reset filter'),
     'Filter block missing Reset filter action'
+  );
+});
+
+check('23. PartSearchSection.tsx imports EmptyState from ../common/EmptyState', () => {
+  const src = fs.readFileSync(partSearchPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bEmptyState\b[^}]*\}\s*from\s*['"]\.\.\/common\/EmptyState['"]/.test(src),
+    'PartSearchSection.tsx does not import EmptyState from ../common/EmptyState'
+  );
+});
+
+check('24. PartSearchSection.tsx renders 1 <EmptyState with zero inline canonical shell', () => {
+  const src = fs.readFileSync(partSearchPath, 'utf8');
+  const emptyStates = src.match(/<EmptyState\b/g) || [];
+  const inlineShells = src.match(new RegExp(CANONICAL_SHELL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || [];
+  assert.equal(emptyStates.length, 1, `Expected 1 <EmptyState in PartSearchSection.tsx, found ${emptyStates.length}`);
+  assert.equal(inlineShells.length, 0, `Expected 0 inline canonical shells in PartSearchSection.tsx, found ${inlineShells.length}`);
+});
+
+check('25. PartSearchSection.tsx preserves icon inventory_2, titleSize="base", subtitle with max-w-xs mx-auto, spacing="normal", tone="subtle", and conditional Buy New / Add Part action', () => {
+  const src = fs.readFileSync(partSearchPath, 'utf8');
+  const blockMatch = src.match(/<EmptyState[\s\S]*?\n\s*\/>/);
+  assert.ok(blockMatch, 'Missing <EmptyState ... /> block in PartSearchSection.tsx');
+  const block = blockMatch[0];
+  assert.ok(block.includes('icon="inventory_2"'), 'Missing icon="inventory_2"');
+  assert.ok(block.includes('title="No matching parts or harvest units found"'), 'Missing title');
+  assert.ok(block.includes('titleSize="base"'), 'Missing titleSize="base"');
+  assert.ok(
+    block.includes('Try searching by part number, appliance type, building or unit, or buy a new replacement part.'),
+    'Missing subtitle text'
+  );
+  assert.ok(
+    block.includes('subtitleClassName=') && block.includes('max-w-xs mx-auto'),
+    'Missing subtitleClassName with max-w-xs mx-auto'
+  );
+  assert.ok(block.includes('spacing="normal"'), 'Missing spacing="normal"');
+  assert.ok(block.includes('tone="subtle"'), 'Missing tone="subtle"');
+  assert.ok(
+    block.includes('onAddPart &&') &&
+    block.includes('onClick={onAddPart}') &&
+    block.includes('Buy New / Add Part'),
+    'Missing conditional Buy New / Add Part action'
   );
 });
 
