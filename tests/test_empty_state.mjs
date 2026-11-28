@@ -13,6 +13,7 @@ const buyListPath = path.resolve('components/parts/BuyListView.tsx');
 const watchesViewPath = path.resolve('components/watches/WatchesView.tsx');
 const batchBuilderPath = path.resolve('components/runsheets/BatchBuilderModal.tsx');
 const ticketPartsPath = path.resolve('components/tickets/detail/TicketPartsSection.tsx');
+const propertyLandingPath = path.resolve('components/properties/PropertyLandingView.tsx');
 
 const CANONICAL_SHELL =
   'text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800';
@@ -447,6 +448,34 @@ check('36. TicketPartsSection.tsx preserves title, titleSize="xs", titleClassNam
   assert.ok(block.includes('padding="xs"'), 'Missing padding="xs"');
   assert.ok(!block.includes('icon='), 'TicketPartsSection.tsx <EmptyState> must not pass icon prop');
   assert.ok(!block.includes('action='), 'TicketPartsSection.tsx <EmptyState> must not pass action prop');
+});
+
+check('37. PropertyLandingView.tsx imports EmptyState from ../common/EmptyState', () => {
+  const src = fs.readFileSync(propertyLandingPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bEmptyState\b[^}]*\}\s*from\s*['"]\.\.\/common\/EmptyState['"]/.test(src),
+    'PropertyLandingView.tsx does not import EmptyState from ../common/EmptyState'
+  );
+});
+
+check('38. PropertyLandingView.tsx renders 1 <EmptyState with zero inline empty shell', () => {
+  const src = fs.readFileSync(propertyLandingPath, 'utf8');
+  const emptyStates = src.match(/<EmptyState\b/g) || [];
+  const inlineShell = src.match(/text-center py-8 text-text-sub-light dark:text-text-sub-dark bg-gray-50 dark:bg-white\/5 rounded-2xl border-dashed border-2 border-gray-200 dark:border-gray-700/g) || [];
+  assert.equal(emptyStates.length, 1, `Expected 1 <EmptyState in PropertyLandingView.tsx, found ${emptyStates.length}`);
+  assert.equal(inlineShell.length, 0, `Expected 0 inline empty shells in PropertyLandingView.tsx, found ${inlineShell.length}`);
+});
+
+check('39. PropertyLandingView.tsx preserves title, titleClassName text-text-sub-light, padding="sm", tone="subtle", and passes NO icon prop', () => {
+  const src = fs.readFileSync(propertyLandingPath, 'utf8');
+  const blockMatch = src.match(/<EmptyState[\s\S]*?\/>/);
+  assert.ok(blockMatch, 'Missing <EmptyState ... /> block in PropertyLandingView.tsx');
+  const block = blockMatch[0];
+  assert.ok(block.includes('title="No appliances added yet."'), 'Missing title');
+  assert.ok(block.includes('titleClassName=') && block.includes('text-text-sub-light'), 'Missing titleClassName with text-text-sub-light');
+  assert.ok(block.includes('padding="sm"'), 'Missing padding="sm"');
+  assert.ok(block.includes('tone="subtle"'), 'Missing tone="subtle"');
+  assert.ok(!block.includes('icon='), 'PropertyLandingView.tsx <EmptyState> must not pass icon prop');
 });
 
 console.log(`\nEmptyState Tests: ${passes} Passed, ${failures} Failed`);

@@ -7,6 +7,7 @@ import ContactTechModal from '../service/ContactTechModal';
 import { Modal } from '../ui/Modal';
 import IconButton from '../ui/IconButton';
 import Button from '../ui/Button';
+import { EmptyState } from '../common/EmptyState';
 
 interface PropertyLandingViewProps {
   propertyId: string;
@@ -172,9 +173,12 @@ const PropertyLandingView: React.FC<PropertyLandingViewProps> = ({
             ))}
 
             {propertyAppliances.length === 0 && (
-              <div className="text-center py-8 text-text-sub-light dark:text-text-sub-dark bg-gray-50 dark:bg-white/5 rounded-2xl border-dashed border-2 border-gray-200 dark:border-gray-700">
-                <p className="text-sm">No appliances added yet.</p>
-              </div>
+              <EmptyState
+                title="No appliances added yet."
+                titleClassName="text-text-sub-light dark:text-text-sub-dark"
+                padding="sm"
+                tone="subtle"
+              />
             )}
           </div>
         </div>
