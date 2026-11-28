@@ -9,6 +9,7 @@ const ticketListPath = path.resolve('components/tickets/TicketListView.tsx');
 const dayPlanPath = path.resolve('components/runsheets/DayPlanView.tsx');
 const stockpileViewPath = path.resolve('components/parts/StockpileInventoryView.tsx');
 const partSearchPath = path.resolve('components/parts/PartSearchSection.tsx');
+const buyListPath = path.resolve('components/parts/BuyListView.tsx');
 
 const CANONICAL_SHELL =
   'text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800';
@@ -298,6 +299,57 @@ check('25. PartSearchSection.tsx preserves icon inventory_2, titleSize="base", s
     block.includes('Buy New / Add Part'),
     'Missing conditional Buy New / Add Part action'
   );
+});
+
+check('23. BuyListView.tsx imports EmptyState from ../common/EmptyState', () => {
+  const src = fs.readFileSync(buyListPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bEmptyState\b[^}]*\}\s*from\s*['"]\.\.\/common\/EmptyState['"]/.test(src),
+    'BuyListView.tsx does not import EmptyState from ../common/EmptyState'
+  );
+});
+
+check('24. BuyListView.tsx renders 1 <EmptyState with zero inline py-16 empty shell', () => {
+  const src = fs.readFileSync(buyListPath, 'utf8');
+  const emptyStates = src.match(/<EmptyState\b/g) || [];
+  const inlinePy16 = src.match(/text-center py-16 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800/g) || [];
+  assert.equal(emptyStates.length, 1, `Expected 1 <EmptyState in BuyListView.tsx, found ${emptyStates.length}`);
+  assert.equal(inlinePy16.length, 0, `Expected 0 inline py-16 empty shells in BuyListView.tsx, found ${inlinePy16.length}`);
+});
+
+check('25. BuyListView.tsx preserves icon, title, subtitle, padding="lg", spacing="normal", iconClassName text-5xl, titleSize="base", subtitleClassName text-text-sub-light, and Add Manual Item Button', () => {
+  const src = fs.readFileSync(buyListPath, 'utf8');
+  const blockMatch = src.match(/<EmptyState[\s\S]*?\n\s*\/>/);
+  assert.ok(blockMatch, 'Missing <EmptyState ... /> block in BuyListView.tsx');
+  const block = blockMatch[0];
+  assert.ok(block.includes('icon="production_quantity_limits"'), 'Missing icon="production_quantity_limits"');
+  assert.ok(block.includes('iconClassName=') && block.includes('text-5xl'), 'Missing iconClassName with text-5xl');
+  assert.ok(block.includes('title="No buy list items currently queued"'), 'Missing title');
+  assert.ok(block.includes('titleSize="base"'), 'Missing titleSize="base"');
+  assert.ok(
+    block.includes('subtitle="Auto-derived work order parts or manually added items will appear here."'),
+    'Missing subtitle'
+  );
+  assert.ok(
+    block.includes('subtitleClassName=') && block.includes('text-text-sub-light'),
+    'Missing subtitleClassName with text-text-sub-light'
+  );
+  assert.ok(block.includes('padding="lg"'), 'Missing padding="lg"');
+  assert.ok(block.includes('spacing="normal"'), 'Missing spacing="normal"');
+  assert.ok(
+    block.includes('action={') &&
+    block.includes('icon="add"') &&
+    block.includes('setIsAddFormOpen(true)') &&
+    block.includes('Add Manual Item'),
+    'Missing Add Manual Item Button action'
+  );
+});
+
+check('26. GUARD: BuyListView.tsx keeps its loading state as <LoadingState', () => {
+  const src = fs.readFileSync(buyListPath, 'utf8');
+  const loadingStates = src.match(/<LoadingState\b/g) || [];
+  assert.equal(loadingStates.length, 1, `Expected 1 <LoadingState in BuyListView.tsx, found ${loadingStates.length}`);
+  assert.ok(src.includes('Generating buy list by work order...'), 'BuyListView.tsx loading message missing');
 });
 
 console.log(`\nEmptyState Tests: ${passes} Passed, ${failures} Failed`);

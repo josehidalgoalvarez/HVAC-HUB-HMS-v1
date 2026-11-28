@@ -3,9 +3,10 @@ import React from 'react';
 const BASE_SHELL =
   'text-center px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800';
 
-const PADDING_CLASSES: Record<'md' | 'sm', string> = {
+const PADDING_CLASSES: Record<'md' | 'sm' | 'lg', string> = {
   md: 'py-12',
   sm: 'py-10',
+  lg: 'py-16',
 };
 
 const SPACING_CLASSES: Record<'compact' | 'normal', string> = {
@@ -35,7 +36,7 @@ export interface EmptyStateProps {
   subtitleClassName?: string;
   action?: React.ReactNode;
   spacing?: 'compact' | 'normal';
-  padding?: 'md' | 'sm';
+  padding?: 'md' | 'sm' | 'lg';
   tone?: 'transparent' | 'subtle' | 'faint';
   className?: string;
 }

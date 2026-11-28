@@ -4,6 +4,7 @@ import { appCache } from '../../src/offline/cache';
 import { PullToRefresh } from '../common/PullToRefresh';
 import { TextInput, Select, Field } from '../common/FormFields';
 import { LoadingState } from '../common/LoadingState';
+import { EmptyState } from '../common/EmptyState';
 import Button from '../ui/Button';
 import type { ManualBuyItem, ShoppingListResponse, SupplierRecord, Ticket } from '../../types/domain';
 
@@ -761,23 +762,26 @@ export const BuyListView: React.FC<BuyListViewProps> = ({ onBack, onOpenTicket }
         {loadingList ? (
           <LoadingState message="Generating buy list by work order..." />
         ) : totalItemsCount === 0 ? (
-          <div className="text-center py-16 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3">
-            <span aria-hidden="true" className="material-symbols-outlined text-5xl text-gray-300">production_quantity_limits</span>
-            <p className="text-base font-bold text-gray-700 dark:text-gray-300">
-              No buy list items currently queued
-            </p>
-            <p className="text-xs text-text-sub-light dark:text-text-sub-dark max-w-sm mx-auto">
-              Auto-derived work order parts or manually added items will appear here.
-            </p>
-            <Button
-              variant="primary"
-              onClick={() => setIsAddFormOpen(true)}
-              className="py-2.5 px-4 text-xs mx-auto shadow-sm"
-              icon="add"
-            >
-              Add Manual Item
-            </Button>
-          </div>
+          <EmptyState
+            icon="production_quantity_limits"
+            iconClassName="text-5xl text-gray-300"
+            title="No buy list items currently queued"
+            titleSize="base"
+            subtitle="Auto-derived work order parts or manually added items will appear here."
+            subtitleClassName="text-xs text-text-sub-light dark:text-text-sub-dark max-w-sm mx-auto"
+            padding="lg"
+            spacing="normal"
+            action={
+              <Button
+                variant="primary"
+                onClick={() => setIsAddFormOpen(true)}
+                className="py-2.5 px-4 text-xs mx-auto shadow-sm"
+                icon="add"
+              >
+                Add Manual Item
+              </Button>
+            }
+          />
         ) : (
           <div className="space-y-4">
             {/* 1. Ticket Groups */}

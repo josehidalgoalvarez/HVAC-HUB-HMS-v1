@@ -206,17 +206,5 @@ check('21. BuyListView.tsx preserves message="Generating buy list by work order.
   }
 });
 
-check('22. GUARD: BuyListView.tsx keeps its "No buy list items currently queued" empty block inline', () => {
-  const src = fs.readFileSync(buyListPath, 'utf8');
-  assert.ok(
-    src.includes('text-center py-16 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3'),
-    'BuyListView.tsx inline near-canonical empty container missing'
-  );
-  assert.ok(src.includes('production_quantity_limits'), 'BuyListView.tsx empty icon missing');
-  assert.ok(src.includes('No buy list items currently queued'), 'BuyListView.tsx empty title missing');
-  assert.ok(src.includes('Add Manual Item'), 'BuyListView.tsx Add Manual Item button missing');
-  assert.ok(!/EmptyState/.test(src), 'BuyListView.tsx must not reference EmptyState');
-});
-
 console.log(`\nLoadingState Tests: ${passes} Passed, ${failures} Failed`);
 process.exit(failures > 0 ? 1 : 0);
