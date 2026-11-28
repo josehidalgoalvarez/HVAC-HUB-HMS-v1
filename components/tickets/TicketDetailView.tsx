@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { apiClient } from '../../src/api/client';
 import { useData } from '../../hooks/useData';
+import { useModalState } from '../../hooks/useModalState';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import type {
@@ -57,7 +58,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
   const [parts, setParts] = useState<TicketPart[]>([]);
 
   // Log Visit Modal State
-  const [isLogVisitOpen, setIsLogVisitOpen] = useState(false);
+  const visitModal = useModalState();
 
   // Order Part Modal State
   const [isOrderPartOpen, setIsOrderPartOpen] = useState(false);
@@ -221,7 +222,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
         onRunSop={onRunSop}
         onTicketChange={(next) => setTicket(next)}
         onEdit={() => setIsEditModalOpen(true)}
-        onLogVisit={() => setIsLogVisitOpen(true)}
+        onLogVisit={visitModal.open}
         onOrderPart={() => setIsOrderPartOpen(true)}
         onIdentify={() => setIsIdentifyOpen(true)}
         onPruned={loadTicketData}
@@ -341,7 +342,7 @@ export const TicketDetailView: React.FC<TicketDetailViewProps> = ({
 
       {/* Edit Field Modal */}
       <TicketEditModal ticket={ticket} unitAppliances={unitAppliances} open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSaved={loadTicketData} />
-      <TicketVisitModal ticketId={ticketId} noticeNeeded={ticket.notice_needed} noticeSentAt={ticket.notice_sent_at} open={isLogVisitOpen} onClose={() => setIsLogVisitOpen(false)} onSaved={loadTicketData} />
+      <TicketVisitModal ticketId={ticketId} noticeNeeded={ticket.notice_needed} noticeSentAt={ticket.notice_sent_at} open={visitModal.isOpen} onClose={visitModal.close} onSaved={loadTicketData} />
       <TicketOrderPartModal ticketId={ticketId} open={isOrderPartOpen} onClose={() => setIsOrderPartOpen(false)} onSaved={loadTicketData} />
       <TicketIdentifyModal ticketId={ticketId} open={isIdentifyOpen} onClose={() => setIsIdentifyOpen(false)} onSaved={loadTicketData} />
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TicketVisitOutcome, TicketVisitReason } from '../../../types/domain';
 import { formatDateTime } from '../../../utils/dateUtils';
 import { apiClient } from '../../../src/api/client';
+import { useModalState } from '../../../hooks/useModalState';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
 import { Textarea, Field } from '../../common/FormFields';
@@ -28,12 +29,11 @@ export const TicketVisitModal: React.FC<TicketVisitModalProps> = ({
   const [visitNotes, setVisitNotes] = useState('');
   const [visitedAt, setVisitedAt] = useState('');
   const [visitTechName, setVisitTechName] = useState('Jose (Tech)');
-  const [visitSaving, setVisitSaving] = useState(false);
+  const modalState = useModalState();
 
   const handleLogVisit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      setVisitSaving(true);
+    await modalState.submit(async () => {
       await apiClient.logTicketVisit(ticketId, {
         outcome: visitOutcome,
         failure_reason: visitOutcome === 'failed_access' ? visitReason : undefined,
@@ -45,11 +45,7 @@ export const TicketVisitModal: React.FC<TicketVisitModalProps> = ({
       setVisitNotes('');
       setVisitedAt('');
       await onSaved();
-    } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Failed to log visit');
-    } finally {
-      setVisitSaving(false);
-    }
+    }, 'Failed to log visit');
   };
 
   if (!open) return null;
@@ -167,6 +163,10 @@ export const TicketVisitModal: React.FC<TicketVisitModalProps> = ({
               </Field>
             </div>
 
+            {modalState.error && (
+              <div className="p-3 text-xs bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-300 rounded-xl">{modalState.error}</div>
+            )}
+
             <div className="flex gap-2 pt-2">
               <Button
                 type="button"
@@ -180,9 +180,9 @@ export const TicketVisitModal: React.FC<TicketVisitModalProps> = ({
                 type="submit"
                 variant="primary"
                 className="flex-1 min-h-[44px] py-2 text-xs font-bold shadow-sm"
-                disabled={visitSaving}
+                disabled={modalState.submitting}
               >
-                {visitSaving ? 'Recording...' : 'Log Visit'}
+                {modalState.submitting ? 'Recording...' : 'Log Visit'}
               </Button>
             </div>
           </form>
