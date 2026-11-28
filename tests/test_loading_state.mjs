@@ -133,19 +133,6 @@ check('13. BatchBuilderModal.tsx preserves message="Loading open tickets...", pa
   assert.ok(block.includes('messageClassName="text-xs"') && !block.includes('font-semibold'), 'Missing messageClassName="text-xs" without font-semibold');
 });
 
-check('14. GUARD: BatchBuilderModal.tsx keeps its "No open tickets available to schedule." block inline', () => {
-  const src = fs.readFileSync(batchBuilderPath, 'utf8');
-  assert.ok(
-    src.includes('text-center py-10 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl'),
-    'BatchBuilderModal.tsx inline non-canonical empty container missing'
-  );
-  assert.ok(
-    src.includes('text-sm font-semibold text-gray-500">No open tickets available to schedule.'),
-    'BatchBuilderModal.tsx inline empty message missing'
-  );
-  assert.ok(!/EmptyState/.test(src), 'BatchBuilderModal.tsx must not reference EmptyState');
-});
-
 check('15. ShoppingListSection.tsx imports LoadingState from ../common/LoadingState', () => {
   const src = fs.readFileSync(shoppingListPath, 'utf8');
   assert.ok(

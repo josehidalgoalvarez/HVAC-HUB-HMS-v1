@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { LoadingState } from '../common/LoadingState';
+import { EmptyState } from '../common/EmptyState';
 import { apiClient } from '../../src/api/client';
 import { isFixtureTicket } from '../../utils/insights';
 import type { Ticket, RunSheetBlock, BatchSuggestionResult, RunSheet } from '../../types/domain';
@@ -217,9 +218,11 @@ export const BatchBuilderModal: React.FC<BatchBuilderModalProps> = ({
               messageClassName="text-xs"
             />
           ) : tickets.length === 0 ? (
-            <div className="text-center py-10 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
-              <p className="text-sm font-semibold text-gray-500">No open tickets available to schedule.</p>
-            </div>
+            <EmptyState
+              title="No open tickets available to schedule."
+              titleClassName="font-semibold text-gray-500"
+              padding="sm"
+            />
           ) : (
             <div className="space-y-2 max-h-[55vh] overflow-y-auto pr-1">
               {tickets.map((t) => {

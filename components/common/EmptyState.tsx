@@ -26,7 +26,7 @@ const TITLE_SIZE_CLASSES: Record<'sm' | 'base', string> = {
 };
 
 export interface EmptyStateProps {
-  icon: string;
+  icon?: string;
   iconClassName?: string;
   iconWrapperClassName?: string;
   title: React.ReactNode;
@@ -69,15 +69,15 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     .filter(Boolean)
     .join(' ');
 
-  const iconEl = (
+  const iconEl = icon ? (
     <span aria-hidden="true" className={`material-symbols-outlined ${iconClassName}`}>
       {icon}
     </span>
-  );
+  ) : null;
 
   return (
     <div className={containerClasses}>
-      {iconWrapperClassName ? <div className={iconWrapperClassName}>{iconEl}</div> : iconEl}
+      {iconEl && (iconWrapperClassName ? <div className={iconWrapperClassName}>{iconEl}</div> : iconEl)}
       <p className={`${TITLE_SIZE_CLASSES[titleSize]} ${titleClassName}`}>{title}</p>
       {subtitle && <p className={subtitleClassName}>{subtitle}</p>}
       {action}

@@ -11,6 +11,7 @@ const stockpileViewPath = path.resolve('components/parts/StockpileInventoryView.
 const partSearchPath = path.resolve('components/parts/PartSearchSection.tsx');
 const buyListPath = path.resolve('components/parts/BuyListView.tsx');
 const watchesViewPath = path.resolve('components/watches/WatchesView.tsx');
+const batchBuilderPath = path.resolve('components/runsheets/BatchBuilderModal.tsx');
 
 const CANONICAL_SHELL =
   'text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800';
@@ -379,6 +380,40 @@ check('29. WatchesView.tsx preserves icon="search", title, iconClassName text-3x
   assert.ok(block.includes('title="No watches match current filter."'), 'Missing title');
   assert.ok(block.includes('titleClassName=') && block.includes('text-text-sub-light'), 'Missing titleClassName with text-text-sub-light');
   assert.ok(block.includes('tone="faint"'), 'Missing tone="faint"');
+});
+
+check('30. BatchBuilderModal.tsx imports EmptyState from ../common/EmptyState', () => {
+  const src = fs.readFileSync(batchBuilderPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bEmptyState\b[^}]*\}\s*from\s*['"]\.\.\/common\/EmptyState['"]/.test(src),
+    'BatchBuilderModal.tsx does not import EmptyState from ../common/EmptyState'
+  );
+});
+
+check('31. BatchBuilderModal.tsx renders 1 <EmptyState with zero inline empty shell', () => {
+  const src = fs.readFileSync(batchBuilderPath, 'utf8');
+  const emptyStates = src.match(/<EmptyState\b/g) || [];
+  const inlineShell = src.match(/text-center py-10 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl/g) || [];
+  assert.equal(emptyStates.length, 1, `Expected 1 <EmptyState in BatchBuilderModal.tsx, found ${emptyStates.length}`);
+  assert.equal(inlineShell.length, 0, `Expected 0 inline empty shells in BatchBuilderModal.tsx, found ${inlineShell.length}`);
+});
+
+check('32. BatchBuilderModal.tsx preserves title, titleClassName font-semibold, padding="sm", and passes NO icon prop', () => {
+  const src = fs.readFileSync(batchBuilderPath, 'utf8');
+  const blockMatch = src.match(/<EmptyState[\s\S]*?\/>/);
+  assert.ok(blockMatch, 'Missing <EmptyState ... /> block in BatchBuilderModal.tsx');
+  const block = blockMatch[0];
+  assert.ok(block.includes('title="No open tickets available to schedule."'), 'Missing title');
+  assert.ok(block.includes('titleClassName=') && block.includes('font-semibold'), 'Missing titleClassName with font-semibold');
+  assert.ok(block.includes('padding="sm"'), 'Missing padding="sm"');
+  assert.ok(!block.includes('icon='), 'BatchBuilderModal.tsx <EmptyState> must not pass icon prop');
+});
+
+check('33. GUARD: BatchBuilderModal.tsx keeps its loading state as <LoadingState', () => {
+  const src = fs.readFileSync(batchBuilderPath, 'utf8');
+  const loadingStates = src.match(/<LoadingState\b/g) || [];
+  assert.equal(loadingStates.length, 1, `Expected 1 <LoadingState in BatchBuilderModal.tsx, found ${loadingStates.length}`);
+  assert.ok(src.includes('Loading open tickets...'), 'BatchBuilderModal.tsx loading message missing');
 });
 
 console.log(`\nEmptyState Tests: ${passes} Passed, ${failures} Failed`);
