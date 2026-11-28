@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../../src/api/client';
 import Button from '../ui/Button';
+import { EmptyState } from '../common/EmptyState';
 import type { ShoppingListResponse, Ticket } from '../../types/domain';
 
 interface ShoppingListSectionProps {
@@ -153,11 +154,11 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
           <p className="text-xs font-semibold">Building buy list...</p>
         </div>
       ) : !shoppingList || shoppingList.items.length === 0 ? (
-        <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-2">
-          <span aria-hidden="true" className="material-symbols-outlined text-4xl text-gray-300">production_quantity_limits</span>
-          <p className="text-sm font-bold text-gray-700 dark:text-gray-300">No parts required for selected tickets</p>
-          <p className="text-xs text-gray-400">Select open tickets that need parts.</p>
-        </div>
+        <EmptyState
+          icon="production_quantity_limits"
+          title="No parts required for selected tickets"
+          subtitle="Select open tickets that need parts."
+        />
       ) : (
         <div className="space-y-3">
           {/* Summary metrics bar */}
