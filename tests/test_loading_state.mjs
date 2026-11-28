@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 const kitPath = path.resolve('components/common/LoadingState.tsx');
 const ticketListPath = path.resolve('components/tickets/TicketListView.tsx');
 const dayPlanPath = path.resolve('components/runsheets/DayPlanView.tsx');
+const batchBuilderPath = path.resolve('components/runsheets/BatchBuilderModal.tsx');
 
 const BASE_SHELL = 'flex flex-col items-center justify-center';
 
@@ -100,6 +101,47 @@ check('10. GUARD: DayPlanView.tsx keeps its empty state as <EmptyState', () => {
   const emptyStates = src.match(/<EmptyState\b/g) || [];
   assert.equal(emptyStates.length, 1, `Expected 1 <EmptyState in DayPlanView.tsx, found ${emptyStates.length}`);
   assert.ok(src.includes('No day plan scheduled for'), 'DayPlanView.tsx empty state missing');
+});
+
+check('11. BatchBuilderModal.tsx imports LoadingState from ../common/LoadingState', () => {
+  const src = fs.readFileSync(batchBuilderPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bLoadingState\b[^}]*\}\s*from\s*['"]\.\.\/common\/LoadingState['"]/.test(src),
+    'BatchBuilderModal.tsx does not import LoadingState from ../common/LoadingState'
+  );
+});
+
+check('12. BatchBuilderModal.tsx renders 1 <LoadingState with zero inline loading shell', () => {
+  const src = fs.readFileSync(batchBuilderPath, 'utf8');
+  const loadingStates = src.match(/<LoadingState\b/g) || [];
+  const inlineShells = src.match(/flex flex-col items-center justify-center py-12 gap-2 text-gray-400/g) || [];
+  assert.equal(loadingStates.length, 1, `Expected 1 <LoadingState in BatchBuilderModal.tsx, found ${loadingStates.length}`);
+  assert.equal(inlineShells.length, 0, `Expected 0 inline loading shells in BatchBuilderModal.tsx, found ${inlineShells.length}`);
+});
+
+check('13. BatchBuilderModal.tsx preserves message="Loading open tickets...", padding="md", spacing="compact", iconClassName text-3xl, and messageClassName="text-xs"', () => {
+  const src = fs.readFileSync(batchBuilderPath, 'utf8');
+  const blockMatch = src.match(/<LoadingState[\s\S]*?\/>/);
+  assert.ok(blockMatch, 'Missing <LoadingState ... /> block in BatchBuilderModal.tsx');
+  const block = blockMatch[0];
+  assert.ok(block.includes('message="Loading open tickets..."'), 'Missing message="Loading open tickets..."');
+  assert.ok(block.includes('padding="md"'), 'Missing padding="md"');
+  assert.ok(block.includes('spacing="compact"'), 'Missing spacing="compact"');
+  assert.ok(block.includes('iconClassName=') && block.includes('text-3xl'), 'Missing iconClassName with text-3xl');
+  assert.ok(block.includes('messageClassName="text-xs"') && !block.includes('font-semibold'), 'Missing messageClassName="text-xs" without font-semibold');
+});
+
+check('14. GUARD: BatchBuilderModal.tsx keeps its "No open tickets available to schedule." block inline', () => {
+  const src = fs.readFileSync(batchBuilderPath, 'utf8');
+  assert.ok(
+    src.includes('text-center py-10 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl'),
+    'BatchBuilderModal.tsx inline non-canonical empty container missing'
+  );
+  assert.ok(
+    src.includes('text-sm font-semibold text-gray-500">No open tickets available to schedule.'),
+    'BatchBuilderModal.tsx inline empty message missing'
+  );
+  assert.ok(!/EmptyState/.test(src), 'BatchBuilderModal.tsx must not reference EmptyState');
 });
 
 console.log(`\nLoadingState Tests: ${passes} Passed, ${failures} Failed`);
