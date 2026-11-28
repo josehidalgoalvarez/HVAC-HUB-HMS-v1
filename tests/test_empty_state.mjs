@@ -72,17 +72,6 @@ check('5. ShoppingListSection.tsx preserves icon, title, and subtitle on <EmptyS
   assert.ok(blockMatch[0].includes('subtitle="Select open tickets that need parts."'), 'Missing subtitle');
 });
 
-check('6. GUARD: ShoppingListSection.tsx keeps its loading block inline', () => {
-  const src = fs.readFileSync(shoppingListPath, 'utf8');
-  assert.ok(
-    src.includes('flex flex-col items-center justify-center py-12 gap-3 text-gray-400'),
-    'ShoppingListSection.tsx loading container missing'
-  );
-  assert.ok(src.includes('animate-spin text-primary'), 'ShoppingListSection.tsx loading spinner missing');
-  assert.ok(src.includes('Building buy list...'), 'ShoppingListSection.tsx loading text missing');
-  assert.ok(!/LoadingState/.test(src), 'ShoppingListSection.tsx must not reference LoadingState yet');
-});
-
 check('7. McKayStorageMenuView.tsx imports EmptyState from ../common/EmptyState', () => {
   const src = fs.readFileSync(mckayStoragePath, 'utf8');
   assert.ok(

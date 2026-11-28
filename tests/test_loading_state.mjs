@@ -6,6 +6,7 @@ const kitPath = path.resolve('components/common/LoadingState.tsx');
 const ticketListPath = path.resolve('components/tickets/TicketListView.tsx');
 const dayPlanPath = path.resolve('components/runsheets/DayPlanView.tsx');
 const batchBuilderPath = path.resolve('components/runsheets/BatchBuilderModal.tsx');
+const shoppingListPath = path.resolve('components/parts/ShoppingListSection.tsx');
 
 const BASE_SHELL = 'flex flex-col items-center justify-center';
 
@@ -142,6 +143,39 @@ check('14. GUARD: BatchBuilderModal.tsx keeps its "No open tickets available to 
     'BatchBuilderModal.tsx inline empty message missing'
   );
   assert.ok(!/EmptyState/.test(src), 'BatchBuilderModal.tsx must not reference EmptyState');
+});
+
+check('15. ShoppingListSection.tsx imports LoadingState from ../common/LoadingState', () => {
+  const src = fs.readFileSync(shoppingListPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bLoadingState\b[^}]*\}\s*from\s*['"]\.\.\/common\/LoadingState['"]/.test(src),
+    'ShoppingListSection.tsx does not import LoadingState from ../common/LoadingState'
+  );
+});
+
+check('16. ShoppingListSection.tsx renders 1 <LoadingState with zero inline loading shell', () => {
+  const src = fs.readFileSync(shoppingListPath, 'utf8');
+  const loadingStates = src.match(/<LoadingState\b/g) || [];
+  const inlineShells = src.match(/flex flex-col items-center justify-center py-12 gap-3 text-gray-400/g) || [];
+  assert.equal(loadingStates.length, 1, `Expected 1 <LoadingState in ShoppingListSection.tsx, found ${loadingStates.length}`);
+  assert.equal(inlineShells.length, 0, `Expected 0 inline loading shells in ShoppingListSection.tsx, found ${inlineShells.length}`);
+});
+
+check('17. ShoppingListSection.tsx preserves message="Building buy list...", padding="md", and iconClassName text-3xl on <LoadingState>', () => {
+  const src = fs.readFileSync(shoppingListPath, 'utf8');
+  const blockMatch = src.match(/<LoadingState[\s\S]*?\/>/);
+  assert.ok(blockMatch, 'Missing <LoadingState ... /> block in ShoppingListSection.tsx');
+  const block = blockMatch[0];
+  assert.ok(block.includes('message="Building buy list..."'), 'Missing message="Building buy list..."');
+  assert.ok(block.includes('padding="md"'), 'Missing padding="md"');
+  assert.ok(block.includes('iconClassName=') && block.includes('text-3xl'), 'Missing iconClassName with text-3xl');
+});
+
+check('18. GUARD: ShoppingListSection.tsx keeps its empty state as <EmptyState', () => {
+  const src = fs.readFileSync(shoppingListPath, 'utf8');
+  const emptyStates = src.match(/<EmptyState\b/g) || [];
+  assert.equal(emptyStates.length, 1, `Expected 1 <EmptyState in ShoppingListSection.tsx, found ${emptyStates.length}`);
+  assert.ok(src.includes('No parts required for selected tickets'), 'ShoppingListSection.tsx empty state missing');
 });
 
 console.log(`\nLoadingState Tests: ${passes} Passed, ${failures} Failed`);

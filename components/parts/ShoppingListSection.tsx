@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiClient } from '../../src/api/client';
 import Button from '../ui/Button';
 import { EmptyState } from '../common/EmptyState';
+import { LoadingState } from '../common/LoadingState';
 import type { ShoppingListResponse, Ticket } from '../../types/domain';
 
 interface ShoppingListSectionProps {
@@ -149,10 +150,11 @@ export const ShoppingListSection: React.FC<ShoppingListSectionProps> = ({ onOpen
 
       {/* Generated Shopping List Output */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-12 gap-3 text-gray-400">
-          <span aria-hidden="true" className="material-symbols-outlined text-3xl animate-spin text-primary">sync</span>
-          <p className="text-xs font-semibold">Building buy list...</p>
-        </div>
+        <LoadingState
+          message="Building buy list..."
+          padding="md"
+          iconClassName="text-3xl animate-spin text-primary"
+        />
       ) : !shoppingList || shoppingList.items.length === 0 ? (
         <EmptyState
           icon="production_quantity_limits"
