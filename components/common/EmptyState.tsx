@@ -1,7 +1,12 @@
 import React from 'react';
 
 const BASE_SHELL =
-  'text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800';
+  'text-center px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800';
+
+const PADDING_CLASSES: Record<'md' | 'sm', string> = {
+  md: 'py-12',
+  sm: 'py-10',
+};
 
 const SPACING_CLASSES: Record<'compact' | 'normal', string> = {
   compact: 'space-y-2',
@@ -30,6 +35,7 @@ export interface EmptyStateProps {
   subtitleClassName?: string;
   action?: React.ReactNode;
   spacing?: 'compact' | 'normal';
+  padding?: 'md' | 'sm';
   tone?: 'transparent' | 'subtle' | 'faint';
   className?: string;
 }
@@ -48,11 +54,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   subtitleClassName = 'text-xs text-gray-400',
   action,
   spacing = 'compact',
+  padding = 'md',
   tone = 'transparent',
   className = '',
 }) => {
   const containerClasses = [
     BASE_SHELL,
+    PADDING_CLASSES[padding],
     SPACING_CLASSES[spacing],
     TONE_CLASSES[tone],
     className,

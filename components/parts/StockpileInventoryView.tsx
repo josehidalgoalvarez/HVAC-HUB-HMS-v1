@@ -10,6 +10,7 @@ import type { Stockpile, StockpilePartItem, PartRecord, EquipmentItem, Equipment
 import { ExplainableTerm } from '../common/ExplainableTerm';
 import { StatusBadge } from '../common/StatusBadge';
 import { TextInput, Select, Textarea } from '../common/FormFields';
+import { EmptyState } from '../common/EmptyState';
 import { useData } from '../../hooks/useData';
 import { useFilteredList } from '../../hooks/useFilteredList';
 
@@ -692,52 +693,59 @@ export const StockpileInventoryView: React.FC<StockpileInventoryViewProps> = ({
       <PullToRefresh onRefresh={loadData}>
         {items.length === 0 ? (
           /* Honest Empty State for Location */
-          <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-3 bg-white/50 dark:bg-card-dark/50">
-            <div className="w-12 h-12 mx-auto rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-gray-400">
-              <span aria-hidden="true" className="material-symbols-outlined text-3xl">inventory_2</span>
-            </div>
-            <div>
-              <p className="text-base font-bold text-gray-700 dark:text-gray-200">
-                No parts recorded at this location yet
-              </p>
-              <p className="text-xs text-gray-400 max-w-sm mx-auto mt-1">
-                Stock records will reflect here once parts are added or transferred to {stockpile?.name || 'this location'}.
-              </p>
-            </div>
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
-              <button
-                onClick={() => setIsAddPartOpen(true)}
-                className="min-h-[44px] w-full sm:w-auto px-4 py-2.5 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs inline-flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
-              >
-                <span aria-hidden="true" className="material-symbols-outlined text-[16px]">add</span>
-                <span>Add Part to Location</span>
-              </button>
-              {allParts.length > 0 && (
+          <EmptyState
+            icon="inventory_2"
+            iconWrapperClassName="w-12 h-12 mx-auto rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-gray-400"
+            iconClassName="text-3xl"
+            title="No parts recorded at this location yet"
+            titleSize="base"
+            titleClassName="font-bold text-gray-700 dark:text-gray-200"
+            subtitle={<>Stock records will reflect here once parts are added or transferred to {stockpile?.name || 'this location'}.</>}
+            subtitleClassName="text-xs text-gray-400 max-w-sm mx-auto mt-1"
+            spacing="normal"
+            tone="subtle"
+            action={
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
                 <button
-                  onClick={() => setIsTransferOpen(true)}
-                  className="min-h-[44px] w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 text-brand-black dark:text-white font-bold text-xs inline-flex items-center justify-center gap-1.5 border border-gray-200 dark:border-gray-700 active:scale-95 transition-all"
+                  onClick={() => setIsAddPartOpen(true)}
+                  className="min-h-[44px] w-full sm:w-auto px-4 py-2.5 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs inline-flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
                 >
-                  <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">move_down</span>
-                  <span>Transfer from Another Depot</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[16px]">add</span>
+                  <span>Add Part to Location</span>
                 </button>
-              )}
-            </div>
-          </div>
+                {allParts.length > 0 && (
+                  <button
+                    onClick={() => setIsTransferOpen(true)}
+                    className="min-h-[44px] w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 text-brand-black dark:text-white font-bold text-xs inline-flex items-center justify-center gap-1.5 border border-gray-200 dark:border-gray-700 active:scale-95 transition-all"
+                  >
+                    <span aria-hidden="true" className="material-symbols-outlined text-[16px] text-primary">move_down</span>
+                    <span>Transfer from Another Depot</span>
+                  </button>
+                )}
+              </div>
+            }
+          />
         ) : filteredItems.length === 0 ? (
           /* Filter zero hits */
-          <div className="text-center py-10 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-2 bg-white/40 dark:bg-card-dark/40">
-            <span aria-hidden="true" className="material-symbols-outlined text-3xl text-gray-400">search_off</span>
-            <p className="text-sm font-bold text-gray-600 dark:text-gray-300">No parts matching &ldquo;{searchQuery}&rdquo;</p>
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setFilterBelowMinOnly(false);
-              }}
-              className="text-xs text-primary font-bold underline mt-1"
-            >
-              Reset filter
-            </button>
-          </div>
+          <EmptyState
+            icon="search_off"
+            iconClassName="text-3xl text-gray-400"
+            title={<>No parts matching &ldquo;{searchQuery}&rdquo;</>}
+            titleClassName="font-bold text-gray-600 dark:text-gray-300"
+            padding="sm"
+            tone="faint"
+            action={
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setFilterBelowMinOnly(false);
+                }}
+                className="text-xs text-primary font-bold underline mt-1"
+              >
+                Reset filter
+              </button>
+            }
+          />
         ) : (
           /* Inventory Items Grid */
           <div className="space-y-3">

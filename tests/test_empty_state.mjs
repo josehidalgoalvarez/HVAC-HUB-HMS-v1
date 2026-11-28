@@ -7,6 +7,7 @@ const shoppingListPath = path.resolve('components/parts/ShoppingListSection.tsx'
 const mckayStoragePath = path.resolve('components/parts/McKayStorageMenuView.tsx');
 const ticketListPath = path.resolve('components/tickets/TicketListView.tsx');
 const dayPlanPath = path.resolve('components/runsheets/DayPlanView.tsx');
+const stockpileViewPath = path.resolve('components/parts/StockpileInventoryView.tsx');
 
 const CANONICAL_SHELL =
   'text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800';
@@ -36,7 +37,10 @@ check('1. components/common/EmptyState.tsx exists and exports EmptyState', () =>
 check('2. EmptyState.tsx contains shared canonical shell and renders icon span, title, and optional subtitle', () => {
   assert.ok(fs.existsSync(kitPath), 'components/common/EmptyState.tsx does not exist');
   const src = fs.readFileSync(kitPath, 'utf8');
-  assert.ok(src.includes(CANONICAL_SHELL), 'EmptyState.tsx missing canonical shell string');
+  assert.ok(
+    src.includes('text-center px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800'),
+    'EmptyState.tsx missing canonical shell string'
+  );
   assert.ok(src.includes('material-symbols-outlined'), 'EmptyState.tsx missing icon span');
   assert.ok(/\{title\}/.test(src), 'EmptyState.tsx must render title');
   assert.ok(/subtitle\s*\?/.test(src) || /subtitle\s*&&/.test(src), 'EmptyState.tsx must render optional subtitle');
@@ -209,6 +213,81 @@ check('17. GUARD: DayPlanView.tsx keeps its loading block inline', () => {
   assert.ok(src.includes('animate-spin text-primary'), 'DayPlanView.tsx loading spinner missing');
   assert.ok(src.includes('Loading day-plan route blocks...'), 'DayPlanView.tsx loading text missing');
   assert.ok(!/LoadingState/.test(src), 'DayPlanView.tsx must not reference LoadingState yet');
+});
+
+check("18. EmptyState.tsx supports padding prop ('md' | 'sm', default 'md') without hard-coded py-12 in BASE_SHELL", () => {
+  const src = fs.readFileSync(kitPath, 'utf8');
+  const baseShellMatch = src.match(/const BASE_SHELL =\s*['"`]([^'"`]+)['"`]/);
+  assert.ok(baseShellMatch, 'Missing BASE_SHELL in EmptyState.tsx');
+  assert.ok(!baseShellMatch[1].includes('py-12'), 'BASE_SHELL must not hard-code py-12 once padding prop is added');
+  assert.ok(
+    src.includes('PADDING_CLASSES') && src.includes("md: 'py-12'") && src.includes("sm: 'py-10'"),
+    'EmptyState.tsx must define PADDING_CLASSES with md: py-12 and sm: py-10'
+  );
+  assert.ok(/padding\?:\s*'md'\s*\|\s*'sm'/.test(src), "EmptyStateProps must declare padding?: 'md' | 'sm'");
+  assert.ok(/padding\s*=\s*'md'/.test(src), "EmptyState must default padding to 'md'");
+});
+
+check('19. StockpileInventoryView.tsx imports EmptyState from ../common/EmptyState', () => {
+  const src = fs.readFileSync(stockpileViewPath, 'utf8');
+  assert.ok(
+    /import\s*\{[^}]*\bEmptyState\b[^}]*\}\s*from\s*['"]\.\.\/common\/EmptyState['"]/.test(src),
+    'StockpileInventoryView.tsx does not import EmptyState from ../common/EmptyState'
+  );
+});
+
+check('20. StockpileInventoryView.tsx renders 2 <EmptyState with zero inline py-12 or py-10 shells', () => {
+  const src = fs.readFileSync(stockpileViewPath, 'utf8');
+  const emptyStates = src.match(/<EmptyState\b/g) || [];
+  const inlinePy12 = src.match(/text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800/g) || [];
+  const inlinePy10 = src.match(/text-center py-10 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800/g) || [];
+  assert.equal(emptyStates.length, 2, `Expected 2 <EmptyState in StockpileInventoryView.tsx, found ${emptyStates.length}`);
+  assert.equal(inlinePy12.length, 0, `Expected 0 inline py-12 shells in StockpileInventoryView.tsx, found ${inlinePy12.length}`);
+  assert.equal(inlinePy10.length, 0, `Expected 0 inline py-10 shells in StockpileInventoryView.tsx, found ${inlinePy10.length}`);
+});
+
+check('21. StockpileInventoryView.tsx main <EmptyState> preserves wrapped icon, title variants, dynamic subtitle, spacing="normal", tone="subtle", and 2-button conditional action', () => {
+  const src = fs.readFileSync(stockpileViewPath, 'utf8');
+  const blocks = src.match(/<EmptyState[\s\S]*?\n\s*\/>/g) || [];
+  assert.equal(blocks.length, 2, `Expected 2 <EmptyState ... /> blocks in StockpileInventoryView.tsx, found ${blocks.length}`);
+  const main = blocks[0];
+  assert.ok(main.includes('icon="inventory_2"'), 'Main block missing icon="inventory_2"');
+  assert.ok(main.includes('iconWrapperClassName=') && main.includes('w-12 h-12 mx-auto rounded-full'), 'Main block missing iconWrapperClassName');
+  assert.ok(main.includes('iconClassName="text-3xl"'), 'Main block missing iconClassName="text-3xl"');
+  assert.ok(main.includes('title="No parts recorded at this location yet"'), 'Main block missing title');
+  assert.ok(main.includes('titleSize="base"'), 'Main block missing titleSize="base"');
+  assert.ok(main.includes('dark:text-gray-200'), 'Main block missing dark:text-gray-200 in titleClassName');
+  assert.ok(main.includes("stockpile?.name || 'this location'"), 'Main block missing dynamic stockpile?.name fallback');
+  assert.ok(main.includes('max-w-sm mx-auto') && main.includes('mt-1'), 'Main block missing max-w-sm mx-auto mt-1 in subtitleClassName');
+  assert.ok(main.includes('spacing="normal"'), 'Main block missing spacing="normal"');
+  assert.ok(main.includes('tone="subtle"'), 'Main block missing tone="subtle"');
+  assert.ok(
+    main.includes('setIsAddPartOpen(true)') &&
+    main.includes('Add Part to Location') &&
+    main.includes('allParts.length > 0') &&
+    main.includes('setIsTransferOpen(true)') &&
+    main.includes('Transfer from Another Depot'),
+    'Main block missing 2-button conditional action'
+  );
+});
+
+check('22. StockpileInventoryView.tsx filter <EmptyState> preserves search_off, dynamic title, text-gray-600, padding="sm", tone="faint", and Reset filter action', () => {
+  const src = fs.readFileSync(stockpileViewPath, 'utf8');
+  const blocks = src.match(/<EmptyState[\s\S]*?\n\s*\/>/g) || [];
+  assert.equal(blocks.length, 2, `Expected 2 <EmptyState ... /> blocks in StockpileInventoryView.tsx, found ${blocks.length}`);
+  const filter = blocks[1];
+  assert.ok(filter.includes('icon="search_off"'), 'Filter block missing icon="search_off"');
+  assert.ok(filter.includes('iconClassName="text-3xl text-gray-400"'), 'Filter block missing iconClassName="text-3xl text-gray-400"');
+  assert.ok(filter.includes('No parts matching') && filter.includes('{searchQuery}'), 'Filter block missing dynamic {searchQuery} title');
+  assert.ok(filter.includes('text-gray-600'), 'Filter block missing text-gray-600 in titleClassName');
+  assert.ok(filter.includes('padding="sm"'), 'Filter block missing padding="sm"');
+  assert.ok(filter.includes('tone="faint"'), 'Filter block missing tone="faint"');
+  assert.ok(
+    filter.includes("setSearchQuery('')") &&
+    filter.includes('setFilterBelowMinOnly(false)') &&
+    filter.includes('Reset filter'),
+    'Filter block missing Reset filter action'
+  );
 });
 
 console.log(`\nEmptyState Tests: ${passes} Passed, ${failures} Failed`);
