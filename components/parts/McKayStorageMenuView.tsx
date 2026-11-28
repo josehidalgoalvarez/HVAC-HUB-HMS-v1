@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Stockpile } from '../../types/domain';
+import { EmptyState } from '../common/EmptyState';
 
 interface McKayStorageMenuViewProps {
   stockpiles: Stockpile[];
@@ -56,11 +57,13 @@ export const McKayStorageMenuView: React.FC<McKayStorageMenuViewProps> = ({
       {/* Stockpile List */}
       <div className="space-y-3">
         {stockpiles.length === 0 ? (
-          <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 space-y-2">
-            <span aria-hidden="true" className="material-symbols-outlined text-4xl text-gray-400">inventory</span>
-            <p className="text-sm font-bold text-gray-700 dark:text-gray-300">No stockpiles found for McKay site</p>
-            <p className="text-xs text-gray-500">Stockpiles linked to building #89 will appear here automatically.</p>
-          </div>
+          <EmptyState
+            icon="inventory"
+            iconClassName="text-4xl text-gray-400"
+            title="No stockpiles found for McKay site"
+            subtitle="Stockpiles linked to building #89 will appear here automatically."
+            subtitleClassName="text-xs text-gray-500"
+          />
         ) : (
           stockpiles.map(sp => {
             const hasCounts = sp.distinct_parts_count !== undefined || sp.total_units_count !== undefined;
